@@ -91,10 +91,10 @@ app.set('trust proxy', 1);
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*", // Allow all origins for now (dev mode)
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "*", // Allow all origins for now (dev mode)
+        methods: ["GET", "POST"]
+    }
 });
 
 // ============================================
@@ -103,29 +103,29 @@ const io = new Server(server, {
 
 // Helmet: Security headers (XSS, clickjacking, etc.)
 app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for development
-  crossOriginEmbedderPolicy: false,
-  crossOriginResourcePolicy: false
+    contentSecurityPolicy: false, // Disable CSP for development
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false
 }));
 
 app.use(cookieParser());
 
 // Rate limiting: General API protection
 const generalLimiter = rateLimit({
-  windowMs: Number.parseInt(process.env.API_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: Number.parseInt(process.env.API_RATE_LIMIT_MAX) || 500, // 500 requests per 15 min
-  message: { error: 'Too many requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false
+    windowMs: Number.parseInt(process.env.API_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+    max: Number.parseInt(process.env.API_RATE_LIMIT_MAX) || 500, // 500 requests per 15 min
+    message: { error: 'Too many requests, please try again later' },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 // Strict rate limit for authentication endpoints
 const authLimiter = rateLimit({
-  windowMs: Number.parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 60 * 60 * 1000, // 1 hour
-  max: Number.parseInt(process.env.AUTH_RATE_LIMIT_MAX) || 1000, // 1000 requests per 15 min (Relaxed for Dev)
-  message: { error: 'Too many login attempts, please try again in an hour' },
-  standardHeaders: true,
-  legacyHeaders: false
+    windowMs: Number.parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 60 * 60 * 1000, // 1 hour
+    max: Number.parseInt(process.env.AUTH_RATE_LIMIT_MAX) || 1000, // 1000 requests per 15 min (Relaxed for Dev)
+    message: { error: 'Too many login attempts, please try again in an hour' },
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 
@@ -151,17 +151,17 @@ app.get('/api/test/fix-users-schema', async (req, res) => {
 app.get('/api/test/migrate-recovery-console', async (req, res) => {
     try {
         console.log('🔧 Running Admin Recovery Console Migration...');
-        
+
         // 1. Add soft delete columns to patients
         await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP`);
         await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS deleted_by INT`);
         await pool.query(`ALTER TABLE patients ADD COLUMN IF NOT EXISTS deletion_reason TEXT`);
-        
+
         // 2. Add soft delete columns to admissions
         await pool.query(`ALTER TABLE admissions ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP`);
         await pool.query(`ALTER TABLE admissions ADD COLUMN IF NOT EXISTS deleted_by INT`);
         await pool.query(`ALTER TABLE admissions ADD COLUMN IF NOT EXISTS deletion_reason TEXT`);
-        
+
         // 3. Create patient_history table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS patient_history (
@@ -177,7 +177,7 @@ app.get('/api/test/migrate-recovery-console', async (req, res) => {
                 ip_address VARCHAR(45)
             )
         `);
-        
+
         // 4. Create admin_audit_log table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS admin_audit_log (
@@ -198,12 +198,12 @@ app.get('/api/test/migrate-recovery-console', async (req, res) => {
                 created_at TIMESTAMP DEFAULT NOW()
             )
         `);
-        
+
         // 5. Create indexes
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_patient_history_patient ON patient_history(patient_id)`);
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_admin_audit_hospital ON admin_audit_log(hospital_id)`);
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_admin_audit_date ON admin_audit_log(created_at DESC)`);
-        
+
         console.log('✅ Admin Recovery Console Migration Complete');
         res.json({ success: true, message: "Admin Recovery Console migration complete - all tables created" });
     } catch (err) {
@@ -226,7 +226,7 @@ app.get('/api/test/fix-settings-schema', async (req, res) => {
                 updated_at TIMESTAMP DEFAULT NOW()
             );
         `);
-        
+
         // 2. Add Unique Constraint
         /* 
            We use a DO block to safely add the constraint only if it doesn't exist.
@@ -269,13 +269,13 @@ app.get('/api/test/fix-payments-schema', async (req, res) => {
             ALTER TABLE payments ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
             ALTER TABLE payments ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Completed';
         `);
-        
+
         // Create indexes for faster lookups
         await pool.query(`
             CREATE INDEX IF NOT EXISTS idx_payments_visit_id ON payments(visit_id);
             CREATE INDEX IF NOT EXISTS idx_payments_patient_id ON payments(patient_id);
         `);
-        
+
         res.json({ success: true, message: "Fixed payments table schema for OPD cancellation" });
     } catch (err) {
         console.error('Fix Payments Schema Failed:', err);
@@ -299,7 +299,7 @@ app.get('/api/test/fix-payments-type', async (req, res) => {
 app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
     try {
         console.log('🔧 Fixing duplicate bed assignments...');
-        
+
         // Find patients with multiple active admissions
         const duplicates = await pool.query(`
             SELECT patient_id, patient_name, COUNT(*) as count
@@ -308,16 +308,16 @@ app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
             GROUP BY patient_id, patient_name
             HAVING COUNT(*) > 1
         `);
-        
+
         if (duplicates.rows.length === 0) {
             return res.json({ success: true, message: 'No duplicate admissions found', fixed: 0 });
         }
-        
+
         console.log(`Found ${duplicates.rows.length} patients with duplicate admissions`);
-        
+
         let fixed = 0;
         const details = [];
-        
+
         for (const dup of duplicates.rows) {
             // Get all active admissions for this patient, ordered by ID (newest first)
             const admissions = await pool.query(`
@@ -326,12 +326,12 @@ app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
                 WHERE patient_id = $1 AND status = 'Admitted'
                 ORDER BY id DESC
             `, [dup.patient_id]);
-            
+
             if (admissions.rows.length > 1) {
                 // Keep the first one (latest), discharge the rest
                 const keepAdmission = admissions.rows[0];
                 const dischargingIds = admissions.rows.slice(1).map(a => a.id);
-                
+
                 // Set others to discharged
                 await pool.query(`
                     UPDATE admissions 
@@ -340,14 +340,14 @@ app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
                         discharge_notes = 'Auto-fixed: Duplicate admission cleanup'
                     WHERE id = ANY($1)
                 `, [dischargingIds]);
-                
+
                 // Free up the beds
                 const bedsToFree = admissions.rows.slice(1).map(a => a.bed_number);
                 await pool.query(`
                     UPDATE beds SET status = 'Available', current_patient_id = NULL
                     WHERE bed_number = ANY($1)
                 `, [bedsToFree]);
-                
+
                 fixed += dischargingIds.length;
                 details.push({
                     patient: dup.patient_name,
@@ -358,13 +358,13 @@ app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
                 });
             }
         }
-        
+
         console.log(`✅ Fixed ${fixed} duplicate admissions`);
-        res.json({ 
-            success: true, 
-            message: `Fixed ${fixed} duplicate admissions`, 
+        res.json({
+            success: true,
+            message: `Fixed ${fixed} duplicate admissions`,
             fixed,
-            details 
+            details
         });
     } catch (err) {
         console.error('Fix Duplicate Admissions Failed:', err);
@@ -376,17 +376,17 @@ app.get('/api/test/fix-duplicate-admissions', async (req, res) => {
 app.get('/api/test/sync-beds', async (req, res) => {
     try {
         console.log('🔧 Syncing beds with active admissions...');
-        
+
         // Find all beds marked as Occupied
         const occupiedBeds = await pool.query(`
             SELECT id, bed_number, current_patient_id, status 
             FROM beds 
             WHERE status = 'Occupied' OR current_patient_id IS NOT NULL
         `);
-        
+
         let fixed = 0;
         const details = [];
-        
+
         for (const bed of occupiedBeds.rows) {
             // Check if there's an active admission for this bed
             const activeAdmission = await pool.query(`
@@ -395,7 +395,7 @@ app.get('/api/test/sync-beds', async (req, res) => {
                 WHERE bed_number = $1 AND status = 'Admitted'
                 LIMIT 1
             `, [bed.bed_number]);
-            
+
             if (activeAdmission.rows.length === 0) {
                 // No active admission - clear the bed
                 await pool.query(`
@@ -403,7 +403,7 @@ app.get('/api/test/sync-beds', async (req, res) => {
                     SET status = 'Available', current_patient_id = NULL
                     WHERE id = $1
                 `, [bed.id]);
-                
+
                 fixed++;
                 details.push({
                     bed: bed.bed_number,
@@ -413,13 +413,13 @@ app.get('/api/test/sync-beds', async (req, res) => {
                 });
             }
         }
-        
+
         console.log(`✅ Synced ${fixed} beds`);
-        res.json({ 
-            success: true, 
-            message: `Synced ${fixed} beds - cleared orphaned patient references`, 
+        res.json({
+            success: true,
+            message: `Synced ${fixed} beds - cleared orphaned patient references`,
             fixed,
-            details 
+            details
         });
     } catch (err) {
         console.error('Sync Beds Failed:', err);
@@ -431,12 +431,12 @@ app.get('/api/test/sync-beds', async (req, res) => {
 app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
     try {
         console.log('🔧 Starting OPD Payments → Invoices Migration...');
-        
+
         // 1. Ensure invoice_id column exists on payments table
         await pool.query(`
             ALTER TABLE payments ADD COLUMN IF NOT EXISTS invoice_id INTEGER;
         `);
-        
+
         // 2. Find OPD payments (have visit_id) that don't have an invoice
         const payments = await pool.query(`
             SELECT p.id, p.patient_id, p.visit_id, p.amount, 
@@ -448,11 +448,11 @@ app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
             WHERE p.visit_id IS NOT NULL
               AND p.invoice_id IS NULL
         `);
-        
+
         console.log(`Found ${payments.rows.length} OPD payments without invoices`);
-        
+
         let created = 0, skipped = 0, errors = [];
-        
+
         for (const pmt of payments.rows) {
             try {
                 // Check if invoice already exists for this date/amount (idempotent)
@@ -461,9 +461,9 @@ app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
                      AND generated_at::date = $2::date AND total_amount = $3`,
                     [pmt.patient_id, pmt.payment_date, pmt.amount]
                 );
-                
+
                 let invoiceId;
-                
+
                 if (existing.rows.length === 0) {
                     // Create invoice
                     const inv = await pool.query(
@@ -474,7 +474,7 @@ app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
                         [pmt.patient_id, pmt.amount, pmt.amount, pmt.payment_date, pmt.hospital_id || 1]
                     );
                     invoiceId = inv.rows[0].id;
-                    
+
                     // Create invoice item
                     const doctorPart = pmt.doctor_name ? ` - Dr. ${pmt.doctor_name}` : '';
                     const deptPart = pmt.department ? ` (${pmt.department})` : '';
@@ -485,28 +485,28 @@ app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
                          VALUES ($1, $2, 1, $3, $4)`,
                         [invoiceId, description, pmt.amount, pmt.amount]
                     );
-                    
+
                     created++;
                 } else {
                     invoiceId = existing.rows[0].id;
                     skipped++;
                 }
-                
+
                 // Link payment to invoice
                 await pool.query(
                     `UPDATE payments SET invoice_id = $1 WHERE id = $2`,
                     [invoiceId, pmt.id]
                 );
-                
+
             } catch (err) {
                 errors.push({ payment_id: pmt.id, error: err.message });
             }
         }
-        
+
         console.log(`✅ Migration complete: ${created} invoices created, ${skipped} already existed`);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: `Migrated ${created} OPD payments to invoices`,
             stats: {
                 total_payments_scanned: payments.rows.length,
@@ -525,17 +525,17 @@ app.post('/api/test/migrate-opd-to-invoices', async (req, res) => {
 app.get('/api/test/delete-uhids-specific', async (req, res) => {
     try {
         const targetUHIDs = [
-            'KOKILA-0011/2026', 
-            'KOKILA-0006/2026', 
-            'KOKILA-0007/2026', 
-            'KOKILA-0009/2026', 
+            'KOKILA-0011/2026',
+            'KOKILA-0006/2026',
+            'KOKILA-0007/2026',
+            'KOKILA-0009/2026',
             'KOKILA-0002/2026'
         ];
-        
+
         // 1. Get Patient IDs
         const pRes = await pool.query('SELECT id, uhid FROM patients WHERE uhid = ANY($1)', [targetUHIDs]);
         const pIds = pRes.rows.map(r => r.id);
-        
+
         if (pIds.length === 0) return res.json({ success: true, message: "No patients found with those UHIDs" });
 
         // 2. Delete Dependencies (Manual Cascade)
@@ -549,12 +549,12 @@ app.get('/api/test/delete-uhids-specific', async (req, res) => {
         await pool.query('DELETE FROM care_tasks WHERE patient_id = ANY($1)', [pIds]);
         // OPD Visits
         await pool.query('DELETE FROM opd_visits WHERE patient_id = ANY($1)', [pIds]);
-        
+
         // 3. Delete Patients
         await pool.query('DELETE FROM patients WHERE id = ANY($1)', [pIds]);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: `Deleted ${pIds.length} patients and related records.`,
             deletedUHIDs: pRes.rows.map(r => r.uhid)
         });
@@ -587,12 +587,12 @@ app.get('/api/debug/startup-error', (req, res) => {
 app.get('/api/debug/clear-emergencies', async (req, res) => {
     try {
         console.log('🚨 Fixing emergency_logs schema and clearing active emergencies...');
-        
+
         // 1. Fix schema - add missing columns
         await pool.query(`ALTER TABLE emergency_logs ADD COLUMN IF NOT EXISTS resolved_by INTEGER`);
         await pool.query(`ALTER TABLE emergency_logs ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP`);
         await pool.query(`ALTER TABLE emergency_logs ADD COLUMN IF NOT EXISTS hospital_id INTEGER`);
-        
+
         // 2. Force resolve all active emergencies
         const result = await pool.query(`
             UPDATE emergency_logs 
@@ -600,11 +600,11 @@ app.get('/api/debug/clear-emergencies', async (req, res) => {
             WHERE status = 'Active'
             RETURNING id, code, location
         `);
-        
+
         console.log(`✅ Cleared ${result.rowCount} active emergencies`);
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             message: `Cleared ${result.rowCount} active emergencies`,
             resolved: result.rows
         });
@@ -613,24 +613,24 @@ app.get('/api/debug/clear-emergencies', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
-    // [SECURITY] Manual CORS DISABLED - Switching to standard package
-    // app.use((req, res, next) => {
-    //     res.header('Access-Control-Allow-Origin', '*');
-    //     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    //     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    //     if (req.method === 'OPTIONS') {
-    //         return res.sendStatus(200);
-    //     }
-    //     next();
-    // });
-    
-    // Enable Standard CORS
-    app.use(cors({
-        origin: '*', // Allow all origins for dev/cloud
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'x-hospital-id']
-    }));
-    logger.info('DEBUG_STARTUP: Standard CORS Applied');
+// [SECURITY] Manual CORS DISABLED - Switching to standard package
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+//     if (req.method === 'OPTIONS') {
+//         return res.sendStatus(200);
+//     }
+//     next();
+// });
+
+// Enable Standard CORS
+app.use(cors({
+    origin: '*', // Allow all origins for dev/cloud
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Content-Length', 'X-Requested-With', 'x-hospital-id']
+}));
+logger.info('DEBUG_STARTUP: Standard CORS Applied');
 
 logger.info('DEBUG_STARTUP: Applying Body Parser...');
 app.use(express.json({ limit: '10mb' })); // Limit body size
@@ -653,8 +653,8 @@ if (require('node:fs').existsSync(localPublic)) {
 
 // Attach io to request for controllers
 app.use((req, res, next) => {
-  req.io = io;
-  next();
+    req.io = io;
+    next();
 });
 
 // Phase 1: Request ID + Logging Middleware
@@ -662,7 +662,7 @@ app.use(requestIdMiddleware);
 // Reuse existing requestLoggerMiddleware or rely on winston middleware? 
 // Keeping both might be duplicate but specific middleware does specific things.
 // Will disable the old one to avoid noise if redundant, or keep if it does request ID tagging.
-app.use(requestLoggerMiddleware); 
+app.use(requestLoggerMiddleware);
 
 // Phase 2 Multi-Tenancy: Resolve hospital from subdomain/JWT
 app.use(resolveHospital);
@@ -777,7 +777,7 @@ io.on('connection', (socket) => {
 logger.info('DEBUG: Defining Root Route...');
 // Routes
 app.get('/', (req, res) => {
-  res.json({ message: 'Wolf HMS API is running', status: 'OK', version: '1.0.5' });
+    res.json({ message: 'Wolf HMS API is running', status: 'OK', version: '1.0.5' });
 });
 logger.info('DEBUG: Root Route Defined');
 
@@ -796,6 +796,7 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const clinicalRoutes = require('./routes/clinicalRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes'); // [FIX] import missing routes
 const migrationRoutes = require('./routes/migration_routes');
 
 app.use('/api/auth', authRoutes);
@@ -811,7 +812,9 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/clinical', clinicalRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/dashboard', dashboardRoutes); // [FIX] Mount dashboard routes
 app.use('/api/migration', migrationRoutes); // [NEW] Wolf Migrator Routes
+app.use('/api/dashboard', dashboardRoutes); // [FIX] Added missing dashboard endpoint
 const radiologyOrderRoutes = require('./routes/radiologyOrderRoutes');
 
 // Mount Routes
@@ -874,7 +877,7 @@ const chargesRoutes = require('./routes/chargesRoutes'); // Centralized Billing 
 // Wolf Video: Pure WebRTC Video Calling
 const telehealthRoutes = require('./routes/telehealthRoutes');
 const { initializeSignaling } = require('./services/videoSignaling');
-logger.info('✅ All routes imported'); 
+logger.info('✅ All routes imported');
 
 
 // =============================================
@@ -1149,14 +1152,14 @@ const PORT = process.env.PORT || 8080;
 logger.info('DEBUG: PORT IS ' + PORT);
 
 
-  
-  logger.info('DEBUG: FORCE STARTING SERVER (SKIPPED MAIN CHECK)');
-  const MigrationService = require('./services/MigrationService');
-  
+
+logger.info('DEBUG: FORCE STARTING SERVER (SKIPPED MAIN CHECK)');
+const MigrationService = require('./services/MigrationService');
 
 
-  // [CRITICAL FIX] Synchronous Startup with Crash Report
-  async function startServer() {
+
+// [CRITICAL FIX] Synchronous Startup with Crash Report
+async function startServer() {
     try {
         logger.info('🔄 Checking DB Connection...');
         await pool.query('SELECT NOW()');
@@ -1164,7 +1167,7 @@ logger.info('DEBUG: PORT IS ' + PORT);
 
         try {
             logger.info('🔄 Running Migrations...');
-            await MigrationService.runMigrations(); 
+            await MigrationService.runMigrations();
             logger.info('✅ Migrations Check Complete.');
         } catch (error_) {
             logger.warn(`⚠️ Migration Error (Non-Fatal): ${error_.message}`);
@@ -1182,14 +1185,14 @@ logger.info('DEBUG: PORT IS ' + PORT);
         fs.writeFileSync(STARTUP_ERROR_FILE, `TIME: ${new Date().toISOString()}\nERROR: ${err.message}\nSTACK: ${err.stack}`);
         // Do NOT exit. Allow server to start so we can read the error.
     }
-    
+
     // Always start listening (Zombie Mode allowed for debugging)
     server.listen(PORT, '0.0.0.0', () => {
         logger.info(`🚀 Server running on port ${PORT}`);
     });
-  }
+}
 
-  startServer();
+startServer();
 
 
 module.exports = { app, pool, io };

@@ -26,10 +26,10 @@ const getLogs = asyncHandler(async (req, res) => {
     const result = await pool.query(query, params);
     const countResult = await pool.query(countQuery, type ? [type] : []);
 
-    ResponseHandler.success(res, { 
-        logs: result.rows, 
-        totalPages: Math.ceil(countResult.rows[0].count / limit), 
-        currentPage: parseInt(page) 
+    ResponseHandler.success(res, {
+        logs: result.rows,
+        totalPages: Math.ceil(countResult.rows[0].count / limit),
+        currentPage: parseInt(page)
     });
 });
 
@@ -48,7 +48,7 @@ const getRecentPatients = asyncHandler(async (req, res) => {
 // Get Daily Tasks - Multi-Tenant
 const getDailyTasks = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    
+
     const invoiceRes = await pool.query("SELECT COUNT(*) FROM invoices WHERE status = 'Pending' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const pendingInvoices = parseInt(invoiceRes.rows[0].count);
 
@@ -70,11 +70,11 @@ const getDailyTasks = asyncHandler(async (req, res) => {
 // Get Analytics - Multi-Tenant
 const getAnalytics = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    
+
     const revenueRes = await pool.query(`
-        SELECT DATE(generated_at) as date, SUM(total_amount) as total FROM invoices
-        WHERE generated_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
-        GROUP BY DATE(generated_at) ORDER BY DATE(generated_at) ASC
+        SELECT DATE(created_at) as date, SUM(total_amount) as total FROM invoices
+        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
+        GROUP BY DATE(created_at) ORDER BY DATE(created_at) ASC
     `, [hospitalId]);
 
     const patientsRes = await pool.query(`
@@ -89,7 +89,7 @@ const getAnalytics = asyncHandler(async (req, res) => {
 // Get Dashboard Stats - Multi-Tenant
 const getStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    
+
     const patientsRes = await pool.query('SELECT COUNT(*) FROM patients WHERE (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
     const totalPatients = parseInt(patientsRes.rows[0].count);
 
@@ -99,7 +99,7 @@ const getStats = asyncHandler(async (req, res) => {
     const admissionsRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE status = 'Admitted' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const activeAdmissions = parseInt(admissionsRes.rows[0].count);
 
-    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(generated_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(created_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const todayRevenue = parseFloat(revenueRes.rows[0].total);
 
     const staffRes = await pool.query("SELECT role, COUNT(*) FROM users WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY role", [hospitalId]);
@@ -109,14 +109,14 @@ const getStats = asyncHandler(async (req, res) => {
     const pendingRes = await pool.query("SELECT COUNT(*) FROM users WHERE approval_status = 'PENDING' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const pendingApprovals = parseInt(pendingRes.rows[0].count);
 
-    ResponseHandler.success(res, { 
-        totalPatients, 
-        todayOPD, 
-        activeAdmissions, 
-        todayRevenue, 
-        staffByRole, 
-        pendingApprovals, 
-        totalStaff: Object.values(staffByRole).reduce((a, b) => a + b, 0) 
+    ResponseHandler.success(res, {
+        totalPatients,
+        todayOPD,
+        activeAdmissions,
+        todayRevenue,
+        staffByRole,
+        pendingApprovals,
+        totalStaff: Object.values(staffByRole).reduce((a, b) => a + b, 0)
     });
 });
 
@@ -147,7 +147,7 @@ const forceCreatePatient = asyncHandler(async (req, res) => {
     // Insert with explicit UHID and Timestamp
     // Note: We are depending on the DB schema allowing manual Insert into UHID
     const createdAt = manual_created_at || new Date();
-    
+
     const result = await pool.query(`
         INSERT INTO patients (name, phone, dob, gender, address, uhid, created_at, hospital_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
