@@ -1,0 +1,1716 @@
+{
+  "controllers": [
+    {
+      "file": "abdmController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\abdmController.js",
+      "issues": [
+        "Potentially 13 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 14,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 13,
+        "asyncFunctions": 13
+      }
+    },
+    {
+      "file": "adminController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\adminController.js",
+      "issues": [
+        "Potentially 5 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 5,
+        "asyncFunctions": 5
+      }
+    },
+    {
+      "file": "admissionController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\admissionController.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 12,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "aiBillingController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\aiBillingController.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 11,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "aiController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\aiController.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 31,
+        "directJson": 0,
+        "tryCatch": 11,
+        "asyncHandler": 11,
+        "asyncFunctions": 11
+      }
+    },
+    {
+      "file": "alertController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\alertController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 4,
+        "asyncFunctions": 5
+      }
+    },
+    {
+      "file": "anaesthesiaController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\anaesthesiaController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "analyticsController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\analyticsController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 3,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "appointmentController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\appointmentController.js",
+      "issues": [
+        "Potentially 6 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 8,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 6,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "authController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\authController.js",
+      "issues": [
+        "Potentially 16 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 42,
+        "directJson": 1,
+        "tryCatch": 2,
+        "asyncHandler": 18,
+        "asyncFunctions": 18
+      }
+    },
+    {
+      "file": "automationController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\automationController.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 12,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 9,
+        "asyncFunctions": 9
+      }
+    },
+    {
+      "file": "bedController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\bedController.js",
+      "issues": [
+        "Potentially 6 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 6,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "bloodBankController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\bloodBankController.js",
+      "issues": [
+        "Potentially 44 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 55,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 44,
+        "asyncFunctions": 44
+      }
+    },
+    {
+      "file": "carePlanController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\carePlanController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "chatController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\chatController.js",
+      "issues": [
+        "Potentially 1 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 3,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 1,
+        "asyncFunctions": 1
+      }
+    },
+    {
+      "file": "clinicalController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\clinicalController.js",
+      "issues": [
+        "Potentially 11 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 14,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 12,
+        "asyncFunctions": 12
+      }
+    },
+    {
+      "file": "cssdController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\cssdController.js",
+      "issues": [
+        "Potentially 5 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 5,
+        "asyncFunctions": 5
+      }
+    },
+    {
+      "file": "deviceController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\deviceController.js",
+      "issues": [
+        "Potentially 1 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 1,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 1,
+        "asyncFunctions": 1
+      }
+    },
+    {
+      "file": "dietaryController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\dietaryController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "doctorAnalyticsController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\doctorAnalyticsController.js",
+      "issues": [
+        "Potentially 2 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 2,
+        "directJson": 0,
+        "tryCatch": 2,
+        "asyncHandler": 2,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "emergencyController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\emergencyController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "equipmentController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\equipmentController.js",
+      "issues": [
+        "Potentially 11 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 19,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 12,
+        "asyncFunctions": 12
+      }
+    },
+    {
+      "file": "financeController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\financeController.js",
+      "issues": [
+        "Potentially 10 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 20,
+        "directJson": 0,
+        "tryCatch": 3,
+        "asyncHandler": 13,
+        "asyncFunctions": 13
+      }
+    },
+    {
+      "file": "hospitalController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\hospitalController.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 16,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "housekeepingController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\housekeepingController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 4,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "instrumentController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\instrumentController.js",
+      "issues": [
+        "Potentially 13 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 20,
+        "directJson": 0,
+        "tryCatch": 3,
+        "asyncHandler": 13,
+        "asyncFunctions": 16
+      }
+    },
+    {
+      "file": "insuranceController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\insuranceController.js",
+      "issues": [
+        "Potentially 16 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 19,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 16,
+        "asyncFunctions": 16
+      }
+    },
+    {
+      "file": "intraOpController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\intraOpController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "labController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\labController.js",
+      "issues": [
+        "Potentially 36 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 49,
+        "directJson": 0,
+        "tryCatch": 8,
+        "asyncHandler": 39,
+        "asyncFunctions": 44
+      }
+    },
+    {
+      "file": "licenseController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\licenseController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "logisticsController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\logisticsController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 8,
+        "directJson": 0,
+        "tryCatch": 3,
+        "asyncHandler": 6,
+        "asyncFunctions": 7
+      }
+    },
+    {
+      "file": "nurseController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\nurseController.js",
+      "issues": [
+        "Potentially 14 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 14,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 14,
+        "asyncFunctions": 15
+      }
+    },
+    {
+      "file": "opdController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\opdController.js",
+      "issues": [
+        "Potentially 7 async functions without try-catch",
+        "1 bare console.error() calls without context"
+      ],
+      "patterns": {
+        "responseHandler": 14,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "orderSetController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\orderSetController.js",
+      "issues": [
+        "Potentially 1 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 3,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 2,
+        "asyncFunctions": 2
+      }
+    },
+    {
+      "file": "otController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\otController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "pacController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\pacController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "pacuController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\pacuController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 5,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "parkingController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\parkingController.js",
+      "issues": [
+        "Potentially 6 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 11,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 6,
+        "asyncFunctions": 7
+      }
+    },
+    {
+      "file": "patientController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\patientController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 6,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 3,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "paymentController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\paymentController.js",
+      "issues": [
+        "Potentially 2 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 3,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 2,
+        "asyncFunctions": 2
+      }
+    },
+    {
+      "file": "pharmacyController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\pharmacyController.js",
+      "issues": [
+        "Potentially 20 async functions without try-catch",
+        "1 bare console.error() calls without context"
+      ],
+      "patterns": {
+        "responseHandler": 37,
+        "directJson": 0,
+        "tryCatch": 3,
+        "asyncHandler": 23,
+        "asyncFunctions": 23
+      }
+    },
+    {
+      "file": "posController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\posController.js",
+      "issues": [
+        "Potentially 29 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 34,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 29,
+        "asyncFunctions": 29
+      }
+    },
+    {
+      "file": "preauthController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\preauthController.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 10,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "problemListController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\problemListController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 6,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "procedureController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\procedureController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "radiologyController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\radiologyController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 6,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 5,
+        "asyncFunctions": 5
+      }
+    },
+    {
+      "file": "receptionController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\receptionController.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 1,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 1,
+        "asyncFunctions": 1
+      }
+    },
+    {
+      "file": "rosterController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\rosterController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 4,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "handoverController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\security\\handoverController.js",
+      "issues": [
+        "Potentially 2 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 2,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 2,
+        "asyncFunctions": 2
+      }
+    },
+    {
+      "file": "securityController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\securityController.js",
+      "issues": [
+        "Potentially 31 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 40,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 30,
+        "asyncFunctions": 32
+      }
+    },
+    {
+      "file": "settingsController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\settingsController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 4,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "totpController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\totpController.js",
+      "issues": [
+        "Potentially 5 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 18,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 6,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "tpaController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\tpaController.js",
+      "issues": [
+        "Potentially 20 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 22,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 20,
+        "asyncFunctions": 20
+      }
+    },
+    {
+      "file": "transferController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\transferController.js",
+      "issues": [
+        "Potentially 9 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 14,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 10,
+        "asyncFunctions": 10
+      }
+    },
+    {
+      "file": "transitionController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\transitionController.js",
+      "issues": [
+        "Potentially 4 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 4,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "visitorController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\visitorController.js",
+      "issues": [
+        "Potentially 5 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 6,
+        "directJson": 0,
+        "tryCatch": 1,
+        "asyncHandler": 5,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "wardController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\wardController.js",
+      "issues": [
+        "Potentially 10 async functions without try-catch",
+        "1 bare console.error() calls without context"
+      ],
+      "patterns": {
+        "responseHandler": 23,
+        "directJson": 0,
+        "tryCatch": 3,
+        "asyncHandler": 13,
+        "asyncFunctions": 13
+      }
+    },
+    {
+      "file": "wardPassController.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\wardPassController.js",
+      "issues": [
+        "Potentially 3 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 7,
+        "directJson": 0,
+        "tryCatch": 2,
+        "asyncHandler": 3,
+        "asyncFunctions": 5
+      }
+    }
+  ],
+  "routes": [
+    {
+      "file": "abdmRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\abdmRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "adminRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\adminRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (4 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 4,
+        "tryCatch": 3,
+        "asyncHandler": 0,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "admissionRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\admissionRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "aiBillingRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\aiBillingRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "aiRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\aiRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "alertRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\alertRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "anaesthesiaRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\anaesthesiaRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "analyticsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\analyticsRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "appointmentRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\appointmentRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "auditRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\auditRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (5 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 5,
+        "tryCatch": 4,
+        "asyncHandler": 0,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "authRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\authRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "automationRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\automationRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "bedRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\bedRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "bloodBankRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\bloodBankRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "brandingRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\brandingRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (6 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 6,
+        "tryCatch": 8,
+        "asyncHandler": 0,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "carePlanRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\carePlanRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "chatRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\chatRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "clinicalRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\clinicalRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "cloudBackupRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\cloudBackupRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (12 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 12,
+        "tryCatch": 10,
+        "asyncHandler": 0,
+        "asyncFunctions": 10
+      }
+    },
+    {
+      "file": "cssdRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\cssdRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "deviceRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\deviceRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "dietaryRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\dietaryRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "doctorAnalyticsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\doctorAnalyticsRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "emergencyRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\emergencyRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "equipmentRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\equipmentRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "fhirRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\fhirRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (6 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 6,
+        "tryCatch": 5,
+        "asyncHandler": 0,
+        "asyncFunctions": 5
+      }
+    },
+    {
+      "file": "financeRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\financeRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "healthRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\healthRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (9 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 9,
+        "tryCatch": 7,
+        "asyncHandler": 0,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "hospitalRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\hospitalRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "housekeepingRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\housekeepingRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "instrumentRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\instrumentRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "insuranceRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\insuranceRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "intraOpRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\intraOpRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "labRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\labRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (8 times) - consider using ResponseHandler",
+        "6 generic \"Server error\" messages - consider more specific messages"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 8,
+        "tryCatch": 6,
+        "asyncHandler": 0,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "labTestParamsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\labTestParamsRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (12 times) - consider using ResponseHandler",
+        "9 generic \"Server error\" messages - consider more specific messages"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 12,
+        "tryCatch": 10,
+        "asyncHandler": 0,
+        "asyncFunctions": 10
+      }
+    },
+    {
+      "file": "licenseRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\licenseRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "logisticsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\logisticsRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "metricsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\metricsRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (3 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 3,
+        "tryCatch": 4,
+        "asyncHandler": 0,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "migrationRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\migrationRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (3 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 3,
+        "tryCatch": 2,
+        "asyncHandler": 0,
+        "asyncFunctions": 2
+      }
+    },
+    {
+      "file": "nurseRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\nurseRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (4 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 4,
+        "tryCatch": 4,
+        "asyncHandler": 0,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "opdRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\opdRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "orderSetRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\orderSetRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "otRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\otRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "overwatchRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\overwatchRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (3 times) - consider using ResponseHandler",
+        "Potentially 1 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 3,
+        "tryCatch": 2,
+        "asyncHandler": 0,
+        "asyncFunctions": 3
+      }
+    },
+    {
+      "file": "pacRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\pacRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "pacuRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\pacuRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "parkingRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\parkingRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "patientRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\patientRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (55 times) - consider using ResponseHandler",
+        "2 generic \"Server error\" messages - consider more specific messages"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 55,
+        "tryCatch": 30,
+        "asyncHandler": 0,
+        "asyncFunctions": 29
+      }
+    },
+    {
+      "file": "paymentRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\paymentRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "pharmacyRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\pharmacyRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "posRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\posRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "preauthRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\preauthRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "problemListRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\problemListRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "procedureRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\procedureRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "radiologyRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\radiologyRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "receptionRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\receptionRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "rosterRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\rosterRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "securityRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\securityRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "selfhealRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\selfhealRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (7 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 7,
+        "tryCatch": 8,
+        "asyncHandler": 0,
+        "asyncFunctions": 8
+      }
+    },
+    {
+      "file": "sessionRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\sessionRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (6 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 6,
+        "tryCatch": 4,
+        "asyncHandler": 0,
+        "asyncFunctions": 4
+      }
+    },
+    {
+      "file": "settingsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\settingsRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "smsRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\smsRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (15 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 15,
+        "tryCatch": 6,
+        "asyncHandler": 0,
+        "asyncFunctions": 6
+      }
+    },
+    {
+      "file": "supportRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\supportRoutes.js",
+      "issues": [
+        "Uses direct res.status().json() (11 times) - consider using ResponseHandler"
+      ],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 11,
+        "tryCatch": 10,
+        "asyncHandler": 0,
+        "asyncFunctions": 10
+      }
+    },
+    {
+      "file": "totpRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\totpRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "tpaRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\tpaRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "transferRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\transferRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "transitionRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\transitionRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "visitorRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\visitorRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "wardPassRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\wardPassRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "wardRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\wardRoutes.js",
+      "issues": [],
+      "patterns": {
+        "responseHandler": 0,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 0,
+        "asyncFunctions": 0
+      }
+    },
+    {
+      "file": "webhookRoutes.js",
+      "path": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\routes\\webhookRoutes.js",
+      "issues": [
+        "Potentially 8 async functions without try-catch"
+      ],
+      "patterns": {
+        "responseHandler": 11,
+        "directJson": 0,
+        "tryCatch": 0,
+        "asyncHandler": 8,
+        "asyncFunctions": 8
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 129,
+    "usingResponseHandler": 59,
+    "usingDirectJson": 18,
+    "usingAsyncHandler": 59,
+    "missingTryCatch": 0
+  }
+}

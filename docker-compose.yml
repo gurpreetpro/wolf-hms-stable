@@ -1,0 +1,193 @@
+version: '3.8'
+
+# Wolf HMS Microservices Architecture
+# 
+# Services:
+# - wolf-api: Core API (auth, patients, admissions, clinical)
+# - wolf-lims: Lab Information Management (instruments, results)
+# - wolf-billing: Billing & Finance (charges, invoices, payments)
+# - wolf-notify: Notifications (Socket.IO, SMS, Email)
+# - wolf-db: PostgreSQL database
+# - wolf-redis: Redis cache
+
+services:
+  # ============================================
+  # CORE API SERVICE
+  # ============================================
+  wolf-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DB_HOST=wolf-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=wolfhms123
+      - DB_NAME=hospital_db
+      - REDIS_URL=redis://wolf-redis:6379
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+    depends_on:
+      - wolf-db
+      - wolf-redis
+    volumes:
+      - ./server:/app/server
+      - ./client:/app/client
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # LIMS SERVICE
+  # ============================================
+  wolf-lims:
+    build:
+      context: .
+      dockerfile: services/lims-service/Dockerfile
+    ports:
+      - "5001:5001"  # HTTP API
+      - "5501:5501"  # TCP Instruments
+    environment:
+      - NODE_ENV=development
+      - LIMS_PORT=5001
+      - LIMS_TCP_PORT=5501
+      - DB_HOST=wolf-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=wolfhms123
+      - DB_NAME=hospital_db
+      - REDIS_URL=redis://wolf-redis:6379
+    depends_on:
+      - wolf-db
+      - wolf-redis
+    volumes:
+      - ./services/lims-service:/app/services/lims-service
+      - ./services/shared:/app/services/shared
+      - ./server/config:/app/server/config
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # BILLING SERVICE
+  # ============================================
+  wolf-billing:
+    build:
+      context: .
+      dockerfile: services/billing-service/Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=development
+      - BILLING_PORT=5002
+      - DB_HOST=wolf-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=wolfhms123
+      - DB_NAME=hospital_db
+      - REDIS_URL=redis://wolf-redis:6379
+    depends_on:
+      - wolf-db
+      - wolf-redis
+    volumes:
+      - ./services/billing-service:/app/services/billing-service
+      - ./services/shared:/app/services/shared
+      - ./server/config:/app/server/config
+      - ./server/workers:/app/server/workers
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # NOTIFICATION SERVICE
+  # ============================================
+  wolf-notify:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    ports:
+      - "5003:5003"
+    environment:
+      - NODE_ENV=development
+      - NOTIFY_PORT=5003
+      - DB_HOST=wolf-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=wolfhms123
+      - DB_NAME=hospital_db
+      - REDIS_URL=redis://wolf-redis:6379
+    depends_on:
+      - wolf-db
+      - wolf-redis
+    volumes:
+      - ./services/notification-service:/app/services/notification-service
+      - ./services/shared:/app/services/shared
+      - ./server/config:/app/server/config
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================
+  # DATABASE
+  # ============================================
+  wolf-db:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=wolfhms123
+      - POSTGRES_DB=hospital_db
+    volumes:
+      - wolf-db-data:/var/lib/postgresql/data
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # REDIS CACHE
+  # ============================================
+  wolf-redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - wolf-redis-data:/data
+    networks:
+      - wolf-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  wolf-network:
+    driver: bridge
+
+volumes:
+  wolf-db-data:
+  wolf-redis-data:

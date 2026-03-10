@@ -1,0 +1,43 @@
+WOLF HMS LOCAL DATABASE SCAN
+============================
+
+TABLE COUNTS:
+  Hospitals: 3
+  Users: 14
+  Patients: 13
+  Appointments: 0
+  Admissions: 11
+  Beds: 5
+  Wards: 1
+  Medications: NOT FOUND
+  Lab Tests: NOT FOUND
+  Emergency Logs: 2
+  Hospital Settings: 26
+
+HOSPITALS:
+  [3] Dr. Parveen Clinic (drparveen)
+  [1] Kokila Hospital (kokila)
+  [2] Wolf HMS (taneja)
+
+USERS (by role):
+  + admin_kokila [admin]
+  + admin_parveen [admin]
+  + admin_taneja [admin]
+  + admin_user [admin]
+  + audit_admin [admin]
+  + billing_user [billing]
+  + blood_user [blood_bank_tech]
+  + doctor_user [doctor]
+  + lab_user [lab_tech]
+  + nurse_user [nurse]
+  + pharmacy_user [pharmacist]
+  + receptionist_user [receptionist]
+  + gurpreetpro [super_admin]
+  + ward_user [ward_incharge]
+
+LEGACY DATA CHECK:
+  Test Patients: 11
+  Active Emergencies: 0
+
+============================
+SCAN COMPLETE

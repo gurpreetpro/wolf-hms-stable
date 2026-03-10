@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wolf HMS Nurse Station - Clinical Excellence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4aa;
+            --primary-dark: #00a88a;
+            --accent: #a855f7;
+            --bg-dark: #0f0f1a;
+            --bg-card: rgba(255,255,255,0.05);
+            --text-light: #ffffff;
+            --text-muted: #a0a0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 212, 170, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-5%, -5%) rotate(5deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-bottom: 80px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 35px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.2);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .ai-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 60px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: #000;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 212, 170, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Gold Standard Badge */
+        .gold-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            color: #000;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="badge">🏥 Healthcare Technology</div>
+            <h1>WOLF NURSE STATION</h1>
+            <p class="subtitle">
+                AI-Powered Clinical Excellence. Streamline patient care with our comprehensive 
+                nurse dashboard featuring 12+ clinical modules designed for gold-standard healthcare.
+            </p>
+            <div class="gold-badge">⭐ NABH COMPLIANT | GOLD STANDARD CARE</div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">12+</div>
+                <div class="stat-label">Clinical Features</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">AI</div>
+                <div class="stat-label">Powered Intelligence</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">NABH Compliant</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Real-time Sync</div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="ai-badge">AI Powered</div>
+                <div class="feature-icon">📋</div>
+                <h3>Smart Care Plans</h3>
+                <p>AI-generated nursing care plans with diagnosis, goals, and interventions. One-click generation based on patient vitals.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💚</div>
+                <h3>Pain Assessment</h3>
+                <p>Visual 0-10 pain scale with location tracking. Color-coded severity badges and historical trends.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💧</div>
+                <h3>Fluid I/O Balance</h3>
+                <p>Real-time intake/output tracking with 24-hour summaries. Visual cards for quick net balance assessment.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💉</div>
+                <h3>IV Line Management</h3>
+                <p>Track insertion sites, gauge sizes, and removal. Full lifecycle management with timestamped audit trail.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💊</div>
+                <h3>eMAR Medications</h3>
+                <p>Electronic Medication Administration Record. One-click administration with complete audit logging.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Vitals Trend Graphs</h3>
+                <p>Interactive charts showing BP, pulse, temperature, and SpO2 trends over time. Early warning detection.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🧪</div>
+                <h3>Lab Results</h3>
+                <p>Instant access to lab reports with status badges. JSON result viewer for detailed parameters.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3>Consumables Tracking</h3>
+                <p>Record usage per patient. Automatic cost calculation and inventory deduction for billing accuracy.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🩹</div>
+                <h3>Wound Assessment</h3>
+                <p>Document wound location, type, size, appearance, drainage, and dressing. Complete healing progression.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚠️</div>
+                <h3>Fall Risk (Morse)</h3>
+                <p>Standardized Morse Fall Scale assessment. Auto-calculated risk levels with prevention protocols.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h3>NEWS2 Early Warning</h3>
+                <p>National Early Warning Score 2 calculation. Real-time clinical deterioration detection.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Shift Handover</h3>
+                <p>Comprehensive patient status summary for seamless shift transitions. Critical alerts highlighted.</p>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2>Transform Your Nursing Workflow</h2>
+            <p>
+                Join leading hospitals using Wolf HMS Nurse Station to deliver 
+                exceptional patient care with AI-powered efficiency.
+            </p>
+            <a href="#" class="cta-button">Request Demo</a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="logo">🐺 WOLF HMS</div>
+            <p>Enterprise Hospital Management System</p>
+            <p style="margin-top: 10px; opacity: 0.6;">© 2025 Wolf Security Systems. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

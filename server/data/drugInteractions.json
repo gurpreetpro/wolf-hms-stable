@@ -1,0 +1,172 @@
+{
+  "interactions": [
+    {
+      "drug1": "Warfarin",
+      "drug2": "Aspirin",
+      "severity": "severe",
+      "description": "Increased risk of bleeding. Aspirin inhibits platelet function and warfarin inhibits clotting factors.",
+      "recommendation": "Avoid combination unless specifically indicated. Monitor INR closely if used together."
+    },
+    {
+      "drug1": "Metformin",
+      "drug2": "Contrast Dye",
+      "severity": "severe",
+      "description": "Risk of lactic acidosis. Contrast media can cause acute kidney injury, reducing metformin clearance.",
+      "recommendation": "Stop Metformin 48 hours before and after contrast procedures."
+    },
+    {
+      "drug1": "ACE Inhibitors",
+      "drug2": "Potassium",
+      "severity": "severe",
+      "description": "Hyperkalemia risk. ACE inhibitors reduce aldosterone, causing potassium retention.",
+      "recommendation": "Monitor potassium levels regularly. Avoid potassium supplements unless indicated."
+    },
+    {
+      "drug1": "Digoxin",
+      "drug2": "Amiodarone",
+      "severity": "severe",
+      "description": "Amiodarone increases digoxin levels by 70-100%, risk of toxicity.",
+      "recommendation": "Reduce digoxin dose by 50% when starting amiodarone."
+    },
+    {
+      "drug1": "Simvastatin",
+      "drug2": "Amlodipine",
+      "severity": "moderate",
+      "description": "Increased risk of myopathy/rhabdomyolysis.",
+      "recommendation": "Limit simvastatin to 20mg daily when used with amlodipine."
+    },
+    {
+      "drug1": "Ciprofloxacin",
+      "drug2": "Theophylline",
+      "severity": "severe",
+      "description": "Ciprofloxacin inhibits theophylline metabolism, causing toxicity.",
+      "recommendation": "Reduce theophylline dose by 30-50% or use alternative antibiotic."
+    },
+    {
+      "drug1": "Methotrexate",
+      "drug2": "NSAIDs",
+      "severity": "severe",
+      "description": "NSAIDs reduce methotrexate clearance, increasing toxicity risk.",
+      "recommendation": "Avoid NSAIDs or monitor methotrexate levels closely."
+    },
+    {
+      "drug1": "Clopidogrel",
+      "drug2": "Omeprazole",
+      "severity": "moderate",
+      "description": "Omeprazole reduces clopidogrel effectiveness via CYP2C19 inhibition.",
+      "recommendation": "Use pantoprazole instead of omeprazole."
+    },
+    {
+      "drug1": "SSRIs",
+      "drug2": "MAOIs",
+      "severity": "severe",
+      "description": "Risk of serotonin syndrome - potentially fatal.",
+      "recommendation": "Contraindicated. Wait 14 days between medications."
+    },
+    {
+      "drug1": "Lithium",
+      "drug2": "NSAIDs",
+      "severity": "moderate",
+      "description": "NSAIDs reduce lithium excretion, increasing toxicity risk.",
+      "recommendation": "Monitor lithium levels if NSAID use is necessary."
+    },
+    {
+      "drug1": "Fluconazole",
+      "drug2": "Warfarin",
+      "severity": "severe",
+      "description": "Fluconazole inhibits warfarin metabolism, increasing INR significantly.",
+      "recommendation": "Reduce warfarin dose by 25-50%, monitor INR closely."
+    },
+    {
+      "drug1": "Clarithromycin",
+      "drug2": "Statins",
+      "severity": "severe",
+      "description": "Increased statin levels, risk of rhabdomyolysis.",
+      "recommendation": "Temporarily stop statin or use azithromycin instead."
+    },
+    {
+      "drug1": "Tramadol",
+      "drug2": "SSRIs",
+      "severity": "moderate",
+      "description": "Risk of serotonin syndrome and lowered seizure threshold.",
+      "recommendation": "Use with caution, monitor for symptoms."
+    },
+    {
+      "drug1": "Sildenafil",
+      "drug2": "Nitrates",
+      "severity": "severe",
+      "description": "Severe hypotension - can be fatal.",
+      "recommendation": "Absolute contraindication. Never use together."
+    },
+    {
+      "drug1": "Carbamazepine",
+      "drug2": "Oral Contraceptives",
+      "severity": "moderate",
+      "description": "Carbamazepine reduces contraceptive effectiveness.",
+      "recommendation": "Use higher dose OCP or alternative contraception."
+    },
+    {
+      "drug1": "Metronidazole",
+      "drug2": "Alcohol",
+      "severity": "moderate",
+      "description": "Disulfiram-like reaction: nausea, vomiting, flushing.",
+      "recommendation": "Avoid alcohol during and 48 hours after treatment."
+    },
+    {
+      "drug1": "Phenytoin",
+      "drug2": "Valproic Acid",
+      "severity": "moderate",
+      "description": "Complex interaction - both drugs affect each other's levels.",
+      "recommendation": "Monitor levels of both drugs."
+    },
+    {
+      "drug1": "Spironolactone",
+      "drug2": "ACE Inhibitors",
+      "severity": "moderate",
+      "description": "Hyperkalemia risk - both drugs increase potassium.",
+      "recommendation": "Monitor potassium levels weekly initially."
+    },
+    {
+      "drug1": "Erythromycin",
+      "drug2": "Terfenadine",
+      "severity": "severe",
+      "description": "QT prolongation, risk of fatal arrhythmias.",
+      "recommendation": "Contraindicated combination."
+    },
+    {
+      "drug1": "Rifampin",
+      "drug2": "Oral Contraceptives",
+      "severity": "severe",
+      "description": "Rifampin dramatically reduces OCP effectiveness.",
+      "recommendation": "Use additional barrier contraception."
+    }
+  ],
+  "drugClasses": {
+    "NSAIDs": ["Ibuprofen", "Naproxen", "Diclofenac", "Indomethacin", "Celecoxib", "Aspirin", "Piroxicam"],
+    "SSRIs": ["Fluoxetine", "Sertraline", "Paroxetine", "Citalopram", "Escitalopram"],
+    "Statins": ["Atorvastatin", "Simvastatin", "Rosuvastatin", "Pravastatin", "Lovastatin"],
+    "ACE Inhibitors": ["Lisinopril", "Enalapril", "Ramipril", "Captopril", "Perindopril"],
+    "MAOIs": ["Phenelzine", "Tranylcypromine", "Isocarboxazid", "Selegiline"],
+    "Nitrates": ["Nitroglycerin", "Isosorbide Mononitrate", "Isosorbide Dinitrate"],
+    "Potassium": ["Potassium Chloride", "K-Dur", "Klor-Con", "Potassium Citrate"]
+  },
+  "normalLabRanges": {
+    "hemoglobin": { "male": { "min": 13.5, "max": 17.5, "unit": "g/dL" }, "female": { "min": 12.0, "max": 15.5, "unit": "g/dL" } },
+    "wbc": { "min": 4000, "max": 11000, "unit": "/µL" },
+    "platelets": { "min": 150000, "max": 400000, "unit": "/µL" },
+    "creatinine": { "male": { "min": 0.7, "max": 1.3, "unit": "mg/dL" }, "female": { "min": 0.6, "max": 1.1, "unit": "mg/dL" } },
+    "glucose_fasting": { "min": 70, "max": 100, "unit": "mg/dL" },
+    "hba1c": { "min": 4.0, "max": 5.6, "unit": "%" },
+    "potassium": { "min": 3.5, "max": 5.0, "unit": "mEq/L" },
+    "sodium": { "min": 136, "max": 145, "unit": "mEq/L" },
+    "alt": { "min": 7, "max": 56, "unit": "U/L" },
+    "ast": { "min": 10, "max": 40, "unit": "U/L" },
+    "bilirubin_total": { "min": 0.1, "max": 1.2, "unit": "mg/dL" },
+    "tsh": { "min": 0.4, "max": 4.0, "unit": "mIU/L" },
+    "inr": { "min": 0.8, "max": 1.2, "unit": "" },
+    "cholesterol_total": { "min": 0, "max": 200, "unit": "mg/dL" },
+    "ldl": { "min": 0, "max": 100, "unit": "mg/dL" },
+    "hdl": { "male": { "min": 40, "max": 100, "unit": "mg/dL" }, "female": { "min": 50, "max": 100, "unit": "mg/dL" } },
+    "triglycerides": { "min": 0, "max": 150, "unit": "mg/dL" }
+  }
+}

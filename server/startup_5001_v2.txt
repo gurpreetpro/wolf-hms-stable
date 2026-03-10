@@ -1,0 +1,42 @@
+📡 Using TCP connection: localhost
+[Sentry] express is not instrumented. This is likely because you required/imported express before calling `Sentry.init()`.
+[Overwatch] ✅ Sentry error tracking initialized
+[Overwatch] Telegram bot initialized
+🔍 AI Overwatch monitoring initialized
+☁️ Cloud Backup routes initialized
+[32m[2025-12-20T11:22:56.831Z] [INFO][0m [-] Database recovery service initialized
+[32m[2025-12-20T11:22:56.832Z] [INFO][0m [-] Self-healing service started
+🧹 Housekeeping Routes Loaded
+🛠️ Registering Housekeeping Routes...
+🔄 Checking for database migrations...
+✅ Connected to PostgreSQL database (db.js)
+🚀 Applying migration: 033_additional_fixes.sql...
+❌ Failed to apply 033_additional_fixes.sql:
+   Message: column "daily_rate" of relation "equipment_types" does not exist
+   Code: 42703
+   Detail: undefined
+   Hint: undefined
+   Position: 6119
+❌ Critical: Database migration failed: error: column "daily_rate" of relation "equipment_types" does not exist
+    at C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async MigrationService.run (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\services\MigrationService.js:40:11) {
+  length: 140,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '6119',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1073',
+  routine: 'checkInsertTargets'
+}
+Server running on port 5001  (Migration Failed)

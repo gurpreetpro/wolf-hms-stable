@@ -1,0 +1,5 @@
+﻿TIME: 2026-01-01T10:39:19.117Z
+ERROR: ensureAdmins is not a function
+STACK: TypeError: ensureAdmins is not a function
+    at /app/server.js:506:15
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

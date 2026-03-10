@@ -1,0 +1,480 @@
+/* SecurityDashboard.css - Guard Command Centre (Option B Layout)
+ * Uses Wolf HMS Theme System - supports light/dark modes
+ */
+
+/* ============================================
+   MAIN CONTAINER
+   ============================================ */
+.security-dashboard-v2 {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px); /* Account for navbar */
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+}
+
+/* Lockdown Mode */
+.security-dashboard-v2.lockdown-active {
+    border: 4px solid var(--danger);
+    animation: lockdownPulse 1s ease-in-out infinite;
+}
+
+@keyframes lockdownPulse {
+    0%, 100% { border-color: var(--danger); }
+    50% { border-color: transparent; }
+}
+
+/* ============================================
+   HEADER ROW - Quick Actions
+   ============================================ */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-icon {
+    color: var(--accent-primary);
+}
+
+.header-titles h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.hospital-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Quick Actions Bar */
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--accent-primary);
+}
+
+.quick-action-btn.danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.quick-action-btn.danger:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+.quick-action-btn.active {
+    background-color: var(--danger);
+    color: white;
+    border-color: var(--danger);
+}
+
+/* Header Right */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+    background-color: var(--bg-hover);
+    color: var(--accent-primary);
+}
+
+.header-btn.active {
+    background-color: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.header-btn.spinning svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.guard-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.guard-stats .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.guard-stats .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid var(--success);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--success);
+}
+
+.status-badge .status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ============================================
+   MAIN CONTENT - Two Column Layout
+   ============================================ */
+.dashboard-main {
+    display: grid;
+    grid-template-columns: 6fr 4fr; /* 60% guards, 40% map */
+    gap: 16px;
+    padding: 16px;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Guards Section (Left - 60%) */
+.guards-section {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.guards-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.guards-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.guards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.no-guards-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    grid-column: 1 / -1;
+}
+
+.no-guards-message svg {
+    color: var(--border-color);
+    margin-bottom: 16px;
+}
+
+.no-guards-message p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.no-guards-message .hint {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Map Section (Right - 40%) */
+.map-section {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.map-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.map-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.map-container {
+    flex: 1;
+    min-height: 300px;
+}
+
+/* ============================================
+   FOOTER - Activity Feed & Voice Channel
+   ============================================ */
+.dashboard-footer {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 16px;
+    padding: 0 16px 16px;
+    flex-shrink: 0;
+}
+
+.activity-feed {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.activity-feed-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12px;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    color: var(--text-muted);
+    min-width: 50px;
+}
+
+.activity-message {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.activity-type-alert {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+/* Voice Channel Bar */
+.voice-channel-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.voice-channel-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.voice-channel-status.connected {
+    color: var(--success);
+}
+
+.voice-channel-status.disconnected {
+    color: var(--text-muted);
+}
+
+.ptt-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ptt-button:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.ptt-button.speaking {
+    background-color: var(--success);
+    border-color: var(--success);
+    color: white;
+    animation: pttPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pttPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1200px) {
+    .dashboard-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-section {
+        height: 300px;
+    }
+    
+    .guards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .header-center {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .quick-action-btn span {
+        display: none;
+    }
+    
+    .dashboard-footer {
+        grid-template-columns: 1fr;
+    }
+    
+    .guards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .security-dashboard-v2 {
+        height: auto;
+        overflow: visible;
+    }
+    
+    .map-section,
+    .voice-channel-mini,
+    .header-btn,
+    .quick-action-btn {
+        display: none !important;
+    }
+    
+    .dashboard-main {
+        display: block;
+    }
+    
+    .guards-grid {
+        display: block;
+    }
+}

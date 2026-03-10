@@ -1,0 +1,245 @@
+/* Wolf Video - Video Call Styles */
+
+.video-call-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-call-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+}
+
+/* Remote Video */
+.remote-video-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Local Video (PIP) */
+.local-video-wrapper {
+  position: absolute;
+  bottom: 100px;
+  right: 20px;
+  width: 180px;
+  height: 135px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.local-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect */
+}
+
+.video-off-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+/* Waiting Overlay */
+.waiting-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.connecting,
+.waiting {
+  text-align: center;
+  color: white;
+}
+
+.connecting .spin {
+  animation: spin 1s linear infinite;
+  color: #3b82f6;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.connecting p,
+.waiting p {
+  margin-top: 16px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+/* Call Duration */
+.call-duration {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Peer Name */
+.peer-name {
+  position: absolute;
+  bottom: 100px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Controls */
+.video-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+}
+
+.control-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.control-btn.active {
+  background: #ef4444;
+}
+
+.control-btn.end-call {
+  background: #ef4444;
+  width: 60px;
+  height: 60px;
+}
+
+.control-btn.end-call:hover {
+  background: #dc2626;
+}
+
+/* Error */
+.video-call-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: #1e293b;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+  padding: 24px;
+}
+
+.video-call-error h3 {
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+.video-call-error p {
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.video-call-error button {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.video-call-error button:hover {
+  background: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .local-video-wrapper {
+    width: 120px;
+    height: 90px;
+    bottom: 90px;
+    right: 10px;
+  }
+
+  .video-controls {
+    gap: 10px;
+    padding: 12px 18px;
+  }
+
+  .control-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .control-btn.end-call {
+    width: 52px;
+    height: 52px;
+  }
+}

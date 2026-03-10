@@ -1,0 +1,6 @@
+
+                INSERT INTO vitals_logs 
+                ("admission_id", "patient_id", "bp", "temp", "spo2", "heart_rate", "recorded_by") 
+                VALUES ($1, $2, $3, $4, $5, $6, $7) 
+                RETURNING *
+            

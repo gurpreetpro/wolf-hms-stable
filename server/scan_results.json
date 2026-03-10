@@ -1,0 +1,434 @@
+{
+  "success": [
+    {
+      "path": "/api/pharmacy/inventory",
+      "status": 200
+    }
+  ],
+  "notFound": [
+    {
+      "path": "/api/admin/stats",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/admin/stats not found"
+      }
+    },
+    {
+      "path": "/api/admin/pending-approvals",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/admin/pending-approvals not found"
+      }
+    },
+    {
+      "path": "/api/patients",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/patients not found"
+      }
+    },
+    {
+      "path": "/api/lab/change-requests",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/lab/change-requests not found"
+      }
+    },
+    {
+      "path": "/api/pharmacy/low-stock",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pharmacy/low-stock not found"
+      }
+    },
+    {
+      "path": "/api/pharmacy/expiring",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pharmacy/expiring not found"
+      }
+    },
+    {
+      "path": "/api/pharmacy/dispensing",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pharmacy/dispensing not found"
+      }
+    },
+    {
+      "path": "/api/pharmacy/po",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pharmacy/po not found"
+      }
+    },
+    {
+      "path": "/api/admissions",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/admissions not found"
+      }
+    },
+    {
+      "path": "/api/ward/service-charges",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/ward/service-charges not found"
+      }
+    },
+    {
+      "path": "/api/ward/change-requests",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/ward/change-requests not found"
+      }
+    },
+    {
+      "path": "/api/beds/overview",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/beds/overview not found"
+      }
+    },
+    {
+      "path": "/api/beds/wards",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/beds/wards not found"
+      }
+    },
+    {
+      "path": "/api/clinical/patients",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/clinical/patients not found"
+      }
+    },
+    {
+      "path": "/api/finance/revenue",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/finance/revenue not found"
+      }
+    },
+    {
+      "path": "/api/finance/tpa-receivables",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/finance/tpa-receivables not found"
+      }
+    },
+    {
+      "path": "/api/pacu/records",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pacu/records not found"
+      }
+    },
+    {
+      "path": "/api/cssd/cycles",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/cssd/cycles not found"
+      }
+    },
+    {
+      "path": "/api/cssd/machines",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/cssd/machines not found"
+      }
+    },
+    {
+      "path": "/api/radiology/requests",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/radiology/requests not found"
+      }
+    },
+    {
+      "path": "/api/equipment/items",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/equipment/items not found"
+      }
+    },
+    {
+      "path": "/api/equipment/maintenance",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/equipment/maintenance not found"
+      }
+    },
+    {
+      "path": "/instruments/list",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /instruments/list not found"
+      }
+    },
+    {
+      "path": "/instruments/drivers",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /instruments/drivers not found"
+      }
+    },
+    {
+      "path": "/api/insurance/claims",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/insurance/claims not found"
+      }
+    },
+    {
+      "path": "/api/insurance/tpa",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/insurance/tpa not found"
+      }
+    },
+    {
+      "path": "/api/tpa/dashboard",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/tpa/dashboard not found"
+      }
+    },
+    {
+      "path": "/api/tpa/preauths",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/tpa/preauths not found"
+      }
+    },
+    {
+      "path": "/api/tpa/claims",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/tpa/claims not found"
+      }
+    },
+    {
+      "path": "/api/preauth/list",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/preauth/list not found"
+      }
+    },
+    {
+      "path": "/api/automation/rules",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/automation/rules not found"
+      }
+    },
+    {
+      "path": "/api/settings/hospital",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/settings/hospital not found"
+      }
+    },
+    {
+      "path": "/api/settings/departments",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/settings/departments not found"
+      }
+    },
+    {
+      "path": "/api/pos/transactions",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/pos/transactions not found"
+      }
+    },
+    {
+      "path": "/api/transfers/pending",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/transfers/pending not found"
+      }
+    },
+    {
+      "path": "/api/analytics/overview",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/analytics/overview not found"
+      }
+    },
+    {
+      "path": "/api/ai/suggestions",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/ai/suggestions not found"
+      }
+    },
+    {
+      "path": "/api/chat/rooms",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/chat/rooms not found"
+      }
+    },
+    {
+      "path": "/api/alerts/active",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/alerts/active not found"
+      }
+    },
+    {
+      "path": "/api/devices/list",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/devices/list not found"
+      }
+    },
+    {
+      "path": "/api/emergency/logs",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/emergency/logs not found"
+      }
+    },
+    {
+      "path": "/api/procedures",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/procedures not found"
+      }
+    },
+    {
+      "path": "/api/care-plans",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/care-plans not found"
+      }
+    },
+    {
+      "path": "/api/problem-list",
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Route GET /api/problem-list not found"
+      }
+    }
+  ],
+  "serverError": [],
+  "dbError": [],
+  "authError": [
+    {
+      "path": "/api/opd/queue",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/opd/appointments?start=2025-01-01&end=2025-12-31",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/admin/users",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/patients/search?term=test",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/lab/requests",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/lab/tests",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/lab/reagents",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/pharmacy/price-requests",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/admissions/active",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/ward/wards",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/ward/consumables",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/clinical/tasks",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/nurse/dashboard",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/nurse/shift-handover",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/nurse/consumables",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/finance/invoices",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/finance/kpis",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/ot/surgeries",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/ot/theaters",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/pac/assessments",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/equipment/types",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/blood-bank/inventory",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/blood-bank/donors",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/blood-bank/requests",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/pos/providers",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/pos/devices",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/roster/current",
+      "error": "Not authorized, token failed"
+    },
+    {
+      "path": "/api/order-sets",
+      "error": "Not authorized, token failed"
+    }
+  ]
+}

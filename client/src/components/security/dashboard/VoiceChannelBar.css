@@ -1,0 +1,268 @@
+/* VoiceChannelBar.css - Floating Voice Channel */
+
+.voice-channel-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #242442 100%);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 212, 255, 0.15);
+    z-index: 1000;
+    font-family: 'Inter', sans-serif;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.voice-channel-bar.connecting {
+    border-color: rgba(255, 171, 0, 0.3);
+}
+
+.voice-channel-bar.connected {
+    border-color: rgba(0, 200, 83, 0.3);
+}
+
+/* Channel Info */
+.channel-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.channel-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 212, 255, 0.15);
+    border-radius: 50%;
+    color: #00d4ff;
+}
+
+.channel-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.channel-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.channel-status {
+    font-size: 11px;
+    color: #9e9e9e;
+}
+
+.voice-channel-bar.connected .channel-status {
+    color: #00c853;
+}
+
+.voice-channel-bar.connecting .channel-status {
+    color: #ffab00;
+}
+
+.voice-channel-bar.disconnected {
+    border-color: rgba(255, 23, 68, 0.3);
+}
+
+.voice-channel-bar.disconnected .channel-status {
+    color: #ff1744;
+}
+
+/* Transmitting State - Red Glow */
+.voice-channel-bar.transmitting {
+    border-color: rgba(255, 23, 68, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 23, 68, 0.3);
+    animation: transmitPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes transmitPulse {
+    0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 23, 68, 0.3); }
+    50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 23, 68, 0.5); }
+}
+
+/* Status Icons */
+.status-icon {
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.status-icon.connecting {
+    color: #ffab00;
+    animation: rotate 1s linear infinite;
+}
+
+.status-icon.connected {
+    color: #00c853;
+}
+
+.status-icon.disconnected {
+    color: #9e9e9e;
+}
+
+.status-icon.error {
+    color: #ff1744;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Participants */
+.channel-participants {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    color: #9e9e9e;
+    font-size: 12px;
+}
+
+.participant-avatars {
+    display: flex;
+    margin-left: 8px;
+}
+
+.participant-avatar {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3d3d5c;
+    border: 2px solid #1a1a2e;
+    border-radius: 50%;
+    margin-left: -8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.participant-avatar:first-child {
+    margin-left: 0;
+}
+
+.participant-avatar.speaking {
+    border-color: #00c853;
+    animation: speakingPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes speakingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(0, 200, 83, 0); }
+}
+
+/* PTT Button */
+.ptt-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    color: #9e9e9e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.ptt-button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.ptt-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ptt-button.active {
+    background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+    border-color: transparent;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(0, 200, 83, 0.4);
+}
+
+.ptt-button.active svg {
+    animation: micPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.ptt-hint {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.ptt-active {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Close Button */
+.close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 50%;
+    color: #9e9e9e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(255, 23, 68, 0.2);
+    color: #ff1744;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .voice-channel-bar {
+        bottom: 16px;
+        padding: 10px 16px;
+        gap: 12px;
+        width: calc(100% - 32px);
+        max-width: 500px;
+    }
+    
+    .channel-participants {
+        display: none;
+    }
+    
+    .ptt-hint {
+        display: none;
+    }
+}

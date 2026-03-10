@@ -1,0 +1,17 @@
+{
+  "inventory": {
+    "count": 0,
+    "sample": null,
+    "error": null
+  },
+  "wards": {
+    "count": 1,
+    "firstWard": "General Ward",
+    "bedsCount": 5,
+    "error": null
+  },
+  "doctors": {
+    "count": 1,
+    "error": null
+  }
+}

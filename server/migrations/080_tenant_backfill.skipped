@@ -1,0 +1,78 @@
+-- 080_tenant_backfill.sql
+-- Goal: Prepare existing "Ghost Data" for Multi-Tenancy by assigning it to Kokila Hospital
+BEGIN;
+-- 1. Create Hospitals Registry
+CREATE TABLE IF NOT EXISTS hospitals (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+-- 2. Register Kokila Hospital (Idempotent)
+INSERT INTO hospitals (id, name, domain)
+VALUES (
+        '7f9d5e32-8491-49b8-a73c-6e2c1d0f5b9a',
+        'Kokila Hospital',
+        'kokila-wolfhms.web.app'
+    ) ON CONFLICT (domain) DO NOTHING;
+-- Also allow the legacy domain to map to this ID (handled in application layer, but good to note)
+-- 3. Utility Function to Safe-Add Column and Backfill
+-- This function checks if column exists, adds it if not, and then backfills NULLs
+CREATE OR REPLACE FUNCTION backfill_tenant(tbl text) RETURNS void AS $$ BEGIN -- Add column if missing
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = tbl
+            AND column_name = 'hospital_id'
+    ) THEN EXECUTE format(
+        'ALTER TABLE %I ADD COLUMN hospital_id UUID',
+        tbl
+    );
+END IF;
+-- Update NULLs to Kokila UUID
+EXECUTE format(
+    'UPDATE %I SET hospital_id = %L WHERE hospital_id IS NULL',
+    tbl,
+    '7f9d5e32-8491-49b8-a73c-6e2c1d0f5b9a'
+);
+-- Add Foreign Key if missing (Simple check preventing duplicate constraint error)
+BEGIN EXECUTE format(
+    'ALTER TABLE %I ADD CONSTRAINT fk_%I_hospital FOREIGN KEY (hospital_id) REFERENCES hospitals(id)',
+    tbl,
+    tbl
+);
+EXCEPTION
+WHEN duplicate_object THEN -- Constraint already exists
+END;
+END;
+$$ LANGUAGE plpgsql;
+-- 4. Execute Backfill for ALL Core Tables
+SELECT backfill_tenant('users');
+SELECT backfill_tenant('patients');
+SELECT backfill_tenant('admissions');
+SELECT backfill_tenant('appointments');
+SELECT backfill_tenant('opd_visits');
+SELECT backfill_tenant('transactions');
+SELECT backfill_tenant('invoices');
+SELECT backfill_tenant('prescriptions');
+SELECT backfill_tenant('lab_requests');
+SELECT backfill_tenant('radiology_requests');
+SELECT backfill_tenant('wards');
+SELECT backfill_tenant('beds');
+SELECT backfill_tenant('inventory_items');
+SELECT backfill_tenant('purchase_orders');
+SELECT backfill_tenant('shift_handovers');
+SELECT backfill_tenant('nurse_assignments');
+SELECT backfill_tenant('emergency_logs');
+SELECT backfill_tenant('ot_schedules');
+SELECT backfill_tenant('diet_charts');
+SELECT backfill_tenant('housekeeping_tasks');
+SELECT backfill_tenant('ambulance_trips');
+SELECT backfill_tenant('blood_bank_inventory');
+SELECT backfill_tenant('morgue_bodies');
+SELECT backfill_tenant('asset_maintenance');
+SELECT backfill_tenant('visitor_passes');
+SELECT backfill_tenant('payments');
+SELECT backfill_tenant('guard_patrols');
+-- Add any other tables here
+COMMIT;

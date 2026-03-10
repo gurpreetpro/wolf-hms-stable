@@ -1,0 +1,45 @@
+﻿[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 118 modules transformed.
+node.exe : [31mx[39m Build 
+failed in 622ms
+At line:1 char:1
++ & "C:\nvm4w\nodejs/node.exe" "C:\
+nvm4w\nodejs/node_modules/npm/bin/n
+p ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~
+    + CategoryInfo          : NotS 
+   pecified: ([31mx[39m Build f  
+  ailed in 622ms:String) [], Rem   
+ oteException
+    + FullyQualifiedErrorId : Nati 
+   veCommandError
+ 
+[31merror during build:
+[31mCould not resolve 
+"../services/api" from "src/pages/M
+asterDomainLanding.jsx"[31m
+file: [36mC:/Users/HP/.gemini/anti
+gravity/scratch/wolf-hms-stable/cli
+ent/src/pages/MasterDomainLanding.j
+sx[31m
+    at getRollupError (file:///C:/U
+sers/HP/.gemini/antigravity/scratch
+/wolf-hms-stable/client/node_module
+s/rollup/dist/es/shared/parseAst.js
+:401:41)
+    at error (file:///C:/Users/HP/.
+gemini/antigravity/scratch/wolf-hms
+-stable/client/node_modules/rollup/
+dist/es/shared/parseAst.js:397:42)
+    at ModuleLoader.handleInvalidRe
+solvedId (file:///C:/Users/HP/.gemi
+ni/antigravity/scratch/wolf-hms-sta
+ble/client/node_modules/rollup/dist
+/es/shared/node-entry.js:21661:24)
+    at file:///C:/Users/HP/.gemini/
+antigravity/scratch/wolf-hms-stable
+/client/node_modules/rollup/dist/es
+/shared/node-entry.js:21621:26[39m

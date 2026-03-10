@@ -1,0 +1,22 @@
+steps:
+  # Build the container image using the root Dockerfile (Multi-stage)
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "--no-cache",
+        "-t",
+        "asia-south1-docker.pkg.dev/$PROJECT_ID/wolf-hms-repo/wolf-tech-server:latest",
+        ".",
+      ]
+
+  # Push the image to Artifact Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-south1-docker.pkg.dev/$PROJECT_ID/wolf-hms-repo/wolf-tech-server:latest",
+      ]
+
+images:
+  - "asia-south1-docker.pkg.dev/$PROJECT_ID/wolf-hms-repo/wolf-tech-server:latest"

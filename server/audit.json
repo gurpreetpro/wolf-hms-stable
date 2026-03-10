@@ -1,0 +1,145 @@
+{
+  "hospitals": [
+    {
+      "id": 1,
+      "name": "Kokila Hospital"
+    },
+    {
+      "id": 2,
+      "name": "Wolf HMS"
+    },
+    {
+      "id": 3,
+      "name": "Dr. Parveen Clinic"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin_kokila",
+      "role": "admin",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 12,
+      "username": "billing_user",
+      "role": "billing",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 13,
+      "username": "blood_user",
+      "role": "blood_bank_tech",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 6,
+      "username": "doctor_user",
+      "role": "doctor",
+      "department": "Neurology",
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 11,
+      "username": "lab_user",
+      "role": "lab_tech",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 7,
+      "username": "nurse_user",
+      "role": "nurse",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 9,
+      "username": "pharmacy_user",
+      "role": "pharmacist",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 8,
+      "username": "receptionist_user",
+      "role": "receptionist",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 10,
+      "username": "ward_user",
+      "role": "ward_incharge",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 1
+    },
+    {
+      "id": 2,
+      "username": "admin_taneja",
+      "role": "admin",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 2
+    },
+    {
+      "id": 3,
+      "username": "admin_parveen",
+      "role": "admin",
+      "department": null,
+      "is_active": true,
+      "hospital_id": 3
+    },
+    {
+      "id": 5,
+      "username": "admin_user",
+      "role": "super_admin",
+      "department": null,
+      "is_active": true,
+      "hospital_id": null
+    },
+    {
+      "id": 4,
+      "username": "gurpreetpro",
+      "role": "super_admin",
+      "department": null,
+      "is_active": true,
+      "hospital_id": null
+    }
+  ],
+  "patients": [
+    {
+      "id": "3fdce87c-194a-401d-afd7-197133345eb0",
+      "uhid": "0003/2026",
+      "name": "Simulation Test",
+      "phone": "9998887776",
+      "hospital_id": 1
+    },
+    {
+      "id": "6e02e9a6-b367-4a14-b990-f3031ffb6f6a",
+      "uhid": "0001/2026",
+      "name": "Harpreet Kaur",
+      "phone": "1122334455",
+      "hospital_id": 1
+    },
+    {
+      "id": "f3ca59d3-afb7-480c-b4c3-b013575f2e81",
+      "uhid": "0002/2026",
+      "name": "Prabhdeep Kaur",
+      "phone": "1122334466",
+      "hospital_id": 1
+    }
+  ]
+}

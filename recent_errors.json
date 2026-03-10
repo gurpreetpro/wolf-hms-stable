@@ -1,0 +1,202 @@
+﻿[
+  {
+    "insertId": "694a4b9100016af0d46b1820",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-12-23T07:58:09.095500687Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:58:08.798Z] [INFO] [-] Self-healing successful: error_rate",
+    "timestamp": "2025-12-23T07:58:09.092912Z"
+  },
+  {
+    "insertId": "694a4b91000169e5fa179796",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:58:09.138011591Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:58:08.993Z] [ERROR] [-] Failed to create alert",
+    "timestamp": "2025-12-23T07:58:09.092645Z"
+  },
+  {
+    "insertId": "694a4b90000c2bd1cbfee0b5",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:58:08.802190242Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:58:08.798Z] [WARN] [-] Self-healing triggered: error_rate",
+    "timestamp": "2025-12-23T07:58:08.797649Z"
+  },
+  {
+    "insertId": "694a4b6f000b49d54fcc5621",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:35.982335888Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:57:35.740Z] [ERROR] [8c98a319-ae14-419b-b439-40fb9f5f2c75] POST /api/auth/register 500",
+    "timestamp": "2025-12-23T07:57:35.739797Z"
+  },
+  {
+    "insertId": "694a4b6f000b4773107ec983",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:35.982335888Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  severity: 'ERROR',",
+    "timestamp": "2025-12-23T07:57:35.739187Z"
+  },
+  {
+    "insertId": "694a4b6f000b475e81cbe9d9",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:35.982335888Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "error: new row for relation \"users\" violates check constraint \"users_role_check\"",
+    "timestamp": "2025-12-23T07:57:35.739166Z"
+  },
+  {
+    "insertId": "694a4b6e0009c918e02b081f",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:34.653463994Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:57:34.642Z] [ERROR] [0f6c0b5c-3e5d-4029-9723-b54627c7a1db] POST /api/auth/register 500",
+    "timestamp": "2025-12-23T07:57:34.641304Z"
+  },
+  {
+    "insertId": "694a4b6e0009c63f4b559662",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:34.653463994Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "  severity: 'ERROR',",
+    "timestamp": "2025-12-23T07:57:34.640575Z"
+  },
+  {
+    "insertId": "694a4b6e0009c62543edc409",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:34.653463994Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "error: new row for relation \"users\" violates check constraint \"users_role_check\"",
+    "timestamp": "2025-12-23T07:57:34.640549Z"
+  },
+  {
+    "insertId": "694a4b6a0004dac85e24a9bf",
+    "labels": {
+      "instanceId": "0007e26d68894ec3ed18ad183adf1d4e8112bd2cfa880a6e569943fd0bda5d9e0276d77531db71cee4fcc07d159dc874fc624a1a1711273ecc5dcaf7e42a6f1ce6162eb2c3ac00ca6f2a61e80672"
+    },
+    "logName": "projects/wolf-hms/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-23T07:57:30.656864207Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "wolf-hms-server",
+        "location": "asia-south1",
+        "project_id": "wolf-hms",
+        "revision_name": "wolf-hms-server-00066-jth",
+        "service_name": "wolf-hms-server"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "[2025-12-23T07:57:30.319Z] [ERROR] [517b790c-ca70-4b5a-8ae2-6a4e3939a9f1] POST /api/auth/register 500",
+    "timestamp": "2025-12-23T07:57:30.318152Z"
+  }
+]

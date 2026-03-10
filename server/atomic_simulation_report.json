@@ -1,0 +1,66 @@
+[
+  {
+    "atom": "Login Admin",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Doctor",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Nurse",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Receptionist",
+    "status": "PASS"
+  },
+  {
+    "atom": "Register Patient (OPD)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Admit Patient to Ward",
+    "status": "PASS"
+  },
+  {
+    "atom": "Doctor Prescribes Meds & Labs",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Logs Vitals",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Logs Pain Score (Fix Verification)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Logs Fluid Balance (Fix Verification)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Saves Wound Assessment (Fix Verification - New Table)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Lab Enters Result",
+    "status": "PASS"
+  },
+  {
+    "atom": "Generate Invoice",
+    "status": "PASS"
+  },
+  {
+    "atom": "Debug Check",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Completes Tasks",
+    "status": "PASS"
+  },
+  {
+    "atom": "Discharge Patient",
+    "status": "PASS"
+  }
+]

@@ -1,0 +1,85 @@
+﻿≡ƒôí Using TCP connection: localhost
+≡ƒöî Connecting to PostgreSQL...
+
+≡ƒöì Checking if database "hospital_db" exists...
+Γ£à Database "hospital_db" already exists.
+
+Γ£à Connected to PostgreSQL database (db.js)
+≡ƒÜÇ Starting HMS Premium Database Migration...
+
+≡ƒÜÇ Applying migration: 021_billing_phase2_preauth.sql...
+node : Γ¥î Failed to apply 
+021_billing_phase2_preauth.sql:
+At line:1 char:1
++ node setup_database.js 2>&1 | 
+Out-File -Encoding utf8 debug_log_2.txt
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (Γ¥î Failed to a...e2_preaut  
+  h.sql::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+   Message: foreign key constraint 
+"eligibility_checks_patient_id_fkey" 
+cannot be implemented
+   Code: 42804
+   Detail: Key columns "patient_id" of 
+the referencing table and "id" of the 
+referenced table are of incompatible 
+types: integer and uuid.
+   Hint: undefined
+   Position: undefined
+
+Γ¥î Migration Error: foreign key 
+constraint 
+"eligibility_checks_patient_id_fkey" 
+cannot be implemented
+
+≡ƒÆí Troubleshooting:
+   1. Ensure PostgreSQL is running
+   2. Check password in .env file
+   3. Verify PostgreSQL is accessible 
+on port 5432
+   4. Check PostgreSQL logs for more 
+details
+
+Full error: error: foreign key 
+constraint 
+"eligibility_checks_patient_id_fkey" 
+cannot be implemented
+    at C:\Users\HP\.gemini\antigravity\
+scratch\wolf-hms-stable\server\node_mod
+ules\pg-pool\index.js:45:11
+    at 
+process.processTicksAndRejections (node
+:internal/process/task_queues:103:5)
+    at async MigrationService.run (C:\U
+sers\HP\.gemini\antigravity\scratch\wol
+f-hms-stable\server\services\MigrationS
+ervice.js:40:11)
+    at async createDatabaseAndMigrate (
+C:\Users\HP\.gemini\antigravity\scratch
+\wolf-hms-stable\server\setup_database.
+js:37:9) {
+  length: 285,
+  severity: 'ERROR',
+  code: '42804',
+  detail: 'Key columns "patient_id" of 
+the referencing table and "id" of the 
+referenced table are of incompatible 
+types: integer and uuid.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'tablecmds.c',
+  line: '10429',
+  routine: 'ATAddForeignKeyConstraint'
+}

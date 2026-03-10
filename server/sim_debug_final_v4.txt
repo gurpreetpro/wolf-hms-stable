@@ -1,0 +1,56 @@
+[2025-12-31T18:07:10.984Z] 🚀 Starting Atomic Level Simulation...
+[2025-12-31T18:07:10.986Z] 🔹 Testing: Login Admin...
+[2025-12-31T18:07:11.079Z] ✅ PASS: Login Admin
+[2025-12-31T18:07:11.079Z] 🔹 Testing: Login Doctor...
+[2025-12-31T18:07:11.137Z] ✅ PASS: Login Doctor
+[2025-12-31T18:07:11.137Z] 🔹 Testing: Login Nurse...
+[2025-12-31T18:07:11.191Z] ✅ PASS: Login Nurse
+[2025-12-31T18:07:11.191Z] 🔹 Testing: Login Receptionist...
+[2025-12-31T18:07:11.243Z] ✅ PASS: Login Receptionist
+[2025-12-31T18:07:11.244Z] 🔹 Testing: Register Patient (OPD)...
+[2025-12-31T18:07:11.264Z]    Patient ID: 6466802d-fdc9-488b-b34c-8499651867a5
+[2025-12-31T18:07:11.265Z] ✅ PASS: Register Patient (OPD)
+[2025-12-31T18:07:11.265Z] 🔹 Testing: Admit Patient to Ward...
+[2025-12-31T18:07:11.277Z]    Admission ID: 56 (Type: number)
+[2025-12-31T18:07:11.278Z] ✅ PASS: Admit Patient to Ward
+[2025-12-31T18:07:11.278Z] 🔹 Testing: Doctor Prescribes Meds & Labs...
+[2025-12-31T18:07:11.297Z] ✅ PASS: Doctor Prescribes Meds & Labs
+[2025-12-31T18:07:11.297Z] 🔹 Testing: Nurse Logs Vitals...
+[2025-12-31T18:07:11.302Z] ✅ PASS: Nurse Logs Vitals
+[2025-12-31T18:07:11.302Z] 🔹 Testing: Nurse Logs Pain Score (Fix Verification)...
+[2025-12-31T18:07:11.308Z] ✅ PASS: Nurse Logs Pain Score (Fix Verification)
+[2025-12-31T18:07:11.308Z] 🔹 Testing: Nurse Logs Fluid Balance (Fix Verification)...
+[2025-12-31T18:07:11.312Z] ✅ PASS: Nurse Logs Fluid Balance (Fix Verification)
+[2025-12-31T18:07:11.312Z] 🔹 Testing: Nurse Saves Wound Assessment (Fix Verification - New Table)...
+[2025-12-31T18:07:11.316Z] ❌ FAIL: Nurse Saves Wound Assessment (Fix Verification - New Table) - {"success":false,"error":{"code":"INTERNAL_ERROR","message":"column \"assessed_by\" of relation \"wound_assessments\" does not exist","stack":["error: column \"assessed_by\" of relation \"wound_assessments\" does not exist","    at C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\node_modules\\pg-pool\\index.js:45:11","    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)","    at async C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\server\\controllers\\nurseController.js:289:20"]},"requestId":"ee7ca98c-0a82-45ab-85e6-21262d4e6cab","timestamp":"2025-12-31T18:07:11.315Z"}
+[2025-12-31T18:07:11.316Z] 🔹 Testing: Lab Enters Result...
+[2025-12-31T18:07:11.379Z] ✅ PASS: Lab Enters Result
+[2025-12-31T18:07:11.379Z] 🔹 Testing: Generate Invoice...
+[2025-12-31T18:07:11.388Z] Invoice Amount: 850.00
+[2025-12-31T18:07:11.389Z] ✅ PASS: Generate Invoice
+[2025-12-31T18:07:11.389Z] 🔹 Testing: Debug Check...
+[2025-12-31T18:07:11.389Z] 🔍 Checking Pending Tasks before Discharge...
+[2025-12-31T18:07:11.389Z]    GET http://localhost:5000/api/nurse/ward-overview
+[2025-12-31T18:07:11.474Z]    Pending Tasks count for Admission 56: 1
+[2025-12-31T18:07:11.474Z]    Tasks: [{"id":32,"admission_id":56,"type":"Medication","description":"Paracetamol - 500mg - BID","status":"Pending","scheduled_time":"2025-12-31T18:07:11.280Z","patient_name":"Sim Patient 1767204431244","bed_number":"B-SIM-1265","ward":"General"}]
+[2025-12-31T18:07:11.519Z]    Lab Requests Status: [{"id":40,"status":"Completed"}]
+[2025-12-31T18:07:11.520Z] ✅ PASS: Debug Check
+[2025-12-31T18:07:11.520Z] 🔹 Testing: Discharge Patient...
+[2025-12-31T18:07:11.526Z] ❌ FAIL: Discharge Patient - {"success":false,"message":"Cannot discharge: Pending Department Clearance (Tasks/Labs)"}
+
+SIMULATION SUMMARY
+PASS: Login Admin 
+PASS: Login Doctor 
+PASS: Login Nurse 
+PASS: Login Receptionist 
+PASS: Register Patient (OPD) 
+PASS: Admit Patient to Ward 
+PASS: Doctor Prescribes Meds & Labs 
+PASS: Nurse Logs Vitals 
+PASS: Nurse Logs Pain Score (Fix Verification) 
+PASS: Nurse Logs Fluid Balance (Fix Verification) 
+FAIL: Nurse Saves Wound Assessment (Fix Verification - New Table) - Request failed with status code 500
+PASS: Lab Enters Result 
+PASS: Generate Invoice 
+PASS: Debug Check 
+FAIL: Discharge Patient - Request failed with status code 400

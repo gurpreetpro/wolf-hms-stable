@@ -1,0 +1,24 @@
+[2026-01-28T12:27:35.960Z] === WOLF HMS DIAGNOSTIC TOOL v1.0 ===
+[2026-01-28T12:27:35.964Z] Running System Health Checks...
+
+[2026-01-28T12:27:35.965Z] ✅ Environment (.env): FOUND
+[2026-01-28T12:27:35.965Z] Checking Database Connection...
+[2026-01-28T12:27:37.557Z] ✅ Database Connection: SUCCESS
+[2026-01-28T12:27:37.560Z] ✅ Port 5000 (Server): AVAILABLE
+[2026-01-28T12:27:37.562Z] Checking Client Build...
+[2026-01-28T12:27:37.563Z] ✅ Client Build: FOUND (dist/ folder exists)
+[2026-01-28T12:27:37.564Z] 
+=== DIAGNOSTICS COMPLETE ===
+[2026-01-28T12:27:37.565Z] Log saved to diagnostic_log.txt
+[2026-01-28T12:27:49.977Z] === WOLF HMS DIAGNOSTIC TOOL v1.0 ===
+[2026-01-28T12:27:49.980Z] Running System Health Checks...
+
+[2026-01-28T12:27:49.981Z] ✅ Environment (.env): FOUND
+[2026-01-28T12:27:49.981Z] Checking Database Connection...
+[2026-01-28T12:27:51.279Z] ✅ Database Connection: SUCCESS
+[2026-01-28T12:27:51.282Z] ✅ Port 5000 (Server): AVAILABLE
+[2026-01-28T12:27:51.283Z] Checking Client Build...
+[2026-01-28T12:27:51.284Z] ✅ Client Build: FOUND (dist/ folder exists)
+[2026-01-28T12:27:51.285Z] 
+=== DIAGNOSTICS COMPLETE ===
+[2026-01-28T12:27:51.285Z] Log saved to diagnostic_log.txt

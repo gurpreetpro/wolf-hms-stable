@@ -1,0 +1,156 @@
+/* LanguageToggle.css - Language Switcher Styling */
+
+.language-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Button Variant */
+.language-toggle.button {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #9e9e9e;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.language-toggle.button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.language-toggle.button .switch-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Size variations */
+.language-toggle.size-small {
+    padding: 6px 10px;
+}
+
+.language-toggle.size-small .switch-label {
+    font-size: 12px;
+}
+
+.language-toggle.size-large {
+    padding: 10px 16px;
+}
+
+.language-toggle.size-large .switch-label {
+    font-size: 14px;
+}
+
+/* Minimal Variant */
+.language-toggle.minimal {
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    color: #00d4ff;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.language-toggle.minimal:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.language-toggle.minimal .lang-code {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+}
+
+/* Dropdown Variant */
+.language-toggle.dropdown {
+    position: relative;
+}
+
+.language-toggle.dropdown .toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.language-toggle.dropdown .toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.language-toggle.dropdown .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    min-width: 150px;
+    background: #242442;
+    border: 1px solid #3d3d5c;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.language-toggle.dropdown:hover .dropdown-menu,
+.language-toggle.dropdown:focus-within .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.language-toggle.dropdown .dropdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-family: inherit;
+}
+
+.language-toggle.dropdown .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.language-toggle.dropdown .dropdown-item.active {
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.language-toggle.dropdown .lang-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.language-toggle.dropdown .lang-name-english {
+    font-size: 11px;
+    color: #9e9e9e;
+}
+
+/* Hindi font support */
+.language-toggle .switch-label,
+.language-toggle .lang-name,
+.language-toggle .current-lang {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+}

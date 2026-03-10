@@ -1,0 +1,37 @@
+# Wolf Node - Self-Hosted Video Infrastructure
+# 
+# This docker-compose runs on your $6/month VPS and provides:
+# - Coturn TURN server (NAT traversal for mobile 4G/5G)
+# - Redis (optional, for future scaling)
+#
+# WebRTC signaling is handled by Wolf HMS Notification Service
+
+version: '3.9'
+
+services:
+  # ============================================
+  # TURN SERVER (Required for mobile networks)
+  # ============================================
+  coturn:
+    image: coturn/coturn:latest
+    container_name: wolf-turn
+    restart: always
+    network_mode: host
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf:ro
+    command: -c /etc/coturn/turnserver.conf
+
+  # ============================================
+  # REDIS (Optional - for session sharing)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: wolf-redis-node
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

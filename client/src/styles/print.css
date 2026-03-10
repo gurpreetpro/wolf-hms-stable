@@ -1,0 +1,127 @@
+/* Print styles for Invoice */
+@media print {
+    /* Hide everything except modal content */
+    body > *:not(.modal) {
+        display: none !important;
+    }
+    
+    /* Hide sidebar, navbar, dashboard background */
+    .sidebar,
+    nav,
+    .navbar,
+    .topnav,
+    .back-button,
+    .modal-backdrop,
+    .btn,
+    button:not(.print-visible) {
+        display: none !important;
+    }
+    
+    /* Make modal full page */
+    .modal {
+        position: static !important;
+        display: block !important;
+        overflow: visible !important;
+    }
+    
+    .modal-dialog {
+        max-width: 100% !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    
+    .modal-content {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .modal-header {
+        background: white !important;
+        color: black !important;
+        border-bottom: 2px solid #333 !important;
+    }
+    
+    .modal-footer {
+        display: none !important;
+    }
+    
+    /* Clean table styling for print */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    
+    th, td {
+        border: 1px solid #333 !important;
+        padding: 8px !important;
+    }
+    
+    /* Remove background colors for better printing */
+    .bg-light, .bg-primary, .bg-success, .bg-warning, .bg-danger, .bg-info {
+        background: white !important;
+        color: black !important;
+    }
+    
+    /* Ensure text is visible */
+    * {
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Badge styling for print */
+    .badge {
+        border: 1px solid #333 !important;
+        padding: 2px 6px !important;
+    }
+    
+    /* Page setup */
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    /* Force Bootstrap Grid to Desktop View for Print */
+    .row {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .col-md-8 { width: 66.666667% !important; flex: 0 0 auto !important; }
+    .col-md-4 { width: 33.333333% !important; flex: 0 0 auto !important; }
+    .col-md-6 { width: 50% !important; flex: 0 0 auto !important; }
+    
+    /* Ensure internal grids wrap correctly */
+    .receipt-content .row {
+        flex-wrap: wrap !important;
+    }
+    .receipt-content .col-xs-6, 
+    .receipt-content .col-6 { 
+        width: 50% !important; 
+        flex: 0 0 auto !important; 
+    }
+    .receipt-content .col-xs-4,
+    .receipt-content .col-4 {
+        width: 33.333333% !important;
+        flex: 0 0 auto !important;
+    }
+
+    /* Invoice header for print */
+    .invoice-print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Fit to page scaling */
+    body {
+        zoom: 90%; /* Slight zoom out to ensure fit */
+    }
+}
+
+/* Hide print-only elements on screen */
+@media screen {
+    .print-only {
+        display: none !important;
+    }
+}

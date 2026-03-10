@@ -1,0 +1,70 @@
+[
+  {
+    "atom": "Login Admin",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Doctor",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Nurse",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Receptionist",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Pharmacist",
+    "status": "PASS"
+  },
+  {
+    "atom": "Login Radiology Tech",
+    "status": "PASS"
+  },
+  {
+    "atom": "Register Patient (OPD)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Admit Patient to Ward",
+    "status": "PASS"
+  },
+  {
+    "atom": "Doctor Prescribes Meds, Labs & Radiology",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Logs Vitals",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Logs Pain Score",
+    "status": "PASS"
+  },
+  {
+    "atom": "Nurse Saves Wound Assessment",
+    "status": "PASS"
+  },
+  {
+    "atom": "Pharmacy Fulfills Prescription",
+    "status": "PASS"
+  },
+  {
+    "atom": "Lab Enters Result (CBC)",
+    "status": "PASS"
+  },
+  {
+    "atom": "Radiology Uploads X-Ray",
+    "status": "PASS"
+  },
+  {
+    "atom": "Generate Invoice",
+    "status": "PASS"
+  },
+  {
+    "atom": "Discharge Patient",
+    "status": "PASS"
+  }
+]

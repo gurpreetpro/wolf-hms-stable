@@ -1,0 +1,36 @@
+📡 Using TCP connection: localhost
+[Sentry] express is not instrumented. This is likely because you required/imported express before calling `Sentry.init()`.
+[Overwatch] ✅ Sentry error tracking initialized
+[Overwatch] Telegram bot initialized
+🔍 AI Overwatch monitoring initialized
+☁️ Cloud Backup routes initialized
+[32m[2025-12-20T11:19:34.386Z] [INFO][0m [-] Database recovery service initialized
+[32m[2025-12-20T11:19:34.387Z] [INFO][0m [-] Self-healing service started
+C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\controllers\authController.js:379
+        } catch (error) {
+          ^^^^^
+
+SyntaxError: Unexpected token 'catch'
+    at wrapSafe (node:internal/modules/cjs/loader:1692:18)
+    at Module._compile (node:internal/modules/cjs/loader:1735:20)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1504:12)
+    at Module.patchedRequire (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\node_modules\require-in-the-middle\index.js:209:27)
+    at Hook._require.Module.require (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\node_modules\require-in-the-middle\index.js:134:27)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\routes\authRoutes.js:7:5)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1504:12)
+    at Module.patchedRequire (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\node_modules\require-in-the-middle\index.js:209:27)
+    at Hook._require.Module.require (C:\Users\HP\.gemini\antigravity\scratch\wolf-hms-stable\server\node_modules\require-in-the-middle\index.js:134:27)
+    at require (node:internal/modules/helpers:152:16)
+✅ Connected to PostgreSQL database (db.js)

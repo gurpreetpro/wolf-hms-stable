@@ -1,0 +1,67 @@
+﻿≡ƒÉ║ WOLF ECOSYSTEM DEPLOYMENT AUDIT
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+Target: http://217.216.78.81:8080
+Time: 2026-03-09T06:52:02.955Z
+
+ΓöüΓöüΓöü STEP 1: Authentication ΓöüΓöüΓöü
+Γ£à Login successful
+
+ΓöüΓöüΓöü STEP 2: API Route Audit (Blueprint Cross-Reference) ΓöüΓöüΓöü
+
+-------------------------------------------------------
+ Route                        | Status        | Code
+-------------------------------------------------------
+ Auth (Login)                  | Γ£à             | 200
+ Patients                      | Γ¥î NOT FOUND   | 404
+ Admissions                    | Γ¥î NOT FOUND   | 404
+ OPD Queue                     | Γ£à             | 200
+ Doctors                       | Γ¥î NOT FOUND   | 404
+ Finance/Invoices              | Γ£à             | 200
+ Inventory                     | Γ£à             | 200
+ Lab Requests                  | Γ¥î NOT FOUND   | 404
+ Blood Bank                    | ΓÜá∩╕Å ERROR      | 500
+ Equipment/Biomed              | Γ¥î NOT FOUND   | 404
+ CSSD                          | ΓÜá∩╕Å ERROR      | 500
+ Dietary                       | ΓÜá∩╕Å ERROR      | 500
+ HIM (Medical Records)         | Γ¥î NOT FOUND   | 404
+ Physiotherapy                 | Γ¥î NOT FOUND   | 404
+ Patient Merge                 | Γ¥î NOT FOUND   | 404
+ Barcode                       | Γ¥î NOT FOUND   | 404
+ ABDM                          | Γ¥î NOT FOUND   | 404
+ Govt Schemes                  | Γ¥î NOT FOUND   | 404
+ Analytics                     | Γ¥î NOT FOUND   | 404
+ FHIR R4                       | Γ¥î NOT FOUND   | 404
+ Drug Interactions             | Γ¥î NOT FOUND   | 404
+ Emergency                     | ΓÜá∩╕Å ERROR      | 500
+ Transfer (Bed)                | Γ¥î NOT FOUND   | 404
+ Treatment Packages            | Γ¥î NOT FOUND   | 404
+ TPA Providers                 | Γ£à             | 200
+ Cloud Backup                  | Γ¥î NOT FOUND   | 404
+ Automation                    | Γ¥î NOT FOUND   | 404
+ Clinical Scales               | Γ¥î NOT FOUND   | 404
+ POS Terminal                  | Γ¥î NOT FOUND   | 404
+ Problem List                  | Γ¥î NOT FOUND   | 404
+ Transition Plan               | Γ¥î NOT FOUND   | 404
+ Ward Pass                     | Γ¥î NOT FOUND   | 404
+ Platform (Hospitals)          | Γ¥î NOT FOUND   | 404
+ Platform (Users)              | Γ¥î NOT FOUND   | 404
+ PMJAY Claims                  | ΓÜá∩╕Å ERROR      | 500
+ Radiology                     | Γ¥î NOT FOUND   | 404
+ Health Check                  | Γ£à             | 200
+-------------------------------------------------------
+
+≡ƒôè ROUTE AUDIT: 6 accessible, 5 warnings, 26 not found
+
+ΓöüΓöüΓöü STEP 3: Frontend (SPA) ΓöüΓöüΓöü
+Γ£à Frontend SPA serves correctly
+
+ΓöüΓöüΓöü STEP 4: WebSocket ΓöüΓöüΓöü
+Γ£à Socket.IO endpoint responds
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+≡ƒÉ║ AUDIT COMPLETE
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+ Overall Health: 16% (6/37 routes accessible)
+ Result: ΓÜá∩╕Å 26 route(s) not found ΓÇö review needed

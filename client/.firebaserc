@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "wolf-hms"
+  },
+  "targets": {
+    "wolf-hms": {
+      "hosting": {
+        "kokila": [
+          "kokila-wolfhms"
+        ],
+        "wolfhms": [
+          "wolfhms"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

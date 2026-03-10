@@ -1,0 +1,78 @@
+﻿[dbPools] DEBUG: process.env.DB_HOST = localhost
+[dbPools] DEBUG: dbHost resolved to: localhost
+[dbPools] DEBUG: isCloudSQL = false
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  WOLF HMS ΓÇö Multi-Tenant Verification Report
+  2026-03-07T13:20:36.114Z
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+
+≡ƒôï PHASE A: Controller Scan
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  Total Controllers: 83
+  Γ£à Full Tenant-Aware: 64
+  ΓÜá∩╕Å  Import-Only: 3
+  ΓÅ¡∩╕Å  Stateless (no DB): 3
+  ≡ƒö┤ No Tenant: 13
+
+  Controllers without tenant awareness:
+    - abdmController.js: Service calls without hospitalId
+    - appBuildController.js: DB queries without hospital_id filter
+    - chargesController.js: DB queries without hospital_id filter
+    - consentController.js: DB queries without hospital_id filter
+    - HcxWebhookController.js: DB queries without hospital_id filter
+    - mfaController.js: DB queries without hospital_id filter
+    - paymentController.js: DB queries without hospital_id filter
+    - platformController.js: DB queries without hospital_id filter
+    - schemaSyncController.js: DB queries without hospital_id filter
+    - setupController.js: DB queries without hospital_id filter
+    - syncController.js: DB queries without hospital_id filter
+    - totpController.js: DB queries without hospital_id filter
+    - treatmentPackageController.js: DB queries without hospital_id filter
+
+≡ƒôè PHASE B: Database Table Scan
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+[PRIMARY] New connection established
+  Total Tables: 273
+  Γ£à With hospital_id: 249
+  Γ¼£ Without hospital_id: 26
+  ≡ƒôç Hospital Indexes: 223
+
+  Critical Table NULL Check:
+    ΓÜá∩╕Å patients: 167/196 rows have hospital_id (29 NULL)
+    Γ£à admissions: 89/89 rows have hospital_id (0 NULL)
+    Γ£à appointments
+    Γ£à invoices: 182/182 rows have hospital_id (0 NULL)
+    Γ£à lab_requests: 52/52 rows have hospital_id (0 NULL)
+    Γ£à pharmacy_orders
+    Γ£à vitals
+    Γ£à clinical_tasks
+    ΓÅ¡∩╕Å (table not found) ward_passes
+    ΓÜá∩╕Å users: 18/21 rows have hospital_id (3 NULL)
+    Γ£à wards: 28/28 rows have hospital_id (0 NULL)
+    Γ£à beds: 32/32 rows have hospital_id (0 NULL)
+
+≡ƒº¬ PHASE C: Tenant Isolation Simulation
+ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  Γ£à Hospital Lookup: Found 3 hospitals: Kokila Hospital(1), Wolf HMS(2), Dr. Parveen Gupta Multispeciality Hospital(3)
+  Γ£à RLS Context (set_config): Set tenant=1, got tenant=1
+  Γ£à Users Tenant Scoping: Total users: 21, Hospital 1: 16
+  Γ£à Patients Tenant Scoping: Total patients: 196, Hospital 1: 157
+  Γ£à Appointments Tenant Scoping: Total: 0, Hospital 1: 0
+  Γ£à Invoices Tenant Scoping: Total: 182, Hospital 1: 170
+  Γ£à Lab Requests Tenant Scoping: Total: 52, Hospital 1: 52
+  Γ£à Wards Tenant Scoping: Total: 28, Hospital 1: 28
+  Γ¥î Cross-Tenant Isolation: could not determine data type of parameter $1
+  Γ£à Hospital Indexes: 223 hospital_id indexes found
+  ΓÜá∩╕Å INSERT Simulation: relation "ward_passes" does not exist
+
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  SUMMARY
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+  Controllers: 64/83 tenant-aware
+  DB Tables: 249/273 have hospital_id
+  Indexes: 223 hospital indexes
+  Simulation: 9 PASS, 1 FAIL, 1 WARN/SKIP
+
+  Overall: Γ¥î 1 CHECKS FAILED
+ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+

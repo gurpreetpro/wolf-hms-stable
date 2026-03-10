@@ -1,0 +1,32 @@
+[
+  {
+    "column_name": "id"
+  },
+  {
+    "column_name": "admission_id"
+  },
+  {
+    "column_name": "bp"
+  },
+  {
+    "column_name": "temp"
+  },
+  {
+    "column_name": "spo2"
+  },
+  {
+    "column_name": "heart_rate"
+  },
+  {
+    "column_name": "recorded_at"
+  },
+  {
+    "column_name": "recorded_by"
+  },
+  {
+    "column_name": "patient_id"
+  },
+  {
+    "column_name": "hospital_id"
+  }
+]

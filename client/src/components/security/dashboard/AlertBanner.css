@@ -1,0 +1,247 @@
+/* AlertBanner.css - Emergency Alert Styling */
+
+.alert-banner-container {
+  position: relative;
+  width: 100%;
+  z-index: 9999;
+}
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #ff1744 0%, #d50000 50%, #ff1744 100%);
+  background-size: 200% 100%;
+  animation:
+    alertGradient 2s ease-in-out infinite,
+    alertPulse 1s ease-in-out infinite;
+  color: white;
+  font-family: "Inter", sans-serif;
+  box-shadow: 0 4px 20px rgba(255, 23, 68, 0.5);
+}
+
+@keyframes alertGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes alertPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Alert Types */
+.alert-type-sos,
+.alert-type-sos_panic,
+.alert-type-panic {
+  background: linear-gradient(90deg, #ff1744 0%, #d50000 50%, #ff1744 100%);
+}
+
+.alert-type-man_down {
+  background: linear-gradient(90deg, #ff6d00 0%, #e65100 50%, #ff6d00 100%);
+}
+
+.alert-type-geofence_breach {
+  background: linear-gradient(90deg, #ffab00 0%, #ff8f00 50%, #ffab00 100%);
+}
+
+/* Icon */
+.alert-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.alert-icon {
+  color: white;
+}
+
+.alert-icon.pulse {
+  animation: iconPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Content */
+.alert-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.alert-type-label {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.alert-count {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.alert-details {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.alert-details span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.alert-guard {
+  font-size: 15px;
+}
+
+.alert-location,
+.alert-time {
+  opacity: 0.9;
+}
+
+/* Actions */
+.alert-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.alert-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+}
+
+.alert-btn-sound {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.alert-btn-sound:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.alert-btn-ack {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 20px;
+  background: white;
+  color: #d50000;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.alert-btn-ack:hover {
+  background: #f5f5f5;
+  transform: scale(1.02);
+}
+
+.alert-btn-ack .btn-text-en {
+  font-size: 14px;
+}
+
+.alert-btn-ack .btn-text-hi {
+  font-size: 11px;
+  font-family: "Noto Sans Devanagari", sans-serif;
+  opacity: 0.8;
+}
+
+.alert-btn-dismiss {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.alert-btn-dismiss:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Alert Queue (additional alerts) */
+.alert-queue {
+  display: flex;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.alert-queue-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alert-banner {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+  }
+
+  .alert-details {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .alert-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .alert-type-label {
+    font-size: 16px;
+  }
+}

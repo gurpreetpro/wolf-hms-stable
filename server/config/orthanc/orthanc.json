@@ -1,0 +1,52 @@
+{
+  "Name": "WolfHMS-PACS",
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": {
+    "orthanc": "orthanc",
+    "wolfhms": "wolfhms-secure-2026"
+  },
+  
+  "DicomAet": "WOLFPACS",
+  "DicomCheckCalledAet": false,
+  "DicomPort": 4242,
+  
+  "HttpPort": 8042,
+  
+  "LuaScripts": [
+    "./wolf-hms-webhook.lua"
+  ],
+  
+  "DicomModalities": {
+    "WOLF-CT": ["WOLF_CT", "192.168.1.100", 4242],
+    "WOLF-MRI": ["WOLF_MRI", "192.168.1.101", 4242],
+    "WOLF-XRAY": ["WOLF_XRAY", "192.168.1.102", 4242],
+    "WOLF-US": ["WOLF_US", "192.168.1.103", 4242]
+  },
+  
+  "OrthancPeers": {},
+  
+  "StableAge": 60,
+  "StrictAetComparison": false,
+  
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web/",
+    "EnableWado": true,
+    "WadoRoot": "/wado",
+    "Ssl": false,
+    "StudiesMetadata": "Full"
+  },
+  
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  
+  "MaximumStorageSize": 0,
+  "MaximumPatientCount": 0,
+  
+  "Plugins": [
+    "/usr/share/orthanc/plugins/libOrthancDicomWeb.so"
+  ],
+  
+  "_comment": "Wolf HMS Integration - Production Configuration"
+}

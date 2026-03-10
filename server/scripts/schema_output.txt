@@ -1,0 +1,69 @@
+Checking blood_donors table...
+✅ Table blood_donors exists with columns:
+ - id (integer) [Nullable: NO] [Default: undefined]
+ - donor_id (character varying) [Nullable: YES] [Default: undefined]
+ - name (character varying) [Nullable: NO] [Default: undefined]
+ - phone (character varying) [Nullable: NO] [Default: undefined]
+ - email (character varying) [Nullable: YES] [Default: undefined]
+ - blood_group (character varying) [Nullable: NO] [Default: undefined]
+ - rh_factor (character varying) [Nullable: YES] [Default: undefined]
+ - date_of_birth (date) [Nullable: YES] [Default: undefined]
+ - gender (character varying) [Nullable: YES] [Default: undefined]
+ - address (text) [Nullable: YES] [Default: undefined]
+ - city (character varying) [Nullable: YES] [Default: undefined]
+ - weight (numeric) [Nullable: YES] [Default: undefined]
+ - hemoglobin (numeric) [Nullable: YES] [Default: undefined]
+ - blood_pressure (character varying) [Nullable: YES] [Default: undefined]
+ - pulse (integer) [Nullable: YES] [Default: undefined]
+ - last_donation_date (date) [Nullable: YES] [Default: undefined]
+ - total_donations (integer) [Nullable: YES] [Default: undefined]
+ - is_eligible (boolean) [Nullable: YES] [Default: undefined]
+ - is_voluntary (boolean) [Nullable: YES] [Default: undefined]
+ - deferral_reason (text) [Nullable: YES] [Default: undefined]
+ - deferral_until (date) [Nullable: YES] [Default: undefined]
+ - medical_history (jsonb) [Nullable: YES] [Default: undefined]
+ - emergency_contact_name (character varying) [Nullable: YES] [Default: undefined]
+ - emergency_contact_phone (character varying) [Nullable: YES] [Default: undefined]
+ - created_by (integer) [Nullable: YES] [Default: undefined]
+ - created_at (timestamp without time zone) [Nullable: YES] [Default: undefined]
+ - updated_at (timestamp without time zone) [Nullable: YES] [Default: undefined]
+ - hospital_id (integer) [Nullable: YES] [Default: undefined]
+
+Checking blood_units table...
+✅ Table blood_units exists with columns:
+ - id (integer)
+ - unit_id (character varying)
+ - bag_number (character varying)
+ - donor_id (integer)
+ - blood_group (character varying)
+ - rh_factor (character varying)
+ - component_type_id (integer)
+ - parent_unit_id (integer)
+ - volume_ml (integer)
+ - collection_date (date)
+ - expiry_date (date)
+ - collection_type (character varying)
+ - storage_location (character varying)
+ - refrigerator_id (character varying)
+ - shelf_number (character varying)
+ - current_temperature (numeric)
+ - temperature_log (jsonb)
+ - status (character varying)
+ - tested_status (character varying)
+ - tti_results (jsonb)
+ - blood_group_confirmed (boolean)
+ - special_testing (jsonb)
+ - reserved_for_patient (uuid)
+ - reserved_until (timestamp without time zone)
+ - issued_to_patient (uuid)
+ - issued_date (timestamp without time zone)
+ - issued_by (integer)
+ - discard_reason (text)
+ - discarded_by (integer)
+ - discarded_at (timestamp without time zone)
+ - notes (text)
+ - created_by (integer)
+ - created_at (timestamp without time zone)
+ - updated_at (timestamp without time zone)
+ - donation_date (timestamp without time zone)
+ - hospital_id (integer)

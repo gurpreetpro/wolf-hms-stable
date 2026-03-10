@@ -1,0 +1,94 @@
+.theme-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.toggle-track {
+    position: relative;
+    width: 56px;
+    height: 28px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    transition: all 0.3s ease;
+}
+
+.toggle-track.light {
+    background: linear-gradient(135deg, #87CEEB 0%, #FDB813 100%);
+}
+
+.toggle-track.dark {
+    background: linear-gradient(135deg, #1a1f2e 0%, #2d3446 100%);
+}
+
+.toggle-icon {
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.toggle-icon.sun {
+    color: #FDB813;
+}
+
+.toggle-icon.moon {
+    color: #e9ecef;
+}
+
+.toggle-track.light .toggle-icon.sun {
+    opacity: 0.4;
+}
+
+.toggle-track.light .toggle-icon.moon {
+    opacity: 1;
+}
+
+.toggle-track.dark .toggle-icon.sun {
+    opacity: 1;
+}
+
+.toggle-track.dark .toggle-icon.moon {
+    opacity: 0.4;
+}
+
+.toggle-thumb {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 3px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-track.light .toggle-thumb {
+    left: 3px;
+}
+
+.toggle-track.dark .toggle-thumb {
+    left: 31px;
+}
+
+/* Add a subtle glow effect */
+.toggle-track.dark .toggle-thumb {
+    box-shadow: 0 0 8px rgba(23, 162, 184, 0.5);
+}
+
+.theme-toggle-btn:hover .toggle-track {
+    transform: scale(1.05);
+}
+
+.theme-toggle-btn:focus {
+    outline: none;
+}
+
+.theme-toggle-btn:focus-visible .toggle-track {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}

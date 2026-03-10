@@ -1,0 +1,76 @@
+﻿≡ƒôí Using TCP connection: 127.0.0.1
+≡ƒöî Connecting to PostgreSQL...
+
+≡ƒöì Checking if database "hospital_db" exists...
+Γ£à Connected to PostgreSQL database (db.js)
+Γ£à Database "hospital_db" already exists.
+
+≡ƒÜÇ Starting HMS Premium Database Migration...
+
+≡ƒÜÇ Applying migration: 032_consolidated_fixes.sql...
+node : Γ¥î Failed to apply 
+032_consolidated_fixes.sql:
+At line:1 char:134
++ ... 56!"; 
+$env:DB_NAME="hospital_db"; node 
+setup_database.js 2>&1 | Out-F ...
++                                      
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (Γ¥î Failed to a...ated_fixe  
+  s.sql::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+   Message: relation "medicines" does 
+not exist
+   Code: 42P01
+   Detail: undefined
+   Hint: undefined
+   Position: undefined
+
+Γ¥î Migration Error: relation 
+"medicines" does not exist
+
+≡ƒÆí Troubleshooting:
+   1. Ensure PostgreSQL is running
+   2. Check password in .env file
+   3. Verify PostgreSQL is accessible 
+on port 5432
+   4. Check PostgreSQL logs for more 
+details
+
+Full error: error: relation 
+"medicines" does not exist
+    at C:\Users\HP\.gemini\antigravity\
+scratch\wolf-hms-stable\server\node_mod
+ules\pg-pool\index.js:45:11
+    at 
+process.processTicksAndRejections (node
+:internal/process/task_queues:103:5)
+    at async MigrationService.run (C:\U
+sers\HP\.gemini\antigravity\scratch\wol
+f-hms-stable\server\services\MigrationS
+ervice.js:40:11)
+    at async createDatabaseAndMigrate (
+C:\Users\HP\.gemini\antigravity\scratch
+\wolf-hms-stable\server\setup_database.
+js:37:9) {
+  length: 107,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'namespace.c',
+  line: '436',
+  routine: 'RangeVarGetRelidExtended'
+}

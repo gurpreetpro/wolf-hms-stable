@@ -1,0 +1,30 @@
+{
+  "invoice": {
+    "id": 140,
+    "admission_id": 86,
+    "patient_id": "20560d85-268a-4ef6-91ec-4405744f1941",
+    "total_amount": "500",
+    "status": "Pending",
+    "generated_at": "2026-01-23T07:07:41.515Z",
+    "generated_by": 5,
+    "invoice_number": null,
+    "amount_paid": "0",
+    "patient_number": null,
+    "hospital_id": 1,
+    "invoice_items": [
+      {
+        "id": 371,
+        "invoice_id": 140,
+        "description": "Room Charges",
+        "quantity": 1,
+        "unit_price": "500",
+        "total_price": "500",
+        "hospital_id": 1,
+        "item_type": "general",
+        "reference_id": null,
+        "doctor_id": null
+      }
+    ]
+  },
+  "items": []
+}

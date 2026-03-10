@@ -1,0 +1,10 @@
+{
+    "primaryPath": "/tmp/wolf-hms-backups/primary",
+    "secondaryPath": "/tmp/wolf-hms-backups/secondary",
+    "schedule": "every6hours",
+    "lastBackup": null,
+    "autoBackupEnabled": true,
+    "cloudSyncEnabled": true,
+    "keepLocalBackups": 3,
+    "note": "Cloud Run uses ephemeral /tmp storage. All backups MUST sync to Google Drive immediately."
+}

@@ -1,0 +1,38 @@
+=== HOSPITALS TABLE SCHEMA ===
+  id (integer) NOT NULL
+  code (character varying) NOT NULL
+  name (character varying) NOT NULL
+  subdomain (character varying) NULL
+  custom_domain (character varying) NULL
+  logo_url (text) NULL
+  primary_color (character varying) NULL
+  secondary_color (character varying) NULL
+  address (text) NULL
+  city (character varying) NULL
+  state (character varying) NULL
+  country (character varying) NULL
+  phone (character varying) NULL
+  email (character varying) NULL
+  settings (jsonb) NULL
+  subscription_tier (character varying) NULL
+  subscription_start (date) NULL
+  subscription_end (date) NULL
+  is_active (boolean) NULL
+  created_at (timestamp without time zone) NULL
+  updated_at (timestamp without time zone) NULL
+  bed_count (integer) NULL
+  staff_count (integer) NULL
+  pricing_tier (character varying) NULL
+  hospital_name (character varying) NULL
+  hospital_domain (character varying) NULL
+  status (character varying) NULL
+  subscription_plan (character varying) NULL
+  slug (character varying) NULL
+  tagline (character varying) NULL
+  registration_no (character varying) NULL
+  features (jsonb) NULL
+
+=== EXISTING HOSPITALS ===
+  ID:1 | Kokila Hospital | code:kokila | subdomain:kokila.wolfhms.web.app | tier:professional | active:true
+  ID:2 | Wolf HMS | code:taneja | subdomain:wolf-hms.web.app | tier:professional | active:true
+  ID:3 | Dr. Parveen Gupta Multispeciality Hospital | code:drparveen | subdomain:drparveen | tier:professional | active:true

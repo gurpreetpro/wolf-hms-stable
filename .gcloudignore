@@ -1,0 +1,66 @@
+# This file specifies files that are *not* uploaded to Cloud Build
+# This is similar to .gitignore
+
+# Ignore git and version control
+.git/
+.gitignore
+
+# Ignore node_modules recursively
+**/node_modules/
+
+# Ignore pre-built frontend (MUST rebuild in Docker)
+client/dist/
+server/public/
+
+# Ignore local development files
+.env
+.env.local
+.env.development
+*.log
+*.bak
+*.txt
+*.json
+!package.json
+!package-lock.json
+!server/data/*.json
+
+# Ignore local database files
+pgsql/
+*.sql.bak
+*.sql
+
+# Ignore test files
+*.spec.js
+*.test.js
+__tests__/
+
+# Ignore documentation
+*.md
+!README.md
+docs/
+
+# Ignore local scripts
+*.bat
+*.sh
+!scripts/enable-backups.sh
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore mobile app folders 
+wolf-nurse-mobile/
+wolf-guard-mobile/
+wolf-doctor-mobile/
+wolf-staff-mobile/
+wolf-ultimate/
+WOLF CARE/
+wolf-care-mobile/
+
+# Ignore temp files
+tmp/
+temp/
+.tmp/
+
+# Ignore MFA setup file (SENSITIVE!)
+GURPREET_MFA_SETUP_DELETE_AFTER_USE.js

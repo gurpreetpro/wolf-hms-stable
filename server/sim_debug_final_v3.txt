@@ -1,0 +1,56 @@
+[2025-12-31T18:03:24.547Z] 🚀 Starting Atomic Level Simulation...
+[2025-12-31T18:03:24.557Z] 🔹 Testing: Login Admin...
+[2025-12-31T18:03:24.696Z] ✅ PASS: Login Admin
+[2025-12-31T18:03:24.697Z] 🔹 Testing: Login Doctor...
+[2025-12-31T18:03:24.803Z] ✅ PASS: Login Doctor
+[2025-12-31T18:03:24.803Z] 🔹 Testing: Login Nurse...
+[2025-12-31T18:03:24.856Z] ✅ PASS: Login Nurse
+[2025-12-31T18:03:24.856Z] 🔹 Testing: Login Receptionist...
+[2025-12-31T18:03:24.910Z] ✅ PASS: Login Receptionist
+[2025-12-31T18:03:24.910Z] 🔹 Testing: Register Patient (OPD)...
+[2025-12-31T18:03:24.940Z]    Patient ID: fbcdac78-e0a1-41ea-8ecd-9ef6db7cf7a5
+[2025-12-31T18:03:24.940Z] ✅ PASS: Register Patient (OPD)
+[2025-12-31T18:03:24.940Z] 🔹 Testing: Admit Patient to Ward...
+[2025-12-31T18:03:24.957Z]    Admission ID: 55 (Type: number)
+[2025-12-31T18:03:24.957Z] ✅ PASS: Admit Patient to Ward
+[2025-12-31T18:03:24.957Z] 🔹 Testing: Doctor Prescribes Meds & Labs...
+[2025-12-31T18:03:24.976Z] ✅ PASS: Doctor Prescribes Meds & Labs
+[2025-12-31T18:03:24.976Z] 🔹 Testing: Nurse Logs Vitals...
+[2025-12-31T18:03:24.982Z] ✅ PASS: Nurse Logs Vitals
+[2025-12-31T18:03:24.982Z] 🔹 Testing: Nurse Logs Pain Score (Fix Verification)...
+[2025-12-31T18:03:24.987Z] ✅ PASS: Nurse Logs Pain Score (Fix Verification)
+[2025-12-31T18:03:24.987Z] 🔹 Testing: Nurse Logs Fluid Balance (Fix Verification)...
+[2025-12-31T18:03:24.994Z] ✅ PASS: Nurse Logs Fluid Balance (Fix Verification)
+[2025-12-31T18:03:24.994Z] 🔹 Testing: Nurse Saves Wound Assessment (Fix Verification - New Table)...
+[2025-12-31T18:03:25.002Z] ❌ FAIL: Nurse Saves Wound Assessment (Fix Verification - New Table) - {"message":"Failed to save wound assessment"}
+[2025-12-31T18:03:25.003Z] 🔹 Testing: Lab Enters Result...
+[2025-12-31T18:03:25.026Z] ✅ PASS: Lab Enters Result
+[2025-12-31T18:03:25.026Z] 🔹 Testing: Generate Invoice...
+[2025-12-31T18:03:25.035Z] Invoice Amount: 850.00
+[2025-12-31T18:03:25.035Z] ✅ PASS: Generate Invoice
+[2025-12-31T18:03:25.035Z] 🔹 Testing: Debug Check...
+[2025-12-31T18:03:25.035Z] 🔍 Checking Pending Tasks before Discharge...
+[2025-12-31T18:03:25.035Z]    GET http://localhost:5000/api/nurse/ward-overview
+[2025-12-31T18:03:25.122Z]    Pending Tasks count for Admission 55: 1
+[2025-12-31T18:03:25.122Z]    Tasks: [{"id":31,"admission_id":55,"type":"Medication","description":"Paracetamol - 500mg - BID","status":"Pending","scheduled_time":"2025-12-31T18:03:24.959Z","patient_name":"Sim Patient 1767204204910","bed_number":"B-SIM-4940","ward":"General"}]
+[2025-12-31T18:03:25.167Z]    Lab Requests Status: [{"id":39,"status":"Completed"}]
+[2025-12-31T18:03:25.168Z] ✅ PASS: Debug Check
+[2025-12-31T18:03:25.168Z] 🔹 Testing: Discharge Patient...
+[2025-12-31T18:03:25.173Z] ❌ FAIL: Discharge Patient - {"success":false,"message":"Cannot discharge: Pending Department Clearance (Tasks/Labs)"}
+
+SIMULATION SUMMARY
+PASS: Login Admin 
+PASS: Login Doctor 
+PASS: Login Nurse 
+PASS: Login Receptionist 
+PASS: Register Patient (OPD) 
+PASS: Admit Patient to Ward 
+PASS: Doctor Prescribes Meds & Labs 
+PASS: Nurse Logs Vitals 
+PASS: Nurse Logs Pain Score (Fix Verification) 
+PASS: Nurse Logs Fluid Balance (Fix Verification) 
+FAIL: Nurse Saves Wound Assessment (Fix Verification - New Table) - Request failed with status code 500
+PASS: Lab Enters Result 
+PASS: Generate Invoice 
+PASS: Debug Check 
+FAIL: Discharge Patient - Request failed with status code 400

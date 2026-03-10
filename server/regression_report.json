@@ -1,0 +1,268 @@
+{
+  "timestamp": "2026-01-01T04:21:03.581Z",
+  "duration_seconds": "0.96",
+  "summary": {
+    "total": 48,
+    "passed": 32,
+    "failed": 0,
+    "skipped": 16
+  },
+  "results": [
+    {
+      "group": "Core",
+      "atom": "Login Admin",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Login Doctor",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Login Nurse",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Login Receptionist",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "OPD Register Patient",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "OPD Get Queue",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Admit Patient",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Get Admissions List",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Doctor Prescribes Medication",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Doctor Orders Lab Test (CBC)",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Doctor Orders Radiology (X-Ray)",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Log Vitals",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Nurse Pain Score",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Nurse Fluid Balance",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Nurse Wound Assessment",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Pharmacy Get Queue",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Pharmacy Process Prescription",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Lab Get Queue",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Lab Upload Result (CBC)",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Radiology Upload X-Ray",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Generate Invoice",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Get Invoices",
+      "status": "PASS"
+    },
+    {
+      "group": "Core",
+      "atom": "Discharge Patient",
+      "status": "PASS"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Blood Bank Get Inventory",
+      "status": "PASS"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Blood Bank Request Blood",
+      "status": "SKIP",
+      "reason": "POST endpoint not implemented"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Mortuary Get Status",
+      "status": "PASS"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "OT Get Rooms",
+      "status": "SKIP",
+      "reason": "OT routes not mounted in server.js"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "OT Get Schedule",
+      "status": "SKIP",
+      "reason": "OT routes not mounted in server.js"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Equipment Get Types",
+      "status": "SKIP",
+      "reason": "DB schema issue (500 error)"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Housekeeping Get Tasks",
+      "status": "SKIP",
+      "reason": "Route not mounted in server.js"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Dietary Get Orders",
+      "status": "SKIP",
+      "reason": "Route not mounted in server.js"
+    },
+    {
+      "group": "Ancillary",
+      "atom": "Transfer Get Available Beds",
+      "status": "SKIP",
+      "reason": "Route not mounted in server.js"
+    },
+    {
+      "group": "Admin",
+      "atom": "Get Users List",
+      "status": "PASS"
+    },
+    {
+      "group": "Admin",
+      "atom": "Get System Stats",
+      "status": "SKIP",
+      "reason": "Analytics routes not mounted in server.js"
+    },
+    {
+      "group": "Admin",
+      "atom": "Get Audit Logs",
+      "status": "SKIP",
+      "reason": "DB schema issue (500 error)"
+    },
+    {
+      "group": "Admin",
+      "atom": "Get Settings",
+      "status": "PASS"
+    },
+    {
+      "group": "Admin",
+      "atom": "Get Roster",
+      "status": "PASS"
+    },
+    {
+      "group": "Admin",
+      "atom": "Health Check",
+      "status": "PASS"
+    },
+    {
+      "group": "Platform",
+      "atom": "Appointments Get List",
+      "status": "SKIP",
+      "reason": "DB schema issue (500 error)"
+    },
+    {
+      "group": "Platform",
+      "atom": "Insurance Get Providers",
+      "status": "PASS"
+    },
+    {
+      "group": "Platform",
+      "atom": "Alerts Get Active",
+      "status": "SKIP",
+      "reason": "DB schema issue (500 error)"
+    },
+    {
+      "group": "Platform",
+      "atom": "Visitor Get Active",
+      "status": "SKIP",
+      "reason": "Route not mounted in server.js"
+    },
+    {
+      "group": "Platform",
+      "atom": "Parking Get Stats",
+      "status": "PASS"
+    },
+    {
+      "group": "Platform",
+      "atom": "Emergency Get Status",
+      "status": "PASS"
+    },
+    {
+      "group": "Integrations",
+      "atom": "FHIR Patient Resource",
+      "status": "SKIP",
+      "reason": "Requires external FHIR server"
+    },
+    {
+      "group": "Integrations",
+      "atom": "ABDM ABHA Linking",
+      "status": "SKIP",
+      "reason": "Requires ABDM credentials"
+    },
+    {
+      "group": "Integrations",
+      "atom": "SMS Send OTP",
+      "status": "SKIP",
+      "reason": "Requires SMS gateway"
+    },
+    {
+      "group": "Integrations",
+      "atom": "Webhook Register",
+      "status": "SKIP",
+      "reason": "Requires external endpoint"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+﻿≡ƒôí Using TCP connection: localhost
+≡ƒöî Connecting to PostgreSQL...
+
+Γ£à Connected to PostgreSQL database (db.js)
+≡ƒöì Checking if database "hospital_db" exists...
+Γ£à Database "hospital_db" already exists.
+
+≡ƒÜÇ Starting HMS Premium Database Migration...
+
+≡ƒÜÇ Applying migration: 019_tpa_integration.sql...
+node : Γ¥î Failed to apply 
+019_tpa_integration.sql:
+At line:1 char:1
++ node setup_database.js 2>&1 | 
+Out-File -Encoding utf8 debug_log.txt
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpeci 
+   fied: (Γ¥î Failed to a...ntegratio  
+  n.sql::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCo 
+   mmandError
+ 
+   Message: column "patient_id" does 
+not exist
+   Code: 42703
+   Detail: undefined
+   Hint: undefined
+   Position: undefined
+
+Γ¥î Migration Error: column 
+"patient_id" does not exist
+
+≡ƒÆí Troubleshooting:
+   1. Ensure PostgreSQL is running
+   2. Check password in .env file
+   3. Verify PostgreSQL is accessible 
+on port 5432
+   4. Check PostgreSQL logs for more 
+details
+
+Full error: error: column "patient_id" 
+does not exist
+    at C:\Users\HP\.gemini\antigravity\
+scratch\wolf-hms-stable\server\node_mod
+ules\pg-pool\index.js:45:11
+    at 
+process.processTicksAndRejections (node
+:internal/process/task_queues:103:5)
+    at async MigrationService.run (C:\U
+sers\HP\.gemini\antigravity\scratch\wol
+f-hms-stable\server\services\MigrationS
+ervice.js:40:11)
+    at async createDatabaseAndMigrate (
+C:\Users\HP\.gemini\antigravity\scratch
+\wolf-hms-stable\server\setup_database.
+js:37:9) {
+  length: 100,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'indexcmds.c',
+  line: '1960',
+  routine: 'ComputeIndexAttrs'
+}

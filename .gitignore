@@ -1,0 +1,76 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+server/*.log
+
+# Build outputs
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Uploaded files (if any)
+uploads/
+
+# Backup files
+*.bak
+*.backup
+
+# Debug and temp files
+debug_*.js
+check_*.js
+verify_*.js
+output.json
+simulation_*.json
+
+# Database dumps
+*.sql.bak
+*.dump
+*.sql
+backups/
+
+# Large binary/archive files (too large for GitHub)
+*.tar
+*.tar.gz
+*.tgz
+*.exe
+*.zip
+*.apk
+*.ipa
+
+# Local PostgreSQL installation (never push this!)
+pgsql/
+
+# Antigravity AI artifacts
+.gemini/
+
+# Audit and report files
+audit_report.json
+audit_results.json
+comparison_report.md
+credentials_audit.md
+local_db_report.md
+local_inventory.md
+migration_error.json
+nuclear_cloud_billing_report.json
+error.json

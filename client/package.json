@@ -1,0 +1,48 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^5.14.18",
+    "@mui/material": "^5.18.0",
+    "@turf/bbox": "^7.3.1",
+    "@turf/helpers": "^7.3.1",
+    "axios": "^1.6.0",
+    "bootstrap": "^5.3.8",
+    "date-fns": "^4.1.0",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.555.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.3.1",
+    "react-big-calendar": "^1.19.4",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.20.0",
+    "recharts": "^2.10.3",
+    "socket.io-client": "^4.7.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "terser": "^5.44.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.11"
+  }
+}
