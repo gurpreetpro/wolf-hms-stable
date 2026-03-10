@@ -54,7 +54,7 @@ router.get('/kpi', protect, asyncHandler(async (req, res) => {
     const [revenueToday, bedOccupancy, avgWaitTime] = await Promise.all([
         pool.query(
             `SELECT COALESCE(SUM(total_amount), 0) as revenue FROM invoices 
-             WHERE hospital_id = $1 AND DATE(created_at) = $2`,
+             WHERE hospital_id = $1 AND DATE(generated_at) = $2`,
             [hospitalId, today]
         ),
         pool.query(

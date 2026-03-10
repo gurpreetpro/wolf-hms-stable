@@ -72,9 +72,9 @@ const getAnalytics = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const revenueRes = await pool.query(`
-        SELECT DATE(created_at) as date, SUM(total_amount) as total FROM invoices
-        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
-        GROUP BY DATE(created_at) ORDER BY DATE(created_at) ASC
+        SELECT DATE(generated_at) as date, SUM(total_amount) as total FROM invoices
+        WHERE generated_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
+        GROUP BY DATE(generated_at) ORDER BY DATE(generated_at) ASC
     `, [hospitalId]);
 
     const patientsRes = await pool.query(`
@@ -99,7 +99,7 @@ const getStats = asyncHandler(async (req, res) => {
     const admissionsRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE status = 'Admitted' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const activeAdmissions = parseInt(admissionsRes.rows[0].count);
 
-    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(created_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(generated_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
     const todayRevenue = parseFloat(revenueRes.rows[0].total);
 
     const staffRes = await pool.query("SELECT role, COUNT(*) FROM users WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY role", [hospitalId]);
