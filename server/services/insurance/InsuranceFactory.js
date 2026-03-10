@@ -3,7 +3,7 @@
  * Dynamically loads and configures insurance adapters
  */
 
-const LRUCache = require('lru-cache');
+const { LRUCache } = require('lru-cache');
 const TenantConfigService = require('./TenantConfigService');
 
 // Adapter Imports
@@ -30,7 +30,7 @@ class InsuranceFactory {
         if (!hospitalId || !providerCode) throw new Error('Missing Factory Params');
 
         const cacheKey = `adapter:${hospitalId}:${providerCode}`;
-        
+
         // 1. Check Cache
         if (adapterCache.has(cacheKey)) {
             // console.log(`[Factory] Cache Hit: ${cacheKey}`);
@@ -39,27 +39,27 @@ class InsuranceFactory {
 
         // 2. Fetch Credentials from Vault
         const config = await TenantConfigService.getProviderConfig(hospitalId, providerCode);
-        
+
         if (!config) {
             throw new Error(`Insurance Provider ${providerCode} not configured for Hospital ${hospitalId}`);
         }
 
         // 3. Instantiate Adapter
         let adapter;
-        switch(providerCode) {
-            case 'HCX': 
-                adapter = new NHCXAdapter(); 
+        switch (providerCode) {
+            case 'HCX':
+                adapter = new NHCXAdapter();
                 break;
-            case 'PMJAY': 
-                adapter = new PMJAYAdapter(); 
+            case 'PMJAY':
+                adapter = new PMJAYAdapter();
                 break;
-            case 'STAR': 
-                adapter = new StarHealthAdapter(); 
+            case 'STAR':
+                adapter = new StarHealthAdapter();
                 break;
-            case 'MEDI_ASSIST': 
-                adapter = new MediAssistAdapter(); 
+            case 'MEDI_ASSIST':
+                adapter = new MediAssistAdapter();
                 break;
-            default: 
+            default:
                 adapter = new GenericTPAAdapter();
         }
 
