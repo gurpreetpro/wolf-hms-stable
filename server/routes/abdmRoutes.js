@@ -4,7 +4,7 @@ const pool = require('../config/db');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { protect: verifyToken, authorize: authorizeRole } = require('../middleware/authMiddleware');
-const AbdmService = require('../services/AbdmService');
+const AbdmService = require('../services/abdmService');
 
 // ============================================
 // G3.1: ABDM Consent Management Routes
