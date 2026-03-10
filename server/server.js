@@ -213,6 +213,39 @@ app.get('/api/test/migrate-recovery-console', async (req, res) => {
 });
 
 
+// --- TEMP MIGRATION TRIGGER --
+app.get('/api/run-all-migrations-now', async (req, res) => {
+    try {
+        const fs = require('fs'); const path = require('path');
+        const migrationsDir = path.join(__dirname, 'migrations');
+        const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+
+        const resDb = await pool.query(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'migrations');`);
+        let logs = [];
+        if (!resDb.rows[0].exists) {
+            logs.push('Creating migrations table...');
+            await pool.query('CREATE TABLE migrations (id SERIAL PRIMARY KEY, name VARCHAR(255) NOT NULL, executed_at TIMESTAMP DEFAULT NOW());');
+        }
+
+        const executed = await pool.query('SELECT name FROM migrations');
+        const executedNames = new Set(executed.rows.map(r => r.name));
+        const pending = files.filter(f => !executedNames.has(f));
+        logs.push(`Pending migrations: ${pending.length} files`);
+
+        let success = 0; let failed = 0;
+        for (const file of pending) {
+            const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+            try {
+                await pool.query(sql); await pool.query('INSERT INTO migrations (name) VALUES ($1)', [file]);
+                success++;
+            } catch (e) { logs.push(`Failed ${file}: ${e.message}`); failed++; }
+        }
+        logs.push(`Finished. Success: ${success}, Failed: ${failed}`);
+        res.json({ logs });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+// -----------------------------
+
 app.get('/api/test/fix-settings-schema', async (req, res) => {
     try {
         // 1. Create table if not exists
