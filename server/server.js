@@ -51,6 +51,9 @@ const ClinicalSentinel = require('./services/ClinicalSentinel');
 // Database Connection (Keep this to test DB)
 const { pool } = require('./db');
 
+// Startup Schema Migrations — adds missing columns safely
+const { ensureSchema } = require('./utils/ensureSchema');
+ensureSchema().catch(err => console.error('[Schema] Migration error:', err.message));
 
 
 const { initEmailWorker } = require('./workers/emailWorker');
