@@ -43,20 +43,26 @@ async function ensureSchema() {
         `ALTER TABLE patients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
 
         // admissions table
-        `CREATE TABLE IF NOT EXISTS admissions (
-            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-            patient_id UUID,
-            hospital_id INTEGER,
-            bed_number VARCHAR(50),
-            treating_doctor_id INTEGER,
-            admission_date TIMESTAMP DEFAULT NOW(),
-            discharge_date TIMESTAMP,
-            status VARCHAR(20) DEFAULT 'Admitted',
-            diagnosis TEXT,
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT NOW()
-        )`,
+        `DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'admissions') THEN
+                EXECUTE 'CREATE TABLE admissions (
+                    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+                    patient_id UUID,
+                    hospital_id INTEGER,
+                    bed_number VARCHAR(50),
+                    treating_doctor_id INTEGER,
+                    admission_date TIMESTAMP DEFAULT NOW(),
+                    discharge_date TIMESTAMP,
+                    status VARCHAR(20) DEFAULT ''Admitted'',
+                    diagnosis TEXT,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )';
+            ELSE
+                EXECUTE 'ALTER TABLE admissions ADD COLUMN IF NOT EXISTS treating_doctor_id INTEGER';
+            END IF;
+        END $$;`,
         
         // wards table
         `CREATE TABLE IF NOT EXISTS wards (
