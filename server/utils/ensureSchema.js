@@ -43,26 +43,20 @@ async function ensureSchema() {
         `ALTER TABLE patients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
 
         // admissions table
-        `DO $$ BEGIN
-            IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'admissions') THEN
-                EXECUTE 'CREATE TABLE admissions (
-                    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-                    patient_id UUID,
-                    hospital_id INTEGER,
-                    bed_number VARCHAR(50),
-                    treating_doctor_id INTEGER,
-                    admission_date TIMESTAMP DEFAULT NOW(),
-                    discharge_date TIMESTAMP,
-                    status VARCHAR(20) DEFAULT ''Admitted'',
-                    diagnosis TEXT,
-                    notes TEXT,
-                    created_at TIMESTAMP DEFAULT NOW(),
-                    updated_at TIMESTAMP DEFAULT NOW()
-                )';
-            ELSE
-                EXECUTE 'ALTER TABLE admissions ADD COLUMN IF NOT EXISTS treating_doctor_id INTEGER';
-            END IF;
-        END $$;`,
+        `CREATE TABLE IF NOT EXISTS admissions (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            patient_id UUID
+        )`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS hospital_id INTEGER`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS bed_number VARCHAR(50)`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS treating_doctor_id INTEGER`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS admission_date TIMESTAMP DEFAULT NOW()`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS discharge_date TIMESTAMP`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Admitted'`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS diagnosis TEXT`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS notes TEXT`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
+        `ALTER TABLE admissions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
         
         // wards table
         `CREATE TABLE IF NOT EXISTS wards (
