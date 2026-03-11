@@ -127,13 +127,20 @@ async function ensureAdminUsers() {
             console.warn(`   ⚠️ Schema create warning: ${schemaErr.message} (Proceeding best-effort)`);
         }
 
-        // 2a. Ensure critical columns exist on patients/invoices (soft-delete support)
+        // 2a. Ensure critical columns exist on core tables
         try {
+            // Soft-delete support
             await pool.query('ALTER TABLE patients ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP');
             await pool.query('ALTER TABLE invoices ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP');
-            console.log('   ✅ [Seed] deleted_at columns verified on patients/invoices');
+            // OPD visits complaint field
+            await pool.query('ALTER TABLE opd_visits ADD COLUMN IF NOT EXISTS complaint TEXT');
+            // Admissions columns
+            await pool.query('ALTER TABLE admissions ADD COLUMN IF NOT EXISTS ipd_number VARCHAR(50)');
+            await pool.query('ALTER TABLE admissions ADD COLUMN IF NOT EXISTS current_diet TEXT');
+            await pool.query('ALTER TABLE admissions ADD COLUMN IF NOT EXISTS last_round_at TIMESTAMP');
+            console.log('   ✅ [Seed] Critical column patches verified');
         } catch (delErr) {
-            console.warn(`   ⚠️ deleted_at patch: ${delErr.message}`);
+            console.warn(`   ⚠️ Column patch: ${delErr.message}`);
         }
 
         // 2b. Ensure refresh_tokens table exists (Required by Auth Controller)
