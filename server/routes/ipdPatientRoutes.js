@@ -104,7 +104,7 @@ router.get('/admission-status', authenticatePatient, async (req, res) => {
         });
     } catch (err) {
         console.error('[IPD] Admission status error:', err);
-        res.status(500).json({ error: 'Failed to check admission status' });
+        res.status(500).json({ error: 'Failed to check admission status: ' + err.message });
     }
 });
 

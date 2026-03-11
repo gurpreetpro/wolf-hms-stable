@@ -30,6 +30,11 @@ async function ensureSchema() {
         `DO $$ BEGIN
             IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payments') THEN
                 EXECUTE 'ALTER TABLE payments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()';
+                
+                -- Check if patient_id is not uuid, then change it (ignoring existing data if it's test data)
+                IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'payments' AND column_name = 'patient_id' AND data_type != 'uuid') THEN
+                    EXECUTE 'ALTER TABLE payments ALTER COLUMN patient_id TYPE UUID USING NULL';
+                END IF;
             END IF;
         END $$;`,
 
