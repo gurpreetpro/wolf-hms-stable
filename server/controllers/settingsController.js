@@ -10,7 +10,7 @@ exports.getSettings = asyncHandler(async (req, res) => {
     console.log(`[Settings] getSettings for hospital_id: ${hospitalId}, user: ${req.user?.username}`);
     
     const result = await pool.query(
-        'SELECT * FROM hospital_settings WHERE hospital_id = $1 OR hospital_id IS NULL ORDER BY hospital_id ASC NULLS FIRST', 
+        'SELECT * FROM hospital_settings WHERE hospital_id = $1 ORDER BY hospital_id ASC NULLS FIRST', 
         [hospitalId]
     );
     
@@ -58,7 +58,7 @@ exports.updateSettings = asyncHandler(async (req, res) => {
 // Get Services - Multi-Tenant
 exports.getServices = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM services WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]);
+    const result = await pool.query('SELECT * FROM services WHERE (hospital_id = $1) ORDER BY name', [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -66,7 +66,7 @@ exports.getServices = asyncHandler(async (req, res) => {
 exports.updateServicePrice = asyncHandler(async (req, res) => {
     const { id, base_price } = req.body;
     const hospitalId = getHospitalId(req);
-    await pool.query('UPDATE services SET base_price = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)', [base_price, id, hospitalId]);
+    await pool.query('UPDATE services SET base_price = $1 WHERE id = $2 AND (hospital_id = $3)', [base_price, id, hospitalId]);
     ResponseHandler.success(res, { message: 'Price Updated' });
 });
 

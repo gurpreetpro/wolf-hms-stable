@@ -13,30 +13,21 @@ const searchPatients = asyncHandler(async (req, res) => {
         return ResponseHandler.success(res, []);
     }
 
-    // Note: hospital_id can be NULL for legacy records, so we use OR hospital_id IS NULL
+    // Strict tenant isolation — hospital_id is always set (backfilled on startup)
     const result = await pool.query(`
         SELECT 
-            id, 
-            uhid,
-            name, 
-            dob, 
-            gender, 
-            phone, 
-            address,
-            history_json,
-            created_at,
+            id, uhid, name, dob, gender, phone, address, history_json, created_at,
             EXTRACT(YEAR FROM AGE(CURRENT_DATE, COALESCE(dob, CURRENT_DATE))) as age
         FROM patients
-        WHERE 
-            (hospital_id = $1 OR hospital_id IS NULL)
-            AND (
-                LOWER(name) LIKE LOWER($2) 
-                OR phone = $3
-                OR phone LIKE $2
-                OR CAST(id AS TEXT) LIKE $4
-                OR uhid LIKE $4
-                OR uhid = $3
-            )
+        WHERE hospital_id = $1
+          AND (
+            LOWER(name) LIKE LOWER($2) 
+            OR phone = $3
+            OR phone LIKE $2
+            OR CAST(id AS TEXT) LIKE $4
+            OR uhid LIKE $4
+            OR uhid = $3
+          )
         ORDER BY created_at DESC
         LIMIT 20
     `, [hospitalId, `%${q}%`, q, `%${q}%`]);
@@ -53,20 +44,20 @@ const getPatientById = asyncHandler(async (req, res) => {
     const hospitalId = req.hospital_id;
 
     const result = await pool.query(`
-        SELECT 
-            id, 
-            uhid,
-            name, 
-            dob, 
-            gender, 
-            phone, 
-            address,
-            history_json,
-            created_at,
-            EXTRACT(YEAR FROM AGE(CURRENT_DATE, COALESCE(dob, CURRENT_DATE))) as age
+    SELECT
+    id,
+        uhid,
+        name,
+        dob,
+        gender,
+        phone,
+        address,
+        history_json,
+        created_at,
+        EXTRACT(YEAR FROM AGE(CURRENT_DATE, COALESCE(dob, CURRENT_DATE))) as age
         FROM patients
-        WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)
-    `, [id, hospitalId]);
+        WHERE id = $1 AND(hospital_id = $2)
+        `, [id, hospitalId]);
 
     if (result.rows.length === 0) {
         return ResponseHandler.error(res, 'Patient not found', 404);
@@ -89,12 +80,12 @@ const updatePatient = asyncHandler(async (req, res) => {
     let paramIndex = 4;
 
     if (age) {
-        updateQuery += `, dob = $${paramIndex}`;
+        updateQuery += `, dob = $${paramIndex} `;
         params.push(new Date(new Date().getFullYear() - age, 0, 1));
         paramIndex++;
     }
 
-    updateQuery += ` WHERE id = $${paramIndex} AND hospital_id = $${paramIndex + 1} RETURNING *`;
+    updateQuery += ` WHERE id = $${paramIndex} AND hospital_id = $${paramIndex + 1} RETURNING * `;
     params.push(id);
     params.push(hospitalId);
 

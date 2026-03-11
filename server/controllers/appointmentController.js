@@ -20,7 +20,7 @@ const getAvailableSlots = asyncHandler(async (req, res) => {
         `SELECT appointment_time FROM appointments 
             WHERE doctor_id = $1 AND appointment_date = $2 
             AND status NOT IN ('Cancelled', 'No Show')
-            AND (hospital_id = $3 OR hospital_id IS NULL)`,
+            AND (hospital_id = $3)`,
         [doctor_id, date, hospitalId]
     );
 
@@ -79,7 +79,7 @@ const createAppointment = asyncHandler(async (req, res) => {
         `SELECT id FROM appointments 
             WHERE doctor_id = $1 AND appointment_date = $2 AND appointment_time = $3
             AND status NOT IN ('Cancelled', 'No Show')
-            AND (hospital_id = $4 OR hospital_id IS NULL)`,
+            AND (hospital_id = $4)`,
         [doctor_id, appointment_date, appointment_time, hospitalId]
     );
 
@@ -107,7 +107,7 @@ const updateAppointmentStatus = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
         `UPDATE appointments SET status = $1, notes = COALESCE($2, notes), updated_at = NOW()
-            WHERE id = $3 AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *`,
+            WHERE id = $3 AND (hospital_id = $4) RETURNING *`,
         [status, notes, id, hospitalId]
     );
 
@@ -130,7 +130,7 @@ const getTodaysSummary = asyncHandler(async (req, res) => {
             COUNT(*) FILTER (WHERE status = 'No Show') as no_show,
             COUNT(*) as total
             FROM appointments
-            WHERE appointment_date = $1 AND (hospital_id = $2 OR hospital_id IS NULL)`,
+            WHERE appointment_date = $1 AND (hospital_id = $2)`,
         [today, hospitalId]
     );
     ResponseHandler.success(res, summary.rows[0]);
@@ -141,7 +141,7 @@ const getDoctors = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const result = await pool.query(
         `SELECT id, name, email, department, COALESCE(consultation_fee, 500) as consultation_fee FROM users 
-            WHERE role = 'doctor' AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name`,
+            WHERE role = 'doctor' AND (hospital_id = $1) ORDER BY name`,
         [hospitalId]
     );
     ResponseHandler.success(res, result.rows);

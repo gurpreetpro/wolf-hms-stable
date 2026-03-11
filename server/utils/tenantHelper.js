@@ -23,7 +23,7 @@ const getHospitalId = (req) => {
  * @returns {string} SQL fragment
  */
 const hospitalFilter = (paramIndex) => {
-    // REMOVED: OR hospital_id IS NULL - This was a security risk!
+    // REMOVED: - This was a security risk!
     return `hospital_id = $${paramIndex}`;
 };
 

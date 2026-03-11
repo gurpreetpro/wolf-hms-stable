@@ -144,6 +144,40 @@ async function ensureAdminUsers() {
             console.warn(`   ⚠️ Column patch: ${delErr.message}`);
         }
 
+        // 2b. TENANT ISOLATION: Backfill NULL hospital_ids to hospital 1 (original hospital)
+        // This ensures all records belong to a specific hospital, preventing cross-tenant data leakage.
+        // Safe to run repeatedly — only updates records where hospital_id IS NULL.
+        try {
+            const tablesToBackfill = [
+                'patients', 'admissions', 'opd_visits', 'invoices', 'invoice_items',
+                'care_tasks', 'lab_requests', 'lab_results', 'lab_test_types', 'lab_packages',
+                'lab_reference_ranges', 'lab_reagents', 'lab_qc_materials', 'lab_critical_alerts',
+                'lab_change_requests', 'inventory_items', 'vitals_logs',
+                'prescriptions', 'procedures', 'appointments',
+                'parking_sessions', 'emergency_logs',
+                'soap_notes', 'round_notes'
+            ];
+            let totalBackfilled = 0;
+            for (const table of tablesToBackfill) {
+                try {
+                    const res = await pool.query(`UPDATE ${table} SET hospital_id = 1 WHERE hospital_id IS NULL`);
+                    if (res.rowCount > 0) {
+                        totalBackfilled += res.rowCount;
+                        console.log(`   🔧 [Backfill] ${table}: ${res.rowCount} rows set to hospital_id=1`);
+                    }
+                } catch (e) {
+                    // Table may not exist yet — that's fine
+                }
+            }
+            if (totalBackfilled > 0) {
+                console.log(`   ✅ [Backfill] Total: ${totalBackfilled} NULL hospital_ids fixed`);
+            } else {
+                console.log('   ✅ [Backfill] No NULL hospital_ids found — all clean');
+            }
+        } catch (backfillErr) {
+            console.warn(`   ⚠️ Backfill warning: ${backfillErr.message}`);
+        }
+
         // 2b. Ensure refresh_tokens table exists (Required by Auth Controller)
         try {
             await pool.query(`

@@ -52,7 +52,7 @@ exports.dischargePatient = asyncHandler(async (req, res) => {
     const { record_id, destination } = req.body;
     const hospitalId = getHospitalId(req);
     
-    const rec = await pool.query('SELECT bed_id FROM pacu_records WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [record_id, hospitalId]);
+    const rec = await pool.query('SELECT bed_id FROM pacu_records WHERE id = $1 AND (hospital_id = $2)', [record_id, hospitalId]);
     if (rec.rowCount === 0) return ResponseHandler.error(res, 'Record not found', 404);
     const bedId = rec.rows[0].bed_id;
 

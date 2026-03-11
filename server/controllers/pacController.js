@@ -19,7 +19,7 @@ exports.getPendingPAC = asyncHandler(async (req, res) => {
 exports.getAssessment = asyncHandler(async (req, res) => {
     const { surgeryId } = req.params;
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM pac_assessments WHERE surgery_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY created_at DESC LIMIT 1', [surgeryId, hospitalId]);
+    const result = await pool.query('SELECT * FROM pac_assessments WHERE surgery_id = $1 AND (hospital_id = $2) ORDER BY created_at DESC LIMIT 1', [surgeryId, hospitalId]);
     if (result.rowCount === 0) return ResponseHandler.error(res, 'No assessment found', 404);
     ResponseHandler.success(res, result.rows[0]);
 });
@@ -29,7 +29,7 @@ exports.saveAssessment = asyncHandler(async (req, res) => {
     const { patient_id, surgery_id, anaesthetist_id, mallampati_score, asa_grade, airway_assessment, comorbidities, medications, fitness_status, remarks } = req.body;
     const hospitalId = getHospitalId(req);
 
-    const check = await pool.query('SELECT id FROM pac_assessments WHERE surgery_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [surgery_id, hospitalId]);
+    const check = await pool.query('SELECT id FROM pac_assessments WHERE surgery_id = $1 AND (hospital_id = $2)', [surgery_id, hospitalId]);
 
     if (check.rowCount > 0) {
         const updateQuery = `UPDATE pac_assessments SET mallampati_score = $1, asa_grade = $2, airway_assessment = $3, comorbidities = $4, medications = $5,

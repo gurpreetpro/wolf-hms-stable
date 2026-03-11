@@ -40,7 +40,7 @@ const getRecentPatients = asyncHandler(async (req, res) => {
     const result = await pool.query(`
         SELECT id, name, EXTRACT(YEAR FROM AGE(CURRENT_DATE, COALESCE(dob, CURRENT_DATE))) as age, 
                 CASE WHEN EXISTS (SELECT 1 FROM admissions WHERE patient_id = patients.id AND discharge_date IS NULL) THEN 'Admitted' ELSE 'Outpatient' END as status
-        FROM patients WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY created_at DESC LIMIT 10
+        FROM patients WHERE (hospital_id = $1) ORDER BY created_at DESC LIMIT 10
     `, [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
@@ -49,13 +49,13 @@ const getRecentPatients = asyncHandler(async (req, res) => {
 const getDailyTasks = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
-    const invoiceRes = await pool.query("SELECT COUNT(*) FROM invoices WHERE status = 'Pending' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const invoiceRes = await pool.query("SELECT COUNT(*) FROM invoices WHERE status = 'Pending' AND (hospital_id = $1)", [hospitalId]);
     const pendingInvoices = parseInt(invoiceRes.rows[0].count);
 
-    const stockRes = await pool.query("SELECT COUNT(*) FROM inventory_items WHERE stock_quantity < reorder_level AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const stockRes = await pool.query("SELECT COUNT(*) FROM inventory_items WHERE stock_quantity < reorder_level AND (hospital_id = $1)", [hospitalId]);
     const lowStock = parseInt(stockRes.rows[0].count);
 
-    const admissionRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE discharge_date IS NULL AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const admissionRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE discharge_date IS NULL AND (hospital_id = $1)", [hospitalId]);
     const activeAdmissions = parseInt(admissionRes.rows[0].count);
 
     const tasks = [
@@ -73,13 +73,13 @@ const getAnalytics = asyncHandler(async (req, res) => {
 
     const revenueRes = await pool.query(`
         SELECT DATE(generated_at) as date, SUM(total_amount) as total FROM invoices
-        WHERE generated_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
+        WHERE generated_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1)
         GROUP BY DATE(generated_at) ORDER BY DATE(generated_at) ASC
     `, [hospitalId]);
 
     const patientsRes = await pool.query(`
         SELECT DATE(created_at) as date, COUNT(*) as count FROM patients
-        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
+        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1)
         GROUP BY DATE(created_at) ORDER BY DATE(created_at) ASC
     `, [hospitalId]);
 
@@ -90,23 +90,23 @@ const getAnalytics = asyncHandler(async (req, res) => {
 const getStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
-    const patientsRes = await pool.query('SELECT COUNT(*) FROM patients WHERE (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
+    const patientsRes = await pool.query('SELECT COUNT(*) FROM patients WHERE (hospital_id = $1)', [hospitalId]);
     const totalPatients = parseInt(patientsRes.rows[0].count);
 
-    const todayOPDRes = await pool.query("SELECT COUNT(*) FROM opd_visits WHERE visit_date = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const todayOPDRes = await pool.query("SELECT COUNT(*) FROM opd_visits WHERE visit_date = CURRENT_DATE AND (hospital_id = $1)", [hospitalId]);
     const todayOPD = parseInt(todayOPDRes.rows[0].count);
 
-    const admissionsRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE status = 'Admitted' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const admissionsRes = await pool.query("SELECT COUNT(*) FROM admissions WHERE status = 'Admitted' AND (hospital_id = $1)", [hospitalId]);
     const activeAdmissions = parseInt(admissionsRes.rows[0].count);
 
-    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(generated_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const revenueRes = await pool.query("SELECT COALESCE(SUM(total_amount), 0) as total FROM invoices WHERE DATE(generated_at) = CURRENT_DATE AND (hospital_id = $1)", [hospitalId]);
     const todayRevenue = parseFloat(revenueRes.rows[0].total);
 
-    const staffRes = await pool.query("SELECT role, COUNT(*) FROM users WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY role", [hospitalId]);
+    const staffRes = await pool.query("SELECT role, COUNT(*) FROM users WHERE is_active = true AND (hospital_id = $1) GROUP BY role", [hospitalId]);
     const staffByRole = {};
     staffRes.rows.forEach(r => staffByRole[r.role] = parseInt(r.count));
 
-    const pendingRes = await pool.query("SELECT COUNT(*) FROM users WHERE approval_status = 'PENDING' AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const pendingRes = await pool.query("SELECT COUNT(*) FROM users WHERE approval_status = 'PENDING' AND (hospital_id = $1)", [hospitalId]);
     const pendingApprovals = parseInt(pendingRes.rows[0].count);
 
     ResponseHandler.success(res, {
@@ -131,7 +131,7 @@ const forceCreatePatient = asyncHandler(async (req, res) => {
     }
 
     // Check if UHID exists
-    const existing = await pool.query("SELECT id FROM patients WHERE uhid = $1 AND (hospital_id = $2 OR hospital_id IS NULL)", [manual_uhid, hospitalId]);
+    const existing = await pool.query("SELECT id FROM patients WHERE uhid = $1 AND (hospital_id = $2)", [manual_uhid, hospitalId]);
     if (existing.rows.length > 0) {
         return ResponseHandler.error(res, `Patient with UHID ${manual_uhid} already exists`, 400);
     }

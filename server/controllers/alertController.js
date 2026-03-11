@@ -10,7 +10,7 @@ const getPatientAlerts = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const result = await pool.query(
-        `SELECT * FROM clinical_alerts WHERE patient_id = $1 AND is_acknowledged = FALSE AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY created_at DESC`,
+        `SELECT * FROM clinical_alerts WHERE patient_id = $1 AND is_acknowledged = FALSE AND (hospital_id = $2) ORDER BY created_at DESC`,
         [patient_id, hospitalId]
     );
     ResponseHandler.success(res, result.rows);
@@ -37,7 +37,7 @@ const acknowledgeAlert = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
         `UPDATE clinical_alerts SET is_acknowledged = TRUE, acknowledged_by = $1, acknowledged_at = NOW(), acknowledgement_note = $4
-            WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *`,
+            WHERE id = $2 AND (hospital_id = $3) RETURNING *`,
         [user_id, id, hospitalId, note]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Alert not found', 404);

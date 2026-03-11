@@ -22,7 +22,7 @@ const getDrugs = async (hospitalId) => {
         const result = await dbPools.replicaPool.query(
             `SELECT id, name, generic_name, category, quantity_on_hand 
              FROM inventory_items 
-             WHERE (hospital_id = $1 OR hospital_id IS NULL) 
+             WHERE (hospital_id = $1) 
              AND quantity_on_hand > 0
              ORDER BY name`,
             [hospitalId]
@@ -41,7 +41,7 @@ const getLabTests = async (hospitalId) => {
         const result = await dbPools.replicaPool.query(
             `SELECT id, name, category, price, sample_type, turnaround_time
              FROM lab_test_types 
-             WHERE (hospital_id = $1 OR hospital_id IS NULL)
+             WHERE (hospital_id = $1)
              ORDER BY name`,
             [hospitalId]
         );

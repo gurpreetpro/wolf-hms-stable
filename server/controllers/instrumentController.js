@@ -26,7 +26,7 @@ const getInstruments = asyncHandler(async (req, res) => {
 const getInstrumentDrivers = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const { category } = req.query;
-    let query = 'SELECT * FROM instrument_drivers WHERE (hospital_id = $1 OR hospital_id IS NULL)';
+    let query = 'SELECT * FROM instrument_drivers WHERE (hospital_id = $1)';
     const params = [hospitalId];
     if (category) { query += ' AND category = $2'; params.push(category); }
     query += ' ORDER BY manufacturer, model';
@@ -49,7 +49,7 @@ const updateInstrument = asyncHandler(async (req, res) => {
     const { name, connection_config, is_active, is_bidirectional } = req.body;
     const hospitalId = getHospitalId(req);
     const result = await pool.query(`UPDATE lab_instruments SET name = COALESCE($1, name), connection_config = COALESCE($2, connection_config), is_active = COALESCE($3, is_active), is_bidirectional = COALESCE($4, is_bidirectional), updated_at = NOW()
-        WHERE id = $5 AND (hospital_id = $6 OR hospital_id IS NULL) RETURNING *`, [name, connection_config ? JSON.stringify(connection_config) : null, is_active, is_bidirectional, id, hospitalId]);
+        WHERE id = $5 AND (hospital_id = $6) RETURNING *`, [name, connection_config ? JSON.stringify(connection_config) : null, is_active, is_bidirectional, id, hospitalId]);
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Instrument not found', 404);
     ResponseHandler.success(res, result.rows[0], 'Instrument updated successfully');
 });
@@ -59,7 +59,7 @@ const deleteInstrument = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
     if (activeConnections.has(parseInt(id))) { const conn = activeConnections.get(parseInt(id)); await conn.disconnect?.() || await conn.stop?.(); activeConnections.delete(parseInt(id)); }
-    await pool.query('DELETE FROM lab_instruments WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    await pool.query('DELETE FROM lab_instruments WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     ResponseHandler.success(res, { message: 'Instrument deleted' });
 });
 
@@ -67,7 +67,7 @@ const deleteInstrument = asyncHandler(async (req, res) => {
 const testInstrumentConnection = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
-    const instrument = await pool.query('SELECT * FROM lab_instruments WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const instrument = await pool.query('SELECT * FROM lab_instruments WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (instrument.rows.length === 0) return ResponseHandler.error(res, 'Instrument not found', 404);
     const inst = instrument.rows[0];
     const config = typeof inst.connection_config === 'string' ? JSON.parse(inst.connection_config) : inst.connection_config;
@@ -128,7 +128,7 @@ const getInstrumentLogs = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { limit = 50 } = req.query;
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT * FROM instrument_comm_log WHERE instrument_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY created_at DESC LIMIT $3`, [id, hospitalId, limit]);
+    const result = await pool.query(`SELECT * FROM instrument_comm_log WHERE instrument_id = $1 AND (hospital_id = $2) ORDER BY created_at DESC LIMIT $3`, [id, hospitalId, limit]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -173,7 +173,7 @@ const getMessageStats = asyncHandler(async (req, res) => {
     const router = getMessageRouter();
     const routerStats = router.getStats();
     const dbStats = await pool.query(`SELECT COUNT(*) FILTER (WHERE status = 'SUCCESS') as successful, COUNT(*) FILTER (WHERE status = 'PARSE_ERROR') as errors, COUNT(*) FILTER (WHERE direction = 'IN') as received,
-        COUNT(*) FILTER (WHERE direction = 'OUT') as sent, COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 hour') as last_hour FROM instrument_comm_log WHERE created_at > NOW() - INTERVAL '24 hours' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+        COUNT(*) FILTER (WHERE direction = 'OUT') as sent, COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 hour') as last_hour FROM instrument_comm_log WHERE created_at > NOW() - INTERVAL '24 hours' AND (hospital_id = $1)`, [hospitalId]);
     ResponseHandler.success(res, { router: routerStats, database: dbStats.rows[0] });
 });
 

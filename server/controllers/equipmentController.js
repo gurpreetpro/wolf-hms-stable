@@ -18,7 +18,7 @@ const calculateEquipmentCharges = (assignedAt, removedAt, ratePer24Hr) => {
 // Get Equipment Types - Multi-Tenant
 const getEquipmentTypes = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT * FROM equipment_types WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY category, name`, [hospitalId]); 
+    const result = await pool.query(`SELECT * FROM equipment_types WHERE is_active = true AND (hospital_id = $1) ORDER BY category, name`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -26,7 +26,7 @@ const getEquipmentTypes = asyncHandler(async (req, res) => {
 const getEquipmentType = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]); 
+    const result = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]); 
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Equipment type not found', 404);
     ResponseHandler.success(res, result.rows[0]);
 });
@@ -52,7 +52,7 @@ const requestEditEquipment = asyncHandler(async (req, res) => {
 const requestDeleteEquipment = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
-    const eqResult = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]); 
+    const eqResult = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]); 
     if (eqResult.rows.length === 0) return ResponseHandler.error(res, 'Equipment type not found', 404); 
     const eq = eqResult.rows[0];
     const result = await pool.query(`INSERT INTO equipment_change_requests (equipment_type_id, action, name, category, rate_per_24hr, requested_by, hospital_id) VALUES ($1, 'delete', $2, $3, $4, $5, $6) RETURNING *`, [id, eq.name, eq.category, eq.rate_per_24hr, req.user.id, hospitalId]); 
@@ -73,7 +73,7 @@ const approveRequest = asyncHandler(async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        const reqResult = await client.query('SELECT * FROM equipment_change_requests WHERE id = $1 AND status = $2 AND (hospital_id = $3 OR hospital_id IS NULL)', [id, 'Pending', hospitalId]);
+        const reqResult = await client.query('SELECT * FROM equipment_change_requests WHERE id = $1 AND status = $2 AND (hospital_id = $3)', [id, 'Pending', hospitalId]);
         if (reqResult.rows.length === 0) { await client.query('ROLLBACK'); return ResponseHandler.error(res, 'Request not found or already processed', 404); }
         const request = reqResult.rows[0];
         if (request.action === 'add') { await client.query(`INSERT INTO equipment_types (name, category, rate_per_24hr, description, hospital_id) VALUES ($1, $2, $3, $4, $5)`, [request.name, request.category, request.rate_per_24hr, request.description, hospitalId]); }
@@ -95,7 +95,7 @@ const denyRequest = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { denial_reason } = req.body;
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`UPDATE equipment_change_requests SET status = 'Denied', admin_id = $1, denial_reason = $2, resolved_at = NOW() WHERE id = $3 AND status = 'Pending' AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *`, [req.user.id, denial_reason, id, hospitalId]); 
+    const result = await pool.query(`UPDATE equipment_change_requests SET status = 'Denied', admin_id = $1, denial_reason = $2, resolved_at = NOW() WHERE id = $3 AND status = 'Pending' AND (hospital_id = $4) RETURNING *`, [req.user.id, denial_reason, id, hospitalId]); 
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Request not found or already processed', 404); 
     ResponseHandler.success(res, { message: 'Request denied', request: result.rows[0] });
 });
@@ -105,10 +105,10 @@ const assignEquipment = asyncHandler(async (req, res) => {
     const { admission_id, patient_id, bed_id, equipment_type_id, notes } = req.body;
     const hospitalId = getHospitalId(req);
     
-    const eqResult = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND is_active = true AND (hospital_id = $2 OR hospital_id IS NULL)', [equipment_type_id, hospitalId]); 
+    const eqResult = await pool.query('SELECT * FROM equipment_types WHERE id = $1 AND is_active = true AND (hospital_id = $2)', [equipment_type_id, hospitalId]); 
     if (eqResult.rows.length === 0) return ResponseHandler.error(res, 'Equipment type not found', 404);
     
-    const existingResult = await pool.query(`SELECT * FROM equipment_assignments WHERE admission_id = $1 AND equipment_type_id = $2 AND removed_at IS NULL AND (hospital_id = $3 OR hospital_id IS NULL)`, [admission_id, equipment_type_id, hospitalId]); 
+    const existingResult = await pool.query(`SELECT * FROM equipment_assignments WHERE admission_id = $1 AND equipment_type_id = $2 AND removed_at IS NULL AND (hospital_id = $3)`, [admission_id, equipment_type_id, hospitalId]); 
     if (existingResult.rows.length > 0) return ResponseHandler.error(res, 'This equipment is already assigned to this patient', 400);
     
     const result = await pool.query(`INSERT INTO equipment_assignments (admission_id, patient_id, bed_id, equipment_type_id, assigned_by, assigned_by_role, notes, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, [admission_id, patient_id, bed_id, equipment_type_id, req.user.id, req.user.role, notes, hospitalId]); 
@@ -183,7 +183,7 @@ const getBiomedDashboard = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const [totalR, duePmR, overdueR, activeAmcR, pendingCalibR] = await Promise.all([
-        pool.query('SELECT COUNT(*) FROM equipment_types WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]),
+        pool.query('SELECT COUNT(*) FROM equipment_types WHERE is_active = true AND (hospital_id = $1)', [hospitalId]),
         pool.query("SELECT COUNT(*) FROM equipment_pm_schedules WHERE hospital_id = $1 AND next_pm_date <= CURRENT_DATE + INTERVAL '7 days' AND status = 'SCHEDULED'", [hospitalId]),
         pool.query("SELECT COUNT(*) FROM equipment_pm_schedules WHERE hospital_id = $1 AND next_pm_date < CURRENT_DATE AND status = 'SCHEDULED'", [hospitalId]),
         pool.query("SELECT COUNT(*) FROM equipment_amc_contracts WHERE hospital_id = $1 AND status = 'ACTIVE' AND end_date >= CURRENT_DATE", [hospitalId]),

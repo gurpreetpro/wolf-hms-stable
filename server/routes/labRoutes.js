@@ -392,7 +392,7 @@ router.post('/tests/bulk-price-update', protect, authorize('admin', 'super_admin
         for (const update of updates) {
             if (update.id && update.price && !isNaN(update.price)) {
                 await pool.query(
-                    'UPDATE lab_test_types SET price = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)',
+                    'UPDATE lab_test_types SET price = $1 WHERE id = $2 AND (hospital_id = $3)',
                     [update.price, update.id, hospitalId]
                 );
                 results.push({ id: update.id, price: update.price, status: 'updated' });

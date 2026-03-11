@@ -6,7 +6,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 // Get all OT Rooms - Multi-Tenant
 exports.getOTRooms = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM ot_rooms WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]);
+    const result = await pool.query('SELECT * FROM ot_rooms WHERE (hospital_id = $1) ORDER BY name', [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -36,7 +36,7 @@ exports.bookSurgery = asyncHandler(async (req, res) => {
 
     const conflictQuery = `SELECT id FROM surgeries WHERE ot_room_id = $1 AND status != 'Cancelled'
         AND ((start_time BETWEEN $2 AND $3) OR (end_time BETWEEN $2 AND $3) OR (start_time <= $2 AND end_time >= $3))
-        AND (hospital_id = $4 OR hospital_id IS NULL)`;
+        AND (hospital_id = $4)`;
     const conflict = await pool.query(conflictQuery, [ot_room_id, start_time, end_time, hospitalId]);
     if (conflict.rowCount > 0) return ResponseHandler.error(res, 'OT Room is already booked for this time slot.', 409);
 
@@ -52,7 +52,7 @@ exports.updateStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     const hospitalId = getHospitalId(req);
 
-    const result = await pool.query('UPDATE surgeries SET status = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *', [status, id, hospitalId]);
+    const result = await pool.query('UPDATE surgeries SET status = $1 WHERE id = $2 AND (hospital_id = $3) RETURNING *', [status, id, hospitalId]);
     if (result.rowCount === 0) return ResponseHandler.error(res, 'Surgery not found', 404);
     ResponseHandler.success(res, result.rows[0], 'Status updated successfully');
 });

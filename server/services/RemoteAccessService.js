@@ -41,13 +41,13 @@ class RemoteAccessService {
     static async updateTicketStatus(ticketId, hospitalId, status, resolutionNotes = null) {
         try { let query = `UPDATE support_tickets SET status = $1, updated_at = NOW()`; const params = [status];
         if (status === 'resolved' || status === 'closed') { query += `, resolved_at = NOW()`; if (resolutionNotes) { query += `, resolution_notes = $${params.length + 1}`; params.push(resolutionNotes); } }
-        query += ` WHERE id = $${params.length + 1} AND (hospital_id = $${params.length + 2} OR hospital_id IS NULL) RETURNING *`; params.push(ticketId, hospitalId); const result = await pool.query(query, params); return result.rows[0]; }
+        query += ` WHERE id = $${params.length + 1} AND (hospital_id = $${params.length + 2}) RETURNING *`; params.push(ticketId, hospitalId); const result = await pool.query(query, params); return result.rows[0]; }
         catch (error) { logger.error('Failed to update ticket status', { error: error.message }); throw error; }
     }
 
     // Grant remote access - Multi-Tenant
     static async grantRemoteAccess(ticketId, hospitalId, durationMinutes = 60) {
-        try { const token = this.generateToken(); const expires = new Date(Date.now() + durationMinutes * 60 * 1000); const result = await pool.query(`UPDATE support_tickets SET remote_access_granted = true, remote_access_token = $1, remote_access_expires = $2, updated_at = NOW() WHERE id = $3 AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *`, [token, expires, ticketId, hospitalId]); logger.info('Remote access granted', { ticketId, expires }); return { ticket: result.rows[0], accessToken: token, expiresAt: expires }; }
+        try { const token = this.generateToken(); const expires = new Date(Date.now() + durationMinutes * 60 * 1000); const result = await pool.query(`UPDATE support_tickets SET remote_access_granted = true, remote_access_token = $1, remote_access_expires = $2, updated_at = NOW() WHERE id = $3 AND (hospital_id = $4) RETURNING *`, [token, expires, ticketId, hospitalId]); logger.info('Remote access granted', { ticketId, expires }); return { ticket: result.rows[0], accessToken: token, expiresAt: expires }; }
         catch (error) { logger.error('Failed to grant remote access', { error: error.message }); throw error; }
     }
 
@@ -59,7 +59,7 @@ class RemoteAccessService {
 
     // Revoke remote access - Multi-Tenant
     static async revokeRemoteAccess(ticketId, hospitalId) {
-        try { await pool.query(`UPDATE support_tickets SET remote_access_granted = false, remote_access_token = NULL, remote_access_expires = NULL, updated_at = NOW() WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)`, [ticketId, hospitalId]); logger.info('Remote access revoked', { ticketId }); return true; }
+        try { await pool.query(`UPDATE support_tickets SET remote_access_granted = false, remote_access_token = NULL, remote_access_expires = NULL, updated_at = NOW() WHERE id = $1 AND (hospital_id = $2)`, [ticketId, hospitalId]); logger.info('Remote access revoked', { ticketId }); return true; }
         catch (error) { logger.error('Failed to revoke remote access', { error: error.message }); throw error; }
     }
 
@@ -68,7 +68,7 @@ class RemoteAccessService {
 
     // Ticket stats - Multi-Tenant
     static async getTicketStats(hospitalId) {
-        try { const result = await pool.query(`SELECT COUNT(*) FILTER (WHERE status = 'open') as open_count, COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress_count, COUNT(*) FILTER (WHERE status = 'waiting') as waiting_count, COUNT(*) FILTER (WHERE status IN ('resolved', 'closed')) as resolved_count, COUNT(*) FILTER (WHERE priority = 'critical' AND status NOT IN ('resolved', 'closed')) as critical_open, COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as last_24h, COUNT(*) as total FROM support_tickets WHERE (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]); return result.rows[0]; }
+        try { const result = await pool.query(`SELECT COUNT(*) FILTER (WHERE status = 'open') as open_count, COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress_count, COUNT(*) FILTER (WHERE status = 'waiting') as waiting_count, COUNT(*) FILTER (WHERE status IN ('resolved', 'closed')) as resolved_count, COUNT(*) FILTER (WHERE priority = 'critical' AND status NOT IN ('resolved', 'closed')) as critical_open, COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as last_24h, COUNT(*) as total FROM support_tickets WHERE (hospital_id = $1)`, [hospitalId]); return result.rows[0]; }
         catch (error) { logger.error('Failed to get ticket stats', { error: error.message }); return null; }
     }
 }

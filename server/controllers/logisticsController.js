@@ -34,7 +34,7 @@ const initLogisticsDB = async () => {
 // --- Key Management - Multi-Tenant ---
 const getKeys = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query("SELECT * FROM keys_inventory WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY id", [hospitalId]);
+    const result = await pool.query("SELECT * FROM keys_inventory WHERE (hospital_id = $1) ORDER BY id", [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -46,7 +46,7 @@ const checkoutKey = asyncHandler(async (req, res) => {
     try {
         await pool.query('BEGIN');
         const updateRes = await pool.query(
-            "UPDATE keys_inventory SET status = 'CHECKED_OUT', current_holder = $1 WHERE id = $2 AND status = 'AVAILABLE' AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *",
+            "UPDATE keys_inventory SET status = 'CHECKED_OUT', current_holder = $1 WHERE id = $2 AND status = 'AVAILABLE' AND (hospital_id = $3) RETURNING *",
             [holder_name, key_id, hospitalId]
         );
         if (updateRes.rowCount === 0) {
@@ -73,7 +73,7 @@ const returnKey = asyncHandler(async (req, res) => {
     try {
         await pool.query('BEGIN');
         const realUpdate = await pool.query(
-            "UPDATE keys_inventory SET status='AVAILABLE', current_holder=NULL WHERE id=$1 AND status='CHECKED_OUT' AND (hospital_id = $2 OR hospital_id IS NULL) RETURNING *",
+            "UPDATE keys_inventory SET status='AVAILABLE', current_holder=NULL WHERE id=$1 AND status='CHECKED_OUT' AND (hospital_id = $2) RETURNING *",
             [key_id, hospitalId]
         );
         if (realUpdate.rowCount === 0) {
@@ -107,7 +107,7 @@ const logPackage = asyncHandler(async (req, res) => {
 
 const getPackages = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query("SELECT * FROM packages WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY created_at DESC LIMIT 50", [hospitalId]);
+    const result = await pool.query("SELECT * FROM packages WHERE (hospital_id = $1) ORDER BY created_at DESC LIMIT 50", [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 

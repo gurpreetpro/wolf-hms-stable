@@ -31,7 +31,7 @@ const handleChat = asyncHandler(async (req, res) => {
     1. If the user asks for sensitive data they shouldn't see (e.g., Facilities asking for patient records), return "ACCESS_DENIED".
     2. Only answer questions related to hospital data.
     3. Convert the user's question into a READ-ONLY PostgreSQL query.
-    4. ALWAYS filter by hospital_id = ${hospitalId} OR hospital_id IS NULL
+    4. ALWAYS filter by hospital_id = ${hospitalId}
     5. Database Schema: ${DB_SCHEMA_SUMMARY}
     6. Return ONLY the SQL query. No markdown, no explanation.
     7. Do NOT use DELETE, DROP, UPDATE, INSERT.

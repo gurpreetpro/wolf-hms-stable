@@ -14,7 +14,7 @@ const getReceptionStats = asyncHandler(async (req, res) => {
             COUNT(*) FILTER (WHERE status = 'Occupied') as occupied_beds,
             COUNT(*) as total_beds
         FROM beds
-        WHERE (hospital_id = $1 OR hospital_id IS NULL)
+        WHERE (hospital_id = $1)
     `, [hospitalId]);
 
     const totalBeds = parseInt(bedsQuery.rows[0]?.total_beds) || 50;
@@ -26,7 +26,7 @@ const getReceptionStats = asyncHandler(async (req, res) => {
     try {
         const pendingInvoicesQuery = await pool.query(`
             SELECT COUNT(*) as pending_count, COALESCE(SUM(total_amount), 0) as pending_amount
-            FROM invoices WHERE status = 'Pending' AND (hospital_id = $1 OR hospital_id IS NULL)
+            FROM invoices WHERE status = 'Pending' AND (hospital_id = $1)
         `, [hospitalId]);
         pendingInvoices = {
             count: parseInt(pendingInvoicesQuery.rows[0]?.pending_count) || 0,

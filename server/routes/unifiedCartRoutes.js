@@ -257,7 +257,7 @@ router.get('/lab-tests/:hospitalId', authenticatePatient, async (req, res) => {
             const pkgResult = await pool.query(
                 `SELECT id, name, price, description, category
                  FROM lab_packages
-                 WHERE (hospital_id = $1 OR hospital_id IS NULL)
+                 WHERE (hospital_id = $1)
                  ORDER BY name`,
                 [hid]
             );

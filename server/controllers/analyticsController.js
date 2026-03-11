@@ -22,7 +22,7 @@ const getPatientStats = asyncHandler(async (req, res) => {
 
     const result = await pool.query(`
         SELECT TO_CHAR(created_at, 'YYYY-MM-DD') as date, COUNT(*) as count FROM patients
-        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)
+        WHERE created_at >= NOW() - INTERVAL '7 days' AND (hospital_id = $1)
         GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD') ORDER BY date
     `, [hospitalId]);
     ResponseHandler.success(res, result.rows);

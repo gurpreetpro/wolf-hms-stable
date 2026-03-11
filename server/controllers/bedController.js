@@ -63,7 +63,7 @@ const updateBedStatus = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     
     const result = await pool.query(
-        'UPDATE beds SET status = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *',
+        'UPDATE beds SET status = $1 WHERE id = $2 AND (hospital_id = $3) RETURNING *',
         [status, id, hospitalId]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Bed not found', 404);

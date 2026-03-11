@@ -47,7 +47,7 @@ const completeTask = asyncHandler(async (req, res) => {
     const hospitalId = req.hospital_id;
 
     const result = await pool.query(
-        'UPDATE care_tasks SET status = $1, completed_at = CURRENT_TIMESTAMP, completed_by = $2 WHERE id = $3 AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *',
+        'UPDATE care_tasks SET status = $1, completed_at = CURRENT_TIMESTAMP, completed_by = $2 WHERE id = $3 AND (hospital_id = $4) RETURNING *',
         ['Completed', user_id, task_id, hospitalId]
     );
 

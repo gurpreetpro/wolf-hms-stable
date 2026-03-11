@@ -30,7 +30,7 @@ const verifyAccess = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const passRes = await pool.query(
-        "SELECT * FROM ward_passes WHERE qr_code = $1 AND (hospital_id = $2 OR hospital_id IS NULL)",
+        "SELECT * FROM ward_passes WHERE qr_code = $1 AND (hospital_id = $2)",
         [qr_code, hospitalId]
     );
     if (passRes.rows.length === 0) return ResponseHandler.error(res, 'INVALID PASS', 404);
@@ -48,7 +48,7 @@ const verifyAccess = asyncHandler(async (req, res) => {
     let newLocation = pass.current_location === 'INSIDE' ? 'OUTSIDE' : 'INSIDE';
     let action = newLocation === 'INSIDE' ? 'ENTRY' : 'EXIT';
 
-    await pool.query("UPDATE ward_passes SET current_location = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)", [newLocation, pass.id, hospitalId]);
+    await pool.query("UPDATE ward_passes SET current_location = $1 WHERE id = $2 AND (hospital_id = $3)", [newLocation, pass.id, hospitalId]);
     await logAccess(pass.id, action, guard_id, 'Success');
 
     ResponseHandler.success(res, { status: 'ALLOWED', action, holder: pass.holder_name, type: pass.pass_type, location: newLocation });

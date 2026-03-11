@@ -180,7 +180,7 @@ const getExerciseLibrary = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const { category } = req.query;
 
-    let query = 'SELECT * FROM exercise_library WHERE (hospital_id = $1 OR hospital_id IS NULL)';
+    let query = 'SELECT * FROM exercise_library WHERE (hospital_id = $1)';
     const params = [hospitalId];
     let idx = 2;
 

@@ -41,7 +41,7 @@ exports.getCategory = asyncHandler(async (req, res) => {
     
     const result = await pool.query(`
         SELECT * FROM specialist_categories 
-        WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)
+        WHERE id = $1 AND (hospital_id = $2)
     `, [id, hospitalId]);
     
     if (result.rows.length === 0) {

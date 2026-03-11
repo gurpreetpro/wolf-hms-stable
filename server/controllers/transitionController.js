@@ -8,10 +8,10 @@ const getDischargePlan = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
     const hospitalId = getHospitalId(req);
     
-    let result = await pool.query('SELECT * FROM discharge_plans WHERE admission_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [admission_id, hospitalId]);
+    let result = await pool.query('SELECT * FROM discharge_plans WHERE admission_id = $1 AND (hospital_id = $2)', [admission_id, hospitalId]);
 
     if (result.rows.length === 0) {
-        const admRes = await pool.query('SELECT patient_id FROM admissions WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [admission_id, hospitalId]);
+        const admRes = await pool.query('SELECT patient_id FROM admissions WHERE id = $1 AND (hospital_id = $2)', [admission_id, hospitalId]);
         if (admRes.rows.length === 0) return ResponseHandler.error(res, 'Admission not found', 404);
         const patient_id = admRes.rows[0].patient_id;
         result = await pool.query(
@@ -33,7 +33,7 @@ const updateDischargePlan = asyncHandler(async (req, res) => {
     if (fields.length === 0) return ResponseHandler.error(res, 'No updates provided', 400);
 
     const result = await pool.query(
-        `UPDATE discharge_plans SET ${fields}, updated_at = NOW() WHERE admission_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) RETURNING *`,
+        `UPDATE discharge_plans SET ${fields}, updated_at = NOW() WHERE admission_id = $1 AND (hospital_id = $2) RETURNING *`,
         [admission_id, hospitalId, ...values]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Discharge plan not found', 404);

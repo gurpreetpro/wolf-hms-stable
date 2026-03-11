@@ -206,7 +206,7 @@ const administerMedication = asyncHandler(async (req, res) => {
 
     // 1. Fetch Task
     const taskRes = await pool.query(
-        'SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)',
+        'SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2)',
         [task_id, hospitalId]
     );
 
@@ -227,7 +227,7 @@ const administerMedication = asyncHandler(async (req, res) => {
     // 3. Verify Barcode
     const drugName = task.description.split(' - ')[0].trim();
     const itemRes = await pool.query(
-        'SELECT * FROM inventory_items WHERE barcode = $1 AND (hospital_id = $2 OR hospital_id IS NULL)',
+        'SELECT * FROM inventory_items WHERE barcode = $1 AND (hospital_id = $2)',
         [scanned_barcode, hospitalId]
     );
 

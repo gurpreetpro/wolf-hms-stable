@@ -6,7 +6,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 // Get all care plan templates - Multi-Tenant
 const getCarePlanTemplates = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM care_plan_templates WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]);
+    const result = await pool.query('SELECT * FROM care_plan_templates WHERE (hospital_id = $1) ORDER BY name', [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -75,7 +75,7 @@ const updateCarePlanProgress = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
         `UPDATE patient_care_plans SET custom_items_json = $1, progress = $2, status = COALESCE($3, status), updated_at = NOW()
-            WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL) RETURNING *`,
+            WHERE id = $4 AND (hospital_id = $5) RETURNING *`,
         [JSON.stringify(items_json), progress, status, id, hospitalId]
     );
 

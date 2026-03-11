@@ -6,7 +6,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 // Get all order sets - Multi-Tenant
 const getOrderSets = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM order_sets WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY category, name', [hospitalId]);
+    const result = await pool.query('SELECT * FROM order_sets WHERE (hospital_id = $1) ORDER BY category, name', [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 

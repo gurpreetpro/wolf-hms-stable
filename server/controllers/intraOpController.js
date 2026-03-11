@@ -8,7 +8,7 @@ exports.startCase = asyncHandler(async (req, res) => {
     const { surgery_id, patient_id, anaesthetist_id, technique, asa_grade } = req.body;
     const hospitalId = getHospitalId(req);
 
-    const check = await pool.query('SELECT * FROM anesthesia_records WHERE surgery_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [surgery_id, hospitalId]);
+    const check = await pool.query('SELECT * FROM anesthesia_records WHERE surgery_id = $1 AND (hospital_id = $2)', [surgery_id, hospitalId]);
     if (check.rowCount > 0) return ResponseHandler.success(res, check.rows[0]);
 
     const insert = await pool.query(
@@ -33,7 +33,7 @@ exports.getLiveChart = asyncHandler(async (req, res) => {
     const { recordId } = req.params;
     const hospitalId = getHospitalId(req);
 
-    const record = await pool.query('SELECT * FROM anesthesia_records WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [recordId, hospitalId]);
+    const record = await pool.query('SELECT * FROM anesthesia_records WHERE id = $1 AND (hospital_id = $2)', [recordId, hospitalId]);
     if (record.rowCount === 0) return ResponseHandler.error(res, 'Record not found', 404);
 
     const timeline = await pool.query('SELECT * FROM anesthesia_timeline WHERE record_id = $1 ORDER BY timestamp ASC', [recordId]);
@@ -45,7 +45,7 @@ exports.endCase = asyncHandler(async (req, res) => {
     const { recordId } = req.params;
     const hospitalId = getHospitalId(req);
 
-    const result = await pool.query('UPDATE anesthesia_records SET status = $1, end_time = CURRENT_TIMESTAMP WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *', ['Finalized', recordId, hospitalId]);
+    const result = await pool.query('UPDATE anesthesia_records SET status = $1, end_time = CURRENT_TIMESTAMP WHERE id = $2 AND (hospital_id = $3) RETURNING *', ['Finalized', recordId, hospitalId]);
     
     if (result.rowCount === 0) return ResponseHandler.error(res, 'Record not found', 404);
 

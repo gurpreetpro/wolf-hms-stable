@@ -27,7 +27,7 @@ const getImagingTemplates = asyncHandler(async (req, res) => {
             { id: 2, name: 'CT Brain Normal', content: 'No intracranial hemorrhage, mass effect, or infarct.' }
         ]);
     }
-    const templates = await pool.query('SELECT * FROM radiology_templates WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name ASC', [hospitalId]);
+    const templates = await pool.query('SELECT * FROM radiology_templates WHERE (hospital_id = $1) ORDER BY name ASC', [hospitalId]);
     ResponseHandler.success(res, templates.rows);
 });
 
@@ -62,7 +62,7 @@ const getImagingHistory = asyncHandler(async (req, res) => {
     const result = await pool.query(`
         SELECT * FROM lab_requests WHERE status = 'Completed' 
         AND test_type_id IN (SELECT id FROM lab_test_types WHERE name ILIKE '%X-Ray%' OR name ILIKE '%CT%' OR name ILIKE '%MRI%')
-        AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY updated_at DESC LIMIT 50
+        AND (hospital_id = $1) ORDER BY updated_at DESC LIMIT 50
     `, [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });

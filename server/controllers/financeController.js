@@ -32,7 +32,7 @@ const checkAccountingPeriod = async (date, hospitalId) => {
         `SELECT * FROM accounting_periods
          WHERE $1::date BETWEEN start_date AND end_date
          AND status IN ('Closed', 'Locked')
-         AND (hospital_id = $2 OR hospital_id IS NULL)`,
+         AND (hospital_id = $2)`,
         [date, hospitalId]
     );
 
@@ -280,7 +280,7 @@ const getInvoiceItems = asyncHandler(async (req, res) => {
     const result = await pool.query(
         `SELECT id, description, quantity, unit_price, total_price 
          FROM invoice_items 
-         WHERE invoice_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) 
+         WHERE invoice_id = $1 AND (hospital_id = $2) 
          ORDER BY id`, 
         [invoice_id, hospitalId]
     );
@@ -363,7 +363,7 @@ const getInvoiceItems = asyncHandler(async (req, res) => {
             const medsRes = await pool.query(
                 `SELECT id, description FROM care_tasks
                  WHERE admission_id = $1 AND type = 'Medication' AND status = 'Completed'
-                 AND (hospital_id = $2 OR hospital_id IS NULL)`,
+                 AND (hospital_id = $2)`,
                 [admissionId, hospitalId]
             );
             
@@ -504,7 +504,7 @@ const getBillableItems = asyncHandler(async (req, res) => {
     const labs = await pool.query(`SELECT lr.id, t.name, t.price FROM lab_requests lr JOIN lab_test_types t ON lr.test_type_id = t.id WHERE lr.admission_id = $1 AND lr.status = 'Completed' AND (lr.hospital_id = $2 OR lr.hospital_id IS NULL)`, [admission_id, hospitalId]);
     labs.rows.forEach(lab => items.push({ id: `LAB-${lab.id}`, type: 'Lab', description: lab.name, price: lab.price || 200, qty: 1 }));
     
-    const meds = await pool.query(`SELECT id, description FROM care_tasks WHERE admission_id = $1 AND type = 'Medication' AND status = 'Completed' AND (hospital_id = $2 OR hospital_id IS NULL)`, [admission_id, hospitalId]);
+    const meds = await pool.query(`SELECT id, description FROM care_tasks WHERE admission_id = $1 AND type = 'Medication' AND status = 'Completed' AND (hospital_id = $2)`, [admission_id, hospitalId]);
     meds.rows.forEach(med => items.push({ id: `MED-${med.id}`, type: 'Medication', description: med.description, price: 50, qty: 1 }));
     
     try { const equipment = await pool.query(`SELECT ea.*, et.name, et.category, et.rate_per_24hr FROM equipment_assignments ea JOIN equipment_types et ON et.id = ea.equipment_type_id WHERE ea.admission_id = $1 AND (ea.hospital_id = $2 OR ea.hospital_id IS NULL) ORDER BY ea.assigned_at ASC`, [admission_id, hospitalId]);
@@ -526,7 +526,7 @@ const getARAgingReport = asyncHandler(async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '30 days' AND generated_at >= NOW() - INTERVAL '60 days') as ar_31_60_count, COALESCE(SUM(total_amount) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '30 days' AND generated_at >= NOW() - INTERVAL '60 days'), 0) as ar_31_60_amount,
         COUNT(*) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '60 days' AND generated_at >= NOW() - INTERVAL '90 days') as ar_61_90_count, COALESCE(SUM(total_amount) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '60 days' AND generated_at >= NOW() - INTERVAL '90 days'), 0) as ar_61_90_amount,
         COUNT(*) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '90 days') as ar_over_90_count, COALESCE(SUM(total_amount) FILTER (WHERE status = 'Pending' AND generated_at < NOW() - INTERVAL '90 days'), 0) as ar_over_90_amount,
-        COALESCE(SUM(total_amount) FILTER (WHERE status = 'Pending'), 0) as total_ar, COUNT(*) FILTER (WHERE status = 'Pending') as total_pending_count FROM invoices WHERE (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+        COALESCE(SUM(total_amount) FILTER (WHERE status = 'Pending'), 0) as total_ar, COUNT(*) FILTER (WHERE status = 'Pending') as total_pending_count FROM invoices WHERE (hospital_id = $1)`, [hospitalId]);
     const data = result.rows[0];
     ResponseHandler.success(res, { buckets: [{ label: '0-30 Days', count: parseInt(data.ar_0_30_count), amount: parseFloat(data.ar_0_30_amount), color: '#22c55e' }, { label: '31-60 Days', count: parseInt(data.ar_31_60_count), amount: parseFloat(data.ar_31_60_amount), color: '#eab308' }, { label: '61-90 Days', count: parseInt(data.ar_61_90_count), amount: parseFloat(data.ar_61_90_amount), color: '#f97316' }, { label: '90+ Days', count: parseInt(data.ar_over_90_count), amount: parseFloat(data.ar_over_90_amount), color: '#ef4444' }], totals: { amount: parseFloat(data.total_ar), count: parseInt(data.total_pending_count) } });
 });
@@ -538,9 +538,9 @@ const getDenialStats = asyncHandler(async (req, res) => {
     const tableCheck = await pool.query(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'claim_denials')`);
     if (!tableCheck.rows[0].exists) return ResponseHandler.success(res, { summary: { total_denials: 5, pending_appeals: 2, resolved: 3, denial_rate: 8.5 }, by_category: [{ category: 'Documentation', count: 2, percentage: 40 }, { category: 'Coding', count: 1, percentage: 20 }, { category: 'Eligibility', count: 1, percentage: 20 }, { category: 'Authorization', count: 1, percentage: 20 }], recent_denials: [{ id: 1, denial_code: 'CO-16', denial_reason: 'Claim lacks required information', category: 'Documentation', denial_date: new Date().toISOString() }] });
     
-    const summaryRes = await pool.query(`SELECT COUNT(*) as total_denials, COUNT(*) FILTER (WHERE appeal_outcome = 'Pending' OR appealed = true AND appeal_outcome IS NULL) as pending_appeals, COUNT(*) FILTER (WHERE resolved_date IS NOT NULL) as resolved FROM claim_denials WHERE (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const byCategoryRes = await pool.query(`SELECT denial_category as category, COUNT(*) as count FROM claim_denials WHERE (hospital_id = $1 OR hospital_id IS NULL) GROUP BY denial_category ORDER BY count DESC`, [hospitalId]);
-    const recentRes = await pool.query(`SELECT id, denial_code, denial_reason, denial_category as category, denial_date FROM claim_denials WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY denial_date DESC LIMIT 10`, [hospitalId]);
+    const summaryRes = await pool.query(`SELECT COUNT(*) as total_denials, COUNT(*) FILTER (WHERE appeal_outcome = 'Pending' OR appealed = true AND appeal_outcome IS NULL) as pending_appeals, COUNT(*) FILTER (WHERE resolved_date IS NOT NULL) as resolved FROM claim_denials WHERE (hospital_id = $1)`, [hospitalId]);
+    const byCategoryRes = await pool.query(`SELECT denial_category as category, COUNT(*) as count FROM claim_denials WHERE (hospital_id = $1) GROUP BY denial_category ORDER BY count DESC`, [hospitalId]);
+    const recentRes = await pool.query(`SELECT id, denial_code, denial_reason, denial_category as category, denial_date FROM claim_denials WHERE (hospital_id = $1) ORDER BY denial_date DESC LIMIT 10`, [hospitalId]);
     const summary = summaryRes.rows[0]; const total = parseInt(summary.total_denials) || 1;
     
     ResponseHandler.success(res, { summary: { total_denials: parseInt(summary.total_denials), pending_appeals: parseInt(summary.pending_appeals), resolved: parseInt(summary.resolved), denial_rate: 8.5 }, by_category: byCategoryRes.rows.map(row => ({ category: row.category, count: parseInt(row.count), percentage: Math.round((parseInt(row.count) / total) * 100) })), recent_denials: recentRes.rows });
@@ -550,7 +550,7 @@ const getDenialStats = asyncHandler(async (req, res) => {
 const getBillingKPIs = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const invoiceStats = await pool.query(`SELECT COUNT(*) as total_invoices, COUNT(*) FILTER (WHERE status = 'Paid') as paid_invoices, COUNT(*) FILTER (WHERE status = 'Pending') as pending_invoices, COALESCE(SUM(total_amount), 0) as total_billed, COALESCE(SUM(amount_paid), 0) as total_collected,
-        COALESCE(AVG(EXTRACT(DAY FROM (CASE WHEN status = 'Paid' THEN NOW() ELSE generated_at END - generated_at))), 0) as avg_days_to_pay FROM invoices WHERE generated_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+        COALESCE(AVG(EXTRACT(DAY FROM (CASE WHEN status = 'Paid' THEN NOW() ELSE generated_at END - generated_at))), 0) as avg_days_to_pay FROM invoices WHERE generated_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1)`, [hospitalId]);
     const stats = invoiceStats.rows[0]; const totalBilled = parseFloat(stats.total_billed) || 1; const totalCollected = parseFloat(stats.total_collected) || 0; const collectionRate = Math.round((totalCollected / totalBilled) * 100);
     ResponseHandler.success(res, { kpis: [{ id: 'clean_claims', label: 'Clean Claims Ratio', value: 92.5, unit: '%', target: 95, status: 'good', trend: '+2.3%', description: 'Claims accepted on first submission' }, { id: 'collection_rate', label: 'Collection Rate', value: collectionRate, unit: '%', target: 95, status: collectionRate >= 90 ? 'good' : collectionRate >= 70 ? 'warning' : 'critical', trend: '+5.1%', description: 'Percentage of billed amount collected' }, { id: 'first_pass', label: 'First-Pass Resolution', value: 88.2, unit: '%', target: 90, status: 'good', trend: '+1.8%', description: 'Claims resolved without resubmission' }, { id: 'avg_days_ar', label: 'Avg Days in AR', value: Math.round(parseFloat(stats.avg_days_to_pay)) || 15, unit: 'days', target: 30, status: parseFloat(stats.avg_days_to_pay) <= 30 ? 'good' : 'warning', trend: '-3 days', description: 'Average time to collect payment' }], summary: { total_billed: totalBilled, total_collected: totalCollected, outstanding: totalBilled - totalCollected, invoices_count: parseInt(stats.total_invoices), paid_count: parseInt(stats.paid_invoices) } });
 });
@@ -593,7 +593,7 @@ const getARAgingDetails = asyncHandler(async (req, res) => {
 // Get Revenue Trend - Multi-Tenant
 const getRevenueTrend = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT TO_CHAR(generated_at, 'Mon YYYY') as month, DATE_TRUNC('month', generated_at) as month_date, SUM(total_amount) as revenue, COUNT(*) as invoice_count FROM invoices WHERE generated_at >= NOW() - INTERVAL '12 months' AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY 1, 2 ORDER BY 2 ASC`, [hospitalId]); 
+    const result = await pool.query(`SELECT TO_CHAR(generated_at, 'Mon YYYY') as month, DATE_TRUNC('month', generated_at) as month_date, SUM(total_amount) as revenue, COUNT(*) as invoice_count FROM invoices WHERE generated_at >= NOW() - INTERVAL '12 months' AND (hospital_id = $1) GROUP BY 1, 2 ORDER BY 2 ASC`, [hospitalId]); 
     ResponseHandler.success(res, { trend: result.rows.map(row => ({ month: row.month, revenue: parseFloat(row.revenue), count: parseInt(row.invoice_count) })) });
 });
 
@@ -611,7 +611,7 @@ const getFinanceDashboard = asyncHandler(async (req, res) => {
             COALESCE(SUM(amount_paid), 0) as total_collected
         FROM invoices 
         WHERE generated_at >= NOW() - INTERVAL '30 days' 
-        AND (hospital_id = $1 OR hospital_id IS NULL)
+        AND (hospital_id = $1)
     `, [hospitalId]);
     
     const stats = invoiceStats.rows[0] || {};
@@ -702,7 +702,7 @@ const softDeleteInvoice = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     
     // Check if invoice exists and belongs to hospital
-    const invoice = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const invoice = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (invoice.rows.length === 0) {
         return ResponseHandler.error(res, 'Invoice not found', 404);
     }
@@ -734,7 +734,7 @@ const createAdjustment = asyncHandler(async (req, res) => {
     }
     
     // Verify invoice
-    const invRes = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [invoice_id, hospitalId]);
+    const invRes = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2)', [invoice_id, hospitalId]);
     if (invRes.rows.length === 0) return ResponseHandler.error(res, 'Invoice not found', 404);
     
     // Create Adjustment
@@ -822,7 +822,7 @@ const processPatientPayment = asyncHandler(async (req, res) => {
             FROM invoices 
             WHERE patient_id = $1 
               AND status IN ('Pending', 'Partial')
-              AND (hospital_id = $2 OR hospital_id IS NULL)
+              AND (hospital_id = $2)
             ORDER BY generated_at ASC
             FOR UPDATE
         `, [patient_id, hospitalId]);
@@ -945,7 +945,7 @@ const getDailyRevenueReport = asyncHandler(async (req, res) => {
         where: { payment_date: { gte: start, lte: end }, OR: [{ hospital_id: parseInt(hospitalId) }, { hospital_id: null }] } // [FIX] NO deleted_at
     });
     const adjRes = await pool.query(
-        `SELECT SUM(amount) as total, COUNT(id) as count FROM adjustments WHERE created_at BETWEEN $1 AND $2 AND (hospital_id = $3 OR hospital_id IS NULL)`,
+        `SELECT SUM(amount) as total, COUNT(id) as count FROM adjustments WHERE created_at BETWEEN $1 AND $2 AND (hospital_id = $3)`,
         [start, end, hospitalId]
     );
 
@@ -961,7 +961,7 @@ const getDailyRevenueReport = asyncHandler(async (req, res) => {
 // [PHASE 3] Accounting Periods
 const getAccountingPeriods = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT * FROM accounting_periods WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY start_date DESC`, [hospitalId]);
+    const result = await pool.query(`SELECT * FROM accounting_periods WHERE (hospital_id = $1) ORDER BY start_date DESC`, [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -969,7 +969,7 @@ const createAccountingPeriod = asyncHandler(async (req, res) => {
     const { name, start_date, end_date } = req.body;
     const hospitalId = getHospitalId(req);
     
-    const exists = await pool.query(`SELECT * FROM accounting_periods WHERE ((start_date BETWEEN $1 AND $2) OR (end_date BETWEEN $1 AND $2)) AND (hospital_id = $3 OR hospital_id IS NULL)`, [start_date, end_date, hospitalId]);
+    const exists = await pool.query(`SELECT * FROM accounting_periods WHERE ((start_date BETWEEN $1 AND $2) OR (end_date BETWEEN $1 AND $2)) AND (hospital_id = $3)`, [start_date, end_date, hospitalId]);
     if (exists.rows.length > 0) return ResponseHandler.error(res, 'Period overlaps with existing period', 400);
 
     const result = await pool.query(`INSERT INTO accounting_periods (name, start_date, end_date, hospital_id) VALUES ($1, $2, $3, $4) RETURNING *`, [name, start_date, end_date, hospitalId]);
@@ -981,7 +981,7 @@ const closeAccountingPeriod = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const userId = req.user?.id;
 
-    const result = await pool.query(`UPDATE accounting_periods SET status = 'Closed', closed_at = NOW(), closed_by = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *`, [userId, id, hospitalId]);
+    const result = await pool.query(`UPDATE accounting_periods SET status = 'Closed', closed_at = NOW(), closed_by = $1 WHERE id = $2 AND (hospital_id = $3) RETURNING *`, [userId, id, hospitalId]);
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Period not found', 404);
     
     ResponseHandler.success(res, result.rows[0], 'Period closed successfully');
@@ -991,7 +991,7 @@ const reopenAccountingPeriod = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
     // In real world, this should be restricted to Super Admin
-    const result = await pool.query(`UPDATE accounting_periods SET status = 'Open', closed_at = NULL, closed_by = NULL WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *`, [null, id, hospitalId]);
+    const result = await pool.query(`UPDATE accounting_periods SET status = 'Open', closed_at = NULL, closed_by = NULL WHERE id = $2 AND (hospital_id = $3) RETURNING *`, [null, id, hospitalId]);
     ResponseHandler.success(res, result.rows[0], 'Period reopened successfully');
 });
 

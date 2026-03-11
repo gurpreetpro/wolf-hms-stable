@@ -18,7 +18,7 @@ const generatePreauthNumber = () => {
 // Get Insurance Providers - Multi-Tenant
 const getInsuranceProviders = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT id, name, code, type, contact_email, contact_phone, is_active FROM insurance_providers WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name`, [hospitalId]);
+    const result = await pool.query(`SELECT id, name, code, type, contact_email, contact_phone, is_active FROM insurance_providers WHERE is_active = true AND (hospital_id = $1) ORDER BY name`, [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 
@@ -36,7 +36,7 @@ const savePatientInsurance = asyncHandler(async (req, res) => {
     const { patient_id, provider_id, policy_number, group_number, member_id, policy_holder_name, relationship, coverage_start, coverage_end, plan_type, copay_percentage, max_coverage_amount, is_primary } = req.body;
     const hospitalId = getHospitalId(req);
 
-    if (is_primary) await pool.query('UPDATE patient_insurance SET is_primary = false WHERE patient_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [patient_id, hospitalId]);
+    if (is_primary) await pool.query('UPDATE patient_insurance SET is_primary = false WHERE patient_id = $1 AND (hospital_id = $2)', [patient_id, hospitalId]);
     const result = await pool.query(`INSERT INTO patient_insurance (patient_id, provider_id, policy_number, group_number, member_id, policy_holder_name, relationship, coverage_start, coverage_end, plan_type, copay_percentage, max_coverage_amount, is_primary, hospital_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`, [patient_id, provider_id, policy_number, group_number, member_id, policy_holder_name, relationship, coverage_start, coverage_end, plan_type, copay_percentage || 20, max_coverage_amount, is_primary, hospitalId]);
     ResponseHandler.success(res, result.rows[0], 'Patient insurance saved', 201);
@@ -83,7 +83,7 @@ const getPreauthStats = asyncHandler(async (req, res) => {
         COUNT(*) FILTER (WHERE status = 'Approved') as approved, COUNT(*) FILTER (WHERE status = 'Partially Approved') as partially_approved, COUNT(*) FILTER (WHERE status = 'Denied') as denied,
         COALESCE(SUM(requested_amount), 0) as total_requested, COALESCE(SUM(approved_amount), 0) as total_approved,
         AVG(EXTRACT(DAY FROM (approval_date - requested_date))) FILTER (WHERE approval_date IS NOT NULL) as avg_turnaround_days
-        FROM preauth_requests WHERE created_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+        FROM preauth_requests WHERE created_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1)`, [hospitalId]);
     const stats = result.rows[0];
     ResponseHandler.success(res, { counts: { total: parseInt(stats.total), pending: parseInt(stats.pending), under_review: parseInt(stats.under_review), approved: parseInt(stats.approved), partially_approved: parseInt(stats.partially_approved), denied: parseInt(stats.denied) },
         amounts: { total_requested: parseFloat(stats.total_requested), total_approved: parseFloat(stats.total_approved), approval_rate: stats.total > 0 ? Math.round(((parseInt(stats.approved) + parseInt(stats.partially_approved)) / parseInt(stats.total)) * 100) : 0 },
@@ -116,7 +116,7 @@ const updatePreauthStatus = asyncHandler(async (req, res) => {
     if (conditions) { updateFields.push(`conditions = $${paramIndex++}`); params.push(conditions); }
     if (valid_until) { updateFields.push(`valid_until = $${paramIndex++}`); params.push(valid_until); }
     params.push(hospitalId);
-    const result = await pool.query(`UPDATE preauth_requests SET ${updateFields.join(', ')} WHERE id = $1 AND (hospital_id = $${params.length} OR hospital_id IS NULL) RETURNING *`, params);
+    const result = await pool.query(`UPDATE preauth_requests SET ${updateFields.join(', ')} WHERE id = $1 AND (hospital_id = $${params.length}) RETURNING *`, params);
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Pre-auth request not found', 404);
     ResponseHandler.success(res, { message: `Pre-authorization ${status.toLowerCase()}`, request: result.rows[0] });
 });

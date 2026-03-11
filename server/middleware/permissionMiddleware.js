@@ -60,7 +60,7 @@ const getPermissions = async (role, hospitalId) => {
         const result = await pool.query(`
             SELECT module, can_create, can_read, can_update, can_delete, can_export
             FROM role_permissions
-            WHERE role = $1 AND (hospital_id = $2 OR hospital_id IS NULL)
+            WHERE role = $1 AND (hospital_id = $2)
             ORDER BY hospital_id NULLS LAST
         `, [role, hospitalId]);
 

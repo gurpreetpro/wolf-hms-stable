@@ -37,7 +37,7 @@ const getDonors = asyncHandler(async (req, res) => {
     params.push(limit, offset);
 
     const result = await db.pool.query(query, params); 
-    const countResult = await db.pool.query('SELECT COUNT(*) FROM blood_donors WHERE (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
+    const countResult = await db.pool.query('SELECT COUNT(*) FROM blood_donors WHERE (hospital_id = $1)', [hospitalId]);
     
     ResponseHandler.success(res, { donors: result.rows, total: parseInt(countResult.rows[0].count), page: parseInt(page), totalPages: Math.ceil(countResult.rows[0].count / limit) });
 });
@@ -48,7 +48,7 @@ const registerDonor = asyncHandler(async (req, res) => {
     const { name, phone, email, blood_group, rh_factor, date_of_birth, gender, address, city, weight, hemoglobin, blood_pressure, pulse, is_voluntary, medical_history, emergency_contact_name, emergency_contact_phone } = req.body;
     
     // Check for existing donor
-    const existing = await db.pool.query('SELECT id FROM blood_donors WHERE phone = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [phone, hospitalId]); 
+    const existing = await db.pool.query('SELECT id FROM blood_donors WHERE phone = $1 AND (hospital_id = $2)', [phone, hospitalId]); 
     if (existing.rows.length > 0) return ResponseHandler.error(res, 'Donor with this phone already exists', 400);
     
     // Generate Donor ID
@@ -106,7 +106,7 @@ const updateDonorEligibility = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const { is_eligible, deferral_reason, deferral_until } = req.body; 
     const hospitalId = getHospitalId(req); 
-    await db.pool.query(`UPDATE blood_donors SET is_eligible = $1, deferral_reason = $2, deferral_until = $3, updated_at = NOW() WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL)`, [is_eligible, deferral_reason, deferral_until, id, hospitalId]); 
+    await db.pool.query(`UPDATE blood_donors SET is_eligible = $1, deferral_reason = $2, deferral_until = $3, updated_at = NOW() WHERE id = $4 AND (hospital_id = $5)`, [is_eligible, deferral_reason, deferral_until, id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Donor eligibility updated' });
 });
 
@@ -114,8 +114,8 @@ const updateDonorEligibility = asyncHandler(async (req, res) => {
 const getInventorySummary = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const summary = await db.pool.query(`SELECT bu.blood_group, bct.name as component_type, bct.code as component_code, COUNT(*) as units_available, SUM(bu.volume_ml) as total_volume, MIN(bu.expiry_date) as nearest_expiry FROM blood_units bu LEFT JOIN blood_component_types bct ON bu.component_type_id = bct.id WHERE bu.status = 'Available' AND (bu.hospital_id = $1 OR bu.hospital_id IS NULL) GROUP BY bu.blood_group, bct.name, bct.code ORDER BY bu.blood_group, bct.name`, [hospitalId]);
-    const expiring = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE status = 'Available' AND expiry_date <= CURRENT_DATE + INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const byBloodGroup = await db.pool.query(`SELECT blood_group, COUNT(*) as units FROM blood_units WHERE status = 'Available' AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY blood_group ORDER BY blood_group`, [hospitalId]);
+    const expiring = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE status = 'Available' AND expiry_date <= CURRENT_DATE + INTERVAL '7 days' AND (hospital_id = $1)`, [hospitalId]);
+    const byBloodGroup = await db.pool.query(`SELECT blood_group, COUNT(*) as units FROM blood_units WHERE status = 'Available' AND (hospital_id = $1) GROUP BY blood_group ORDER BY blood_group`, [hospitalId]);
     
     ResponseHandler.success(res, { inventory: summary.rows, byBloodGroup: byBloodGroup.rows, expiringSoon: parseInt(expiring.rows[0].count), totalAvailable: summary.rows.reduce((sum, r) => sum + parseInt(r.units_available), 0) });
 });
@@ -187,7 +187,7 @@ const updateUnitStatus = asyncHandler(async (req, res) => {
     if (notes) { paramCount++; query += `, notes = $${paramCount}`; params.push(notes); }
     
     paramCount++; query += ` WHERE id = $${paramCount}`; params.push(id); 
-    paramCount++; query += ` AND (hospital_id = $${paramCount} OR hospital_id IS NULL)`; params.push(hospitalId);
+    paramCount++; query += ` AND (hospital_id = $${paramCount})`; params.push(hospitalId);
     
     await db.pool.query(query, params); 
     ResponseHandler.success(res, { message: 'Blood unit updated' });
@@ -199,7 +199,7 @@ const separateComponents = asyncHandler(async (req, res) => {
     const { components } = req.body; 
     const hospitalId = getHospitalId(req);
     
-    const parent = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]); 
+    const parent = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]); 
     if (parent.rows.length === 0) return ResponseHandler.error(res, 'Parent unit not found', 404); 
     
     const parentUnit = parent.rows[0]; 
@@ -285,9 +285,9 @@ const processRequest = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req); 
     
     if (action === 'approve') {
-        await db.pool.query(`UPDATE blood_requests SET status = 'Approved', approved_by = $1, approved_at = NOW(), updated_at = NOW() WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`, [req.user?.id, id, hospitalId]); 
+        await db.pool.query(`UPDATE blood_requests SET status = 'Approved', approved_by = $1, approved_at = NOW(), updated_at = NOW() WHERE id = $2 AND (hospital_id = $3)`, [req.user?.id, id, hospitalId]); 
     } else if (action === 'reject') {
-        await db.pool.query(`UPDATE blood_requests SET status = 'Rejected', rejection_reason = $1, updated_at = NOW() WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`, [rejection_reason, id, hospitalId]); 
+        await db.pool.query(`UPDATE blood_requests SET status = 'Rejected', rejection_reason = $1, updated_at = NOW() WHERE id = $2 AND (hospital_id = $3)`, [rejection_reason, id, hospitalId]); 
     }
     ResponseHandler.success(res, { message: `Request ${action}ed` });
 });
@@ -297,8 +297,8 @@ const issueBlood = asyncHandler(async (req, res) => {
     const { request_id, unit_id, cross_match_id } = req.body; 
     const hospitalId = getHospitalId(req);
     
-    const request = await db.pool.query('SELECT * FROM blood_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [request_id, hospitalId]); 
-    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [unit_id, hospitalId]); 
+    const request = await db.pool.query('SELECT * FROM blood_requests WHERE id = $1 AND (hospital_id = $2)', [request_id, hospitalId]); 
+    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2)', [unit_id, hospitalId]); 
     
     if (request.rows.length === 0 || unit.rows.length === 0) return ResponseHandler.error(res, 'Request or unit not found', 404); 
     if (unit.rows[0].status !== 'Available' && unit.rows[0].status !== 'Reserved') return ResponseHandler.error(res, 'Unit is not available for issue', 400);
@@ -328,20 +328,20 @@ const issueBlood = asyncHandler(async (req, res) => {
 // Get Component Types - Multi-Tenant
 const getComponentTypes = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await db.pool.query('SELECT * FROM blood_component_types WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY id', [hospitalId]); 
+    const result = await db.pool.query('SELECT * FROM blood_component_types WHERE is_active = true AND (hospital_id = $1) ORDER BY id', [hospitalId]); 
     ResponseHandler.success(res, { componentTypes: result.rows });
 });
 
 // Get Dashboard Stats - Multi-Tenant
 const getDashboardStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const inventory = await db.pool.query(`SELECT blood_group, COUNT(*) as units FROM blood_units WHERE status = 'Available' AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY blood_group ORDER BY blood_group`, [hospitalId]);
-    const pendingRequests = await db.pool.query(`SELECT COUNT(*) as count FROM blood_requests WHERE status = 'Pending' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const todayCollections = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE DATE(collection_date) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const expiring = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE status = 'Available' AND expiry_date <= CURRENT_DATE + INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const issuedToday = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE DATE(issued_date) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const totalDonors = await db.pool.query('SELECT COUNT(*) as count FROM blood_donors WHERE (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
-    const eligibleDonors = await db.pool.query('SELECT COUNT(*) as count FROM blood_donors WHERE is_eligible = true AND (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
+    const inventory = await db.pool.query(`SELECT blood_group, COUNT(*) as units FROM blood_units WHERE status = 'Available' AND (hospital_id = $1) GROUP BY blood_group ORDER BY blood_group`, [hospitalId]);
+    const pendingRequests = await db.pool.query(`SELECT COUNT(*) as count FROM blood_requests WHERE status = 'Pending' AND (hospital_id = $1)`, [hospitalId]);
+    const todayCollections = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE DATE(collection_date) = CURRENT_DATE AND (hospital_id = $1)`, [hospitalId]);
+    const expiring = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE status = 'Available' AND expiry_date <= CURRENT_DATE + INTERVAL '7 days' AND (hospital_id = $1)`, [hospitalId]);
+    const issuedToday = await db.pool.query(`SELECT COUNT(*) as count FROM blood_units WHERE DATE(issued_date) = CURRENT_DATE AND (hospital_id = $1)`, [hospitalId]);
+    const totalDonors = await db.pool.query('SELECT COUNT(*) as count FROM blood_donors WHERE (hospital_id = $1)', [hospitalId]);
+    const eligibleDonors = await db.pool.query('SELECT COUNT(*) as count FROM blood_donors WHERE is_eligible = true AND (hospital_id = $1)', [hospitalId]);
     
     ResponseHandler.success(res, { inventory: inventory.rows, pendingRequests: parseInt(pendingRequests.rows[0].count), todayCollections: parseInt(todayCollections.rows[0].count), expiringSoon: parseInt(expiring.rows[0].count), issuedToday: parseInt(issuedToday.rows[0].count), totalDonors: parseInt(totalDonors.rows[0].count), eligibleDonors: parseInt(eligibleDonors.rows[0].count) });
 });
@@ -351,7 +351,7 @@ const recordTTIResults = asyncHandler(async (req, res) => {
     const { unit_id, results, tested_by } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [unit_id, hospitalId]); 
+    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2)', [unit_id, hospitalId]); 
     if (unit.rows.length === 0) return ResponseHandler.error(res, 'Blood unit not found', 404); 
     
     const allNegative = Object.values(results).every(r => r === 'Negative' || r === 'Non-Reactive'); 
@@ -402,7 +402,7 @@ const startTransfusion = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req); 
     const { unit_id, request_id, cross_match_id, patient_id, ward_id, bed_number, vitals_baseline, rate_ml_per_hour } = req.body; 
     
-    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [unit_id, hospitalId]); 
+    const unit = await db.pool.query('SELECT * FROM blood_units WHERE id = $1 AND (hospital_id = $2)', [unit_id, hospitalId]); 
     if (unit.rows.length === 0) return ResponseHandler.error(res, 'Blood unit not found', 404); 
     
     const transfusion = await db.pool.query(`INSERT INTO blood_transfusions (unit_id, request_id, cross_match_id, patient_id, administered_by, ward_id, bed_number, start_time, vitals_baseline, rate_ml_per_hour, outcome, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9, 'In Progress', $10) RETURNING *`, [unit_id, request_id, cross_match_id, patient_id, req.user?.id, ward_id, bed_number, JSON.stringify(vitals_baseline || {}), rate_ml_per_hour || 100, hospitalId]); 
@@ -433,7 +433,7 @@ const updateTransfusionVitals = asyncHandler(async (req, res) => {
     paramCount++; params.push(id); 
     paramCount++; params.push(hospitalId); 
     
-    await db.pool.query(`UPDATE blood_transfusions SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramCount - 1} AND (hospital_id = $${paramCount} OR hospital_id IS NULL)`, params); 
+    await db.pool.query(`UPDATE blood_transfusions SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramCount - 1} AND (hospital_id = $${paramCount})`, params); 
     ResponseHandler.success(res, { message: 'Transfusion vitals updated' });
 });
 
@@ -443,7 +443,7 @@ const completeTransfusion = asyncHandler(async (req, res) => {
     const { vitals_end, volume_transfused, notes, outcome } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    await db.pool.query(`UPDATE blood_transfusions SET end_time = NOW(), vitals_end = $1, volume_transfused = $2, notes = $3, outcome = $4, updated_at = NOW() WHERE id = $5 AND (hospital_id = $6 OR hospital_id IS NULL)`, [JSON.stringify(vitals_end || {}), volume_transfused, notes, outcome || 'Completed', id, hospitalId]); 
+    await db.pool.query(`UPDATE blood_transfusions SET end_time = NOW(), vitals_end = $1, volume_transfused = $2, notes = $3, outcome = $4, updated_at = NOW() WHERE id = $5 AND (hospital_id = $6)`, [JSON.stringify(vitals_end || {}), volume_transfused, notes, outcome || 'Completed', id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Transfusion completed' });
 });
 
@@ -542,7 +542,7 @@ const getPatientBloodProfile = asyncHandler(async (req, res) => {
     const { patient_id } = req.params; 
     const hospitalId = getHospitalId(req); 
     
-    const patient = await db.pool.query(`SELECT id, name, blood_group, blood_group_verified, blood_group_verified_date FROM patients WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)`, [patient_id, hospitalId]); 
+    const patient = await db.pool.query(`SELECT id, name, blood_group, blood_group_verified, blood_group_verified_date FROM patients WHERE id = $1 AND (hospital_id = $2)`, [patient_id, hospitalId]); 
     if (patient.rows.length === 0) return ResponseHandler.error(res, 'Patient not found', 404); 
     
     const summary = await db.pool.query(`SELECT COUNT(*) as total_transfusions, SUM(CASE WHEN reaction_occurred THEN 1 ELSE 0 END) as total_reactions, MAX(start_time) as last_transfusion FROM blood_transfusions WHERE patient_id = $1`, [patient_id]); 
@@ -567,14 +567,14 @@ const updatePatientBloodGroup = asyncHandler(async (req, res) => {
     const { blood_group, verified } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    await db.pool.query(`UPDATE patients SET blood_group = $1, blood_group_verified = $2, blood_group_verified_date = CASE WHEN $2 THEN NOW() ELSE NULL END, blood_group_verified_by = CASE WHEN $2 THEN $3 ELSE NULL END WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL)`, [blood_group, verified || false, req.user?.id, patient_id, hospitalId]); 
+    await db.pool.query(`UPDATE patients SET blood_group = $1, blood_group_verified = $2, blood_group_verified_date = CASE WHEN $2 THEN NOW() ELSE NULL END, blood_group_verified_by = CASE WHEN $2 THEN $3 ELSE NULL END WHERE id = $4 AND (hospital_id = $5)`, [blood_group, verified || false, req.user?.id, patient_id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Blood group updated' });
 });
 
 // Surgery Integration - Multi-Tenant
 const getSurgeryBloodStandards = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await db.pool.query(`SELECT * FROM surgery_blood_standards WHERE is_active = true AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY surgery_name`, [hospitalId]); 
+    const result = await db.pool.query(`SELECT * FROM surgery_blood_standards WHERE is_active = true AND (hospital_id = $1) ORDER BY surgery_name`, [hospitalId]); 
     ResponseHandler.success(res, { standards: result.rows });
 });
 
@@ -611,7 +611,7 @@ const updatePreOpChecklist = asyncHandler(async (req, res) => {
     const { blood_typed_and_screened, cross_match_completed, blood_reserved, consent_signed } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    await db.pool.query(`UPDATE surgery_blood_requirements SET blood_typed_and_screened = COALESCE($1, blood_typed_and_screened), cross_match_completed = COALESCE($2, cross_match_completed), blood_reserved = COALESCE($3, blood_reserved), consent_signed = COALESCE($4, consent_signed), checked_by = $5, checked_at = NOW(), status = CASE WHEN COALESCE($1, blood_typed_and_screened) AND COALESCE($2, cross_match_completed) AND COALESCE($3, blood_reserved) AND COALESCE($4, consent_signed) THEN 'Ready' ELSE 'Pending' END, updated_at = NOW() WHERE id = $6 AND (hospital_id = $7 OR hospital_id IS NULL)`, [blood_typed_and_screened, cross_match_completed, blood_reserved, consent_signed, req.user?.id, id, hospitalId]); 
+    await db.pool.query(`UPDATE surgery_blood_requirements SET blood_typed_and_screened = COALESCE($1, blood_typed_and_screened), cross_match_completed = COALESCE($2, cross_match_completed), blood_reserved = COALESCE($3, blood_reserved), consent_signed = COALESCE($4, consent_signed), checked_by = $5, checked_at = NOW(), status = CASE WHEN COALESCE($1, blood_typed_and_screened) AND COALESCE($2, cross_match_completed) AND COALESCE($3, blood_reserved) AND COALESCE($4, consent_signed) THEN 'Ready' ELSE 'Pending' END, updated_at = NOW() WHERE id = $6 AND (hospital_id = $7)`, [blood_typed_and_screened, cross_match_completed, blood_reserved, consent_signed, req.user?.id, id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Pre-op checklist updated' });
 });
 
@@ -619,7 +619,7 @@ const prepareSurgeryBlood = asyncHandler(async (req, res) => {
     const { surgery_blood_req_id, unit_id, cross_match_id } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    const unit = await db.pool.query('SELECT component_type_id FROM blood_units WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [unit_id, hospitalId]); 
+    const unit = await db.pool.query('SELECT component_type_id FROM blood_units WHERE id = $1 AND (hospital_id = $2)', [unit_id, hospitalId]); 
     const componentType = await db.pool.query('SELECT code FROM blood_component_types WHERE id = $1', [unit.rows[0]?.component_type_id]); 
     
     await db.pool.query(`UPDATE blood_units SET status = 'Reserved', reserved_until = NOW() + INTERVAL '24 hours' WHERE id = $1`, [unit_id]); 

@@ -59,7 +59,7 @@ const autoPostPayment = asyncHandler(async (req, res) => {
     const { invoice_id, payment_amount, payer_name, check_number, era_reference } = req.body;
     const hospitalId = getHospitalId(req);
     
-    const invResult = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [invoice_id, hospitalId]);
+    const invResult = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2)', [invoice_id, hospitalId]);
     if (invResult.rows.length === 0) return ResponseHandler.error(res, 'Invoice not found', 404);
     
     const invoice = invResult.rows[0]; const currentPaid = parseFloat(invoice.amount_paid) || 0; const newPaid = currentPaid + parseFloat(payment_amount); const newStatus = newPaid >= parseFloat(invoice.total_amount) ? 'Paid' : 'Partial';
@@ -78,7 +78,7 @@ const processBatchERA = asyncHandler(async (req, res) => {
     const processed = []; const failed = [];
     const eraEntries = era_data || [{ invoice_id: 1, amount: 5000, payer: 'Star Health', check: 'CHK001' }, { invoice_id: 2, amount: 8500, payer: 'ICICI Lombard', check: 'CHK002' }, { invoice_id: 3, amount: 3200, payer: 'Medi Assist', check: 'CHK003' }];
     
-    for (const entry of eraEntries) { try { const inv = await pool.query('SELECT id FROM invoices WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [entry.invoice_id, hospitalId]); if (inv.rows.length > 0) processed.push({ invoice_id: entry.invoice_id, amount: entry.amount, payer: entry.payer, status: 'Posted' }); else failed.push({ invoice_id: entry.invoice_id, reason: 'Invoice not found' }); } catch (err) { failed.push({ invoice_id: entry.invoice_id, reason: err.message }); } }
+    for (const entry of eraEntries) { try { const inv = await pool.query('SELECT id FROM invoices WHERE id = $1 AND (hospital_id = $2)', [entry.invoice_id, hospitalId]); if (inv.rows.length > 0) processed.push({ invoice_id: entry.invoice_id, amount: entry.amount, payer: entry.payer, status: 'Posted' }); else failed.push({ invoice_id: entry.invoice_id, reason: 'Invoice not found' }); } catch (err) { failed.push({ invoice_id: entry.invoice_id, reason: err.message }); } }
     
     ResponseHandler.success(res, { success: true, total_entries: eraEntries.length, processed: processed.length, failed: failed.length, total_amount: processed.reduce((sum, p) => sum + p.amount, 0), details: { processed, failed } });
 });
@@ -103,7 +103,7 @@ const logCollectionAction = asyncHandler(async (req, res) => {
     const user_id = req.user?.id || 1;
     
     const actionLog = { invoice_id, action_type, notes, next_action_date, contacted_via, performed_by: user_id, performed_at: new Date().toISOString() };
-    await pool.query(`UPDATE invoices SET notes = COALESCE(notes, '') || E'\n' || $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`, [`[${new Date().toLocaleDateString()}] ${action_type}: ${notes}`, invoice_id, hospitalId]);
+    await pool.query(`UPDATE invoices SET notes = COALESCE(notes, '') || E'\n' || $1 WHERE id = $2 AND (hospital_id = $3)`, [`[${new Date().toLocaleDateString()}] ${action_type}: ${notes}`, invoice_id, hospitalId]);
     
     ResponseHandler.success(res, { success: true, message: 'Collection action logged successfully', action: actionLog }, 'Collection action logged');
 });
@@ -113,7 +113,7 @@ const createPaymentPlan = asyncHandler(async (req, res) => {
     const { invoice_id, installments, frequency, start_date } = req.body;
     const hospitalId = getHospitalId(req);
     
-    const invResult = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [invoice_id, hospitalId]);
+    const invResult = await pool.query('SELECT * FROM invoices WHERE id = $1 AND (hospital_id = $2)', [invoice_id, hospitalId]);
     if (invResult.rows.length === 0) return ResponseHandler.error(res, 'Invoice not found', 404);
     
     const invoice = invResult.rows[0]; const balance = parseFloat(invoice.total_amount) - parseFloat(invoice.amount_paid || 0); const installmentAmount = Math.ceil(balance / installments);

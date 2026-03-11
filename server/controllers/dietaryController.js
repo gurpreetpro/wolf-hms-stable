@@ -15,9 +15,9 @@ const getDashboard = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const [totalR, pendingR, activeR, allergiesR] = await Promise.all([
-        pool.query("SELECT COUNT(*) FROM dietary_orders WHERE (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]),
-        pool.query("SELECT COUNT(*) FROM dietary_orders WHERE (hospital_id = $1 OR hospital_id IS NULL) AND status = 'Pending'", [hospitalId]),
-        pool.query("SELECT COUNT(*) FROM dietary_meal_plans WHERE (hospital_id = $1 OR hospital_id IS NULL) AND status = 'ACTIVE'", [hospitalId]),
+        pool.query("SELECT COUNT(*) FROM dietary_orders WHERE (hospital_id = $1)", [hospitalId]),
+        pool.query("SELECT COUNT(*) FROM dietary_orders WHERE (hospital_id = $1) AND status = 'Pending'", [hospitalId]),
+        pool.query("SELECT COUNT(*) FROM dietary_meal_plans WHERE (hospital_id = $1) AND status = 'ACTIVE'", [hospitalId]),
         pool.query("SELECT COUNT(*) FROM dietary_allergies WHERE hospital_id = $1", [hospitalId]),
     ]);
 
@@ -79,7 +79,7 @@ const updateStatus = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
 
     const result = await pool.query(
-        'UPDATE dietary_orders SET status = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *',
+        'UPDATE dietary_orders SET status = $1 WHERE id = $2 AND (hospital_id = $3) RETURNING *',
         [status, id, hospitalId]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Order not found', 404);
@@ -136,7 +136,7 @@ const updateMealPlan = asyncHandler(async (req, res) => {
          SET status = COALESCE($1, status), calorie_target = COALESCE($2, calorie_target),
              protein_target = COALESCE($3, protein_target), meals = COALESCE($4, meals),
              notes = COALESCE($5, notes), updated_at = NOW()
-         WHERE id = $6 AND (hospital_id = $7 OR hospital_id IS NULL) RETURNING *`,
+         WHERE id = $6 AND (hospital_id = $7) RETURNING *`,
         [status, calorie_target, protein_target, meals ? JSON.stringify(meals) : null, notes, id, hospitalId]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Plan not found', 404);

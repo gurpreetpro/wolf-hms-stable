@@ -12,7 +12,7 @@ router.get('/pending', async (req, res) => {
             SELECT id, patient_name, total_amount, status, generated_at
             FROM invoices
             WHERE status = 'Pending' 
-            AND (hospital_id = $1 OR hospital_id IS NULL)
+            AND (hospital_id = $1)
             ORDER BY generated_at DESC
             LIMIT 50
         `, [hospitalId]);
@@ -30,7 +30,7 @@ router.get('/invoices', async (req, res) => {
         const hospitalId = 1;
         const result = await pool.query(`
             SELECT * FROM invoices
-            WHERE (hospital_id = $1 OR hospital_id IS NULL)
+            WHERE (hospital_id = $1)
             ORDER BY generated_at DESC
             LIMIT 100
         `, [hospitalId]);
@@ -57,7 +57,7 @@ router.get('/ar-aging', async (req, res) => {
                 COUNT(*) as count,
                 SUM(total_amount - paid_amount) as amount
             FROM invoices
-            WHERE status IN ('Pending', 'Partially Paid') AND (hospital_id = $1 OR hospital_id IS NULL)
+            WHERE status IN ('Pending', 'Partially Paid') AND (hospital_id = $1)
             GROUP BY 1
         `, [hospitalId]);
 
@@ -105,7 +105,7 @@ router.get('/kpis', async (req, res) => {
                 SUM(paid_amount) as total_collected,
                 AVG(EXTRACT(DAY FROM (updated_at - generated_at))) FILTER (WHERE status = 'Paid') as avg_days_to_pay
             FROM invoices
-            WHERE (hospital_id = $1 OR hospital_id IS NULL)
+            WHERE (hospital_id = $1)
         `, [hospitalId]);
 
         const { total_invoices, paid_count, total_billed, total_collected, avg_days_to_pay } = stats.rows[0];
@@ -135,7 +135,7 @@ router.get('/denials', async (req, res) => {
         // Or we can query invoices with status 'Cancelled' or 'Denied'
         const hospitalId = 1;
         const result = await pool.query(`
-            SELECT COUNT(*) as count FROM invoices WHERE status = 'Cancelled' AND (hospital_id = $1 OR hospital_id IS NULL)
+            SELECT COUNT(*) as count FROM invoices WHERE status = 'Cancelled' AND (hospital_id = $1)
         `, [hospitalId]);
 
         const count = parseInt(result.rows[0].count);

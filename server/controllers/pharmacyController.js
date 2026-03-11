@@ -9,7 +9,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 // Get Inventory - Multi-Tenant
 const getInventory = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query('SELECT * FROM inventory_items WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]); 
+    const result = await pool.query('SELECT * FROM inventory_items WHERE (hospital_id = $1) ORDER BY name', [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -21,7 +21,7 @@ const searchInventory = asyncHandler(async (req, res) => {
     
     const result = await pool.query(`
         SELECT * FROM inventory_items 
-        WHERE (hospital_id = $1 OR hospital_id IS NULL) 
+        WHERE (hospital_id = $1) 
         AND (name ILIKE $2 OR generic_name ILIKE $2) 
         ORDER BY name 
         LIMIT 20
@@ -35,12 +35,12 @@ const dispense = asyncHandler(async (req, res) => {
     const info = req.user;
     const hospitalId = getHospitalId(req);
 
-    const itemRes = await pool.query('SELECT * FROM inventory_items WHERE name = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [item, hospitalId]); 
+    const itemRes = await pool.query('SELECT * FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [item, hospitalId]); 
     if (itemRes.rows.length === 0) return ResponseHandler.error(res, 'Item not found', 404);
     const inventoryItem = itemRes.rows[0];
 
     if (patient_id && !force) { 
-        const patientRes = await pool.query('SELECT history_json FROM patients WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [patient_id, hospitalId]); 
+        const patientRes = await pool.query('SELECT history_json FROM patients WHERE id = $1 AND (hospital_id = $2)', [patient_id, hospitalId]); 
         if (patientRes.rows.length > 0) { 
             const history = patientRes.rows[0].history_json || {}; 
             const allergies = history.allergies || []; 
@@ -48,7 +48,7 @@ const dispense = asyncHandler(async (req, res) => {
             if (risk) return ResponseHandler.error(res, `CLINICAL ALERT: Patient is allergic to ${risk}.`, 409, { type: 'ALLERGY_WARNING', risk });
         } 
     }
-    const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING stock_quantity, price_per_unit, id', [quantity, item, hospitalId]); 
+    const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3) RETURNING stock_quantity, price_per_unit, id', [quantity, item, hospitalId]); 
     if (updateRes.rows.length === 0) return ResponseHandler.error(res, 'Insufficient stock', 400); 
     const { stock_quantity, price_per_unit, id: itemId } = updateRes.rows[0];
 
@@ -83,14 +83,14 @@ const processPrescription = asyncHandler(async (req, res) => {
     const pharmacist_id = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const taskRes = await pool.query('SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [task_id, hospitalId]); 
+    const taskRes = await pool.query('SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2)', [task_id, hospitalId]); 
     if (taskRes.rows.length === 0) return ResponseHandler.error(res, 'Prescription task not found', 404); 
     const task = taskRes.rows[0]; 
     const itemName = task.description.split(' - ')[0].trim();
 
     if (!force) { 
         const patient_id = task.patient_id; 
-        const itemRes = await pool.query('SELECT * FROM inventory_items WHERE name = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [itemName, hospitalId]); 
+        const itemRes = await pool.query('SELECT * FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [itemName, hospitalId]); 
         if (itemRes.rows.length > 0) { 
             const inventoryItem = itemRes.rows[0]; 
             const patientRes = await pool.query('SELECT history_json FROM patients WHERE id = $1', [patient_id]); 
@@ -105,7 +105,7 @@ const processPrescription = asyncHandler(async (req, res) => {
 
     if (!force) { 
         const patient_id = task.patient_id; 
-        const recentMedsRes = await pool.query(`SELECT DISTINCT split_part(description, ' - ', 1) as drug_name FROM care_tasks WHERE patient_id = $1 AND type = 'Medication' AND status = 'Completed' AND completed_at > NOW() - INTERVAL '7 days' AND (hospital_id = $2 OR hospital_id IS NULL)`, [patient_id, hospitalId]); 
+        const recentMedsRes = await pool.query(`SELECT DISTINCT split_part(description, ' - ', 1) as drug_name FROM care_tasks WHERE patient_id = $1 AND type = 'Medication' AND status = 'Completed' AND completed_at > NOW() - INTERVAL '7 days' AND (hospital_id = $2)`, [patient_id, hospitalId]); 
         const recentDrugs = recentMedsRes.rows.map(r => r.drug_name.trim().toLowerCase()); 
         if (recentDrugs.length > 0) { 
             const currentDrug = itemName.toLowerCase(); 
@@ -119,7 +119,7 @@ const processPrescription = asyncHandler(async (req, res) => {
     }
 
     const qtyToDispense = 1; 
-    const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING stock_quantity, price_per_unit, id', [qtyToDispense, itemName, hospitalId]); 
+    const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3) RETURNING stock_quantity, price_per_unit, id', [qtyToDispense, itemName, hospitalId]); 
     if (updateRes.rows.length === 0) return ResponseHandler.error(res, `Insufficient stock or item not found: ${itemName}`, 400); 
     const { price_per_unit, id: itemId } = updateRes.rows[0];
 
@@ -146,7 +146,7 @@ const processPrescription = asyncHandler(async (req, res) => {
 
     // Simplified for Schema Compatibility (removed is_controlled check)
     /* 
-    const controlledCheck = await pool.query('SELECT id, is_controlled, schedule_type, batch_number FROM inventory_items WHERE name = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [itemName, hospitalId]); 
+    const controlledCheck = await pool.query('SELECT id, is_controlled, schedule_type, batch_number FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [itemName, hospitalId]); 
     if (controlledCheck.rows.length > 0 && controlledCheck.rows[0].is_controlled) { 
         const item = controlledCheck.rows[0]; 
         const patientRes = await pool.query('SELECT name FROM patients WHERE id = $1', [task.patient_id]); 
@@ -188,7 +188,7 @@ const requestPriceChange = asyncHandler(async (req, res) => {
     const requested_by = req.user.id; 
     const hospitalId = getHospitalId(req); 
 
-    const itemRes = await pool.query('SELECT price_per_unit FROM inventory_items WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [inventory_id, hospitalId]); 
+    const itemRes = await pool.query('SELECT price_per_unit FROM inventory_items WHERE id = $1 AND (hospital_id = $2)', [inventory_id, hospitalId]); 
     if (itemRes.rows.length === 0) return ResponseHandler.error(res, 'Item not found', 404); 
     const old_price = itemRes.rows[0].price_per_unit; 
 
@@ -210,7 +210,7 @@ const approvePriceChange = asyncHandler(async (req, res) => {
 
     try {
         await pool.query('BEGIN'); 
-        const reqRes = await pool.query('SELECT * FROM price_change_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]); 
+        const reqRes = await pool.query('SELECT * FROM price_change_requests WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]); 
         if (reqRes.rows.length === 0) { 
             await pool.query('ROLLBACK'); 
             return ResponseHandler.error(res, 'Request not found', 404); 
@@ -234,25 +234,25 @@ const approvePriceChange = asyncHandler(async (req, res) => {
 const denyPriceChange = asyncHandler(async (req, res) => { 
     const { id } = req.params; 
     const hospitalId = getHospitalId(req); 
-    await pool.query("UPDATE price_change_requests SET status = 'Denied' WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)", [id, hospitalId]); 
+    await pool.query("UPDATE price_change_requests SET status = 'Denied' WHERE id = $1 AND (hospital_id = $2)", [id, hospitalId]); 
     ResponseHandler.success(res, null, 'Price change denied');
 });
 
 // Expiry Heatmap - Multi-Tenant
 const getExpiryHeatmap = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT TO_CHAR(expiry_date, 'YYYY-MM') as month, COUNT(*) as count, json_agg(json_build_object('id', id, 'name', name, 'expiry_date', expiry_date, 'stock', stock_quantity)) as items FROM inventory_items WHERE expiry_date IS NOT NULL AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY month ORDER BY month ASC`, [hospitalId]); 
+    const result = await pool.query(`SELECT TO_CHAR(expiry_date, 'YYYY-MM') as month, COUNT(*) as count, json_agg(json_build_object('id', id, 'name', name, 'expiry_date', expiry_date, 'stock', stock_quantity)) as items FROM inventory_items WHERE expiry_date IS NOT NULL AND (hospital_id = $1) GROUP BY month ORDER BY month ASC`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
 // Demand Forecast - Multi-Tenant
 const getDemandForecast = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const usageRes = await pool.query(`SELECT split_part(description, ' - ', 1) as item_name, COUNT(*) as total_units_sold FROM care_tasks WHERE type = 'Medication' AND status = 'Completed' AND created_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY item_name`, [hospitalId]); 
+    const usageRes = await pool.query(`SELECT split_part(description, ' - ', 1) as item_name, COUNT(*) as total_units_sold FROM care_tasks WHERE type = 'Medication' AND status = 'Completed' AND created_at >= NOW() - INTERVAL '30 days' AND (hospital_id = $1) GROUP BY item_name`, [hospitalId]); 
     const usageMap = {}; 
     usageRes.rows.forEach(r => { usageMap[r.item_name.trim()] = parseInt(r.total_units_sold); });
 
-    const inventoryRes = await pool.query('SELECT id, name, stock_quantity, reorder_level FROM inventory_items WHERE (hospital_id = $1 OR hospital_id IS NULL)', [hospitalId]);
+    const inventoryRes = await pool.query('SELECT id, name, stock_quantity, reorder_level FROM inventory_items WHERE (hospital_id = $1)', [hospitalId]);
     const forecast = inventoryRes.rows.map(item => { const soldLast30Days = usageMap[item.name.trim()] || 0; const burnRate = soldLast30Days / 30; const daysOfSupply = burnRate > 0 ? (item.stock_quantity / burnRate) : 999; let status = 'Good'; if (daysOfSupply < 7) status = 'Critical'; else if (daysOfSupply < 14) status = 'Low'; const suggestedReorder = (daysOfSupply < 30 || item.stock_quantity < item.reorder_level) ? (Math.ceil(burnRate * 30) - item.stock_quantity + 50) : 0; return { id: item.id, name: item.name, current_stock: item.stock_quantity, sold_last_30d: soldLast30Days, burn_rate: burnRate.toFixed(2), days_of_supply: burnRate > 0 ? daysOfSupply.toFixed(1) : '∞', status, suggested_reorder: suggestedReorder > 0 ? suggestedReorder : 0 }; });
     forecast.sort((a, b) => { const risk = { 'Critical': 3, 'Low': 2, 'Good': 1 }; return risk[b.status] - risk[a.status]; }); 
     ResponseHandler.success(res, forecast);
@@ -275,14 +275,14 @@ const addInventoryItem = asyncHandler(async (req, res) => {
 const deleteInventoryItem = asyncHandler(async (req, res) => { 
     const { id } = req.params; 
     const hospitalId = getHospitalId(req); 
-    await pool.query('DELETE FROM inventory_items WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]); 
+    await pool.query('DELETE FROM inventory_items WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]); 
     ResponseHandler.success(res, null, 'Item deleted successfully');
 });
 
 // Get Suppliers - Multi-Tenant
 const getSuppliers = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query('SELECT * FROM suppliers WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]); 
+    const result = await pool.query('SELECT * FROM suppliers WHERE (hospital_id = $1) ORDER BY name', [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -306,7 +306,7 @@ const receiveStock = asyncHandler(async (req, res) => {
     const { po_id } = req.body; 
     const hospitalId = getHospitalId(req); 
     
-    const itemsRes = await pool.query('SELECT * FROM po_items WHERE po_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [po_id, hospitalId]); 
+    const itemsRes = await pool.query('SELECT * FROM po_items WHERE po_id = $1 AND (hospital_id = $2)', [po_id, hospitalId]); 
     for (const item of itemsRes.rows) { 
         if (item.inventory_item_id) { 
             await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity + $1 WHERE id = $2', [item.quantity, item.inventory_item_id]); 
@@ -326,7 +326,7 @@ const getPurchaseOrders = asyncHandler(async (req, res) => {
 // ABC Analysis - Multi-Tenant
 const getABCAnalysis = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT id, name, stock_quantity, price_per_unit, (stock_quantity * price_per_unit) as total_value FROM inventory_items WHERE stock_quantity > 0 AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY total_value DESC`, [hospitalId]); 
+    const result = await pool.query(`SELECT id, name, stock_quantity, price_per_unit, (stock_quantity * price_per_unit) as total_value FROM inventory_items WHERE stock_quantity > 0 AND (hospital_id = $1) ORDER BY total_value DESC`, [hospitalId]); 
     const items = result.rows; 
     const totalInventoryValue = items.reduce((sum, item) => sum + Number(item.total_value), 0); 
     let cumulativeValue = 0; 
@@ -345,7 +345,7 @@ const getABCAnalysis = asyncHandler(async (req, res) => {
 // Expiry Report - Multi-Tenant
 const getExpiryReport = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT * FROM inventory_items WHERE expiry_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY expiry_date ASC`, [hospitalId]); 
+    const result = await pool.query(`SELECT * FROM inventory_items WHERE expiry_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' AND (hospital_id = $1) ORDER BY expiry_date ASC`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -373,7 +373,7 @@ const processRefund = asyncHandler(async (req, res) => {
     const validReasons = ['wrong_medication', 'adverse_reaction', 'patient_refused', 'duplicate_dispense', 'doctor_cancelled', 'other']; 
     if (!validReasons.includes(reason)) return ResponseHandler.error(res, 'Invalid refund reason', 400);
 
-    const itemRes = await pool.query('SELECT id, price_per_unit, stock_quantity FROM inventory_items WHERE name = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [item_name, hospitalId]); 
+    const itemRes = await pool.query('SELECT id, price_per_unit, stock_quantity FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [item_name, hospitalId]); 
     if (itemRes.rows.length === 0) return ResponseHandler.error(res, 'Item not found in inventory', 404); 
     const item = itemRes.rows[0]; 
     const refund_amount = parseFloat(item.price_per_unit) * quantity;
@@ -420,7 +420,7 @@ const getControlledSubstanceLog = asyncHandler(async (req, res) => {
 const getRefundHistory = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
     const { days = 30 } = req.query; 
-    const result = await pool.query(`SELECT * FROM pharmacy_refunds WHERE created_at > NOW() - INTERVAL '${parseInt(days)} days' AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY created_at DESC LIMIT 100`, [hospitalId]); 
+    const result = await pool.query(`SELECT * FROM pharmacy_refunds WHERE created_at > NOW() - INTERVAL '${parseInt(days)} days' AND (hospital_id = $1) ORDER BY created_at DESC LIMIT 100`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 

@@ -34,7 +34,7 @@ router.get('/inventory', protect, authorize('pharmacist', 'admin', 'doctor'), as
     try {
         const pool = require('../config/db');
         const hospitalId = req.user?.hospital_id || req.hospitalId || 1;
-        const result = await pool.query('SELECT * FROM inventory_items WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY name', [hospitalId]); 
+        const result = await pool.query('SELECT * FROM inventory_items WHERE (hospital_id = $1) ORDER BY name', [hospitalId]); 
         res.json(result.rows);
     } catch (e) {
         console.error('Inventory Inline Error:', e);

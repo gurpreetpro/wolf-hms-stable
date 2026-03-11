@@ -26,7 +26,7 @@ class POSReconciliationService {
     // Reconcile a single settlement - Multi-Tenant
     async reconcileSettlement(settlement, hospitalId, initiatedBy = null) {
         const discrepancies = [];
-        const localTxns = await pool.query(`SELECT * FROM pos_transactions WHERE device_id = $1 AND DATE(initiated_at) = $2 AND status IN ('success', 'failed') AND (hospital_id = $3 OR hospital_id IS NULL)`, [settlement.device_id, settlement.settlement_date, hospitalId]);
+        const localTxns = await pool.query(`SELECT * FROM pos_transactions WHERE device_id = $1 AND DATE(initiated_at) = $2 AND status IN ('success', 'failed') AND (hospital_id = $3)`, [settlement.device_id, settlement.settlement_date, hospitalId]);
         
         const localTxnMap = new Map(); localTxns.rows.forEach(txn => { localTxnMap.set(txn.provider_txn_id, txn); });
         
@@ -68,7 +68,7 @@ class POSReconciliationService {
 
     // Resolve discrepancy - Multi-Tenant
     async resolveDiscrepancy(discrepancyId, hospitalId, resolution, notes, resolvedBy) {
-        const result = await pool.query(`UPDATE pos_reconciliation_discrepancies SET resolution_status = $1, resolution_notes = $2, resolved_by = $3, resolved_at = NOW() WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL) RETURNING *`, [resolution, notes, resolvedBy, discrepancyId, hospitalId]);
+        const result = await pool.query(`UPDATE pos_reconciliation_discrepancies SET resolution_status = $1, resolution_notes = $2, resolved_by = $3, resolved_at = NOW() WHERE id = $4 AND (hospital_id = $5) RETURNING *`, [resolution, notes, resolvedBy, discrepancyId, hospitalId]);
         if (result.rows[0]) { await pool.query(`UPDATE pos_settlements SET discrepancy_count = (SELECT COUNT(*) FROM pos_reconciliation_discrepancies WHERE settlement_id = $1 AND resolution_status = 'open') WHERE id = $1`, [result.rows[0].settlement_id]); }
         return result.rows[0];
     }

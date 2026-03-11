@@ -61,7 +61,7 @@ const updateTaskStatus = asyncHandler(async (req, res) => {
     const result = await pool.query(
         `UPDATE housekeeping_tasks 
             SET status = $1, notes = $2, assigned_to = $3, completed_at = CASE WHEN $1 = 'Completed' THEN CURRENT_TIMESTAMP ELSE completed_at END
-            WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL)
+            WHERE id = $4 AND (hospital_id = $5)
             RETURNING *`,
         [status, notes, assigned_to, id, hospitalId]
     );

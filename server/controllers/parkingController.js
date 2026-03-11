@@ -29,7 +29,7 @@ const vehicleEntry = asyncHandler(async (req, res) => {
     if (!vehicle_no) return ResponseHandler.error(res, 'Vehicle Number required', 400);
 
     const existing = await pool.query(
-        "SELECT * FROM parking_sessions WHERE vehicle_no = $1 AND status = 'PARKED' AND (hospital_id = $2 OR hospital_id IS NULL)",
+        "SELECT * FROM parking_sessions WHERE vehicle_no = $1 AND status = 'PARKED' AND (hospital_id = $2)",
         [vehicle_no, hospitalId]
     );
     if (existing.rows.length > 0) return ResponseHandler.error(res, 'Vehicle already marked as PARKED', 409);
@@ -51,7 +51,7 @@ const vehicleExitCalculation = asyncHandler(async (req, res) => {
 
     const cleanNo = vehicle_no.toUpperCase().replace(/\s/g, '');
     const sessionRes = await pool.query(
-        "SELECT * FROM parking_sessions WHERE vehicle_no = $1 AND status = 'PARKED' AND (hospital_id = $2 OR hospital_id IS NULL)",
+        "SELECT * FROM parking_sessions WHERE vehicle_no = $1 AND status = 'PARKED' AND (hospital_id = $2)",
         [cleanNo, hospitalId]
     );
     if (sessionRes.rows.length === 0) return ResponseHandler.error(res, 'Vehicle not found or already exited', 404);
@@ -78,7 +78,7 @@ const confirmExit = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
         `UPDATE parking_sessions SET status = 'PAID', exit_time = NOW(), payment_method = $1, amount_due = $2
-            WHERE id = $3 AND status = 'PARKED' AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *`,
+            WHERE id = $3 AND status = 'PARKED' AND (hospital_id = $4) RETURNING *`,
         [payment_method || 'CASH', amount_paid, session_id, hospitalId]
     );
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Session invalid or already closed', 400);
@@ -89,8 +89,8 @@ const confirmExit = asyncHandler(async (req, res) => {
 // Dashboard Stats - Multi-Tenant
 const getParkingStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const parkedRes = await pool.query("SELECT * FROM parking_sessions WHERE status = 'PARKED' AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY entry_time DESC", [hospitalId]);
-    const revenueRes = await pool.query("SELECT SUM(amount_due) as total FROM parking_sessions WHERE status = 'PAID' AND exit_time > NOW()::DATE AND (hospital_id = $1 OR hospital_id IS NULL)", [hospitalId]);
+    const parkedRes = await pool.query("SELECT * FROM parking_sessions WHERE status = 'PARKED' AND (hospital_id = $1) ORDER BY entry_time DESC", [hospitalId]);
+    const revenueRes = await pool.query("SELECT SUM(amount_due) as total FROM parking_sessions WHERE status = 'PAID' AND exit_time > NOW()::DATE AND (hospital_id = $1)", [hospitalId]);
     ResponseHandler.success(res, { occupancy: parkedRes.rows.length, revenue_today: revenueRes.rows[0].total || 0, active_sessions: parkedRes.rows });
 });
 

@@ -47,7 +47,7 @@ router.get('/permissions/:role', protect, authorize('admin'), async (req, res) =
         const result = await pool.query(`
             SELECT module, can_create, can_read, can_update, can_delete, can_export
             FROM role_permissions
-            WHERE role = $1 AND (hospital_id = $2 OR hospital_id IS NULL)
+            WHERE role = $1 AND (hospital_id = $2)
             ORDER BY module
         `, [role, req.hospital_id]);
 

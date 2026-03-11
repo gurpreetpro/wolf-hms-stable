@@ -178,7 +178,7 @@ const recordPayment = async (paymentData, client = pool) => {
             // Update Invoice (Strict Multi-Tenant Check)
             if (hospital_id) {
                 await db.query(
-                    `UPDATE invoices SET amount_paid = $1, status = $2 WHERE id = $3 AND (hospital_id = $4 OR hospital_id IS NULL)`,
+                    `UPDATE invoices SET amount_paid = $1, status = $2 WHERE id = $3 AND (hospital_id = $4)`,
                     [newPaid, newStatus, invoice_id, hospital_id]
                 );
             } else {

@@ -101,7 +101,7 @@ const orderTest = asyncHandler(async (req, res) => {
     const doctor_id = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const typeRes = await pool.query('SELECT id, price, name FROM lab_test_types WHERE name = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [test_type, hospitalId]);
+    const typeRes = await pool.query('SELECT id, price, name FROM lab_test_types WHERE name = $1 AND (hospital_id = $2)', [test_type, hospitalId]);
     if (typeRes.rows.length === 0) return ResponseHandler.error(res, 'Invalid test type', 400);
     
     const test_type_id = typeRes.rows[0].id; 
@@ -156,7 +156,7 @@ const uploadResult = asyncHandler(async (req, res) => {
 
     let parsedData = result_json || { hemoglobin: 14.2, platelets: 250000, wbc: 7500, impression: 'Normal' };
     await pool.query('INSERT INTO lab_results (request_id, result_json, technician_id, hospital_id) VALUES ($1, $2, $3, $4) RETURNING *', [request_id, JSON.stringify(parsedData), technician_id, hospitalId]);
-    await pool.query('UPDATE lab_requests SET status = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)', ['Completed', request_id, hospitalId]);
+    await pool.query('UPDATE lab_requests SET status = $1 WHERE id = $2 AND (hospital_id = $3)', ['Completed', request_id, hospitalId]);
     
     ResponseHandler.success(res, { message: 'Result uploaded', data: parsedData });
 });
@@ -164,9 +164,9 @@ const uploadResult = asyncHandler(async (req, res) => {
 // Get Lab Stats - Multi-Tenant
 const getLabStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const completedResult = await pool.query(`SELECT COUNT(*) as count FROM lab_requests WHERE status = 'Completed' AND DATE(updated_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const samplesResult = await pool.query(`SELECT COUNT(*) as count FROM lab_requests WHERE sample_collected_at IS NOT NULL AND DATE(sample_collected_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
-    const turnaroundResult = await pool.query(`SELECT AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as avg_hours FROM lab_requests WHERE status = 'Completed' AND DATE(updated_at) = CURRENT_DATE AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+    const completedResult = await pool.query(`SELECT COUNT(*) as count FROM lab_requests WHERE status = 'Completed' AND DATE(updated_at) = CURRENT_DATE AND (hospital_id = $1)`, [hospitalId]);
+    const samplesResult = await pool.query(`SELECT COUNT(*) as count FROM lab_requests WHERE sample_collected_at IS NOT NULL AND DATE(sample_collected_at) = CURRENT_DATE AND (hospital_id = $1)`, [hospitalId]);
+    const turnaroundResult = await pool.query(`SELECT AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as avg_hours FROM lab_requests WHERE status = 'Completed' AND DATE(updated_at) = CURRENT_DATE AND (hospital_id = $1)`, [hospitalId]);
     
     ResponseHandler.success(res, { completed_today: parseInt(completedResult.rows[0]?.count) || 0, samples_collected: parseInt(samplesResult.rows[0]?.count) || 0, avg_turnaround_hours: parseFloat(turnaroundResult.rows[0]?.avg_hours) || 0 });
 });
@@ -197,7 +197,7 @@ const getLabHistory = asyncHandler(async (req, res) => {
 // Get Packages - Multi-Tenant
 const getPackages = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const pkgRes = await pool.query('SELECT * FROM lab_packages WHERE active = TRUE AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY price', [hospitalId]); 
+    const pkgRes = await pool.query('SELECT * FROM lab_packages WHERE active = TRUE AND (hospital_id = $1) ORDER BY price', [hospitalId]); 
     const packages = []; 
     for (const pkg of pkgRes.rows) { 
         const itemsRes = await pool.query(`SELECT t.name FROM lab_package_items pi JOIN lab_test_types t ON pi.test_type_id = t.id WHERE pi.package_id = $1`, [pkg.id]); 
@@ -251,7 +251,7 @@ const approveLabChange = asyncHandler(async (req, res) => {
     
     await pool.query('BEGIN');
     try {
-        const reqRes = await pool.query('SELECT * FROM lab_change_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+        const reqRes = await pool.query('SELECT * FROM lab_change_requests WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
         if (reqRes.rows.length === 0) { 
             await pool.query('ROLLBACK'); 
             return ResponseHandler.error(res, 'Request not found', 404); 
@@ -289,7 +289,7 @@ const denyLabChange = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const denied_by = req.user.id; 
     const hospitalId = getHospitalId(req); 
-    await pool.query("UPDATE lab_change_requests SET status = 'Denied', processed_at = CURRENT_TIMESTAMP, processed_by = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)", [denied_by, id, hospitalId]); 
+    await pool.query("UPDATE lab_change_requests SET status = 'Denied', processed_at = CURRENT_TIMESTAMP, processed_by = $1 WHERE id = $2 AND (hospital_id = $3)", [denied_by, id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Request denied' });
 });
 
@@ -298,7 +298,7 @@ const generateBarcode = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const hospitalId = getHospitalId(req); 
     const barcode = 'LAB' + String(id).padStart(8, '0'); 
-    await pool.query('UPDATE lab_requests SET barcode = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)', [barcode, id, hospitalId]); 
+    await pool.query('UPDATE lab_requests SET barcode = $1 WHERE id = $2 AND (hospital_id = $3)', [barcode, id, hospitalId]); 
     await logAudit(id, 'BARCODE_GENERATED', req.user.id, { barcode }, null, hospitalId); 
     ResponseHandler.success(res, { barcode });
 });
@@ -311,7 +311,7 @@ const processPayment = asyncHandler(async (req, res) => {
     const received_by_username = req.user.username;
     const hospitalId = getHospitalId(req);
 
-    const labReq = await pool.query('SELECT * FROM lab_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const labReq = await pool.query('SELECT * FROM lab_requests WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (labReq.rows.length === 0) return ResponseHandler.error(res, 'Lab request not found', 404);
     
     await pool.query(`UPDATE lab_requests SET payment_status = 'Paid', payment_method = $1, payment_received_at = NOW(), payment_received_by = $2, paid_by_username = $3, payment_location = $4, payment_reference = $5, paid_amount = $6 WHERE id = $7`, [payment_method, received_by, received_by_username, payment_location || 'billing', transaction_ref || null, amount || labReq.rows[0].test_price, id]);
@@ -326,7 +326,7 @@ const collectSample = asyncHandler(async (req, res) => {
     const collected_by = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const reqCheck = await pool.query('SELECT admission_id, payment_status, payment_method FROM lab_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const reqCheck = await pool.query('SELECT admission_id, payment_status, payment_method FROM lab_requests WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (reqCheck.rows.length === 0) return ResponseHandler.error(res, 'Request not found', 404);
     
     const request = reqCheck.rows[0];
@@ -350,7 +350,7 @@ const getAuditLog = asyncHandler(async (req, res) => {
 // Get Reference Ranges - Multi-Tenant
 const getReferenceRanges = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query('SELECT * FROM lab_reference_ranges WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY test_name, parameter', [hospitalId]); 
+    const result = await pool.query('SELECT * FROM lab_reference_ranges WHERE (hospital_id = $1) ORDER BY test_name, parameter', [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -365,8 +365,8 @@ const getCriticalAlerts = asyncHandler(async (req, res) => {
 const getTATAnalytics = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const tatByTest = await pool.query(`SELECT t.name as test_name, COUNT(*) as total_tests, AVG(EXTRACT(EPOCH FROM (lr.updated_at - lr.requested_at))/3600) as avg_tat_hours, MIN(EXTRACT(EPOCH FROM (lr.updated_at - lr.requested_at))/3600) as min_tat_hours, MAX(EXTRACT(EPOCH FROM (lr.updated_at - lr.requested_at))/3600) as max_tat_hours FROM lab_requests lr JOIN lab_test_types t ON lr.test_type_id = t.id WHERE lr.status = 'Completed' AND lr.updated_at > NOW() - INTERVAL '30 days' AND (lr.hospital_id = $1 OR lr.hospital_id IS NULL) GROUP BY t.name ORDER BY total_tests DESC LIMIT 10`, [hospitalId]);
-    const dailyTrend = await pool.query(`SELECT DATE(updated_at) as date, COUNT(*) as completed, AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as avg_tat_hours FROM lab_requests WHERE status = 'Completed' AND updated_at > NOW() - INTERVAL '7 days' AND (hospital_id = $1 OR hospital_id IS NULL) GROUP BY DATE(updated_at) ORDER BY date`, [hospitalId]);
-    const overall = await pool.query(`SELECT COUNT(*) as total_completed, AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as overall_avg_tat FROM lab_requests WHERE status = 'Completed' AND updated_at > NOW() - INTERVAL '30 days' AND (hospital_id = $1 OR hospital_id IS NULL)`, [hospitalId]);
+    const dailyTrend = await pool.query(`SELECT DATE(updated_at) as date, COUNT(*) as completed, AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as avg_tat_hours FROM lab_requests WHERE status = 'Completed' AND updated_at > NOW() - INTERVAL '7 days' AND (hospital_id = $1) GROUP BY DATE(updated_at) ORDER BY date`, [hospitalId]);
+    const overall = await pool.query(`SELECT COUNT(*) as total_completed, AVG(EXTRACT(EPOCH FROM (updated_at - requested_at))/3600) as overall_avg_tat FROM lab_requests WHERE status = 'Completed' AND updated_at > NOW() - INTERVAL '30 days' AND (hospital_id = $1)`, [hospitalId]);
     
     ResponseHandler.success(res, { by_test: tatByTest.rows, daily_trend: dailyTrend.rows, overall: overall.rows[0] });
 });
@@ -380,7 +380,7 @@ const amendResult = asyncHandler(async (req, res) => {
     
     await pool.query('BEGIN');
     try {
-        const current = await pool.query('SELECT * FROM lab_results WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+        const current = await pool.query('SELECT * FROM lab_results WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
         if (current.rows.length === 0) { 
             await pool.query('ROLLBACK'); 
             return ResponseHandler.error(res, 'Result not found', 404); 
@@ -412,7 +412,7 @@ const verifyResult = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const verified_by = req.user.id; 
     const hospitalId = getHospitalId(req); 
-    await pool.query(`UPDATE lab_results SET verified_by = $1, verified_at = NOW() WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`, [verified_by, id, hospitalId]); 
+    await pool.query(`UPDATE lab_results SET verified_by = $1, verified_at = NOW() WHERE id = $2 AND (hospital_id = $3)`, [verified_by, id, hospitalId]); 
     const result = await pool.query('SELECT request_id FROM lab_results WHERE id = $1', [id]); 
     if (result.rows.length > 0) await logAudit(result.rows[0].request_id, 'RESULT_VERIFIED', verified_by, {}, null, hospitalId); 
     ResponseHandler.success(res, { message: 'Result verified', verified_at: new Date() });
@@ -431,7 +431,7 @@ const acknowledgeCriticalAlert = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const acknowledged_by = req.user.id; 
     const hospitalId = getHospitalId(req); 
-    await pool.query(`UPDATE lab_critical_alerts SET acknowledged = TRUE, acknowledged_by = $1, acknowledged_at = NOW() WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`, [acknowledged_by, id, hospitalId]); 
+    await pool.query(`UPDATE lab_critical_alerts SET acknowledged = TRUE, acknowledged_by = $1, acknowledged_at = NOW() WHERE id = $2 AND (hospital_id = $3)`, [acknowledged_by, id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Alert acknowledged' });
 });
 
@@ -445,7 +445,7 @@ const getPendingCriticalAlerts = asyncHandler(async (req, res) => {
 // Get Reagents - Multi-Tenant
 const getReagents = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const reagents = await pool.query(`SELECT *, CASE WHEN current_stock <= min_stock_level * 0.5 THEN 'critical' WHEN current_stock <= min_stock_level THEN 'low' ELSE 'ok' END as stock_status, CASE WHEN expiry_date <= NOW() THEN 'expired' WHEN expiry_date <= NOW() + INTERVAL '7 days' THEN 'expiring_soon' WHEN expiry_date <= NOW() + INTERVAL '30 days' THEN 'expiring' ELSE 'ok' END as expiry_status FROM lab_reagents WHERE (hospital_id = $1 OR hospital_id IS NULL) ORDER BY CASE WHEN current_stock <= min_stock_level THEN 0 ELSE 1 END, expiry_date ASC`, [hospitalId]); 
+    const reagents = await pool.query(`SELECT *, CASE WHEN current_stock <= min_stock_level * 0.5 THEN 'critical' WHEN current_stock <= min_stock_level THEN 'low' ELSE 'ok' END as stock_status, CASE WHEN expiry_date <= NOW() THEN 'expired' WHEN expiry_date <= NOW() + INTERVAL '7 days' THEN 'expiring_soon' WHEN expiry_date <= NOW() + INTERVAL '30 days' THEN 'expiring' ELSE 'ok' END as expiry_status FROM lab_reagents WHERE (hospital_id = $1) ORDER BY CASE WHEN current_stock <= min_stock_level THEN 0 ELSE 1 END, expiry_date ASC`, [hospitalId]); 
     ResponseHandler.success(res, reagents.rows);
 });
 
@@ -462,7 +462,7 @@ const updateReagent = asyncHandler(async (req, res) => {
     const { id } = req.params; 
     const { current_stock, min_stock_level, expiry_date, storage_location } = req.body; 
     const hospitalId = getHospitalId(req); 
-    await pool.query(`UPDATE lab_reagents SET current_stock = COALESCE($1, current_stock), min_stock_level = COALESCE($2, min_stock_level), expiry_date = COALESCE($3, expiry_date), storage_location = COALESCE($4, storage_location), updated_at = NOW() WHERE id = $5 AND (hospital_id = $6 OR hospital_id IS NULL)`, [current_stock, min_stock_level, expiry_date, storage_location, id, hospitalId]); 
+    await pool.query(`UPDATE lab_reagents SET current_stock = COALESCE($1, current_stock), min_stock_level = COALESCE($2, min_stock_level), expiry_date = COALESCE($3, expiry_date), storage_location = COALESCE($4, storage_location), updated_at = NOW() WHERE id = $5 AND (hospital_id = $6)`, [current_stock, min_stock_level, expiry_date, storage_location, id, hospitalId]); 
     ResponseHandler.success(res, { message: 'Reagent updated' });
 });
 
@@ -476,7 +476,7 @@ const useReagent = asyncHandler(async (req, res) => {
     await pool.query('BEGIN');
     try {
         await pool.query(`INSERT INTO reagent_usage_log (reagent_id, quantity_used, used_by, lab_request_id, notes, hospital_id) VALUES ($1, $2, $3, $4, $5, $6)`, [id, quantity, used_by, lab_request_id, notes, hospitalId]);
-        await pool.query('UPDATE lab_reagents SET current_stock = current_stock - $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL)', [quantity, id, hospitalId]);
+        await pool.query('UPDATE lab_reagents SET current_stock = current_stock - $1 WHERE id = $2 AND (hospital_id = $3)', [quantity, id, hospitalId]);
         await pool.query('COMMIT');
         ResponseHandler.success(res, { message: 'Usage logged' });
     } catch (error) {
@@ -489,7 +489,7 @@ const useReagent = asyncHandler(async (req, res) => {
 // Get Low Stock Alerts - Multi-Tenant
 const getLowStockAlerts = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const alerts = await pool.query(`SELECT * FROM lab_reagents WHERE (current_stock <= min_stock_level OR expiry_date <= NOW() + INTERVAL '30 days') AND (hospital_id = $1 OR hospital_id IS NULL) ORDER BY current_stock ASC`, [hospitalId]); 
+    const alerts = await pool.query(`SELECT * FROM lab_reagents WHERE (current_stock <= min_stock_level OR expiry_date <= NOW() + INTERVAL '30 days') AND (hospital_id = $1) ORDER BY current_stock ASC`, [hospitalId]); 
     ResponseHandler.success(res, alerts.rows);
 });
 
@@ -506,7 +506,7 @@ const addQCResult = asyncHandler(async (req, res) => {
     const performed_by = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const material = await pool.query('SELECT * FROM lab_qc_materials WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [qc_material_id, hospitalId]);
+    const material = await pool.query('SELECT * FROM lab_qc_materials WHERE id = $1 AND (hospital_id = $2)', [qc_material_id, hospitalId]);
     if (material.rows.length === 0) return ResponseHandler.error(res, 'QC material not found', 404);
     
     const { target_value, sd_value } = material.rows[0];
@@ -579,7 +579,7 @@ const getPendingLabPayments = asyncHandler(async (req, res) => {
 const getLabPaymentStatus = asyncHandler(async (req, res) => { 
     const { id } = req.params; 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT id, payment_status, payment_method, paid_amount, paid_by_username, payment_location, payment_reference, payment_received_at FROM lab_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)`, [id, hospitalId]); 
+    const result = await pool.query(`SELECT id, payment_status, payment_method, paid_amount, paid_by_username, payment_location, payment_reference, payment_received_at FROM lab_requests WHERE id = $1 AND (hospital_id = $2)`, [id, hospitalId]); 
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Lab request not found', 404); 
     ResponseHandler.success(res, result.rows[0]);
 });

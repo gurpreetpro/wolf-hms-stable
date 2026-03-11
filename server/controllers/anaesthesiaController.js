@@ -8,7 +8,7 @@ exports.getChart = asyncHandler(async (req, res) => {
     const { surgeryId } = req.params;
     const hospitalId = getHospitalId(req);
     
-    let chart = await pool.query('SELECT * FROM anaesthesia_charts WHERE surgery_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [surgeryId, hospitalId]);
+    let chart = await pool.query('SELECT * FROM anaesthesia_charts WHERE surgery_id = $1 AND (hospital_id = $2)', [surgeryId, hospitalId]);
 
     if (chart.rows.length === 0) {
         chart = await pool.query('INSERT INTO anaesthesia_charts (surgery_id, hospital_id) VALUES ($1, $2) RETURNING *', [surgeryId, hospitalId]);
@@ -65,7 +65,7 @@ exports.updateCount = asyncHandler(async (req, res) => {
     }
 
     const result = await pool.query(
-        `UPDATE safety_counts SET ${field} = $1 WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *`,
+        `UPDATE safety_counts SET ${field} = $1 WHERE id = $2 AND (hospital_id = $3) RETURNING *`,
         [value, countId, hospitalId]
     );
     

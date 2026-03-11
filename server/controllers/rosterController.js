@@ -10,7 +10,7 @@ const rosterController = {
         const hospitalId = getHospitalId(req);
 
         const existing = await pool.query(
-            `SELECT id FROM nurse_assignments WHERE nurse_id = $1 AND assignment_date = $2 AND shift_type = $3 AND (hospital_id = $4 OR hospital_id IS NULL)`,
+            `SELECT id FROM nurse_assignments WHERE nurse_id = $1 AND assignment_date = $2 AND shift_type = $3 AND (hospital_id = $4)`,
             [nurse_id, assignment_date, shift_type, hospitalId]
         );
 
@@ -50,7 +50,7 @@ const rosterController = {
         const hospitalId = getHospitalId(req);
 
         const result = await pool.query(
-            `SELECT bed_ids, shift_type FROM nurse_assignments WHERE nurse_id = $1 AND assignment_date = $2 AND (hospital_id = $3 OR hospital_id IS NULL)`,
+            `SELECT bed_ids, shift_type FROM nurse_assignments WHERE nurse_id = $1 AND assignment_date = $2 AND (hospital_id = $3)`,
             [nurse_id, date, hospitalId]
         );
         let allBedIds = [];
@@ -68,7 +68,7 @@ const rosterController = {
     getNurses: asyncHandler(async (req, res) => {
         const hospitalId = getHospitalId(req);
         const result = await pool.query(
-            "SELECT id, username, department FROM users WHERE role IN ('nurse', 'ward_incharge') AND is_active = true AND (hospital_id = $1 OR hospital_id IS NULL)",
+            "SELECT id, username, department FROM users WHERE role IN ('nurse', 'ward_incharge') AND is_active = true AND (hospital_id = $1)",
             [hospitalId]
         );
         ResponseHandler.success(res, result.rows);

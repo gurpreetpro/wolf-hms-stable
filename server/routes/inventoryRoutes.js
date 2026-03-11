@@ -9,7 +9,7 @@ router.get('/', protect, async (req, res) => {
         const hospitalId = req.user?.hospital_id || 1;
         const result = await pool.query(`
             SELECT * FROM inventory_items 
-            WHERE (hospital_id = $1 OR hospital_id IS NULL)
+            WHERE (hospital_id = $1)
             ORDER BY name
         `, [hospitalId]);
         res.json({ success: true, data: result.rows });

@@ -85,7 +85,7 @@ const approveTransfer = asyncHandler(async (req, res) => {
     const doctorId = req.user.id;
     const hospitalId = getHospitalId(req);
     
-    const result = await pool.query(`UPDATE bed_transfers SET status = 'Approved', approval_doctor_id = $1, approved_at = NOW() WHERE id = $2 AND status = 'Pending' AND (hospital_id = $3 OR hospital_id IS NULL) RETURNING *`, [doctorId, id, hospitalId]);
+    const result = await pool.query(`UPDATE bed_transfers SET status = 'Approved', approval_doctor_id = $1, approved_at = NOW() WHERE id = $2 AND status = 'Pending' AND (hospital_id = $3) RETURNING *`, [doctorId, id, hospitalId]);
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Transfer not found or already processed', 404);
     if (req.io) req.io.emit('transfer_approved', result.rows[0]);
     ResponseHandler.success(res, result.rows[0]);
@@ -98,7 +98,7 @@ const rejectTransfer = asyncHandler(async (req, res) => {
     const doctorId = req.user.id;
     const hospitalId = getHospitalId(req);
     
-    const result = await pool.query(`UPDATE bed_transfers SET status = 'Rejected', approval_doctor_id = $1, rejection_reason = $2, approved_at = NOW() WHERE id = $3 AND status = 'Pending' AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *`, [doctorId, rejection_reason, id, hospitalId]);
+    const result = await pool.query(`UPDATE bed_transfers SET status = 'Rejected', approval_doctor_id = $1, rejection_reason = $2, approved_at = NOW() WHERE id = $3 AND status = 'Pending' AND (hospital_id = $4) RETURNING *`, [doctorId, rejection_reason, id, hospitalId]);
     if (result.rows.length === 0) return ResponseHandler.error(res, 'Transfer not found or already processed', 404);
     if (req.io) req.io.emit('transfer_rejected', result.rows[0]);
     ResponseHandler.success(res, result.rows[0]);
@@ -109,7 +109,7 @@ const acknowledgeTransfer = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
     
-    const check = await pool.query('SELECT * FROM bed_transfers WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const check = await pool.query('SELECT * FROM bed_transfers WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (check.rows.length === 0) return ResponseHandler.error(res, 'Transfer not found', 404);
 
     await pool.query(`UPDATE bed_transfers SET status = 'Approved', approved_at = NOW() WHERE id = $1 AND status = 'Pending' AND initiated_from = 'doctor'`, [id]);
@@ -124,7 +124,7 @@ const executeTransfer = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const hospitalId = getHospitalId(req);
 
-    const check = await pool.query('SELECT * FROM bed_transfers WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    const check = await pool.query('SELECT * FROM bed_transfers WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
     if (check.rows.length === 0) return ResponseHandler.error(res, 'Transfer not found', 404);
 
     await executeTransferInternal(id, req.user.id);
