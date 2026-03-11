@@ -18,7 +18,7 @@ const DEFAULT_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || (() => {
 async function ensureAdminUsers() {
     try {
         console.log('🔐 [Auth] verifying admin users...');
-        
+
         // 1. CRITICAL: Schema Health Check (Integer Standard)
         // Detect if we are stuck on UUID Schema (which conflicts with migrations)
         try {
@@ -27,7 +27,7 @@ async function ensureAdminUsers() {
                 FROM information_schema.columns 
                 WHERE table_name = 'hospitals' AND column_name = 'id'
             `);
-            
+
             if (schemaCheck.rows.length > 0) {
                 const idType = schemaCheck.rows[0].data_type;
                 if (idType === 'uuid') {
@@ -55,7 +55,7 @@ async function ensureAdminUsers() {
                     created_at TIMESTAMP DEFAULT NOW()
                 );
             `);
-            
+
             // Mirrors 001_initial_schema.sql + 071_add_hospital_id_core.sql
             await pool.query(`
                 CREATE TABLE IF NOT EXISTS users (
@@ -78,7 +78,7 @@ async function ensureAdminUsers() {
                     created_at TIMESTAMP DEFAULT NOW()
                 );
             `);
-            
+
             // [ROBUST FIX] Check for missing columns (e.g. if table existed but was old)
             const userColumns = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'users'");
             const existingCols = userColumns.rows.map(r => r.column_name);
@@ -87,7 +87,7 @@ async function ensureAdminUsers() {
                 console.warn("   ⚠️ [SCHEMA PATCH] Adding missing 'hospital_id' (INT) to users...");
                 await pool.query("ALTER TABLE users ADD COLUMN hospital_id INT REFERENCES hospitals(id)");
             }
-             if (!existingCols.includes('full_name')) {
+            if (!existingCols.includes('full_name')) {
                 console.warn("   🔧 [PATCH] Adding missing 'full_name'...");
                 await pool.query('ALTER TABLE users ADD COLUMN full_name VARCHAR(255)');
             }
@@ -95,11 +95,12 @@ async function ensureAdminUsers() {
         } catch (schemaErr) {
             console.warn(`   ⚠️ Schema create warning: ${schemaErr.message} (Proceeding best-effort)`);
         }
-        
+
         // 3. Seed Hospitals (Integer IDs)
         const hospitals = [
             { id: 1, code: 'default', name: 'Kokila Hospital', domain: 'kokila.wolfhms.web.app' },
-            { id: 2, code: 'wolf', name: 'Wolf HMS', domain: 'wolf-hms.web.app' }
+            { id: 2, code: 'wolf', name: 'Wolf HMS', domain: 'wolf-hms.web.app' },
+            { id: 3, code: 'ACE', name: 'Ace Heart & Vascular Institute', domain: 'ace' }
         ];
 
         for (const h of hospitals) {
@@ -112,8 +113,8 @@ async function ensureAdminUsers() {
                 `, [h.id, h.code, h.name, h.domain]);
                 console.log(`   ✅ [Seed] Verified Hospital: ${h.name} (ID: ${h.id})`);
             } catch (err) {
-                 // Try code conflict
-                 await pool.query(`
+                // Try code conflict
+                await pool.query(`
                    INSERT INTO hospitals (code, name, subdomain)
                    VALUES ($1, $2, $3)
                    ON CONFLICT (code) DO NOTHING
@@ -123,21 +124,21 @@ async function ensureAdminUsers() {
 
         // 4. Seed Users with Specific Hospital Links
         const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 10);
-        
+
         // Define users with their target Hospital ID
         const TARGET_USERS = [
-            { 
-                username: 'admin_taneja', 
-                email: 'admin@taneja.com', 
+            {
+                username: 'admin_taneja',
+                email: 'admin@taneja.com',
                 full_name: 'Dr. Taneja (Admin)',
-                role: 'admin', 
+                role: 'admin',
                 hospital_id: 1 // Kokila
             },
-            { 
-                username: 'admin_user', 
-                email: 'admin@wolf-hms.com', 
+            {
+                username: 'admin_user',
+                email: 'admin@wolf-hms.com',
                 full_name: 'System Admin',
-                role: 'admin', 
+                role: 'admin',
                 hospital_id: 1 // Kokila 
             },
             {
@@ -147,6 +148,13 @@ async function ensureAdminUsers() {
                 role: 'super_admin',
                 hospital_id: 2, // Wolf HMS (The Platform Tenant)
                 mfa: true
+            },
+            {
+                username: 'ace_admin',
+                email: 'admin@aceheartinstitute.com',
+                full_name: 'Ace Hospital Admin',
+                role: 'admin',
+                hospital_id: 3 // Ace Heart & Vascular Institute
             }
         ];
 
@@ -166,7 +174,7 @@ async function ensureAdminUsers() {
                     `, [user.username, user.email, hashedPassword, user.role, user.hospital_id, user.full_name, user.mfa || false]);
                     console.log(`      ✨ Created: ${user.username} (Hospital ${user.hospital_id})`);
                 } catch (insertErr) {
-                     console.error(`      ⚠️ Failed to create ${user.username}: ${insertErr.message}`);
+                    console.error(`      ⚠️ Failed to create ${user.username}: ${insertErr.message}`);
                 }
             } else {
                 // Fix if pointing to wrong hospital or inactive
@@ -178,9 +186,9 @@ async function ensureAdminUsers() {
                 console.log(`      ✅ Verified/Updated: ${user.username} (Hospital ${user.hospital_id})`);
             }
         }
-        
+
         console.log('✅ [Seed] Admin User Verification Complete.');
-        
+
     } catch (error) {
         console.error('❌ [Seed] ensureAdminUsers Failed:', error.message);
     }
