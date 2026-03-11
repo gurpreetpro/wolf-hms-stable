@@ -372,7 +372,7 @@ const dischargePatient = asyncHandler(async (req, res) => {
             const InsuranceWorkflowService = require('../services/insurance/InsuranceWorkflowService');
             govtScheme = await InsuranceWorkflowService.checkGovtSchemeCoverage(patient_id);
             if (govtScheme) {
-                console.log(`[Discharge] 🏛 Patient covered by ${govtScheme.scheme_code.toUpperCase()} (Card: ${govtScheme.card_number})`);
+                console.log(`[Discharge] 🏛 Patient covered by ${govtScheme.scheme_code.toUpperCase()} (Card: ${govtScheme.beneficiary_id})`);
             }
         } catch (schemeErr) {
             console.warn('[Discharge] Govt scheme check non-blocking error:', schemeErr.message);
@@ -384,7 +384,7 @@ const dischargePatient = asyncHandler(async (req, res) => {
             govtScheme: govtScheme ? {
                 schemeCode: govtScheme.scheme_code,
                 schemeName: govtScheme.scheme_code.toUpperCase(),
-                cardNumber: govtScheme.card_number,
+                cardNumber: govtScheme.beneficiary_id,
                 beneficiaryName: govtScheme.beneficiary_name
             } : null
         }, 'Patient discharged successfully');

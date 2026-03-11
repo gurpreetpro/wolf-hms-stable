@@ -3,26 +3,28 @@ const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { VITALS_THRESHOLDS } = require('../config/hmsConstants');
 
-// Create Care Task (Prescribe/Order) - PRODUCTION SAFE (no hospital_id)
+// Create Care Task (Prescribe/Order) - With hospital_id isolation
 const createCareTask = asyncHandler(async (req, res) => {
     const { patient_id, admission_id, type, description, scheduled_time } = req.body;
     const doctor_id = req.user.id;
+    const hospitalId = req.hospital_id;
 
     const result = await pool.query(
-        'INSERT INTO care_tasks (patient_id, admission_id, doctor_id, type, description, scheduled_time) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-        [patient_id, admission_id, doctor_id, type, description, scheduled_time || new Date()]
+        'INSERT INTO care_tasks (patient_id, admission_id, doctor_id, type, description, scheduled_time, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        [patient_id, admission_id, doctor_id, type, description, scheduled_time || new Date(), hospitalId]
     );
 
     if (req.io) req.io.emit('clinical_update', { type: 'new_task', admission_id });
     ResponseHandler.success(res, result.rows[0], 'Care task created', 201);
 });
 
-// Get Tasks (For Nurse/Doctor) - PRODUCTION SAFE
+// Get Tasks (For Nurse/Doctor) - With hospital_id isolation
 const getTasks = asyncHandler(async (req, res) => {
     const { admission_id, status } = req.query;
+    const hospitalId = req.hospital_id;
 
-    let query = 'SELECT * FROM care_tasks WHERE 1=1';
-    const params = [];
+    let query = 'SELECT * FROM care_tasks WHERE hospital_id = $1';
+    const params = [hospitalId];
 
     if (admission_id) {
         params.push(admission_id);
@@ -38,14 +40,15 @@ const getTasks = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, result.rows);
 });
 
-// Complete Task - PRODUCTION SAFE
+// Complete Task - With hospital_id verification
 const completeTask = asyncHandler(async (req, res) => {
     const { task_id } = req.body;
     const user_id = req.user.id;
+    const hospitalId = req.hospital_id;
 
     const result = await pool.query(
-        'UPDATE care_tasks SET status = $1, completed_at = CURRENT_TIMESTAMP, completed_by = $2 WHERE id = $3 RETURNING *',
-        ['Completed', user_id, task_id]
+        'UPDATE care_tasks SET status = $1, completed_at = CURRENT_TIMESTAMP, completed_by = $2 WHERE id = $3 AND (hospital_id = $4 OR hospital_id IS NULL) RETURNING *',
+        ['Completed', user_id, task_id, hospitalId]
     );
 
     if (req.io) req.io.emit('clinical_update', { type: 'task_completed', task_id });
@@ -141,12 +144,12 @@ const logVitals = asyncHandler(async (req, res) => {
     const user_id = req.user.id;
 
     const { vitalsLog, alerts } = await ClinicalService.logVitals({
-        admission_id, 
-        patient_id, 
-        bp, 
-        temp, 
-        spo2, 
-        heart_rate, 
+        admission_id,
+        patient_id,
+        bp,
+        temp,
+        spo2,
+        heart_rate,
         user_id
     });
 
@@ -223,7 +226,7 @@ const saveConsultation = asyncHandler(async (req, res) => {
 
     // [FIX] Sync Prescriptions for Home Orders (Wolf Care App)
     if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
-        
+
         // 1. Create Care Tasks (Nurse/History)
         for (const rx of prescriptions) {
             if (rx.name) {
@@ -241,10 +244,10 @@ const saveConsultation = asyncHandler(async (req, res) => {
                     patient_id, doctor_id, visit_id, diagnosis, medications, notes, is_active, hospital_id
                 ) VALUES ($1, $2, $3, $4, $5, $6, true, $7)
             `, [
-                patient_id, 
-                user_id, 
-                visit_id, 
-                diagnosis || 'Consultation', 
+                patient_id,
+                user_id,
+                visit_id,
+                diagnosis || 'Consultation',
                 JSON.stringify(prescriptions),
                 'Generated from OPD Consultation',
                 req.hospitalId || req.user.hospital_id || 1
@@ -309,7 +312,7 @@ const createSOAPNote = asyncHandler(async (req, res) => {
 
 const getSOAPNotes = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
-    
+
     const result = await pool.query(
         'SELECT * FROM soap_notes WHERE admission_id = $1 ORDER BY created_at DESC',
         [admission_id]
@@ -332,7 +335,7 @@ const createRoundNote = asyncHandler(async (req, res) => {
 
 const getRoundNotes = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
-    
+
     const result = await pool.query(
         'SELECT * FROM round_notes WHERE admission_id = $1 ORDER BY created_at DESC',
         [admission_id]
@@ -400,7 +403,7 @@ const requestVitals = asyncHandler(async (req, res) => {
 
     // Create a care task for the nurse to track
     const description = `Monitor ${vital_type} ${frequency} for ${duration}${notes ? ` - ${notes}` : ''}`;
-    
+
     const result = await pool.query(
         `INSERT INTO care_tasks (patient_id, admission_id, doctor_id, type, description, scheduled_time, status, hospital_id)
          VALUES ($1, $2, $3, 'Vital Check', $4, NOW(), 'Pending', $5) RETURNING *`,
@@ -435,7 +438,7 @@ const recordProcedure = asyncHandler(async (req, res) => {
     // 1. Get Procedure Details (Price)
     const procRes = await pool.query('SELECT * FROM procedures WHERE id = $1', [procedure_id]);
     if (procRes.rows.length === 0) return ResponseHandler.error(res, 'Procedure not found', 404);
-    
+
     const procedure = procRes.rows[0];
     const price = parseFloat(procedure.price || 0);
 

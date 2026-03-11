@@ -13,7 +13,7 @@ const DB_SCHEMA_SUMMARY = `
 - admissions (id, patient_id, bed_number, admission_date, discharge_date, status, diagnosis, hospital_id)
 - opd_visits (id, patient_id, doctor_id, visit_date, symptoms, diagnosis, prescription, hospital_id)
 - inventory_items (id, name, category, stock_quantity, unit, reorder_level, expiry_date, hospital_id)
-- invoices (id, patient_id, total_amount, status, created_at, hospital_id)
+- invoices (id, patient_id, total_amount, status, generated_at, hospital_id)
 - emergency_logs (id, code, location, status, created_at, hospital_id)
 `;
 

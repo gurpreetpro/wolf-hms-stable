@@ -4,7 +4,7 @@ const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { addToInvoice } = require('../services/billingService');
 
-// ==================== CARE PLANS - PRODUCTION SAFE (no hospital_id) ====================
+// ==================== CARE PLANS - With hospital_id tenant isolation ====================
 
 const createCarePlan = asyncHandler(async (req, res) => {
     const { admission_id, patient_id, diagnosis, goal, interventions } = req.body;
@@ -218,9 +218,9 @@ const administerMedication = asyncHandler(async (req, res) => {
 
     // 2. Check Pharmacy Verification
     if (task.pharmacy_status !== 'Verified' && !force_override) {
-        return ResponseHandler.error(res, 'CLMA BLOCK: Pharmacy has NOT verified this medication yet.', 403, { 
+        return ResponseHandler.error(res, 'CLMA BLOCK: Pharmacy has NOT verified this medication yet.', 403, {
             code: 'PHARMACY_NOT_VERIFIED',
-            message: 'Please contact pharmacy' 
+            message: 'Please contact pharmacy'
         });
     }
 
@@ -295,7 +295,7 @@ const recordConsumable = asyncHandler(async (req, res) => {
 const getPatientConsumables = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
     const hospitalId = req.hospital_id;
-    
+
     const result = await pool.query(`
         SELECT pc.*, wc.name, wc.price, wc.category, u.username as recorded_by_name
         FROM patient_consumables pc
@@ -312,14 +312,14 @@ const getPatientConsumables = asyncHandler(async (req, res) => {
 const getShiftHandover = asyncHandler(async (req, res) => {
     const { ward, shift } = req.query;
     const hospitalId = req.hospital_id;
-    
+
     const wardFilter = ward === 'All' ? '%' : ward;
 
     // Determine shift time window (for performance metrics)
     const now = new Date();
     let shiftStart, shiftEnd;
     const hour = now.getHours();
-    
+
     if (shift === 'night' || (hour >= 23 || hour < 7)) {
         shiftStart = new Date(now); shiftStart.setHours(23, 0, 0, 0);
         if (hour < 7) shiftStart.setDate(shiftStart.getDate() - 1);
@@ -422,8 +422,8 @@ const getShiftHandover = asyncHandler(async (req, res) => {
 
     // Enrich patients using the pre-fetched batch data (zero additional queries)
     const enrichedPatients = patients.map(p => {
-        const isCritical = (p.diagnosis && p.diagnosis.toLowerCase().includes('critical')) || 
-                            (p.notes && p.notes.toLowerCase().includes('critical'));
+        const isCritical = (p.diagnosis && p.diagnosis.toLowerCase().includes('critical')) ||
+            (p.notes && p.notes.toLowerCase().includes('critical'));
 
         // NEWS2 from batched vitals
         let news2Score = null, news2Risk = 'Unknown', news2Color = 'secondary';
@@ -439,8 +439,8 @@ const getShiftHandover = asyncHandler(async (req, res) => {
         const fall = fallMap[p.admission_id];
         const codeStatus = codeMap[p.admission_id] || 'Full Code';
 
-        return { 
-            ...p, 
+        return {
+            ...p,
             is_critical: isCritical || (news2Score !== null && news2Score >= 7),
             condition: (isCritical || (news2Score !== null && news2Score >= 7)) ? 'Critical' : 'Stable',
             latest_sbar: sbarMap[p.admission_id] || null,
@@ -529,21 +529,21 @@ const getShiftHandover = asyncHandler(async (req, res) => {
             AND ct.completed_at >= $1 AND ct.completed_at <= $2
             AND a.ward LIKE $3 AND a.hospital_id = $4
         `, [shiftStart, shiftEnd, wardFilter, hospitalId]).catch(() => ({ rows: [{ completed: 0 }] })),
-        
+
         pool.query(`
             SELECT COUNT(*) as total FROM care_tasks ct
             JOIN admissions a ON ct.admission_id = a.id
             WHERE ct.scheduled_time >= $1 AND ct.scheduled_time <= $2
             AND a.ward LIKE $3 AND a.hospital_id = $4
         `, [shiftStart, shiftEnd, wardFilter, hospitalId]).catch(() => ({ rows: [{ total: 0 }] })),
-        
+
         pool.query(`
             SELECT COUNT(*) as count FROM vitals_logs vl
             JOIN admissions a ON vl.patient_id = a.patient_id
             WHERE vl.recorded_at >= $1 AND vl.recorded_at <= $2
             AND a.ward LIKE $3 AND a.hospital_id = $4 AND a.status = 'Admitted'
         `, [shiftStart, shiftEnd, wardFilter, hospitalId]).catch(() => ({ rows: [{ count: 0 }] })),
-        
+
         pool.query(`
             SELECT COUNT(*) as count FROM care_tasks ct
             JOIN admissions a ON ct.admission_id = a.id
@@ -551,13 +551,13 @@ const getShiftHandover = asyncHandler(async (req, res) => {
             AND ct.completed_at >= $1 AND ct.completed_at <= $2
             AND a.ward LIKE $3 AND a.hospital_id = $4
         `, [shiftStart, shiftEnd, wardFilter, hospitalId]).catch(() => ({ rows: [{ count: 0 }] })),
-        
+
         pool.query(`
             SELECT COUNT(*) as count FROM admissions
             WHERE status = 'Discharged' AND discharge_date >= $1 AND discharge_date <= $2
             AND ward LIKE $3 AND hospital_id = $4
         `, [shiftStart, shiftEnd, wardFilter, hospitalId]).catch(() => ({ rows: [{ count: 0 }] })),
-        
+
         pool.query(`
             SELECT COUNT(*) as count FROM admissions
             WHERE admission_date >= $1 AND admission_date <= $2
@@ -589,7 +589,7 @@ const getShiftHandover = asyncHandler(async (req, res) => {
             discharges: Number.parseInt(performanceQueries[4].rows[0]?.count || 0),
             admissions: Number.parseInt(performanceQueries[5].rows[0]?.count || 0)
         },
-        patients: enrichedPatients, 
+        patients: enrichedPatients,
         pending_tasks: tasksQuery.rows,
         medications_due: medicationsDue,
         nurse_assignments: nurseAssignments,
@@ -615,7 +615,7 @@ const saveShiftHandoffNote = asyncHandler(async (req, res) => {
          RETURNING *`,
         [admission_id, patient_id, nurse_id, shift_date, shift_type, situation, background, assessment, recommendation, hospitalId]
     );
-    
+
     if (!result || !result.rows) {
         throw new Error('Pool query failed to return rows');
     }
@@ -661,7 +661,7 @@ const saveReadBackConfirmation = asyncHandler(async (req, res) => {
             confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             hospital_id INTEGER NOT NULL REFERENCES hospitals(id)
         )
-    `).catch(() => {});
+    `).catch(() => { });
 
     const result = await pool.query(
         `INSERT INTO handover_readback_confirmations 
@@ -759,7 +759,7 @@ const recordServiceUsage = asyncHandler(async (req, res) => {
 const getPatientServices = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
     const hospitalId = req.hospital_id;
-    
+
     const result = await pool.query(`
         SELECT psc.*, wsc.name, wsc.price, u.username as recorded_by_name
         FROM patient_service_charges psc

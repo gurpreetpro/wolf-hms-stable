@@ -8,8 +8,7 @@
  * but billing confirms payments.
  */
 
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // Get Socket.io instance (will be set from server.js)
 let io = null;
@@ -119,7 +118,7 @@ const getPendingCharges = async (req, res) => {
         if (admission_id) where.admission_id = parseInt(admission_id);
         if (status && status !== 'all') where.status = status;
         if (charge_type) where.charge_type = charge_type;
-        
+
         if (start_date || end_date) {
             where.created_at = {};
             if (start_date) where.created_at.gte = new Date(start_date);
@@ -493,15 +492,15 @@ const getBillingQueueSummary = async (req, res) => {
             }),
             // Insurance eligible charges
             prisma.pending_charges.count({
-                where: { 
-                    hospital_id: req.hospitalId, 
+                where: {
+                    hospital_id: req.hospitalId,
                     status: 'pending',
                     insurance_eligible: true
                 }
             }),
             prisma.pending_charges.aggregate({
-                where: { 
-                    hospital_id: req.hospitalId, 
+                where: {
+                    hospital_id: req.hospitalId,
                     status: 'pending',
                     insurance_eligible: true
                 },

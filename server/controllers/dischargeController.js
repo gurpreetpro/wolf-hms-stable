@@ -44,7 +44,7 @@ const generateSummary = asyncHandler(async (req, res) => {
             `SELECT drug_name, dosage, route, frequency, duration, status 
              FROM prescriptions 
              WHERE admission_id = $1
-             ORDER BY created_at DESC`, 
+             ORDER BY created_at DESC`,
             [admission_id]
         );
         meds = medsRes.rows;
@@ -139,7 +139,7 @@ const saveSummary = asyncHandler(async (req, res) => {
 
     // Check if entry exists
     const check = await pool.query("SELECT id FROM discharge_summaries WHERE admission_id = $1", [admission_id]);
-    
+
     if (check.rows.length > 0) {
         // Update
         const result = await pool.query(
@@ -163,13 +163,13 @@ const saveSummary = asyncHandler(async (req, res) => {
 // Gatekeeper: Check for Bill Clearance
 const checkDischargeClearance = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
-    
+
     // 1. Check Invoice Status
     // We assume key is 'Generated' or 'Paid'. 'Pending' means not ready.
     // Ideally, for discharge, it should be 'Paid' or 'Settled' or 'Credit' (Insurance).
-    
+
     const invoiceRes = await pool.query(
-        "SELECT status, total_amount, paid_amount FROM invoices WHERE admission_id = $1 ORDER BY created_at DESC LIMIT 1",
+        "SELECT status, total_amount, paid_amount FROM invoices WHERE admission_id = $1 ORDER BY generated_at DESC LIMIT 1",
         [admission_id]
     );
 
@@ -180,8 +180,8 @@ const checkDischargeClearance = asyncHandler(async (req, res) => {
     const invoice = invoiceRes.rows[0];
     const isCleared = ['Paid', 'Settled', 'Credit'].includes(invoice.status) || (parseFloat(invoice.paid_amount) >= parseFloat(invoice.total_amount));
 
-    ResponseHandler.success(res, { 
-        cleared: isCleared, 
+    ResponseHandler.success(res, {
+        cleared: isCleared,
         invoice_status: invoice.status,
         balance: parseFloat(invoice.total_amount) - parseFloat(invoice.paid_amount)
     });

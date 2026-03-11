@@ -6,8 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 const InsuranceFactory = require('../services/insurance/InsuranceFactory');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
@@ -47,14 +46,14 @@ const handleWebhook = asyncHandler(async (req, res) => {
 
     // 5. Update Ledger State
     const { status, amount } = validation.data;
-    
+
     let internalStatus = ledgerEntry.status;
     if (status === 'response.complete') internalStatus = 'APPROVED';
     if (status === 'error') internalStatus = 'DENIED';
 
     await prisma.InvoiceSplitLedger.update({
         where: { id: ledgerEntry.id },
-        data: { 
+        data: {
             status: internalStatus,
             approvedAmount: amount || ledgerEntry.approvedAmount,
             denialReason: validation.data.error_message || null

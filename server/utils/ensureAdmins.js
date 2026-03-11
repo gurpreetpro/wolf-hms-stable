@@ -7,12 +7,13 @@ const ADMIN_USERS = [
 ];
 
 // Security: Use environment variable for default password
-// In production, set ADMIN_DEFAULT_PASSWORD to a strong unique value
+// In production, ALWAYS set ADMIN_DEFAULT_PASSWORD to a strong unique value
 const DEFAULT_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || (() => {
     if (process.env.NODE_ENV === 'production') {
-        console.warn('⚠️  [SECURITY] ADMIN_DEFAULT_PASSWORD not set in production! Using fallback.');
+        console.error('🚨 [SECURITY CRITICAL] ADMIN_DEFAULT_PASSWORD not set in production!');
+        console.error('   Set this env var immediately to prevent unauthorized access.');
     }
-    return 'password123'; // Fallback for development only
+    return 'W0lf#Hms$2026!Temp'; // Stronger fallback — change immediately in production
 })();
 
 async function ensureAdminUsers() {

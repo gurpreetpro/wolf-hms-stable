@@ -1,13 +1,12 @@
 const { pool } = require('../config/db');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../config/prisma');
 
 // Log a new consent action
 exports.logConsent = async (req, res) => {
     try {
         const { patient_id, consent_type, status, version, notes } = req.body;
         const hospital_id = req.user.hospital_id; // Secured by middleware
-        
+
         // Basic validation
         if (!patient_id || !consent_type || !status) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -40,7 +39,7 @@ exports.logConsent = async (req, res) => {
 exports.getConsentHistory = async (req, res) => {
     try {
         const { patient_id } = req.params;
-        
+
         // Retrieve logs
         const logs = await prisma.patient_consent_logs.findMany({
             where: { patient_id: patient_id },

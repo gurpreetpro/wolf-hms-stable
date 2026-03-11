@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const {
     login, getUsers, register, updateUserStatus, demoLogin,
     registerPublic, getPendingUsers, updateApprovalStatus, initiateRecovery, completeRecovery, setupSecurityProfile,
@@ -9,15 +10,24 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { validate, sanitize } = require('../middleware/validationMiddleware');
 
-// Public Routes
-router.post('/register-public', sanitize, validate('register'), registerPublic);
-router.post('/recover-init', sanitize, initiateRecovery);
-router.post('/recover-verify', sanitize, completeRecovery);
-router.post('/forgot-password', sanitize, forgotPassword); // Added forgot-password route
-router.post('/reset-password', sanitize, resetPassword); // Added reset-password route
+// Rate limiter for auth endpoints (max 10 attempts per 15 min per IP)
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { success: false, message: 'Too many attempts. Please try again after 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// Public Routes (rate-limited)
+router.post('/register-public', authLimiter, sanitize, validate('register'), registerPublic);
+router.post('/recover-init', authLimiter, sanitize, initiateRecovery);
+router.post('/recover-verify', authLimiter, sanitize, completeRecovery);
+router.post('/forgot-password', authLimiter, sanitize, forgotPassword);
+router.post('/reset-password', authLimiter, sanitize, resetPassword);
 
 // Protected Routes
-router.post('/login', sanitize, validate('login'), login);
+router.post('/login', authLimiter, sanitize, validate('login'), login);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logout);
 router.post('/demo-login', demoLogin);
