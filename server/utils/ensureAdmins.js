@@ -96,6 +96,15 @@ async function ensureAdminUsers() {
             console.warn(`   ⚠️ Schema create warning: ${schemaErr.message} (Proceeding best-effort)`);
         }
 
+        // 2a. Ensure critical columns exist on patients/invoices (soft-delete support)
+        try {
+            await pool.query('ALTER TABLE patients ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP');
+            await pool.query('ALTER TABLE invoices ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP');
+            console.log('   ✅ [Seed] deleted_at columns verified on patients/invoices');
+        } catch (delErr) {
+            console.warn(`   ⚠️ deleted_at patch: ${delErr.message}`);
+        }
+
         // 2b. Ensure refresh_tokens table exists (Required by Auth Controller)
         try {
             await pool.query(`
