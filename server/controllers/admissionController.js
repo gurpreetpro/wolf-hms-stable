@@ -27,7 +27,7 @@ const admitPatient = asyncHandler(async (req, res) => {
     if (bedStatusRes.rows.length === 0) {
         return ResponseHandler.error(res, 'Bed not found', 404);
     }
-    
+
     if (bedStatusRes.rows[0].status !== 'Available') {
         return ResponseHandler.error(res, `Bed is not Available (Status: ${bedStatusRes.rows[0].status})`, 400);
     }
@@ -48,37 +48,37 @@ const admitPatient = asyncHandler(async (req, res) => {
     const hospitalRes = await pool.query('SELECT code, settings FROM hospitals WHERE id = $1', [hospitalId]);
     const settings = hospitalRes.rows[0]?.settings || {};
     const ipdConfig = settings.ipd_format || {};
-    
+
     // 2. Format Logic (Default: IP-YY-XXXXX)
     const prefix = ipdConfig.prefix || 'IP';
     const seqLength = parseInt(ipdConfig.length) || 5;
     const startSequence = parseInt(ipdConfig.start_sequence) || 1; // [NEW] Custom starting number
     const currentYearShort = new Date().getFullYear().toString().slice(-2);
-    
+
     // Construct base pattern for search
     // Standard: PREFIX-YY-
     let basePattern = `${prefix}-${currentYearShort}-`;
-    
+
     // 3. Find all used IPD numbers and their sequences
     const allIpdRes = await pool.query(
         "SELECT ipd_number FROM admissions WHERE ipd_number LIKE $1 AND hospital_id = $2",
         [`${basePattern}%`, hospitalId]
     );
-    
+
     // Parse used sequences
     const usedSeqs = allIpdRes.rows.map(r => {
         const parts = r.ipd_number.split('-');
         const lastPart = parts[parts.length - 1];
         return parseInt(lastPart, 10);
     }).filter(n => !isNaN(n)).sort((a, b) => a - b);
-    
+
     // [UPDATED] Start from configured start_sequence instead of 1
     let nextSeq = startSequence;
     for (const seq of usedSeqs) {
         if (seq === nextSeq) nextSeq++;
         else if (seq > nextSeq) break;
     }
-    
+
     const nextIpdNumber = `${basePattern}${String(nextSeq).padStart(seqLength, '0')}`;
 
     // Insert admission with hospital_id and IPD Number
@@ -124,8 +124,8 @@ const admitPatient = asyncHandler(async (req, res) => {
     try {
         const InsuranceWorkflowService = require('../services/insurance/InsuranceWorkflowService');
         await InsuranceWorkflowService.triggerPreAuthDraft(
-            result.rows[0].id, 
-            patient_id, 
+            result.rows[0].id,
+            patient_id,
             hospitalId
         );
     } catch (err) {
@@ -164,7 +164,7 @@ const transferPatient = asyncHandler(async (req, res) => {
 
         // 1. Get current admission details (Lock row?)
         const currentAdm = await client.query(
-            'SELECT ward, bed_number FROM admissions WHERE id = $1 AND hospital_id = $2', 
+            'SELECT ward, bed_number FROM admissions WHERE id = $1 AND hospital_id = $2',
             [admission_id, hospitalId]
         );
 
@@ -216,7 +216,7 @@ const transferPatient = asyncHandler(async (req, res) => {
         );
 
         await client.query('COMMIT');
-        
+
         ResponseHandler.success(res, { appointment: result.rows[0] }, 'Transfer Successful');
 
     } catch (err) {
@@ -233,12 +233,12 @@ const dischargePatient = asyncHandler(async (req, res) => {
     try {
         const { admission_id } = req.body;
         const hospitalId = req.hospital_id;
-    
+
         const BED_RATES = {
             'General': 1500, 'Semi-Private': 3000, 'Private': 5000,
             'ICU': 8000, 'NICU': 10000, 'Emergency': 3500, 'Deluxe': 7500
         };
-    
+
         // Check for pending care tasks
         const pendingTasks = await pool.query(
             "SELECT * FROM care_tasks WHERE admission_id = $1 AND status = 'Pending'",
@@ -248,26 +248,26 @@ const dischargePatient = asyncHandler(async (req, res) => {
             "SELECT * FROM lab_requests WHERE admission_id = $1 AND status = 'Pending'",
             [admission_id]
         );
-    
+
         if (pendingTasks.rows.length > 0 || pendingLabs.rows.length > 0) {
             return ResponseHandler.error(res, 'Cannot discharge: Pending Department Clearance (Tasks/Labs)', 400);
         }
-    
+
         // Get admission details (Verify Ownership)
         const admissionData = await pool.query(
             'SELECT ward, bed_number, patient_id, admission_date FROM admissions WHERE id = $1 AND hospital_id = $2',
             [admission_id, hospitalId]
         );
-        
+
         if (admissionData.rows.length === 0) {
             return ResponseHandler.error(res, 'Admission not found', 404);
         }
-    
+
         const { ward, bed_number, patient_id, admission_date } = admissionData.rows[0];
-    
+
         // Calculate bed charges
         const ratePerDay = BED_RATES[ward] || BED_RATES['General'];
-    
+
         // [FIX] Check for existing nightly charges (Hybrid Billing Model)
         // We check if "Nightly Charge" items already exist in the active invoice
         const { addToInvoice } = require('../services/billingService');
@@ -275,14 +275,14 @@ const dischargePatient = asyncHandler(async (req, res) => {
             "SELECT SUM(quantity) as billed_days FROM invoice_items ii JOIN invoices i ON ii.invoice_id = i.id WHERE i.patient_id = $1 AND i.status = 'Pending' AND ii.description LIKE '%Nightly Charge%'",
             [patient_id]
         );
-    
+
         const billedDays = parseInt(existingCharges.rows[0]?.billed_days || 0);
         console.log(`[Discharge] Found ${billedDays} billed days for Patient ${patient_id}`);
-    
+
         let daysToBill = 0;
         const admissionDate = new Date(admission_date);
         const dischargeDate = new Date();
-    
+
         if (billedDays > 0) {
             // Nightly cron has been running.
             // We assume nights are paid. We only check for strict day-care or half-day logic if needed.
@@ -294,21 +294,21 @@ const dischargePatient = asyncHandler(async (req, res) => {
             const hoursStayed = (dischargeDate - admissionDate) / (1000 * 60 * 60);
             daysToBill = Math.max(1, Math.ceil(hoursStayed / 24));
         }
-    
+
         const bedCharges = daysToBill * ratePerDay;
-    
+
         // Close bed history
         await pool.query(
             'UPDATE bed_history SET end_time = CURRENT_TIMESTAMP WHERE admission_id = $1 AND end_time IS NULL',
             [admission_id]
         );
-    
+
         // Discharge patient
         const result = await pool.query(
             'UPDATE admissions SET status = $1, discharge_date = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
             ['Discharged', admission_id]
         );
-    
+
         // Update bed status (Scoped)
         // [PHASE 3] Operational Efficiency: Set bed status to 'Dirty' for cleaning
         // [DEBUG] Get Ward ID first to avoid subquery error and verify code update
@@ -316,15 +316,15 @@ const dischargePatient = asyncHandler(async (req, res) => {
         const wardId = wardRes.rows[0]?.id;
 
         if (wardId) {
-             console.log(`[Discharge] Setting Bed ${bed_number} (Ward ID: ${wardId}) to Dirty`);
-             await pool.query(
+            console.log(`[Discharge] Setting Bed ${bed_number} (Ward ID: ${wardId}) to Dirty`);
+            await pool.query(
                 "UPDATE beds SET status = 'Dirty' WHERE bed_number = $1 AND ward_id = $2",
                 [bed_number, wardId]
             );
         } else {
             console.warn(`[Discharge] Ward '${ward}' not found for hospital ${hospitalId}`);
         }
-    
+
         // Create Housekeeping Task
         const dischargeDesc = `Terminal Cleaning - Bed ${bed_number} (${ward})`;
         await pool.query(
@@ -332,12 +332,12 @@ const dischargePatient = asyncHandler(async (req, res) => {
              VALUES ($1, $2, 'Housekeeping', $3, 'Pending', NOW(), $4)`,
             [patient_id, admission_id, dischargeDesc, hospitalId]
         );
-    
-       // [FIX] Use Billing Service to Add Final Charges
+
+        // [FIX] Use Billing Service to Add Final Charges
         let invoiceId = null;
         if (daysToBill > 0) {
             const invResult = await addToInvoice(patient_id, admission_id, `${ward} Bed Charges (Final Settlement)`, daysToBill, ratePerDay, req.user.id, hospitalId);
-            
+
             // addToInvoice returns the ID directly OR an object { covered: true ... } OR null on error
             if (invResult && typeof invResult === 'object' && invResult.covered) {
                 console.log('[Discharge] Charges covered by Package/PMJAY');
@@ -355,7 +355,7 @@ const dischargePatient = asyncHandler(async (req, res) => {
             const pendingInv = await pool.query("SELECT id FROM invoices WHERE patient_id = $1 AND status = 'Pending'", [patient_id]);
             invoiceId = pendingInv.rows[0]?.id;
         }
-    
+
         // Mark Invoice as Generated/Finalized (Ready for Payment)
         // Mark Invoice as Generated/Finalized (Ready for Payment)
         if (invoiceId) {
@@ -365,7 +365,7 @@ const dischargePatient = asyncHandler(async (req, res) => {
                 console.warn(`[Discharge] Warning: Could not update invoice status: ${invErr.message}`);
             }
         }
-    
+
         // [Phase H5] Check Govt Scheme Coverage & add to billing response
         let govtScheme = null;
         try {
@@ -406,13 +406,13 @@ const getAdmittedPatients = asyncHandler(async (req, res) => {
             a.status, a.admission_date as admitted_at, a.current_diet, a.last_round_at,
             p.name as patient_name, p.gender, p.dob, p.phone,
             gsb.scheme_code as govt_scheme_code,
-            gsb.card_number as govt_scheme_card
+            gsb.beneficiary_id as govt_scheme_card
         FROM admissions a
         JOIN patients p ON a.patient_id = p.id
         LEFT JOIN govt_scheme_beneficiaries gsb 
             ON gsb.patient_id = a.patient_id 
             AND gsb.verification_status = 'verified'
-            AND (gsb.expiry_date IS NULL OR gsb.expiry_date > NOW())
+            AND gsb.is_active = true
         WHERE a.status = 'Admitted' AND a.hospital_id = $1
         ORDER BY a.admission_date DESC
     `, [hospitalId]);
@@ -461,7 +461,7 @@ const getBedHistory = asyncHandler(async (req, res) => {
 // Update Patient Diet - PRODUCTION SAFE
 const updateDiet = asyncHandler(async (req, res) => {
     const { admission_id, diet } = req.body;
-    
+
     const result = await pool.query(
         'UPDATE admissions SET current_diet = $1 WHERE id = $2 RETURNING current_diet',
         [diet, admission_id]
@@ -472,7 +472,7 @@ const updateDiet = asyncHandler(async (req, res) => {
 // Mark Round as Seen - PRODUCTION SAFE
 const markRoundSeen = asyncHandler(async (req, res) => {
     const { admission_id } = req.body;
-    
+
     const result = await pool.query(
         'UPDATE admissions SET last_round_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING last_round_at',
         [admission_id]
@@ -511,19 +511,19 @@ const backdateAdmission = asyncHandler(async (req, res) => {
     const seqLength = parseInt(ipdConfig.length) || 5;
     const startSequence = parseInt(ipdConfig.start_sequence) || 1; // [NEW] Custom starting number
     const basePattern = `${prefix}-${new Date(backdate_timestamp).getFullYear().toString().slice(-2)}-`; // Use BACKDATE year
-    
+
     // Find all used IPD numbers for this pattern
     const allIpdRes = await pool.query(
         "SELECT ipd_number FROM admissions WHERE ipd_number LIKE $1 AND hospital_id = $2",
         [`${basePattern}%`, hospitalId]
     );
-    
+
     // Parse used sequences
     const usedSeqs = allIpdRes.rows.map(r => {
         const parts = r.ipd_number.split('-');
         return parseInt(parts[parts.length - 1], 10);
     }).filter(n => !isNaN(n)).sort((a, b) => a - b);
-    
+
     // [UPDATED] Start from configured start_sequence
     let nextSeq = startSequence;
     for (const seq of usedSeqs) {
@@ -543,7 +543,7 @@ const backdateAdmission = asyncHandler(async (req, res) => {
         "UPDATE beds SET status = 'Occupied' WHERE bed_number = $1 AND ward_id = (SELECT id FROM wards WHERE name ILIKE $2 AND hospital_id = $3)",
         [bed_number, ward.trim(), hospitalId]
     );
-    
+
     // 5. Open Bed History (Backdated?)
     // History should reflect reality. If admitted yesterday, history starts yesterday.
     await pool.query(
@@ -562,7 +562,7 @@ const voidAdmission = asyncHandler(async (req, res) => {
     // 1. Get Admission
     const adm = await pool.query("SELECT * FROM admissions WHERE id = $1 AND hospital_id = $2", [id, hospitalId]);
     if (adm.rows.length === 0) return ResponseHandler.error(res, 'Admission not found', 404);
-    
+
     const { ward, bed_number, status } = adm.rows[0];
 
     // 2. Mark as Voided
