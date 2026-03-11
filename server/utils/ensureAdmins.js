@@ -49,12 +49,43 @@ async function ensureAdminUsers() {
                     id SERIAL PRIMARY KEY, 
                     code VARCHAR(50) UNIQUE NOT NULL,
                     name VARCHAR(255) NOT NULL,
-                    hospital_name VARCHAR(255) GENERATED ALWAYS AS (name) STORED, -- Backwards compat
                     subdomain VARCHAR(100) UNIQUE,
-                    hospital_domain VARCHAR(255) GENERATED ALWAYS AS (subdomain) STORED, -- Backwards compat
+                    custom_domain VARCHAR(255),
+                    logo_url VARCHAR(500),
+                    primary_color VARCHAR(20),
+                    secondary_color VARCHAR(20),
+                    address TEXT,
+                    city VARCHAR(100),
+                    state VARCHAR(100),
+                    country VARCHAR(100) DEFAULT 'India',
+                    phone VARCHAR(50),
+                    email VARCHAR(255),
+                    tagline VARCHAR(500),
+                    settings JSONB DEFAULT '{}',
+                    subscription_tier VARCHAR(50) DEFAULT 'basic',
+                    subscription_plan VARCHAR(50) DEFAULT 'basic',
+                    status VARCHAR(20) DEFAULT 'active',
+                    is_active BOOLEAN DEFAULT true,
                     created_at TIMESTAMP DEFAULT NOW()
                 );
             `);
+
+            // Patch missing columns on existing hospitals table
+            const hospCols = await pool.query("SELECT column_name FROM information_schema.columns WHERE table_name = 'hospitals'");
+            const hospColNames = hospCols.rows.map(r => r.column_name);
+            if (!hospColNames.includes('settings')) {
+                await pool.query("ALTER TABLE hospitals ADD COLUMN settings JSONB DEFAULT '{}'");
+                console.log("   🔧 [PATCH] Added 'settings' to hospitals");
+            }
+            if (!hospColNames.includes('custom_domain')) {
+                await pool.query("ALTER TABLE hospitals ADD COLUMN custom_domain VARCHAR(255)");
+            }
+            if (!hospColNames.includes('is_active')) {
+                await pool.query("ALTER TABLE hospitals ADD COLUMN is_active BOOLEAN DEFAULT true");
+            }
+            if (!hospColNames.includes('status')) {
+                await pool.query("ALTER TABLE hospitals ADD COLUMN status VARCHAR(20) DEFAULT 'active'");
+            }
 
             // Mirrors 001_initial_schema.sql + 071_add_hospital_id_core.sql
             await pool.query(`
