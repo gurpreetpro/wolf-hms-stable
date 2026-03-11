@@ -96,6 +96,41 @@ async function ensureAdminUsers() {
             console.warn(`   ⚠️ Schema create warning: ${schemaErr.message} (Proceeding best-effort)`);
         }
 
+        // 2b. Ensure refresh_tokens table exists (Required by Auth Controller)
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS refresh_tokens (
+                    id SERIAL PRIMARY KEY,
+                    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    token TEXT NOT NULL,
+                    expires_at TIMESTAMP NOT NULL,
+                    is_revoked BOOLEAN DEFAULT FALSE,
+                    replaced_by TEXT,
+                    created_at TIMESTAMP DEFAULT NOW()
+                );
+            `);
+            console.log('   ✅ [Seed] refresh_tokens table verified');
+        } catch (rtErr) {
+            console.warn(`   ⚠️ refresh_tokens table warning: ${rtErr.message}`);
+        }
+
+        // 2c. Ensure hospital_settings table exists (Required by Settings Controller)
+        try {
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS hospital_settings (
+                    id SERIAL PRIMARY KEY,
+                    key VARCHAR(255) NOT NULL,
+                    value TEXT,
+                    hospital_id INT REFERENCES hospitals(id),
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(key, hospital_id)
+                );
+            `);
+            console.log('   ✅ [Seed] hospital_settings table verified');
+        } catch (hsErr) {
+            console.warn(`   ⚠️ hospital_settings table warning: ${hsErr.message}`);
+        }
+
         // 3. Seed Hospitals (Integer IDs)
         const hospitals = [
             { id: 1, code: 'default', name: 'Kokila Hospital', domain: 'kokila.wolfhms.web.app' },
