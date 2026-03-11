@@ -24,25 +24,102 @@ async function ensureSchema() {
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image TEXT`,
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS available_days TEXT`,
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS gender TEXT`,
+
+        // payments
+        `DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payments') THEN
+                EXECUTE 'ALTER TABLE payments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()';
+            END IF;
+        END $$;`,
 
         // patients table
         `ALTER TABLE patients ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
         `ALTER TABLE patients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
 
-        // ipd_admissions table
-        `CREATE TABLE IF NOT EXISTS ipd_admissions (
+        // admissions table
+        `CREATE TABLE IF NOT EXISTS admissions (
             id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
             patient_id UUID,
             hospital_id INTEGER,
-            bed_id INTEGER,
-            doctor_id INTEGER,
+            bed_number VARCHAR(50),
+            treating_doctor_id INTEGER,
             admission_date TIMESTAMP DEFAULT NOW(),
             discharge_date TIMESTAMP,
-            status VARCHAR(20) DEFAULT 'admitted',
+            status VARCHAR(20) DEFAULT 'Admitted',
             diagnosis TEXT,
             notes TEXT,
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
+        )`,
+        
+        // wards table
+        `CREATE TABLE IF NOT EXISTS wards (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100),
+            hospital_id INTEGER
+        )`,
+        
+        // beds table
+        `CREATE TABLE IF NOT EXISTS beds (
+            id SERIAL PRIMARY KEY,
+            bed_number VARCHAR(50),
+            ward_id INTEGER,
+            bed_type VARCHAR(50),
+            daily_rate DECIMAL(10,2),
+            status VARCHAR(20) DEFAULT 'Available'
+        )`,
+        
+        // vitals_logs
+        `CREATE TABLE IF NOT EXISTS vitals_logs (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            patient_id UUID,
+            recorded_at TIMESTAMP DEFAULT NOW(),
+            temperature DECIMAL(4,1),
+            pulse INTEGER,
+            bp_systolic INTEGER,
+            bp_diastolic INTEGER,
+            respiratory_rate INTEGER,
+            spo2 INTEGER,
+            blood_sugar DECIMAL(5,1),
+            weight DECIMAL(5,1),
+            notes TEXT
+        )`,
+        
+        // care_tasks
+        `CREATE TABLE IF NOT EXISTS care_tasks (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            admission_id UUID,
+            patient_id UUID,
+            task_type VARCHAR(50),
+            description TEXT,
+            scheduled_time TIMESTAMP,
+            status VARCHAR(20) DEFAULT 'Pending',
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT NOW()
+        )`,
+        
+        // care_plans
+        `CREATE TABLE IF NOT EXISTS care_plans (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            admission_id UUID,
+            patient_id UUID,
+            dietary_restrictions TEXT,
+            allergy_notes TEXT,
+            created_at TIMESTAMP DEFAULT NOW()
+        )`,
+        
+        // pending_charges
+        `CREATE TABLE IF NOT EXISTS pending_charges (
+            id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+            admission_id UUID,
+            charge_type VARCHAR(50),
+            description TEXT,
+            amount DECIMAL(10,2),
+            quantity INTEGER DEFAULT 1,
+            total_amount DECIMAL(10,2),
+            status VARCHAR(20) DEFAULT 'Pending',
+            created_at TIMESTAMP DEFAULT NOW()
         )`,
     ];
 
