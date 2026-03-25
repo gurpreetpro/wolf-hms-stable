@@ -133,6 +133,22 @@ const tenantResolver = async (req, res, next) => {
             console.log(`[Tenant] BOOTSTRAP: Forcing Dr Parveen ID 2`);
             hospital = { id: 2, name: 'Dr. Parveen Hospital' };
         }
+        else if (domain === 'ace') {
+            console.log(`[Tenant] BOOTSTRAP: Forcing Ace Heart & Vascular Institute ID 3`);
+            try {
+                const aceRes = await pool.query(
+                    "SELECT id, name FROM hospitals WHERE code = 'ACE' OR id = 3 ORDER BY id LIMIT 1"
+                );
+                if (aceRes.rows.length > 0) {
+                    hospital = { id: aceRes.rows[0].id, name: aceRes.rows[0].name };
+                } else {
+                    hospital = { id: 3, name: 'Ace Heart & Vascular Institute' };
+                }
+            } catch (aceErr) {
+                console.error('[Tenant] Ace DB Query Failed:', aceErr.message);
+                hospital = { id: 3, name: 'Ace Heart & Vascular Institute' };
+            }
+        }
         else if (domain.includes('wolf-hms') || domain.includes('localhost') || domain === '127' || fullDomain.startsWith('127.0.0.1') || /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(fullDomain) || fullDomain.includes('sslip.io')) {
             try {
                 const fallbackRes = await pool.query(
