@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Modal, Form, Spinner, Alert, ProgressBar, InputGroup, Accordion } from 'react-bootstrap';
-import api from '../services/api';
+import api from '../utils/axiosInstance';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // TREATMENT PACKAGE MANAGER — Phase 7 Upgrade
