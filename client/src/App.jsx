@@ -83,6 +83,7 @@ import MultiPayerSplit from './pages/MultiPayerSplit';
 import HL7ADTFeed from './pages/HL7ADTFeed';
 import NABHCertification from './pages/NABHCertification';
 import WhiteLabelSaaS from './pages/WhiteLabelSaaS';
+import ERPSyncDashboard from './pages/admin/finance/ERPSyncDashboard'; // [ENTERPRISE] Tally Sync
 // Wolf Vault - Beyond Gold Insurance Architecture
 import InsuranceVault from './pages/admin/InsuranceVault';
 import InsuranceCommandCenter from './pages/InsuranceCommandCenter';
@@ -140,6 +141,7 @@ import BedTransferManager from './pages/BedTransferManager';
 import TreatmentPackageManager from './pages/TreatmentPackageManager';
 import TPAProviderAdmin from './pages/TPAProviderAdmin';
 import CloudBackupConsole from './pages/CloudBackupConsole';
+import EnterpriseAIDashboard from './pages/EnterpriseAIDashboard'; // Phase 8: Enterprise AI
 
 // Phase 13: Remaining Gap Closure (Deep Scan Audit — Medium + Low)
 import AutomationDashboard from './components/AutomationDashboard';
@@ -371,10 +373,12 @@ function App() {
                   <Route path="/admin/training" element={<TrainingCompetency />} />
                   <Route path="/admin/payroll" element={<PayrollIntegration />} />
                   <Route path="/admin/workforce-analytics" element={<WorkforceAnalytics />} />
+                  <Route path="/admin/erp-sync" element={<ERPSyncDashboard />} /> {/* Enterprise Phase 5 */}
                   {/* Phase 12: Critical Backend Gap Closure (Deep Scan Audit Fix) */}
                   <Route path="/admin/emergency" element={<EmergencyCommandCenter />} />
                   <Route path="/admin/bed-transfer" element={<BedTransferManager />} />
                   <Route path="/admin/treatment-packages" element={<TreatmentPackageManager />} />
+                  <Route path="/admin/enterprise-ai" element={<EnterpriseAIDashboard />} /> {/* Phase 8: Enterprise AI Command Center */}
                   <Route path="/admin/tpa-admin" element={<TPAProviderAdmin />} />
                   <Route path="/admin/cloud-backup" element={<CloudBackupConsole />} />
                   {/* Phase 13: Remaining Gap Closure (Medium + Low) */}

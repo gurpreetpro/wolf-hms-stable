@@ -17,13 +17,20 @@ const protect = (req, res, next) => {
             const tokenHospitalId = decoded.hospital_id;
             const domainHospitalId = req.hospital_id; // Set by tenantResolver
 
-            // Logic:
             // 1. If user is super_admin/platform_admin, allow Access (Roaming)
-            // 2. If token has hospital_id, it MUST match the domain's hospital_id
+            // 2. If Token is from a HUB, allow access to its own SPOKEs
+            // 3. Otherwise, token must match domain exactly
             
             const isPlatformAdmin = ['super_admin', 'platform_admin'].includes(decoded.role);
 
-            if (!isPlatformAdmin && tokenHospitalId && domainHospitalId && tokenHospitalId !== domainHospitalId) {
+            // Hub-and-Spoke Check logic:
+            // req.branch_type and req.parent_hospital_id are set by tenantResolver for the domain we're trying to access
+            const isHubAccessingSpoke = 
+                req.branch_type === 'SPOKE' && 
+                req.parent_hospital_id !== null && 
+                tokenHospitalId === req.parent_hospital_id;
+
+            if (!isPlatformAdmin && !isHubAccessingSpoke && tokenHospitalId && domainHospitalId && tokenHospitalId !== domainHospitalId) {
                 console.warn(`[AuthMiddleware] ⛔ BLOCKED Cross-Tenant Access! Token(ID:${tokenHospitalId}) vs Domain(ID:${domainHospitalId})`);
                 return res.status(403).json({ 
                     message: 'Access Forbidden: You are logged into a different hospital. Please logout and login with the correct credentials.',

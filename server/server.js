@@ -76,6 +76,15 @@ try {
     logger.error('Failed to init Bed Charge Cron:', err);
 }
 
+// [ENTERPRISE] Nightly ERP Tally Sync Daemon
+const { initERPCron } = require('./cron/eod_erp_sync');
+try {
+    initERPCron();
+    logger.info('📊 Enterprise ERP Sync Cron Initialized');
+} catch (err) {
+    logger.error('Failed to init ERP Sync Cron:', err);
+}
+
 process.on('uncaughtException', (err) => {
     logger.error('UNCAUGHT EXCEPTION:', err);
     // process.exit(1); // Optional: keep alive for debug? No, better to log and die.
@@ -834,6 +843,7 @@ const clinicalRoutes = require('./routes/clinicalRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes'); // [FIX] import missing routes
 const migrationRoutes = require('./routes/migration_routes');
+const corporateRoutes = require('./routes/corporateRoutes'); // [ENTERPRISE] B2B Billing
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -850,7 +860,8 @@ app.use('/api/clinical', clinicalRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/dashboard', dashboardRoutes); // [FIX] Mount dashboard routes
 app.use('/api/migration', migrationRoutes); // [NEW] Wolf Migrator Routes
-app.use('/api/dashboard', dashboardRoutes); // [FIX] Added missing dashboard endpoint
+app.use('/api/corporate', corporateRoutes); // [ENTERPRISE]
+app.use('/api/v1/corporate', corporateRoutes); // [ENTERPRISE] Support v1 prefix as well
 const radiologyOrderRoutes = require('./routes/radiologyOrderRoutes');
 
 // Mount Routes
@@ -1031,6 +1042,7 @@ app.use('/api/pos', posRoutes);
 app.use('/api/payments', require('./routes/paymentRoutes')); // Needs razorpay - Enabled
 app.use('/api/preauth', preauthRoutes);
 app.use('/api/packages', treatmentPackageRoutes); // Treatment Packages
+app.use('/api/ai', require('./routes/enterpriseAIRoutes')); // Phase 8: Enterprise AI (4 Pillars)
 app.use('/api/charges', chargesRoutes); // Centralized Billing Queue (Gold Standard)
 
 // [WOLF VAULT] HCX/TPA Webhook Router - Async callbacks with correlation ID routing

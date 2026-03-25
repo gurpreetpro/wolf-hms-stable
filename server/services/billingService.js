@@ -48,37 +48,125 @@ const addToInvoice = async (patient_id, admission_id, description, quantity, uni
             }
         }
 
-        // [PHASE 9] Package Logic: Check if patient has active treatment package
+        // [PHASE 9] Package Logic: Strict Boundary Interceptor
         const activePkg = await db.query(
-            `SELECT pp.id, pp.package_id, tp.inclusions 
+            `SELECT pp.id, pp.package_id, tp.inclusions, tp.stay_days, tp.room_type
              FROM patient_packages pp 
              JOIN treatment_packages tp ON pp.package_id = tp.id 
-             WHERE pp.patient_id = $1 AND pp.status = 'active' AND pp.admission_id = $2
+             WHERE pp.patient_id = $1 AND pp.status = 'active' AND pp.admission_id IS NOT DISTINCT FROM $2
              LIMIT 1`,
             [patient_id, admission_id]
         );
 
         if (activePkg.rows.length > 0) {
             const pkg = activePkg.rows[0];
-            const inclusions = pkg.inclusions || []; // Array of strings e.g., ["CBC", "Consultation"]
+            const inclusions = pkg.inclusions || {}; // JSON Object now expected based on specs
             
-            // Check if Item is covered
-            // Logic: Simple string match or category match. 
-            // For MVP: Check if description contains any inclusion keyword
-            const isCovered = inclusions.some(inc => description.toLowerCase().includes(inc.toLowerCase()));
+            // 1. Identify Item Category (Mocked as simple string matching for now, 
+            //    in a prod app this would be joined with an item master table)
+            let category = 'Other';
+            if (description.toLowerCase().includes('ward') || description.toLowerCase().includes('room')) {
+                category = 'Room';
+            } else if (description.toLowerCase().includes('test') || description.toLowerCase().includes('scan') || description.toLowerCase().includes('cbc')) {
+                category = 'Diagnostic';
+            } else if (description.toLowerCase().includes('paracetamol') || description.toLowerCase().includes('syringe') || description.toLowerCase().includes('iv')) {
+                category = 'Pharmacy';
+            }
 
+            let isCovered = false;
+            let interceptorMessage = '';
+
+            // 2. Strict Boundary Rules Engine
+            if (category === 'Room') {
+                // Check Room Days Limit
+                const roomLogs = await db.query(
+                    `SELECT SUM(quantity) as used_days FROM package_usage_log WHERE patient_package_id = $1 AND item_type = 'Room'`,
+                    [pkg.id]
+                );
+                const usedDays = parseInt(roomLogs.rows[0].used_days || 0);
+                const maxDays = inclusions.max_room_days || pkg.stay_days;
+
+                if (usedDays + quantity <= maxDays) {
+                    // Check if Room Type matches
+                    if (inclusions.included_room_type && !description.toLowerCase().includes(inclusions.included_room_type.toLowerCase())) {
+                       interceptorMessage = `Room Upgrade Charge. Included: ${inclusions.included_room_type}`; 
+                    } else {
+                        isCovered = true;
+                        interceptorMessage = `Covered under Room Days (${usedDays + quantity}/${maxDays})`;
+                    }
+                } else {
+                    interceptorMessage = `Room Limit Exceeded. Max: ${maxDays} days.`;
+                }
+            } 
+            else if (category === 'Pharmacy') {
+                // Check Pharmacy Overall Cap
+                const pharmLogs = await db.query(
+                    `SELECT SUM(unit_price * quantity) as total_pharmacy FROM package_usage_log WHERE patient_package_id = $1 AND item_type = 'Pharmacy'`,
+                    [pkg.id]
+                );
+                const currentPharmSpend = parseFloat(pharmLogs.rows[0].total_pharmacy || 0);
+                const requestSpend = unit_price * quantity;
+                const maxPharmSpend = parseFloat(inclusions.pharmacy_cap_amount || 0);
+
+                // Check Itemized Limits
+                let itemLimitHit = false;
+                if (inclusions.itemized_limits) {
+                     for (const [itemName, maxQty] of Object.entries(inclusions.itemized_limits)) {
+                         if (description.toLowerCase().includes(itemName.toLowerCase())) {
+                             // Get current usage of this specific item
+                             const itemLogs = await db.query(
+                                `SELECT SUM(quantity) as sum_qty FROM package_usage_log WHERE patient_package_id = $1 AND item_name ILIKE $2`,
+                                [pkg.id, `%${itemName}%`]
+                             );
+                             const usedQty = parseInt(itemLogs.rows[0].sum_qty || 0);
+                             if (usedQty + quantity > maxQty) {
+                                  itemLimitHit = true;
+                                  interceptorMessage = `Item Limit Exceeded: ${itemName} (Max: ${maxQty})`;
+                                  break;
+                             }
+                         }
+                     }
+                }
+
+                if (!itemLimitHit) {
+                    if (maxPharmSpend > 0 && (currentPharmSpend + requestSpend <= maxPharmSpend)) {
+                        isCovered = true;
+                        interceptorMessage = `Covered under Pharmacy Cap (₹${currentPharmSpend+requestSpend} / ₹${maxPharmSpend})`;
+                    } else if (maxPharmSpend > 0) {
+                        interceptorMessage = `Pharmacy Cap Exceeded. Max: ₹${maxPharmSpend}.`;
+                    } else if (!inclusions.pharmacy_cap_amount) {
+                        // Assuming covered if no cap is specified but category allows it
+                         isCovered = true;
+                    }
+                }
+            }
+            else if (category === 'Diagnostic') {
+                // Check explicitly included tests
+                if (inclusions.included_tests && Array.isArray(inclusions.included_tests)) {
+                    isCovered = inclusions.included_tests.some(test => description.toLowerCase().includes(test.toLowerCase()));
+                    if (isCovered) interceptorMessage = `Covered Diagnostic Test`;
+                    else interceptorMessage = `Test not in included package list`;
+                }
+            }
+
+            // 3. Execution Action
             if (isCovered) {
-                console.log(`[Billing] 📦 Item '${description}' covered by Package #${pkg.id}`);
-                // Verify limits? (e.g. 10 Dialysis sessions). 
-                // For now, we assume if it's in inclusion, it's covered (Unlimited or tracked elsewhere)
-                // We DO NOT add to invoice. We log usage.
+                console.log(`[Billing Interceptor] 📦 Bypassing Invoice: '${description}' -> ${interceptorMessage}`);
                 
                 await db.query(
-                    `INSERT INTO package_usage_log (patient_package_id, item_description, quantity, unit_price, used_at)
-                     VALUES ($1, $2, $3, $4, NOW())`,
-                    [pkg.id, description, quantity, unit_price]
+                    `INSERT INTO package_usage_log (patient_package_id, item_type, item_name, quantity, unit_price, used_at)
+                     VALUES ($1, $2, $3, $4, $5, NOW())`,
+                    [pkg.id, category, description, quantity, unit_price]
                 );
-                return { covered: true, package_id: pkg.id };
+                return { covered: true, package_id: pkg.id, message: interceptorMessage };
+            } else {
+                 console.log(`[Billing Interceptor] 🚨 Out of Package Charge Triggered: '${description}' -> ${interceptorMessage}`);
+                 // Fall through to standard billing logic (add to invoice at standard rate)
+                 // Optionally log as an 'Overage' extra charge if we want it tied to the package explicitly
+                 await db.query(`
+                    INSERT INTO package_extras (patient_package_id, item_type, item_name, quantity, unit_price, total_price, reason, logged_by)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                 `, [pkg.id, category, description, quantity, unit_price, quantity * unit_price, interceptorMessage, userId]);
             }
         }
 
@@ -129,7 +217,7 @@ const addToInvoice = async (patient_id, admission_id, description, quantity, uni
         return invoice_id;
 
     } catch (error) {
-        console.error('[BillingService] Error adding to invoice:', error);
+        console.error('[BillingService] 🚨 CRITICAL Error adding to invoice:', error.message || error);
         // We don't throw here to avoid failing the clinical transaction, 
         // but in a strict financial system, we might want to.
         return null;

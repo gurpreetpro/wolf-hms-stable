@@ -24,7 +24,9 @@ const {
     processRefund,
     getRefundHistory,
     getControlledSubstanceLog,
-    getSmartAlerts
+    getSmartAlerts,
+    approvePurchaseOrder,
+    rejectPurchaseOrder
 } = require('../controllers/pharmacyController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { cache } = require('../middleware/cacheMiddleware');
@@ -63,6 +65,8 @@ router.delete('/inventory/:id', protect, authorize('admin'), deleteInventoryItem
 router.get('/suppliers', protect, authorize('admin', 'pharmacist'), getSuppliers);
 router.post('/purchase-orders', protect, authorize('admin', 'pharmacist'), createPurchaseOrder);
 router.get('/purchase-orders', protect, authorize('admin', 'pharmacist'), getPurchaseOrders);
+router.post('/purchase-orders/:id/approve', protect, authorize('admin', 'pharmacist'), approvePurchaseOrder);
+router.post('/purchase-orders/:id/reject', protect, authorize('admin', 'pharmacist'), rejectPurchaseOrder);
 router.post('/purchase-orders/receive', protect, authorize('admin', 'pharmacist'), receiveStock);
 
 // Reports

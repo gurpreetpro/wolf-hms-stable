@@ -1,0 +1,94 @@
+  console.log
+    [dbPools] DEBUG: process.env.DB_HOST = localhost
+
+      at Object.log (config/dbPools.js:20:9)
+
+  console.log
+    [dbPools] DEBUG: dbHost resolved to: localhost
+
+      at Object.log (config/dbPools.js:21:9)
+
+  console.log
+    [dbPools] DEBUG: isCloudSQL = false
+
+      at Object.log (config/dbPools.js:24:9)
+
+  console.log
+    [PRIMARY] New connection established
+
+      at BoundPool.log (config/dbPools.js:63:17)
+
+  console.log
+    [Billing Interceptor] 📦 Bypassing Invoice: 'CBC Lab Test' -> Covered Diagnostic Test
+
+      at log (services/billingService.js:154:25)
+
+  console.log
+    [Billing Interceptor] 🚨 Out of Package Charge Triggered: 'Brain MRI Scan' -> Test not in included package list
+
+      at log (services/billingService.js:163:26)
+
+  console.log
+    [Billing] Added Brain MRI Scan (8000) to Invoice #21 [Hospital: 7]
+
+      at log (services/billingService.js:216:17)
+
+  console.log
+    [Billing Interceptor] 📦 Bypassing Invoice: 'Paracetamol IV 500mg' -> Covered under Pharmacy Cap (₹100 / ₹5000)
+
+      at log (services/billingService.js:154:25)
+
+  console.log
+    [Billing Interceptor] 📦 Bypassing Invoice: 'Paracetamol IV 500mg' -> Covered under Pharmacy Cap (₹200 / ₹5000)
+
+      at log (services/billingService.js:154:25)
+
+  console.log
+    [Billing Interceptor] 🚨 Out of Package Charge Triggered: 'Paracetamol IV 500mg' -> Item Limit Exceeded: Paracetamol IV (Max: 2)
+
+      at log (services/billingService.js:163:26)
+
+  console.log
+    [Billing] Added Paracetamol IV 500mg (100) to Invoice #21 [Hospital: 7]
+
+      at log (services/billingService.js:216:17)
+
+  console.log
+    [Billing Interceptor] 📦 Bypassing Invoice: 'General Ward Day' -> Covered under Room Days (3/3)
+
+      at log (services/billingService.js:154:25)
+
+  console.log
+    [Billing Interceptor] 🚨 Out of Package Charge Triggered: 'General Ward Day' -> Room Limit Exceeded. Max: 3 days.
+
+      at log (services/billingService.js:163:26)
+
+  console.log
+    [Billing] Added General Ward Day (2000) to Invoice #21 [Hospital: 7]
+
+      at log (services/billingService.js:216:17)
+
+  console.log
+    [Billing Interceptor] 🚨 Out of Package Charge Triggered: 'Private Suite Room' -> Room Limit Exceeded. Max: 3 days.
+
+      at log (services/billingService.js:163:26)
+
+  console.log
+    [Billing] Added Private Suite Room (8000) to Invoice #21 [Hospital: 7]
+
+      at log (services/billingService.js:216:17)
+
+PASS tests/interceptor.test.js
+  Billing Interceptor Boundary Rules
+    √ Test 1: Ordering CBC (Included Diagnostic) (79 ms)
+    √ Test 2: Ordering MRI (Not Included) (34 ms)
+    √ Test 3a: Paracetamol 1 & 2 (Included Pharmacy limit 2) (12 ms)
+    √ Test 3b: Paracetamol 3 (Over Limit) (4 ms)
+    √ Test 4: Room Days Limits (3 days general) (8 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       5 passed, 5 total
+Snapshots:   0 total
+Time:        3.045 s
+Ran all test suites matching tests/interceptor.test.js.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

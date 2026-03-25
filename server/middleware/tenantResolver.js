@@ -42,7 +42,7 @@ const getHospitalFromDomain = async (domain) => {
 
     // 2. Query DB (This query runs BEFORE tenant is set)
     try {
-        const result = await pool.query('SELECT id, name, subdomain as domain FROM hospitals WHERE subdomain = $1', [domain]);
+        const result = await pool.query('SELECT id, name, subdomain as domain, branch_type, parent_hospital_id FROM hospitals WHERE subdomain = $1', [domain]);
 
         if (result.rows.length > 0) {
             const hospital = result.rows[0];
@@ -159,6 +159,8 @@ const tenantResolver = async (req, res, next) => {
     if (hospital) {
         req.hospital_id = hospital.id;
         req.hospital_name = hospital.name;
+        req.branch_type = hospital.branch_type;
+        req.parent_hospital_id = hospital.parent_hospital_id;
 
         // [IRON DOME] Set RLS context for this request
         await setTenantContext(hospital.id);

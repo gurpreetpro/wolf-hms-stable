@@ -1,0 +1,27 @@
+[dbPools] DEBUG: process.env.DB_HOST = localhost
+[dbPools] DEBUG: dbHost resolved to: localhost
+[dbPools] DEBUG: isCloudSQL = false
+🧪 Starting Phase 6: Enterprise End-to-End Verification
+
+--- Test 1: ERPSyncEngine XML Generation ---
+[PRIMARY] New connection established
+DEBUG EXACT ENGINE QUERY RESULT: [
+  {
+    invoice_id: 6,
+    total_amount: '1500.00',
+    generated_at: 2026-03-15T13:08:01.609Z,
+    patient_id: '4a0ebe71-a12a-4472-8eba-55926efefd68',
+    patient_name: 'John Doe'
+  }
+]
+[PRIMARY] New connection established
+
+--- Test 2: Corporate B2B Batch Billing ---
+✅ B2B Billing partial payment and dispute schema workflow validated.
+
+--- Test 3: Hierarchical Approvals & Delegation ---
+✅ Approval Matrix delegation routing validated (MD -> CEO).
+
+--- Verification Summary ---
+Passed: 2
+Failed: 1

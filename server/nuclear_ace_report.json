@@ -1,0 +1,136 @@
+{
+  "timestamp": "2026-03-11T04:21:42.235Z",
+  "target": "ace.wolfhms.in",
+  "hospital_id": 3,
+  "elapsed_seconds": 10.7,
+  "total": 26,
+  "passed": 21,
+  "failed": 5,
+  "score": "81%",
+  "data": {
+    "opd_patient_id": "640c7bb5-96bb-4a3c-bf21-44bc1a2926df",
+    "opd_visit_id": 1,
+    "opd_pharmacy_task": {
+      "id": 1,
+      "patient_id": "640c7bb5-96bb-4a3c-bf21-44bc1a2926df",
+      "admission_id": null,
+      "patient_name": "OPD_Nuclear_1773202892507",
+      "doctor_name": "ace_admin",
+      "description": "Paracetamol 500mg - 1 tab - TID",
+      "status": "Pending",
+      "created_at": "2026-03-11T04:21:34.308Z"
+    },
+    "ipd_patient_id": "d7fe5cfe-2bc6-404d-9555-79962edfcccb"
+  },
+  "results": [
+    {
+      "step": "Login as ace_admin",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Register Patient",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Get OPD Queue",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Doctor Consultation",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Order Lab Test (CBC)",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Check Pharmacy Queue",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Dispense Medicine",
+      "status": "FAIL",
+      "error": "{\"success\":false,\"message\":\"Insufficient stock or item not found: Paracetamol 500mg\"}"
+    },
+    {
+      "step": "[OPD] Admin Dashboard Stats",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Admin Analytics",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Hospital Profile Settings",
+      "status": "PASS"
+    },
+    {
+      "step": "[OPD] Get Users List",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Register Patient",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Get Available Beds",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Admit Patient",
+      "status": "FAIL",
+      "error": "Need patient and bed"
+    },
+    {
+      "step": "[IPD] Get Active Admissions",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Doctor Prescribe Medications",
+      "status": "FAIL",
+      "error": "No admission"
+    },
+    {
+      "step": "[IPD] Order Lab Tests",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Pharmacy Dispense",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Get Admin Tasks",
+      "status": "PASS"
+    },
+    {
+      "step": "[IPD] Generate Invoice",
+      "status": "FAIL",
+      "error": "No admission"
+    },
+    {
+      "step": "[IPD] Discharge Patient",
+      "status": "FAIL",
+      "error": "No admission"
+    },
+    {
+      "step": "[API] Finance Dashboard",
+      "status": "PASS"
+    },
+    {
+      "step": "[API] Inventory List",
+      "status": "PASS"
+    },
+    {
+      "step": "[API] Patient Search",
+      "status": "PASS"
+    },
+    {
+      "step": "[API] Care Tasks",
+      "status": "PASS"
+    },
+    {
+      "step": "[API] Bed History",
+      "status": "PASS"
+    }
+  ]
+}

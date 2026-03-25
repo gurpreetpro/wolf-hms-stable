@@ -106,10 +106,45 @@ const registerOPD = asyncHandler(async (req, res) => {
             }
         }
 
-        // Create new patient (WITH hospital_id, uhid, and abha_id)
+        // [NEW] Hub-and-Spoke Global UHID Generation
+        let globalUhid = null;
+        try {
+            // Find if this hospital is part of a Hub network
+            const hubCheck = await pool.query('SELECT parent_hospital_id, branch_type FROM hospitals WHERE id = $1', [hospitalId]);
+            const branchType = hubCheck.rows[0]?.branch_type || 'STANDALONE';
+            const networkHubId = branchType === 'SPOKE' ? hubCheck.rows[0].parent_hospital_id : (branchType === 'HUB' ? hospitalId : null);
+
+            if (networkHubId) {
+                // Determine the next Global sequence across ALL linked branches
+                const globalUhidsRes = await pool.query(
+                    `SELECT global_uhid FROM patients 
+                     WHERE global_uhid IS NOT NULL 
+                     AND hospital_id IN (SELECT id FROM hospitals WHERE id = $1 OR parent_hospital_id = $1)`,
+                    [networkHubId]
+                );
+                
+                const gUsedSeqs = globalUhidsRes.rows.map(r => {
+                    const parts = r.global_uhid.split('-');
+                    return parseInt(parts[parts.length - 1], 10);
+                }).filter(n => !isNaN(n)).sort((a, b) => a - b);
+                
+                let gNextSeq = 1; // Global sequence starts at 1
+                for (const seq of gUsedSeqs) {
+                    if (seq === gNextSeq) gNextSeq++;
+                    else if (seq > gNextSeq) break;
+                }
+                
+                // Format: WOLF-GLOBAL-00001
+                globalUhid = `WOLF-GLOBAL-${String(gNextSeq).padStart(6, '0')}`;
+            }
+        } catch (uhidErr) {
+            console.error('[HUB-AND-SPOKE] Failed to map Global UHID:', uhidErr);
+        }
+
+        // Create new patient (WITH hospital_id, uhid, global_uhid, and abha_id)
         const newPatient = await pool.query(
-            'INSERT INTO patients (name, dob, gender, phone, history_json, hospital_id, uhid, abha_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, uhid, abha_id', 
-            [name, dob || null, gender, phone, JSON.stringify({ complaint }), hospitalId, nextUhid, abha_id || null]
+            'INSERT INTO patients (name, dob, gender, phone, history_json, hospital_id, uhid, abha_id, global_uhid) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, uhid, global_uhid, abha_id', 
+            [name, dob || null, gender, phone, JSON.stringify({ complaint }), hospitalId, nextUhid, abha_id || null, globalUhid]
         );
         patientId = newPatient.rows[0].id;
 
@@ -133,8 +168,8 @@ const registerOPD = asyncHandler(async (req, res) => {
         }
     }
     
-    // Fetch full patient data (including UHID) for response
-    const fullPatientRes = await pool.query('SELECT id, name, phone, uhid, dob, gender, abha_id FROM patients WHERE id = $1', [patientId]);
+    // Fetch full patient data (including UHID & Global UHID) for response
+    const fullPatientRes = await pool.query('SELECT id, name, phone, uhid, global_uhid, dob, gender, abha_id FROM patients WHERE id = $1', [patientId]);
     const fullPatient = fullPatientRes.rows[0] || { id: patientId, name, phone };
     
     const docId = doctor_id || 2;
@@ -374,9 +409,23 @@ const createDemoPatient = asyncHandler(async (req, res) => {
     }
     const nextUhid = `${prefix}${separator}${String(nextSeq).padStart(seqLength, '0')}${suffix}`;
 
+    // [NEW] Hub-and-Spoke Global UHID Generation for Demos
+    let globalUhid = null;
+    try {
+        const hubCheck = await pool.query('SELECT parent_hospital_id, branch_type FROM hospitals WHERE id = $1', [hospitalId]);
+        const networkHubId = hubCheck.rows[0]?.branch_type === 'SPOKE' ? hubCheck.rows[0].parent_hospital_id : (hubCheck.rows[0]?.branch_type === 'HUB' ? hospitalId : null);
+        if (networkHubId) {
+            const gUhidsRes = await pool.query(`SELECT global_uhid FROM patients WHERE global_uhid IS NOT NULL AND hospital_id IN (SELECT id FROM hospitals WHERE id = $1 OR parent_hospital_id = $1)`, [networkHubId]);
+            const gSeqs = gUhidsRes.rows.map(r => parseInt(r.global_uhid.split('-').pop(), 10)).filter(n => !isNaN(n)).sort((a,b)=>a-b);
+            let gNext = 1;
+            for (const s of gSeqs) { if (s === gNext) gNext++; else if (s > gNext) break; }
+            globalUhid = `WOLF-GLOBAL-${String(gNext).padStart(6, '0')}`;
+        }
+    } catch(e) {}
+
     const patientResult = await pool.query(
-        `INSERT INTO patients (name, dob, gender, phone, history_json, hospital_id, uhid) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, 
-        [`${randomName} (Demo)`, new Date(new Date().getFullYear() - randomAge, 0, 1), randomGender, `DEMO-${demoId}`, JSON.stringify({ isDemo: true, complaint: 'Fever, headache, fatigue', allergies: ['Penicillin'], createdAt: new Date().toISOString() }), hospitalId, nextUhid]
+        `INSERT INTO patients (name, dob, gender, phone, history_json, hospital_id, uhid, global_uhid) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, 
+        [`${randomName} (Demo)`, new Date(new Date().getFullYear() - randomAge, 0, 1), randomGender, `DEMO-${demoId}`, JSON.stringify({ isDemo: true, complaint: 'Fever, headache, fatigue', allergies: ['Penicillin'], createdAt: new Date().toISOString() }), hospitalId, nextUhid, globalUhid]
     );
     const patient = patientResult.rows[0];
     

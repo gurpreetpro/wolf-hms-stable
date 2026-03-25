@@ -3,6 +3,7 @@ const { getHospitalId } = require('../utils/tenantHelper');
 const { addToInvoice } = require('../services/billingService');
 const { createChargeHelper } = require('./chargesController'); // Centralized Billing
 const SmartInventory = require('../services/SmartInventory');
+const ApprovalWorkflow = require('../services/procurement/ApprovalWorkflow'); // [ENTERPRISE]
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 
@@ -288,7 +289,7 @@ const getSuppliers = asyncHandler(async (req, res) => {
 
 // Create Purchase Order - Multi-Tenant
 const createPurchaseOrder = asyncHandler(async (req, res) => { 
-    const { supplier_id, items, expected_delivery_date, notes } = req.body; 
+    const { supplier_id, items, expected_delivery_date, notes, department_id } = req.body; 
     const user_id = req.user.id; 
     const hospitalId = getHospitalId(req); 
 
@@ -298,7 +299,48 @@ const createPurchaseOrder = asyncHandler(async (req, res) => {
     for (const item of items) { 
         await pool.query(`INSERT INTO po_items (po_id, inventory_item_id, item_name, quantity, unit_price, hospital_id) VALUES ($1, $2, $3, $4, $5, $6)`, [po.id, item.inventory_item_id, item.item_name, item.quantity, item.unit_price, hospitalId]); 
     } 
-    ResponseHandler.success(res, { po }, 'Purchase Order created', 201);
+
+    // [ENTERPRISE] Trigger Approval Matrix Workflow
+    const reqDeptId = department_id || 1; // Fallback to 1 if not provided
+    try {
+        const workflowResult = await ApprovalWorkflow.initiateApproval(po.id, hospitalId, total_amount, reqDeptId);
+        po.status = workflowResult.status;
+    } catch (workflowErr) {
+        console.error('[ApprovalWorkflow] Failed to init matrix, defaulting to PENDING level:', workflowErr);
+    }
+    
+    ResponseHandler.success(res, { po }, 'Purchase Order created and submitted for approval', 201);
+});
+
+// [ENTERPRISE] Approve Purchase Order
+const approvePurchaseOrder = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hospitalId = getHospitalId(req);
+    const userId = req.user.id;
+
+    try {
+        const result = await ApprovalWorkflow.processAction(id, hospitalId, userId, 'APPROVE');
+        ResponseHandler.success(res, result, `Purchase Order successfully advanced to: ${result.status}`);
+    } catch (e) {
+        ResponseHandler.error(res, e.message, 400);
+    }
+});
+
+// [ENTERPRISE] Reject Purchase Order
+const rejectPurchaseOrder = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+    const hospitalId = getHospitalId(req);
+    const userId = req.user.id;
+
+    if (!reason) return ResponseHandler.error(res, 'Rejection reason is required', 400);
+
+    try {
+        const result = await ApprovalWorkflow.processAction(id, hospitalId, userId, 'REJECT', reason);
+        ResponseHandler.success(res, result, 'Purchase Order has been rejected.');
+    } catch (e) {
+        ResponseHandler.error(res, e.message, 400);
+    }
 });
 
 // Receive Stock - Multi-Tenant
@@ -424,4 +466,4 @@ const getRefundHistory = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, result.rows);
 });
 
-module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, deleteInventoryItem, getSuppliers, createPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts };
+module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, deleteInventoryItem, getSuppliers, createPurchaseOrder, approvePurchaseOrder, rejectPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts };

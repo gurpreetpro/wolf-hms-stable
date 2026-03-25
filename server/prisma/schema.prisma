@@ -7,13 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model public__migrations {
-  id         Int       @id @default(dbgenerated("nextval('_migrations_id_seq'::regclass)"))
-  name       String    @unique @db.VarChar(255)
-  applied_at DateTime? @default(now()) @db.Timestamp(6)
 
-  @@map("_migrations")
-}
 
 model refresh_tokens {
   id          Int      @id @default(autoincrement())
@@ -1410,6 +1404,8 @@ model hospitals {
   id                            Int                            @id @default(autoincrement())
   code                          String                         @unique @db.VarChar(50)
   name                          String                         @db.VarChar(255)
+  parent_hospital_id            Int?                           // Self-referencing link to the Hub (Enterprise)
+  branch_type                   String                         @default("STANDALONE") @db.VarChar(20) // HUB, SPOKE, STANDALONE
   subdomain                     String?                        @unique @db.VarChar(100)
   custom_domain                 String?                        @db.VarChar(255)
   logo_url                      String?
@@ -1800,6 +1796,8 @@ model invoices {
   amount_paid          Decimal?               @default(0) @db.Decimal(12, 2)
   patient_number       String?                @db.VarChar(50)
   hospital_id          Int?
+  erp_synced_at        DateTime?
+  erp_reference_id     String?                @db.VarChar(100)
   deleted_at           DateTime?              @db.Timestamp(6)
   due_date             DateTime?              @default(dbgenerated("CURRENT_DATE")) @db.Date
   adjustments          adjustments[]
@@ -2790,11 +2788,26 @@ model patient_packages {
   created_at         DateTime?           @default(now()) @db.Timestamp(6)
   updated_at         DateTime?           @default(now()) @db.Timestamp(6)
   package_extras     package_extras[]
+  package_usage_log  package_usage_log[]
   treatment_packages treatment_packages? @relation(fields: [package_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([admission_id], map: "idx_patient_pkg_admission")
   @@index([patient_id], map: "idx_patient_pkg_patient")
   @@index([status], map: "idx_patient_pkg_status")
+}
+
+model package_usage_log {
+  id                 Int              @id @default(autoincrement())
+  patient_package_id Int
+  item_type          String           @db.VarChar(50)
+  item_name          String           @db.VarChar(255)
+  quantity           Int              @default(1)
+  unit_price         Decimal          @default(0) @db.Decimal(10, 2)
+  used_at            DateTime         @default(now()) @db.Timestamp(6)
+  patient_packages   patient_packages @relation(fields: [patient_package_id], references: [id], onDelete: Cascade)
+
+  @@index([patient_package_id], map: "idx_pkg_usage_pat_package")
+  @@index([item_type], map: "idx_pkg_usage_item_type")
 }
 
 model patient_service_charges {
@@ -2854,6 +2867,7 @@ model patients {
   is_registered             Boolean?                    @default(false)
   hospital_id               Int?
   uhid                      String?                     @unique(map: "idx_patients_uhid") @db.VarChar(20)
+  global_uhid               String?                     @db.VarChar(50) // For cross-branch Hub-and-Spoke identity
   deleted_at                DateTime?                   @db.Timestamp(6)
   deleted_by                Int?
   deletion_reason           String?
@@ -2984,6 +2998,8 @@ model payments {
   refund_date                      DateTime?   @db.Timestamp(6)
   created_by                       Int?
   transaction_id                   String?     @db.VarChar(100)
+  erp_synced_at                    DateTime?
+  erp_reference_id                 String?     @db.VarChar(100)
   status                           String?     @default("Completed") @db.VarChar(50)
   users_payments_created_byTousers users?      @relation("payments_created_byTousers", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
   hospitals                        hospitals?  @relation(fields: [hospital_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -3449,6 +3465,9 @@ model purchase_orders {
   status                 String?                @default("Draft") @db.VarChar(50)
   total_amount           Decimal?               @default(0) @db.Decimal(10, 2)
   created_by             Int?
+  approval_stage         Int?                   @default(0)
+  approved_by            Int?
+  rejection_reason       String?  
   created_at             DateTime?              @default(now()) @db.Timestamp(6)
   updated_at             DateTime?              @default(now()) @db.Timestamp(6)
   expected_delivery_date DateTime?              @db.Date
@@ -4129,6 +4148,8 @@ model users {
   security_answer_3                                                       String?                     @db.VarChar(255)
   is_mfa_enabled                                                          Boolean?                    @default(false)
   is_visiting                                                             Boolean?                    @default(false)
+  is_on_leave                                                             Boolean?                    @default(false)
+  delegated_to_user_id                                                    Int?                        // Self-referencing link for approval matrices
   specialist_category_id                                                  Int?
   revenue_share_override                                                  Int?
   visit_schedule                                                          Json?                       @default("{}")
@@ -5209,4 +5230,88 @@ model data_anonymization_logs {
   reason      String?
   executed_at DateTime @default(now())
   details     Json?
+}
+
+// === ENTERPRISE UPGRADE BOUNDARY ===
+
+// --- ERP SYNC ---
+model erp_ledger_mappings {
+  id              Int      @id @default(autoincrement())
+  hospital_id     Int
+  internal_charge String   @db.VarChar(100)
+  tally_ledger    String   @db.VarChar(100)
+}
+
+model erp_sync_logs {
+  id              Int      @id @default(autoincrement())
+  hospital_id     Int
+  executed_at     DateTime @default(now())
+  status          String   @db.VarChar(50) // SUCCESS, FAILED
+  delivery_method String   @db.VarChar(50) // API, EMAIL, SFTP
+  payload_size    Int
+  failure_reason  String?
+}
+
+// --- ENTERPRISE B2B BILLING ---
+model corporate_contracts {
+  id             Int      @id @default(autoincrement())
+  hospital_id    Int
+  provider_id    Int
+  credit_limit   Float
+  billing_cycle  Int      // e.g., 30 for monthly
+}
+
+model b2b_invoices {
+  id               Int       @id @default(autoincrement())
+  hospital_id      Int
+  corporate_id     Int
+  total_amount     Float
+  status           String    @db.VarChar(50) // GENERATED, SENT, PARTIALLY_PAID, SETTLED, DISPUTED
+  generated_at     DateTime  @default(now())
+  settled_at       DateTime?
+  adjustment_notes String?
+}
+
+model b2b_payments {
+  id               Int      @id @default(autoincrement())
+  b2b_invoice_id   Int
+  amount           Float
+  payment_date     DateTime @default(now())
+}
+
+// --- MULTI-LEVEL APPROVAL MATRICES ---
+model approval_matrices {
+  id                   Int      @id @default(autoincrement())
+  department_id        Int
+  min_amount           Float
+  max_amount           Float
+  required_role        String   @db.VarChar(50)
+  delegated_to_user_id Int?
+}
+
+model po_approval_logs {
+  id                 Int      @id @default(autoincrement())
+  purchase_order_id  Int
+  approved_by_user_id Int
+  approval_stage     Int
+  approved_at        DateTime @default(now())
+}
+
+// --- HUB AND SPOKE ARCHITECTURE ---
+// Note: Enums are stored as VarChar in existing schema conventions instead of Prisma Enums where possible.
+
+model inventory_transfers {
+  id               Int       @id @default(autoincrement())
+  source_hospital_id Int     // The Hub
+  target_hospital_id Int     // The Spoke
+  item_id          Int
+  quantity         Int
+  status           String    @default("PENDING") @db.VarChar(50) // PENDING, IN_TRANSIT, RECEIVED, CANCELLED
+  dispatched_at    DateTime?
+  dispatched_by    Int?
+  received_at      DateTime?
+  received_by      Int?
+  notes            String?
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @db.Timestamp(6)
 }
