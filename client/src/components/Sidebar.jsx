@@ -19,7 +19,10 @@ import {
     Bed, 
     Shield,
     Navigation,
-    Grid3x3 as Grid 
+    Grid3x3 as Grid,
+    Package,
+    BrainCircuit,
+    RefreshCcw
 } from 'lucide-react';
 
 
@@ -48,96 +51,119 @@ const Sidebar = () => {
     };
 
     const allLinks = [
-        // Common
-        { to: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'doctor', 'nurse', 'receptionist', 'lab_tech', 'pharmacist', 'anaesthetist'] },
+        // ── Common ──
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'doctor', 'nurse', 'receptionist', 'lab_tech', 'pharmacist', 'anaesthetist'], section: 'common' },
 
-        // Admin
-        { to: '/users', icon: UserPlus, label: 'User Management', roles: ['admin'] },
-        { to: '/ward-management', icon: FileText, label: 'Ward Management', roles: ['admin'] },
-        { to: '/settings', icon: Settings, label: 'System Settings', roles: ['admin'] }, // Phase 15
-        { to: '/billing', icon: DollarSign, label: 'Revenue & Finance', roles: ['admin'] },
-        { to: '/admin/superadmin', icon: Grid, label: 'Developer Dashboard', roles: ['super_admin'] }, // Multi-Tenant (Super Admin Only)
-        
-        // Wolf Vault - Insurance (Beyond Gold)
-        { to: '/admin/vault', icon: Shield, label: '🔐 Insurance Vault', roles: ['admin'] },
-        { to: '/insurance', icon: DollarSign, label: '💳 Claims Dashboard', roles: ['admin', 'billing', 'accountant'] },
+        // ── Admin (A–Z sorted) ──
+        { to: '/admin/articles', icon: FileText, label: '📚 Articles Manager', roles: ['admin'], section: 'admin' },
+        { to: '/billing', icon: DollarSign, label: '💰 Billing & Revenue', roles: ['admin'], section: 'admin' },
+        { to: '/insurance', icon: DollarSign, label: '💳 Claims Dashboard', roles: ['admin', 'billing', 'accountant'], section: 'admin' },
+        { to: '/admin/superadmin', icon: Grid, label: '🖥️ Developer Dashboard', roles: ['super_admin'], section: 'admin' },
+        { to: '/admin/enterprise-ai', icon: BrainCircuit, label: '🧠 Enterprise AI', roles: ['admin'], section: 'admin' },
+        { to: '/admin/erp-sync', icon: RefreshCcw, label: '📊 ERP Tally Sync', roles: ['admin'], section: 'admin' },
+        { to: '/admin/home-lab', icon: Beaker, label: '🏠 Home Lab', roles: ['admin', 'lab_tech'], section: 'admin' },
+        { to: '/admin/vault', icon: Shield, label: '🔐 Insurance Vault', roles: ['admin'], section: 'admin' },
+        { to: '/admin/reviews', icon: Activity, label: '⭐ Patient Reviews', roles: ['admin'], section: 'admin' },
+        { to: '/admin/route-replay', icon: Navigation, label: '🗺️ Route Replay', roles: ['admin'], section: 'admin' },
+        { to: '/admin/staff-locations', icon: Activity, label: '📍 Staff Locations', roles: ['admin'], section: 'admin' },
+        { to: '/settings', icon: Settings, label: '⚙️ System Settings', roles: ['admin'], section: 'admin' },
+        { to: '/admin/treatment-packages', icon: Package, label: '📦 Treatment Packages', roles: ['admin'], section: 'admin' },
+        { to: '/users', icon: UserPlus, label: '👥 User Management', roles: ['admin'], section: 'admin' },
+        { to: '/ward-management', icon: FileText, label: '🏥 Ward Management', roles: ['admin'], section: 'admin' },
 
-        // Receptionist
-        { to: '/opd', icon: Users, label: 'OPD Reception', roles: ['receptionist', 'admin'] },
+        // ── Clinical ──
+        { to: '/opd', icon: Users, label: 'OPD Reception', roles: ['receptionist', 'admin'], section: 'clinical' },
+        { to: '/doctor', icon: Activity, label: 'Clinical Dashboard', roles: ['doctor'], section: 'clinical' },
 
-        // Doctor
-        { to: '/doctor', icon: Activity, label: 'Clinical Dashboard', roles: ['doctor'] },
+        // ── Nursing ──
+        { to: '/ward', icon: FileText, label: 'All Wards', roles: ['nurse', 'admin'], section: 'nursing' },
+        { to: '/ward/Ward A', icon: FileText, label: 'Ward A', roles: ['nurse', 'admin'], section: 'nursing' },
+        { to: '/ward/Ward B', icon: FileText, label: 'Ward B', roles: ['nurse', 'admin'], section: 'nursing' },
+        { to: '/ward/Emergency', icon: Activity, label: 'Emergency', roles: ['nurse', 'admin'], section: 'nursing' },
 
-        // Nurse
-        // Nurse - Ward Management
-        { to: '/ward', icon: FileText, label: 'All Wards', roles: ['nurse', 'admin'] },
-        { to: '/ward/Ward A', icon: FileText, label: 'Ward A', roles: ['nurse', 'admin'] },
-        { to: '/ward/Ward B', icon: FileText, label: 'Ward B', roles: ['nurse', 'admin'] },
-        { to: '/ward/Emergency', icon: Activity, label: 'Emergency', roles: ['nurse', 'admin'] },
+        // ── Diagnostics ──
+        { to: '/lab', icon: Beaker, label: 'Lab & Tests', roles: ['lab_tech', 'admin', 'doctor'], section: 'diagnostics' },
+        { to: '/blood-bank', icon: Activity, label: 'Blood Bank', roles: ['blood_bank_tech', 'lab_tech', 'admin'], section: 'diagnostics' },
 
-        // Lab
-        { to: '/lab', icon: Beaker, label: 'Lab & Tests', roles: ['lab_tech', 'admin', 'doctor'] },
+        // ── Pharmacy ──
+        { to: '/pharmacy', icon: Pill, label: 'Pharmacy', roles: ['pharmacist', 'admin'], section: 'pharmacy' },
 
-        // CSSD (Phase 12)
-        { to: '/cssd', icon: Archive, label: 'CSSD / Sterilization', roles: ['nurse', 'admin', 'ward_incharge'] },
+        // ── Surgical ──
+        { to: '/ot', icon: Activity, label: 'OT Scheduler', roles: ['surgeon', 'doctor', 'nurse', 'admin', 'anaesthetist'], section: 'surgical' },
+        { to: '/anaesthesia', icon: Scissors, label: 'Anaesthesia', roles: ['anaesthetist', 'admin', 'doctor'], section: 'surgical' },
+        { to: '/pac', icon: Activity, label: 'Pre-Anesthesia (PAC)', roles: ['anaesthetist', 'admin', 'doctor'], section: 'surgical' },
+        { to: '/intraop', icon: Activity, label: 'Intra-Op Console', roles: ['anaesthetist', 'admin', 'doctor'], section: 'surgical' },
+        { to: '/pacu', icon: Bed, label: 'Recovery (PACU)', roles: ['nurse', 'admin', 'anaesthetist', 'doctor'], section: 'surgical' },
 
-        // Pharmacy
-        { to: '/pharmacy', icon: Pill, label: 'Pharmacy', roles: ['pharmacist', 'admin'] },
-
-        // Blood Bank
-        { to: '/blood-bank', icon: Activity, label: 'Blood Bank', roles: ['blood_bank_tech', 'lab_tech', 'admin'] },
-
-        // Anaesthetist
-        { to: '/anaesthesia', icon: Scissors, label: 'Anaesthesia', roles: ['anaesthetist', 'admin', 'doctor'] },
-        { to: '/pac', icon: Activity, label: 'Pre-Anesthesia (PAC)', roles: ['anaesthetist', 'admin', 'doctor'] },
-        { to: '/intraop', icon: Activity, label: 'Intra-Op Console', roles: ['anaesthetist', 'admin', 'doctor'] }, // Phase 13
-        { to: '/pacu', icon: Bed, label: 'Recovery (PACU)', roles: ['nurse', 'admin', 'anaesthetist', 'doctor'] }, // Phase 14
-
-
-        
-        // Surgical Suite (Phase 10)
-        { to: '/ot', icon: Activity, label: 'OT Scheduler', roles: ['surgeon', 'doctor', 'nurse', 'admin', 'anaesthetist'] },
-
-        // Security / Overwatch (Phase 2 Upgrade)
-        { to: '/security', icon: Shield, label: 'Security Overwatch', roles: ['security_guard', 'admin', 'security_manager'] },
-
-        // Wolf Care Patient App
-        { to: '/admin/reviews', icon: Activity, label: '⭐ Patient Reviews', roles: ['admin'] },
-        { to: '/admin/articles', icon: FileText, label: '📚 Health Articles', roles: ['admin'] },
-        { to: '/admin/home-lab', icon: Beaker, label: '🏠 Home Lab', roles: ['admin', 'lab_tech'] },
-
-        // Phase 5 - Delivery & Location Tracking
-        { to: '/admin/route-replay', icon: Navigation, label: '🗺️ Route Replay', roles: ['admin'] },
-        { to: '/admin/staff-locations', icon: Activity, label: '📍 Staff Locations', roles: ['admin'] },
+        // ── Support ──
+        { to: '/cssd', icon: Archive, label: 'CSSD / Sterilization', roles: ['nurse', 'admin', 'ward_incharge'], section: 'support' },
+        { to: '/security', icon: Shield, label: 'Security Overwatch', roles: ['security_guard', 'admin', 'security_manager'], section: 'support' },
     ];
 
     const filteredLinks = allLinks.filter(link => link.roles.includes(userRole));
 
+    // Group by section for admin users
+    const sections = {};
+    filteredLinks.forEach(link => {
+        const sec = link.section || 'other';
+        if (!sections[sec]) sections[sec] = [];
+        sections[sec].push(link);
+    });
+
+    const sectionLabels = {
+        common: null,
+        admin: '─── Administration ───',
+        clinical: '─── Clinical ───',
+        nursing: '─── Nursing ───',
+        diagnostics: '─── Diagnostics ───',
+        pharmacy: '─── Pharmacy ───',
+        surgical: '─── Surgical Suite ───',
+        support: '─── Support Services ───',
+    };
+
+    const sectionOrder = ['common', 'admin', 'clinical', 'nursing', 'diagnostics', 'pharmacy', 'surgical', 'support'];
+
     return (
-        <div className="d-flex flex-column flex-shrink-0 p-3" style={{ width: '250px', height: '100vh', position: 'fixed', top: 0, left: 0, backgroundColor: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-color)' }}>
+        <div className="d-flex flex-column flex-shrink-0 p-3" style={{ width: '250px', height: '100vh', position: 'fixed', top: 0, left: 0, backgroundColor: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-color)', overflowY: 'auto' }}>
             <div className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-                <span className="fs-4 fw-bold" style={{ color: 'var(--accent-cyan)' }}>HMS Premium</span>
+                <span className="fs-4 fw-bold" style={{ color: 'var(--accent-cyan)' }}>🐺 Wolf HMS</span>
             </div>
             <hr style={{ borderColor: 'rgba(255,255,255,0.1)' }} />
             <Nav className="flex-column mb-auto">
-                {filteredLinks.map((link, idx) => {
-                    const Icon = link.icon;
+                {sectionOrder.map(secKey => {
+                    const links = sections[secKey];
+                    if (!links || links.length === 0) return null;
+                    const label = sectionLabels[secKey];
                     return (
-                        <Nav.Item key={idx} className="mb-1">
-                            <Link
-                                to={link.to}
-                                className={`nav-link d-flex align-items-center gap-2 ${location.pathname === link.to ? 'active' : ''}`}
-                                style={{
-                                    color: location.pathname === link.to ? '#fff' : '#94a3b8', // White active, Gray inactive
-                                    backgroundColor: location.pathname === link.to ? 'var(--accent-cyan)' : 'transparent',
-                                    borderRadius: '8px',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                {Icon && <Icon size={20} />}
-                                {link.label}
-                            </Link>
-                        </Nav.Item>
+                        <React.Fragment key={secKey}>
+                            {label && (
+                                <div className="px-2 mt-3 mb-1" style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, letterSpacing: '0.05em' }}>
+                                    {label}
+                                </div>
+                            )}
+                            {links.map((link, idx) => {
+                                const Icon = link.icon;
+                                return (
+                                    <Nav.Item key={`${secKey}-${idx}`} className="mb-1">
+                                        <Link
+                                            to={link.to}
+                                            className={`nav-link d-flex align-items-center gap-2 ${location.pathname === link.to ? 'active' : ''}`}
+                                            style={{
+                                                color: location.pathname === link.to ? '#fff' : '#94a3b8',
+                                                backgroundColor: location.pathname === link.to ? 'var(--accent-cyan)' : 'transparent',
+                                                borderRadius: '8px',
+                                                transition: 'all 0.2s',
+                                                fontSize: '0.85rem',
+                                                padding: '6px 10px'
+                                            }}
+                                        >
+                                            {Icon && <Icon size={18} />}
+                                            {link.label}
+                                        </Link>
+                                    </Nav.Item>
+                                );
+                            })}
+                        </React.Fragment>
                     );
                 })}
             </Nav>

@@ -159,25 +159,8 @@ app.get('/api/test/fix-users-schema', async (req, res) => {
     }
 });
 
-// [TEMPORARY] One-Time Password Reset for Ace Admin — REMOVE AFTER USE
-app.get('/api/test/reset-ace-password', async (req, res) => {
-    try {
-        const bcrypt = require('bcryptjs');
-        const hash = await bcrypt.hash('AceAdmin@2026', 10);
-        const result = await pool.query(
-            "UPDATE users SET password = $1 WHERE username = 'aceadmin' RETURNING id, username, hospital_id",
-            [hash]
-        );
-        if (result.rows.length === 0) {
-            // If aceadmin doesn't exist, list all users for debugging
-            const allUsers = await pool.query("SELECT id, username, hospital_id, role FROM users ORDER BY id LIMIT 20");
-            return res.json({ success: false, message: 'aceadmin not found', users: allUsers.rows });
-        }
-        res.json({ success: true, message: 'Password reset to AceAdmin@2026', user: result.rows[0] });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
+
+
 
 // [MIGRATION] Admin Recovery Console - Soft Delete & Audit Tables
 app.get('/api/test/migrate-recovery-console', async (req, res) => {

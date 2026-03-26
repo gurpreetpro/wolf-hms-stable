@@ -185,7 +185,7 @@ const tenantResolver = async (req, res, next) => {
     } else {
         console.warn(`[Tenant] Unknown Domain: ${domain}`);
         if (req.method === 'OPTIONS') return next();
-        res.status(404).json({ message: 'Hospital environment not found for this domain.' });
+        res.status(404).json({ message: 'Unable to connect to your hospital. Please contact your system administrator.' });
     }
 };
 

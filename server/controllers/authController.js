@@ -38,7 +38,7 @@ const login = asyncHandler(async (req, res) => {
     console.log(`[Auth] 🔍 Query Result: Found ${result.rows.length} users`);
 
     if (result.rows.length === 0) {
-        return ResponseHandler.error(res, `Invalid credentials (User not found)`, 401);
+        return ResponseHandler.error(res, 'Incorrect username or password. Please try again.', 401);
     }
 
     // [FIX] Tenant Mismatch Check
@@ -65,7 +65,7 @@ const login = asyncHandler(async (req, res) => {
                  console.warn(`[Auth] ⛔ BLOCKED: Kokila User trying to access Dr Parveen Portal.`);
              }
              
-             return ResponseHandler.error(res, `Invalid credentials (Access Restricted to correct Hospital Domain)`, 401);
+             return ResponseHandler.error(res, 'This account does not belong to this hospital. Please check the correct hospital login page.', 401);
         }
     }
     console.log(`[Auth] 👤 User Found: ${user.username} (${user.id}). Verifying password...`);
@@ -82,7 +82,7 @@ const login = asyncHandler(async (req, res) => {
 
     if (!isMatch) {
         console.warn(`[Auth] ⛔ Password Mismatch for ${user.username}`);
-        return ResponseHandler.error(res, `Invalid credentials (Hash Mismatch)`, 401);
+        return ResponseHandler.error(res, 'Incorrect username or password. Please try again.', 401);
     }
 
     // Include hospital_id in JWT for multi-tenancy
