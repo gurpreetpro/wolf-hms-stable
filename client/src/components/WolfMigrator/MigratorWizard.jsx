@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { 
-    Box, Stepper, Step, StepLabel, Button, Typography, 
-    Paper, Table, TableBody, TableCell, TableHead, TableRow,
-    Select, MenuItem, LinearProgress, Alert, Card, CardContent
-} from '@mui/material';
-import { CloudUpload as UploadIcon, CheckCircle as CheckIcon, Warning as WarningIcon } from '@mui/icons-material';
+import { Card, Button, Table, Form, ProgressBar, Alert, Row, Col } from 'react-bootstrap';
+import { Upload, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const STEPS = ['Upload CSV', 'Map Columns', 'Validate Data', 'Commit Import'];
 
@@ -44,12 +40,11 @@ const MigratorWizard = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setJob(res.data.job);
-            // Parse headers locally for preview (simple split)
             const text = await file.text();
             const firstLine = text.split('\n')[0];
             const headers = firstLine.split(',').map(h => h.trim());
             setCsvHeaders(headers);
-            
+
             // Auto-Map
             const newMap = {};
             headers.forEach(h => {
@@ -78,13 +73,10 @@ const MigratorWizard = () => {
         try {
             const res = await axios.post(`/api/migration/validations/${job.id}`, { mappingConfig: mapping });
             setJob(res.data.job);
-            
-            // Poll for result (Mocking poll for now, assuming fast valid)
-            // In real app, use Interval
+
             setTimeout(async () => {
-                // creating a simple poll mechanism here if needed or just use current job if sync
-                 setValidationResult(res.data.job); // Assuming API returns updated job immediately for small files in this v1
-                 setActiveStep(2);
+                setValidationResult(res.data.job);
+                setActiveStep(2);
             }, 1000);
 
         } catch (err) {
@@ -92,15 +84,12 @@ const MigratorWizard = () => {
         }
     };
 
-    // --- Step 3: Validation ---
-    // (Rendered in renderStep)
-
     // --- Step 4: Commit ---
     const handleCommit = async () => {
         setCommitting(true);
         try {
-             await axios.post(`/api/migration/commit/${job.id}`);
-             setActiveStep(3); // Done
+            await axios.post(`/api/migration/commit/${job.id}`);
+            setActiveStep(3);
         } catch (err) {
             alert('Commit Failed: ' + err.message);
         } finally {
@@ -108,119 +97,115 @@ const MigratorWizard = () => {
         }
     };
 
-
     const renderStep = () => {
         switch (activeStep) {
             case 0:
                 return (
-                    <Box sx={{ p: 4, textAlign: 'center', border: '2px dashed #ccc' }}>
-                        <UploadIcon sx={{ fontSize: 60, color: '#ccc' }} />
-                        <Typography variant="h6">One-Click Legacy Migration</Typography>
-                        <input type="file" accept=".csv" onChange={handleFileChange} style={{ marginTop: 20 }} />
-                        <Box sx={{ mt: 2 }}>
-                            <Button 
-                                variant="contained" 
-                                onClick={handleUpload} 
+                    <div className="text-center p-4" style={{ border: '2px dashed #6c757d', borderRadius: 8 }}>
+                        <Upload size={60} className="text-muted mb-2" />
+                        <h5>One-Click Legacy Migration</h5>
+                        <input type="file" accept=".csv" onChange={handleFileChange} className="form-control mt-3 mx-auto" style={{ maxWidth: 300 }} />
+                        <div className="mt-3">
+                            <Button
+                                variant="primary"
+                                onClick={handleUpload}
                                 disabled={!file || uploading}
                             >
                                 {uploading ? 'Streaming...' : 'Upload & Analyze'}
                             </Button>
-                        </Box>
-                        {uploading && <LinearProgress sx={{ mt: 2 }} />}
-                    </Box>
+                        </div>
+                        {uploading && <ProgressBar animated now={100} className="mt-3" />}
+                    </div>
                 );
             case 1:
                 return (
-                    <Box>
-                        <Typography variant="h6" gutterBottom>Smart Map Columns</Typography>
-                        <Alert severity="info" sx={{ mb: 2 }}>
+                    <div>
+                        <h5 className="mb-3">Smart Map Columns</h5>
+                        <Alert variant="info">
                             We auto-detected some columns. Please review.
                         </Alert>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Wolf Field</TableCell>
-                                    <TableCell>CSV Column</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
+                        <Table size="sm" bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Wolf Field</th>
+                                    <th>CSV Column</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {TARGET_FIELDS.map(field => (
-                                    <TableRow key={field.value}>
-                                        <TableCell>{field.label}</TableCell>
-                                        <TableCell>
-                                            <Select
+                                    <tr key={field.value}>
+                                        <td className="align-middle">{field.label}</td>
+                                        <td>
+                                            <Form.Select
+                                                size="sm"
                                                 value={mapping[field.value] || ''}
                                                 onChange={(e) => handleMapChange(field.value, e.target.value)}
-                                                fullWidth
-                                                size="small"
-                                                displayEmpty
                                             >
-                                                <MenuItem value=""><em>-- Ignore --</em></MenuItem>
+                                                <option value="">-- Ignore --</option>
                                                 {csvHeaders.map(h => (
-                                                    <MenuItem key={h} value={h}>{h}</MenuItem>
+                                                    <option key={h} value={h}>{h}</option>
                                                 ))}
-                                            </Select>
-                                        </TableCell>
-                                    </TableRow>
+                                            </Form.Select>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </TableBody>
+                            </tbody>
                         </Table>
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button variant="contained" onClick={handleValidateTrigger}>
+                        <div className="d-flex justify-content-end mt-3">
+                            <Button variant="primary" onClick={handleValidateTrigger}>
                                 Run Dry Validation
                             </Button>
-                        </Box>
-                    </Box>
+                        </div>
+                    </div>
                 );
             case 2:
                 // Validation Results
                 const isReady = validationResult && validationResult.status === 'VALIDATED';
                 return (
-                    <Box>
-                        <Typography variant="h6">Validation Report</Typography>
+                    <div>
+                        <h5>Validation Report</h5>
                         {isReady ? (
-                             <Card sx={{ mt: 2, bgcolor: validationResult.error_rows > 0 ? '#fff4e5' : '#e8f5e9' }}>
-                                <CardContent>
-                                    <Typography variant="h4" color="primary">
+                            <Card className="mt-3" style={{ backgroundColor: validationResult.error_rows > 0 ? '#fff4e5' : '#e8f5e9' }}>
+                                <Card.Body>
+                                    <h3 className="text-primary">
                                         {validationResult.valid_rows} / {validationResult.total_rows} Rows Valid
-                                    </Typography>
-                                    <Typography color="error" sx={{ mt: 1 }}>
+                                    </h3>
+                                    <div className="text-danger mt-1">
                                         {validationResult.error_rows} Errors Found
-                                    </Typography>
+                                    </div>
                                     {validationResult.error_rows > 0 && (
-                                        <Typography variant="caption">
+                                        <small className="text-muted">
                                             Errors are logged and will be skipped during import.
-                                        </Typography>
+                                        </small>
                                     )}
-                                </CardContent>
-                             </Card>
+                                </Card.Body>
+                            </Card>
                         ) : (
-                            <Typography>Validating...</Typography>
+                            <p>Validating...</p>
                         )}
 
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                            <Button onClick={() => setActiveStep(1)}>Back</Button>
-                            <Button 
-                                variant="contained" 
-                                color={validationResult?.error_rows > 0 ? 'warning' : 'success'}
+                        <div className="d-flex justify-content-between mt-3">
+                            <Button variant="outline-secondary" onClick={() => setActiveStep(1)}>Back</Button>
+                            <Button
+                                variant={validationResult?.error_rows > 0 ? 'warning' : 'success'}
                                 onClick={handleCommit}
                                 disabled={committing || !isReady}
                             >
                                 {committing ? 'Migrating...' : 'Start Vampire Migration'}
                             </Button>
-                        </Box>
-                    </Box>
+                        </div>
+                    </div>
                 );
             case 3:
                 return (
-                    <Box sx={{ textAlign: 'center', p: 4 }}>
-                        <CheckIcon sx={{ fontSize: 80, color: 'success.main' }} />
-                        <Typography variant="h5">Migration Complete!</Typography>
-                        <Typography>Legacy data has been restored to Wolf HMS.</Typography>
-                        <Button sx={{ mt: 2 }} variant="outlined" onClick={() => window.location.reload()}>
+                    <div className="text-center p-4">
+                        <CheckCircle size={80} className="text-success mb-2" />
+                        <h4>Migration Complete!</h4>
+                        <p>Legacy data has been restored to Wolf HMS.</p>
+                        <Button variant="outline-primary" className="mt-2" onClick={() => window.location.reload()}>
                             Migrate Another File
                         </Button>
-                    </Box>
+                    </div>
                 );
             default:
                 return null;
@@ -228,15 +213,38 @@ const MigratorWizard = () => {
     };
 
     return (
-        <Paper sx={{ p: 4, maxWidth: 800, margin: 'auto', mt: 4 }}>
-            <Typography variant="h4" gutterBottom>Wolf Migrator 🧛</Typography>
-            <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-                {STEPS.map(label => (
-                    <Step key={label}><StepLabel>{label}</StepLabel></Step>
+        <Card className="p-4 mx-auto mt-4" style={{ maxWidth: 800 }}>
+            <h3 className="mb-4">Wolf Migrator 🧛</h3>
+
+            {/* Step Indicator */}
+            <div className="d-flex align-items-center mb-4">
+                {STEPS.map((label, index) => (
+                    <React.Fragment key={label}>
+                        <div className="d-flex align-items-center">
+                            <div
+                                className="rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                style={{
+                                    width: 32, height: 32,
+                                    backgroundColor: index <= activeStep ? '#0d6efd' : '#6c757d',
+                                    color: 'white',
+                                    fontSize: 14
+                                }}
+                            >
+                                {index < activeStep ? '✓' : index + 1}
+                            </div>
+                            <span className={`ms-2 small ${index <= activeStep ? 'text-primary fw-semibold' : 'text-muted'}`}>
+                                {label}
+                            </span>
+                        </div>
+                        {index < STEPS.length - 1 && (
+                            <div className="flex-grow-1 mx-2" style={{ height: 2, backgroundColor: index < activeStep ? '#0d6efd' : '#dee2e6' }} />
+                        )}
+                    </React.Fragment>
                 ))}
-            </Stepper>
+            </div>
+
             {renderStep()}
-        </Paper>
+        </Card>
     );
 };
 

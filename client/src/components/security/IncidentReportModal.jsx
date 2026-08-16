@@ -1,18 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { AlertTriangle, Plus } from 'lucide-react';
 import securityService from '../../services/securityService';
 
-const IncidentReportModal = ({ show, onHide, onReportCreated }) => {
+const DEFAULT_LOCATIONS = ['General', 'Main Gate', 'Lobby', 'ER Entrance', 'Server Room', 'Parking Lot'];
+
+const IncidentReportModal = React.memo(({ show, onHide, onReportCreated }) => {
     const [title, setTitle] = useState('');
-    const [locations, setLocations] = useState(['General', 'Main Gate', 'Lobby', 'ER Entrance', 'Server Room', 'Parking Lot']);
     const [location, setLocation] = useState('General');
     const [severity, setSeverity] = useState('Low');
     const [description, setDescription] = useState('');
     
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
+
+    const locationOptions = useMemo(() => {
+        return DEFAULT_LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -75,7 +80,7 @@ const IncidentReportModal = ({ show, onHide, onReportCreated }) => {
                                     onChange={(e) => setLocation(e.target.value)}
                                     className="bg-secondary text-white border-0"
                                 >
-                                    {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                                    {locationOptions}
                                 </Form.Select>
                             </Form.Group>
                         </div>
@@ -128,6 +133,6 @@ const IncidentReportModal = ({ show, onHide, onReportCreated }) => {
             </Modal.Body>
         </Modal>
     );
-};
+});
 
 export default IncidentReportModal;

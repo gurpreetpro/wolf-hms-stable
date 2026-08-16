@@ -265,10 +265,11 @@ const saveConsultation = asyncHandler(async (req, res) => {
             if (test_name) {
                 const typeRes = await pool.query('SELECT id FROM lab_test_types WHERE name = $1', [test_name]);
                 const test_type_id = typeRes.rows.length > 0 ? typeRes.rows[0].id : null;
+                const hospitalId = req.hospitalId || req.hospital_id || req.user?.hospital_id || 1;
                 await pool.query(`
-                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, status, doctor_id, requested_at)
-                    VALUES ($1, $2, $3, 'Pending', $4, NOW())
-                `, [patient_id, test_name, test_type_id, user_id]);
+                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, status, doctor_id, requested_at, hospital_id)
+                    VALUES ($1, $2, $3, 'Pending', $4, NOW(), $5)
+                `, [patient_id, test_name, test_type_id, user_id, hospitalId]);
             }
         }
         if (req.io) req.io.emit('lab_update', { type: 'new_lab_request', patient_id });
@@ -299,13 +300,14 @@ const getPatientHistory = asyncHandler(async (req, res) => {
 
 // SOAP Notes - PRODUCTION SAFE
 const createSOAPNote = asyncHandler(async (req, res) => {
-    const { admission_id, patient_id, subjective, objective, assessment, plan, note_type, doctor_name } = req.body;
+    const { admission_id, patient_id, subjective, objective, assessment, plan } = req.body;
     const doctor_id = req.user.id;
+    const hospitalId = req.hospital_id;
 
     const result = await pool.query(
-        `INSERT INTO soap_notes (admission_id, patient_id, subjective, objective, assessment, plan, note_type, doctor_id, doctor_name) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-        [admission_id, patient_id, subjective, objective, assessment, plan, note_type || 'Progress', doctor_id, doctor_name]
+        `INSERT INTO soap_notes (admission_id, patient_id, subjective, objective, assessment, plan, doctor_id, hospital_id) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [admission_id, patient_id, subjective, objective, assessment, plan, doctor_id, hospitalId]
     );
     ResponseHandler.success(res, result.rows[0], 'SOAP note created', 201);
 });

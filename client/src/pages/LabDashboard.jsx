@@ -192,21 +192,34 @@ const LabDashboard = () => {
                     setShowErrorToast(true);
                     return;
                 }
-                 const formData = new FormData();
-                 formData.append('file', selectedFile);
-                 try {
-                     const parserRes = await api.post('/api/lab/parse-result', formData, {
-                         headers: { 
-                             Authorization: `Bearer ${token}`,
-                             'Content-Type': 'multipart/form-data'
-                         }
-                     });
-                     if (parserRes.data && parserRes.data.data) {
-                         parsed = parserRes.data.data;
-                     } else {
-                          throw new Error('Failed to parse document');
-                     }
-                 } catch (parseErr) {
+                  const formData = new FormData();
+                  formData.append('file', selectedFile);
+                  formData.append('patient_name', selectedRequest?.patient_name || '');
+                  try {
+                      const parserRes = await api.post('/api/lab/parse-result', formData, {
+                          headers: { 
+                              Authorization: `Bearer ${token}`,
+                              'Content-Type': 'multipart/form-data'
+                          }
+                      });
+                      if (parserRes.data && parserRes.data.data) {
+                          parsed = parserRes.data.data;
+                          const verification = parsed._metadata?.patient_verification;
+                          if (verification && verification.name_match_status === 'Mismatch') {
+                              const proceed = window.confirm(
+                                  `⚠️ WARNING: Patient Name Mismatch!\n\n` +
+                                  `• Registered Patient: "${verification.target_patient_name}"\n` +
+                                  `• Report Sheet Patient Name: "${verification.patient_name_on_report}"\n\n` +
+                                  `Do you want to override this warning and upload the results anyway?`
+                              );
+                              if (!proceed) {
+                                  return; // Abort
+                              }
+                          }
+                      } else {
+                           throw new Error('Failed to parse document');
+                      }
+                  } catch (parseErr) {
                      setErrorMessage('AI Parsing Failed. Please try manually or check the image quality.');
                      setShowErrorToast(true);
                      return;

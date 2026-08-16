@@ -32,7 +32,7 @@ router.get('/logs', async (req, res) => {
             SELECT 
                 id, action, entity_type, entity_id, 
                 user_id, user_name, user_role,
-                description, ip_address, created_at
+                details, ip_address, created_at
             FROM audit_logs
             WHERE 1=1
         `;
@@ -77,8 +77,8 @@ router.get('/logs', async (req, res) => {
         }
 
         if (search) {
-            query += ` AND (user_name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`;
-            countQuery += ` AND (user_name ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`;
+            query += ` AND (user_name ILIKE $${paramIndex} OR details::text ILIKE $${paramIndex})`;
+            countQuery += ` AND (user_name ILIKE $${paramIndex} OR details::text ILIKE $${paramIndex})`;
             params.push(`%${search}%`);
             paramIndex++;
         }
@@ -188,7 +188,7 @@ router.get('/export', async (req, res) => {
         let query = `
             SELECT 
                 id, action, entity_type, entity_id,
-                user_name, user_role, description,
+                user_name, user_role, details,
                 ip_address, created_at
             FROM audit_logs
             WHERE 1=1
@@ -225,7 +225,7 @@ router.get('/export', async (req, res) => {
         const result = await pool.query(query, params);
 
         // Generate CSV
-        const headers = ['ID', 'Action', 'Entity Type', 'Entity ID', 'User', 'Role', 'Description', 'IP', 'Timestamp'];
+        const headers = ['ID', 'Action', 'Entity Type', 'Entity ID', 'User', 'Role', 'Details', 'IP', 'Timestamp'];
         const rows = result.rows.map(r => [
             r.id,
             r.action,
@@ -233,7 +233,7 @@ router.get('/export', async (req, res) => {
             r.entity_id || '',
             r.user_name || '',
             r.user_role || '',
-            (r.description || '').replace(/,/g, ';'),
+            (r.details ? JSON.stringify(r.details) : '').replace(/,/g, ';'),
             r.ip_address || '',
             new Date(r.created_at).toISOString()
         ]);

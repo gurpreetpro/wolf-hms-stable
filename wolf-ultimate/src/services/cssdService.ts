@@ -20,6 +20,8 @@ export interface Instrument {
   count: number; status: 'STERILE' | 'USED' | 'PROCESSING' | 'ISSUED';
   last_sterilized?: string; expiry?: string;
   barcode: string;
+  isExpired?: boolean;
+  biTestPassed?: boolean;
 }
 
 export interface LoadLog {
@@ -73,7 +75,7 @@ const cssdService = {
     try { await client.post('/cssd/cycles', { autoclaveId, loadItems }); }
     catch (e) { console.error('Cycle start error:', e); throw e; }
   },
-  completeCycle: async (id: number, data: {qc_passed: boolean; notes?: string}): Promise<void> => {
+  completeCycle: async (id: number, data: { qc_passed: boolean; notes?: string }): Promise<void> => {
     try { await client.put(`/cssd/cycles/${id}/complete`, data); }
     catch (e) { console.error('Cycle complete error:', e); throw e; }
   },
@@ -89,15 +91,15 @@ const cssdService = {
     try { const r = await client.get('/cssd/load-logs'); return r.data.data || r.data; }
     catch { return []; }
   },
-  createLoadLog: async (data: {autoclave_id: string; load_number: string; items: unknown[]}): Promise<void> => {
+  createLoadLog: async (data: { autoclave_id: string; load_number: string; items: unknown[] }): Promise<void> => {
     try { await client.post('/cssd/load-logs', data); }
     catch (e) { console.error('Load log error:', e); throw e; }
   },
-  getBioIndicators: async (): Promise<{id: number; batch_id: number; result: string; test_date: string}[]> => {
+  getBioIndicators: async (): Promise<{ id: number; batch_id: number; result: string; test_date: string }[]> => {
     try { const r = await client.get('/cssd/bio-indicators'); return r.data.data || r.data; }
     catch { return []; }
   },
-  logBioIndicator: async (data: {batch_id: number; result: string}): Promise<void> => {
+  logBioIndicator: async (data: { batch_id: number; result: string }): Promise<void> => {
     try { await client.post('/cssd/bio-indicators', data); }
     catch (e) { console.error('BI log error:', e); throw e; }
   },

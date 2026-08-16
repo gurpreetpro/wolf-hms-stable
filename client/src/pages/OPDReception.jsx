@@ -16,7 +16,9 @@ import VisitorPassModal from '../components/VisitorPassModal';
 import RegistrationReceipt from '../components/RegistrationReceipt';
 import PMJAYVerificationModal from '../components/insurance/PMJAYVerificationModal';
 import PMJAYBadge from '../components/insurance/PMJAYBadge';
-import { Eye, Printer, Shield, UserPlus, Heart } from 'lucide-react';
+import { Eye, Printer, Shield, UserPlus, Heart, QrCode, Zap } from 'lucide-react';
+import ABHAScanner from '../components/ABHAScanner';
+import RapidTriageRegistration from '../components/RapidTriageRegistration';
 
 
 // --- GLASS UI COMPONENTS ---
@@ -68,14 +70,19 @@ const OPDReception = () => {
     const [showInsuranceModal, setShowInsuranceModal] = useState(false);
     const [showVisitorModal, setShowVisitorModal] = useState(false);
     const [selectedPatientForInsurance, setSelectedPatientForInsurance] = useState(null);
-    
+
     // PMJAY Verification
     const [showPMJAYModal, setShowPMJAYModal] = useState(false);
     const [selectedPatientForPMJAY, setSelectedPatientForPMJAY] = useState(null);
-    
+
     // Receipt Printing
     const [showReceiptModal, setShowReceiptModal] = useState(false);
     const [selectedReceiptData, setSelectedReceiptData] = useState(null);
+
+    // Phase 3: ABHA Scanner & Rapid Triage
+    const [showABHAScanner, setShowABHAScanner] = useState(false);
+    const [showRapidTriage, setShowRapidTriage] = useState(false);
+    const [abhaAutoFillData, setAbhaAutoFillData] = useState(null);
 
     const [stats, setStats] = useState({
         patientsWaiting: 0,
@@ -165,7 +172,7 @@ const OPDReception = () => {
         socket.on('opd_update', () => { fetchQueue(); fetchReceptionStats(); });
         socket.on('visitor_update', () => { fetchVisitors(); }); // Listen for visitor events
         return () => socket.disconnect();
-         
+
     }, []);
 
     // --- HANDLERS ---
@@ -300,6 +307,29 @@ const OPDReception = () => {
                                 >
                                     <UserPlus size={20} />
                                 </Button>
+                                <Button
+                                    variant="outline-success"
+                                    size="lg"
+                                    onClick={() => setShowABHAScanner(true)}
+                                    className="ms-2 px-4 fw-bold"
+                                    title="Scan ABHA QR Code"
+                                >
+                                    <QrCode size={20} className="me-2" /> ABHA Scan
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    size="lg"
+                                    onClick={() => setShowRapidTriage(true)}
+                                    className="ms-2 px-4 fw-bold rounded-pill"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                                        border: 'none',
+                                        boxShadow: '0 4px 14px rgba(220,38,38,0.4)'
+                                    }}
+                                    title="Emergency Rapid Triage"
+                                >
+                                    <Zap size={20} className="me-2" /> Emergency
+                                </Button>
                             </InputGroup>
 
                             {/* SEARCH DROPDOWN */}
@@ -389,7 +419,7 @@ const OPDReception = () => {
                         </div>
 
                         {viewMode === 'visitors' ? (
-                             <div className="overflow-auto custom-scrollbar pe-2" style={{ maxHeight: '600px' }}>
+                            <div className="overflow-auto custom-scrollbar pe-2" style={{ maxHeight: '600px' }}>
                                 <div className="d-flex justify-content-between align-items-center mb-3">
                                     <h5 className={textColor}>Active Visitors ({visitors.length})</h5>
                                     <Button size="sm" variant="success" onClick={() => setShowVisitorModal(true)}>+ New Pass</Button>
@@ -458,7 +488,7 @@ const OPDReception = () => {
                                                     </div>
                                                     <div>
                                                         <h5 className={`fw-bold mb-1 ${textColor}`}>
-                                                            {visit.patient_name} 
+                                                            {visit.patient_name}
                                                             {visit.uhid && <Badge bg="secondary" className="ms-2" style={{ fontSize: '0.7em' }}>{visit.uhid}</Badge>}
                                                         </h5>
                                                         <div className={`d-flex gap-3 small ${subTextColor}`}>
@@ -469,9 +499,9 @@ const OPDReception = () => {
                                                     </div>
                                                 </div>
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <Button 
-                                                        variant="outline-success" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="outline-success"
+                                                        size="sm"
                                                         className="opacity-75 hover-opacity-100"
                                                         onClick={() => {
                                                             setSelectedPatientId(visit.patient_id);
@@ -480,9 +510,9 @@ const OPDReception = () => {
                                                     >
                                                         <Eye size={16} /> View
                                                     </Button>
-                                                    <Button 
-                                                        variant="outline-info" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="outline-info"
+                                                        size="sm"
                                                         className="opacity-75 hover-opacity-100"
                                                         onClick={() => {
                                                             setSelectedReceiptData({
@@ -507,9 +537,9 @@ const OPDReception = () => {
                                                     >
                                                         <Printer size={16} />
                                                     </Button>
-                                                    <Button 
-                                                        variant="outline-warning" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="outline-warning"
+                                                        size="sm"
                                                         className="opacity-75 hover-opacity-100"
                                                         onClick={() => {
                                                             setSelectedPatientForInsurance({ id: visit.patient_id, name: visit.patient_name });
@@ -520,22 +550,22 @@ const OPDReception = () => {
                                                         <Shield size={16} />
                                                     </Button>
                                                     {/* PMJAY Verification Button */}
-                                                    <Button 
-                                                        variant="success" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="success"
+                                                        size="sm"
                                                         className="opacity-75 hover-opacity-100"
                                                         onClick={() => {
-                                                            setSelectedPatientForPMJAY({ 
-                                                                id: visit.patient_id, 
+                                                            setSelectedPatientForPMJAY({
+                                                                id: visit.patient_id,
                                                                 name: visit.patient_name,
-                                                                phone: visit.phone 
+                                                                phone: visit.phone
                                                             });
                                                             setShowPMJAYModal(true);
                                                         }}
                                                         title="PMJAY Ayushman Verification"
-                                                        style={{ 
-                                                            background: 'linear-gradient(135deg, #059669 0%, #34d399 100%)', 
-                                                            border: 'none' 
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, #059669 0%, #34d399 100%)',
+                                                            border: 'none'
                                                         }}
                                                     >
                                                         <Heart size={16} /> PMJAY
@@ -611,9 +641,10 @@ const OPDReception = () => {
             {/* MODALS */}
             <PatientRegistrationModal
                 show={showModal}
-                onHide={() => { setShowModal(false); setSelectedPatient(null); }}
+                onHide={() => { setShowModal(false); setSelectedPatient(null); setAbhaAutoFillData(null); }}
                 onRegister={handleRegister}
                 existingPatient={selectedPatient}
+                abhaPreFill={abhaAutoFillData}
             />
             <EditPatientModal
                 show={showEditModal}
@@ -649,7 +680,7 @@ const OPDReception = () => {
                 onHide={() => setShowProfileModal(false)}
                 patientId={selectedPatientId}
             />
-            
+
             {/* Insurance Verification Modal - Gold Standard Phase 2 */}
             <InsuranceVerificationModal
                 show={showInsuranceModal}
@@ -673,7 +704,7 @@ const OPDReception = () => {
             />
 
             {/* VMS Integration */}
-            <VisitorPassModal 
+            <VisitorPassModal
                 show={showVisitorModal}
                 onHide={() => setShowVisitorModal(false)}
             />
@@ -683,6 +714,27 @@ const OPDReception = () => {
                 onHide={() => setShowReceiptModal(false)}
                 patientData={selectedReceiptData?.patientData}
                 appointmentData={selectedReceiptData?.appointmentData}
+            />
+
+            {/* Phase 3: ABHA Scanner Modal */}
+            <ABHAScanner
+                show={showABHAScanner}
+                onHide={() => setShowABHAScanner(false)}
+                onAutoFill={(data) => {
+                    setAbhaAutoFillData(data);
+                    setShowABHAScanner(false);
+                    setShowModal(true);
+                }}
+            />
+
+            {/* Phase 3: Rapid Triage Registration Modal */}
+            <RapidTriageRegistration
+                show={showRapidTriage}
+                onHide={() => setShowRapidTriage(false)}
+                onTriageRegistered={(data) => {
+                    fetchQueue();
+                    alert(`✅ Emergency ID Created: ${data.provisional_uhid || data.patient?.uhid}\nToken #${data.visit?.token_number}\nPatient can now be treated immediately.`);
+                }}
             />
         </Container>
     );

@@ -793,7 +793,7 @@ router.get('/lab-report/:requestId/html', async (req, res) => {
                 lr.id, lr.patient_id, lr.test_name, lr.status,
                 lr.requested_at, lr.report_generated_at,
                 lr.has_critical_value,
-                p.name as patient_name, p.phone, p.age, p.gender,
+                p.name as patient_name, p.phone, EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as age, p.gender,
                 u.name as doctor_name
             FROM lab_requests lr
             LEFT JOIN patients p ON lr.patient_id = p.id

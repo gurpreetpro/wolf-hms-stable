@@ -110,72 +110,75 @@ class HL7Receiver {
         try {
             await client.query('BEGIN');
 
-            const { patientId, results } = data;
+            const { patientId, results, sendingApplication } = data;
+            logger.info(`[HL7] Processing ${results.length} result analytes for Patient: ${patientId || 'N/A'}`);
 
+            // 1. Build analytes payload
+            const analytes = results.map(res => ({
+                testName: res.testName,
+                testCode: res.testCode,
+                value: res.value,
+                unit: res.unit,
+                range: res.range,
+                flag: res.flag,
+                timestamp: new Date()
+            }));
+
+            const resultPayload = {
+                source: 'HL7_ANALYZER',
+                instrument: sendingApplication || 'SYSMEX_XN1000',
+                analytes: analytes,
+                receivedAt: new Date()
+            };
+
+            // 2. Find matching CPOE lab_order for patient
+            let orderId = null;
+            if (patientId) {
+                const matchRes = await client.query(
+                    `SELECT id FROM lab_orders WHERE patient_id = $1 AND status != 'Cancelled' ORDER BY id DESC LIMIT 1`,
+                    [patientId]
+                );
+                if (matchRes.rows.length > 0) {
+                    orderId = matchRes.rows[0].id;
+                }
+            }
+
+            // Fallback: search by barcode if orderId not found by patientId
+            if (!orderId && results.length > 0 && results[0].barcode) {
+                const cleanBarcode = results[0].barcode.replace(/\D/g, '');
+                if (cleanBarcode) {
+                    const matchBarcode = await client.query(
+                        `SELECT id FROM lab_orders WHERE id = $1 LIMIT 1`,
+                        [parseInt(cleanBarcode)]
+                    ).catch(() => ({ rows: [] }));
+                    if (matchBarcode.rows.length > 0) {
+                        orderId = matchBarcode.rows[0].id;
+                    }
+                }
+            }
+
+            // 3. Attach results directly to lab_orders record
+            if (orderId) {
+                await client.query(
+                    `UPDATE lab_orders SET results = $1, status = 'Completed' WHERE id = $2`,
+                    [JSON.stringify(resultPayload), orderId]
+                );
+                logger.info(`[HL7] ✅ Results physically attached to CPOE lab_order #${orderId} for Patient ${patientId}`);
+            } else {
+                logger.warn(`[HL7] ⚠️ No active CPOE lab_order found for Patient ${patientId}. Saving standalone.`);
+            }
+
+            // 4. Also insert into lab_results table
+            const reqId = orderId || 1;
+            await client.query(
+                `INSERT INTO lab_results (request_id, result_json, uploaded_at) VALUES ($1, $2, NOW())`,
+                [reqId, JSON.stringify(resultPayload)]
+            ).catch(err => logger.warn('[HL7] lab_results insert warning:', err.message));
+
+            // 5. Check for critical flags
             for (const res of results) {
-                // Find request by barcode (Order ID)
-                // Assuming barcode matches 'lab_requests.id' or we have a mapping. 
-                // For now, let's assume `id::barcode` format or just try to match ID
-                
-                // Simple case: Barcode is the Request ID
-                const requestId = res.barcode.replace(/\D/g, ''); // Extract numbers
-                
-                if (!requestId) {
-                    logger.warn(`[HL7] Skipping result with invalid barcode: ${res.barcode}`);
-                    continue;
-                }
-
-                logger.info(`[HL7] Saving result for Request #${requestId}: ${res.testName} = ${res.value}`);
-
-                // Insert into lab_results
-                // Note: Schema might need adjustment if we store individual analytes
-                // Current schema: lab_results (result_json JSONB).
-                // We will append to result_json or create new entry.
-                
-                // Check if result exists for this request
-                const existing = await client.query('SELECT * FROM lab_results WHERE request_id = $1', [requestId]);
-
-                let newResult = {
-                    test: res.testName,
-                    code: res.testCode,
-                    value: res.value,
-                    unit: res.unit,
-                    range: res.range,
-                    flag: res.flag,
-                    timestamp: new Date()
-                };
-
-                if (existing.rows.length > 0) {
-                    // Update existing JSON
-                    const currentJson = existing.rows[0].result_json || { analytes: [] };
-                    if (!currentJson.analytes) currentJson.analytes = [];
-                    currentJson.analytes.push(newResult);
-
-                    await client.query(`
-                        UPDATE lab_results 
-                        SET result_json = $1, uploaded_at = NOW(), technician_id = NULL 
-                        WHERE id = $2
-                    `, [JSON.stringify(currentJson), existing.rows[0].id]);
-                } else {
-                    // Create new
-                    await client.query(`
-                        INSERT INTO lab_results (request_id, result_json, uploaded_at)
-                        VALUES ($1, $2, NOW())
-                    `, [requestId, JSON.stringify({ analytes: [newResult] })]);
-                }
-
-                // Update Request Status
-                await client.query(`
-                    UPDATE lab_requests 
-                    SET status = 'Completed' 
-                    WHERE id = $1
-                `, [requestId]);
-
-                // Also create a Clinical Alert if Critical
                 if (res.flag === 'H' || res.flag === 'L' || res.flag === 'HH' || res.flag === 'LL') {
-                     // We could trigger alert service here
-                     // For now just log
-                     logger.warn(`[HL7] Abnormal Result: ${res.testName} = ${res.value} (${res.flag})`);
+                    logger.warn(`[HL7] 🚨 Abnormal Result Alert: ${res.testName} = ${res.value} ${res.unit || ''} (${res.flag})`);
                 }
             }
 

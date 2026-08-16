@@ -6,6 +6,10 @@ const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 
 const AuditService = require('../services/AuditService');
+const LoginSecurityService = require('../services/LoginSecurityService');
+
+// Sliding-scale failure tracker (shared service)
+const { recordLoginFailure, clearLoginFailures } = require('../services/loginRateLimiter');
 
 const login = asyncHandler(async (req, res) => {
     const { username, email, password, id, identifier } = req.body;
@@ -19,10 +23,10 @@ const login = asyncHandler(async (req, res) => {
     // 1. Find user by identifier (username/email/id)
     // 2. Enforce that the user belongs to the current hospital (req.hospital_id)
     // Exception: 'marketing' or 'super_admin' roles might exist across hospitals, but for now we enforce strictness.
-    
+
     let query = 'SELECT id, username, email, password, role, hospital_id, is_active, security_question FROM users WHERE (username = $1 OR email = $1 OR id::text = $1)';
     const params = [loginIdentifier];
-    
+
     // [DEBUG] Log exact query for troubleshooting
     console.log(`[Auth] 🔍 LOGIN DEBUG: Query = "${query}"`);
     console.log(`[Auth] 🔍 LOGIN DEBUG: Params = ${JSON.stringify(params)}`);
@@ -34,21 +38,37 @@ const login = asyncHandler(async (req, res) => {
         console.error(`[Auth] 💥 SQL Query Failed: ${sqlErr.message}`);
         return ResponseHandler.error(res, `Database Error: ${sqlErr.message}`, 500);
     }
-    
+
     console.log(`[Auth] 🔍 Query Result: Found ${result.rows.length} users`);
 
     if (result.rows.length === 0) {
+        // [SLIDING SCALE] Record failure in rate limiter
+        if (req.authRateInfo) {
+            req.authRateInfo.recordFailure();
+        } else {
+            recordLoginFailure(req.ip || req.connection.remoteAddress);
+        }
+
+        // Log failed attempt (unknown user)
+        await LoginSecurityService.logLoginEvent({
+            username: loginIdentifier,
+            hospital_id: requestHospitalId,
+            action: 'LOGIN_FAILED',
+            ip_address: req.ip,
+            user_agent: req.headers['user-agent'],
+            details: { reason: 'User not found' }
+        });
         return ResponseHandler.error(res, 'Incorrect username or password. Please try again.', 401);
     }
 
     // [FIX] Tenant Mismatch Check
     // If multiple users found (rare, but possible with same username in diff DBs?), pick the one matching hospital_id
     // If only one user found, CHECK if it matches requestHospitalId
-    
+
     // Filter results to find the user belonging to THIS hospital
     // Use loose equality (==) to handle string/number mismatch
     let user = result.rows.find(u => u.hospital_id == requestHospitalId);
-    
+
     // If not found strictly, checks if the user is a super_admin/platform_admin allowed to roam
     if (!user) {
         const potentialUser = result.rows[0];
@@ -57,18 +77,30 @@ const login = asyncHandler(async (req, res) => {
             user = potentialUser;
             console.log(`[Auth] ⚠️ Allowing Cross-Tenant Login for Admin Role: ${user.role}`);
         } else {
-             // START STRICT REJECTION
-             console.warn(`[Auth] ⛔ Tenant Mismatch Attempt! User ${potentialUser.username} belongs to Hospital ${potentialUser.hospital_id}, but trying to login to Hospital ${requestHospitalId}.`);
-             
-             // Check if it's the specific "Parveen vs Kokila" case to give a helpful error log
-             if (requestHospitalId === 2 && potentialUser.hospital_id === 1) {
-                 console.warn(`[Auth] ⛔ BLOCKED: Kokila User trying to access Dr Parveen Portal.`);
-             }
-             
-             return ResponseHandler.error(res, 'This account does not belong to this hospital. Please check the correct hospital login page.', 401);
+            // START STRICT REJECTION
+            console.warn(`[Auth] ⛔ Tenant Mismatch Attempt! User ${potentialUser.username} belongs to Hospital ${potentialUser.hospital_id}, but trying to login to Hospital ${requestHospitalId}.`);
+
+            // Check if it's the specific "Parveen vs Kokila" case to give a helpful error log
+            if (requestHospitalId === 2 && potentialUser.hospital_id === 1) {
+                console.warn(`[Auth] ⛔ BLOCKED: Kokila User trying to access Dr Parveen Portal.`);
+            }
+
+            return ResponseHandler.error(res, 'This account does not belong to this hospital. Please check the correct hospital login page.', 401);
         }
     }
     console.log(`[Auth] 👤 User Found: ${user.username} (${user.id}). Verifying password...`);
+
+    // [SECURITY] Check if account is locked
+    const lockStatus = await LoginSecurityService.checkLockout(user.id);
+    if (lockStatus && lockStatus.locked) {
+        await LoginSecurityService.logLoginEvent({
+            user_id: user.id, username: user.username,
+            hospital_id: requestHospitalId, action: 'LOCKOUT',
+            ip_address: req.ip, user_agent: req.headers['user-agent'],
+            details: { minutes_remaining: lockStatus.minutes_remaining }
+        });
+        return ResponseHandler.error(res, `Your account is temporarily locked. Please try again in ${lockStatus.minutes_remaining} minute(s).`, 423);
+    }
 
     let isMatch = false;
     try {
@@ -82,15 +114,53 @@ const login = asyncHandler(async (req, res) => {
 
     if (!isMatch) {
         console.warn(`[Auth] ⛔ Password Mismatch for ${user.username}`);
+
+        // [SLIDING SCALE] Record failure in rate limiter
+        if (req.authRateInfo) {
+            req.authRateInfo.recordFailure();
+        } else {
+            recordLoginFailure(req.ip || req.connection.remoteAddress);
+        }
+
+        // [SECURITY] Record failed attempt & check for lockout
+        await LoginSecurityService.recordFailedAttempt(user.id, req.ip);
+        await LoginSecurityService.logLoginEvent({
+            user_id: user.id, username: user.username,
+            hospital_id: requestHospitalId, action: 'LOGIN_FAILED',
+            ip_address: req.ip, user_agent: req.headers['user-agent'],
+            details: { reason: 'Password mismatch' }
+        });
         return ResponseHandler.error(res, 'Incorrect username or password. Please try again.', 401);
+    }
+
+    // [SECURITY] Reset failed counter on successful login
+    await LoginSecurityService.resetFailedAttempts(user.id);
+
+    // [SLIDING SCALE] Clear failure history on successful login
+    if (req.authRateInfo) {
+        req.authRateInfo.clearFailures();
+    } else {
+        clearLoginFailures(req.ip || req.connection.remoteAddress);
+    }
+
+    // [SECURITY] Detect suspicious login patterns
+    const suspiciousFlags = await LoginSecurityService.detectSuspiciousLogin(user.id, req.ip, requestHospitalId);
+    if (suspiciousFlags.length > 0) {
+        console.warn(`[Auth] 🚨 SUSPICIOUS LOGIN: ${user.username} — Flags: ${suspiciousFlags.join(', ')}`);
+        await LoginSecurityService.logLoginEvent({
+            user_id: user.id, username: user.username,
+            hospital_id: requestHospitalId, action: 'SUSPICIOUS',
+            ip_address: req.ip, user_agent: req.headers['user-agent'],
+            details: { flags: suspiciousFlags }
+        });
     }
 
     // Include hospital_id in JWT for multi-tenancy
     console.log('[Auth] 🔑 Generating JWT...');
     const token = jwt.sign(
-        { 
-            id: user.id, 
-            role: user.role, 
+        {
+            id: user.id,
+            role: user.role,
             username: user.username,
             email: user.email, // Required for platform owner check
             hospital_id: user.hospital_id || 1 // Default to 1 for backward compatibility
@@ -103,7 +173,7 @@ const login = asyncHandler(async (req, res) => {
     try {
         const refreshToken = crypto.randomBytes(40).toString('hex');
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-        
+
         await pool.query(
             `INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)`,
             [refreshToken, user.id, expiresAt]
@@ -134,6 +204,14 @@ const login = asyncHandler(async (req, res) => {
         console.warn(`[Auth] ⚠️ Audit Log Failed (Non-fatal): ${auditErr.message}`);
     }
 
+    // [SECURITY] Log successful login to security audit trail
+    await LoginSecurityService.logLoginEvent({
+        user_id: user.id, username: user.username,
+        hospital_id: user.hospital_id, action: 'LOGIN_SUCCESS',
+        ip_address: req.ip, user_agent: req.headers['user-agent'],
+        details: suspiciousFlags.length > 0 ? { suspicious_flags: suspiciousFlags } : null
+    });
+
     const responseData = {
         token,
         user: {
@@ -154,8 +232,8 @@ const login = asyncHandler(async (req, res) => {
     return res.status(200).json({
         success: true,
         message: 'Login successful',
-        data: responseData, 
-        ...responseData 
+        data: responseData,
+        ...responseData
     });
 });
 
@@ -171,7 +249,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const register = asyncHandler(async (req, res) => {
     const { username, email, password, role: rawRole, created_at, department } = req.body;
-    
+
     // Normalize role: lowercase and replace spaces with underscores
     // Prevents constraint violations if non-standard roles are sent
     const role = rawRole ? rawRole.toLowerCase().replace(/\s+/g, '_') : 'user';
@@ -292,14 +370,14 @@ const forgotPassword = asyncHandler(async (req, res) => {
     otpStore.set(email, { otp, expiresAt });
 
     await emailService.sendEmail(email, 'Wolf Guard Password Reset', `Your OTP is: ${otp}`);
-    
+
     ResponseHandler.success(res, { message: 'OTP sent to email' });
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
     const { email, otp, newPassword } = req.body;
     const stored = otpStore.get(email);
-    
+
     if (!stored) return ResponseHandler.error(res, 'Invalid Request', 400);
     if (Date.now() > stored.expiresAt) {
         otpStore.delete(email);
@@ -312,7 +390,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     await pool.query('UPDATE users SET password = $1 WHERE email = $2', [hashedPassword, email]);
-    
+
     otpStore.delete(email);
     ResponseHandler.success(res, { message: 'Password Updated' });
 });
@@ -508,9 +586,9 @@ const updateProfile = asyncHandler(async (req, res) => {
 
     values.push(userId);
     const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${idx} RETURNING id, username, full_name, email, role, department`;
-    
+
     const result = await pool.query(query, values);
-    
+
     ResponseHandler.success(res, {
         message: 'Profile updated successfully',
         user: result.rows[0]
@@ -572,7 +650,7 @@ const updateUser = asyncHandler(async (req, res) => {
         'SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3',
         [email, username, id]
     );
-    
+
     if (conflictCheck.rows.length > 0) {
         return ResponseHandler.error(res, 'Username or Email already in use', 400);
     }
@@ -629,7 +707,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     } catch (error) {
         // Handle foreign key constraints (e.g. user has records)
         if (error.code === '23503') {
-                return ResponseHandler.error(res, 'Cannot delete user: They have associated records (patients, invoices, etc.). Deactivate them instead.', 400);
+            return ResponseHandler.error(res, 'Cannot delete user: They have associated records (patients, invoices, etc.). Deactivate them instead.', 400);
         }
         throw error;
     }
@@ -638,7 +716,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 // [AUTH] Refresh Access Token
 const refreshToken = asyncHandler(async (req, res) => {
     const { refreshToken } = req.cookies;
-    
+
     if (!refreshToken) {
         return ResponseHandler.error(res, 'Refresh Token Required', 401);
     }
@@ -674,7 +752,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 
     // User Status Check
     if (!currentToken.is_active) {
-         return ResponseHandler.error(res, 'User Account is Inactive', 403);
+        return ResponseHandler.error(res, 'User Account is Inactive', 403);
     }
 
     // Rotation: Issue New Tokens
@@ -685,7 +763,7 @@ const refreshToken = asyncHandler(async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        
+
         // Revoke current
         await client.query(
             'UPDATE refresh_tokens SET is_revoked = true, replaced_by = $1 WHERE id = $2',
@@ -709,12 +787,12 @@ const refreshToken = asyncHandler(async (req, res) => {
 
     // Issue New Access Token
     const newAccessToken = jwt.sign(
-        { 
-            id: currentToken.user_id, 
-            role: currentToken.role, 
+        {
+            id: currentToken.user_id,
+            role: currentToken.role,
             username: currentToken.username,
             email: currentToken.email,
-            hospital_id: currentToken.hospital_id || 1 
+            hospital_id: currentToken.hospital_id || 1
         },
         process.env.JWT_SECRET,
         { expiresIn: '15m' }
@@ -735,7 +813,7 @@ const refreshToken = asyncHandler(async (req, res) => {
 // [AUTH] Logout
 const logout = asyncHandler(async (req, res) => {
     const { refreshToken } = req.cookies;
-    
+
     if (refreshToken) {
         // Best effort revoke
         await pool.query('UPDATE refresh_tokens SET is_revoked = true WHERE token = $1', [refreshToken]);

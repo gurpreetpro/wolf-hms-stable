@@ -54,7 +54,7 @@ module.exports = { getDoctorStats, getPatientStats, getActivityStats };
 const getReadmissionRisk = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const result = await pool.query(`
-        SELECT p.id, p.name, p.age, p.gender,
+        SELECT p.id, p.name, EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as age, p.gender,
                COUNT(a.id) as total_admissions,
                MAX(a.discharge_date) as last_discharge,
                COALESCE(
@@ -66,13 +66,13 @@ const getReadmissionRisk = asyncHandler(async (req, res) => {
                ) as risk_level,
                ROUND(LEAST(95, GREATEST(5,
                    (COUNT(a.id) * 15) + 
-                   (CASE WHEN p.age > 65 THEN 20 ELSE 0 END) +
-                   (CASE WHEN p.age > 80 THEN 15 ELSE 0 END)
+                   (CASE WHEN EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW()))) > 65 THEN 20 ELSE 0 END) +
+                   (CASE WHEN EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW()))) > 80 THEN 15 ELSE 0 END)
                ))) as risk_score
         FROM patients p
         LEFT JOIN admissions a ON p.id = a.patient_id AND a.hospital_id = $1
         WHERE p.hospital_id = $1
-        GROUP BY p.id, p.name, p.age, p.gender
+        GROUP BY p.id, p.name, p.dob, p.gender
         HAVING COUNT(a.id) > 0
         ORDER BY COUNT(a.id) DESC LIMIT 50
     `, [hospitalId]);

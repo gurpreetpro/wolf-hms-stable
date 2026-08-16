@@ -20,8 +20,8 @@ const EmergencyTriggerModal = ({ show, onHide }) => {
             // Assuming we have an endpoint to trigger emergency which then broadcasts via socket
             // If not, we might need to emit socket directly if client has socket access, 
             // but usually it's better to go through API for logging.
-            // For now, let's assume we post to /api/emergency/trigger
-            await axios.post('/api/emergency/trigger', {
+            // For now, let's assume we post to /api/emergency/dispatch
+            await axios.post('/api/emergency/dispatch', {
                 code: code,
                 location: 'General Ward' // In a real app, this would be dynamic based on user location
             }, {

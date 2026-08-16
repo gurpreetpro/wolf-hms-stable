@@ -1,0 +1,154 @@
+name: Deploy Wolf HMS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_ID: wolf-hms
+  REGION: asia-south1
+  SERVICE_NAME: wolf-hms-server-v2
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: wolf_hms_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run tests
+        working-directory: ./server
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: wolf_hms_test
+          DB_USER: test
+          DB_PASSWORD: test
+          JWT_SECRET: test-secret
+          NODE_ENV: test
+        run: npm test
+
+  build-and-deploy:
+    name: Build & Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${REGION}-docker.pkg.dev
+
+      - name: Build Docker image
+        working-directory: ./server
+        run: |
+          docker build -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:${{ github.sha }} .
+          docker tag ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:${{ github.sha }} \
+                     ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:${{ github.sha }}
+          docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${SERVICE_NAME} \
+            --image ${REGION}-docker.pkg.dev/${PROJECT_ID}/wolf-hms/${SERVICE_NAME}:${{ github.sha }} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-cloudsql-instances ${PROJECT_ID}:${REGION}:wolf-hms-db \
+            --set-env-vars "NODE_ENV=production" \
+            --memory 1Gi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10
+
+      - name: Run Database Migrations
+        run: |
+          gcloud run jobs execute wolf-hms-migrate --region ${REGION} --wait
+
+      - name: Notify Success
+        if: success()
+        run: echo "✅ Deployment successful!"
+
+  deploy-frontend:
+    name: Deploy Frontend
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build
+        working-directory: ./client
+        env:
+          VITE_API_URL: ""
+        run: npm run build
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: wolf-hms
+          channelId: live
+          entryPoint: ./client

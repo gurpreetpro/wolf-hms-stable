@@ -34,8 +34,9 @@ const supportRoutes = require('./routes/supportRoutes');
 const selfhealRoutes = require('./routes/selfhealRoutes');
 const SelfHealingService = require('./services/SelfHealingService');
 
-// Multi-Tenancy: Tenant Resolution Middleware
-const { resolveHospital } = require('./middleware/tenantResolver');
+// Multi-Tenancy & Authentication Middleware Pipeline
+const { resolveHospital: tenantResolver, resolveHospital } = require('./middleware/tenantResolver');
+const { authenticateToken } = require('./middleware/authMiddleware');
 
 // Phase 6: AI Overwatch Monitoring
 // const Overwatch = require('./services/OverwatchService');
@@ -44,8 +45,8 @@ const { resolveHospital } = require('./middleware/tenantResolver');
 // Phase 7: Cloud Backup
 // const cloudBackupRoutes = require('./routes/cloudBackupRoutes');
 
-// Phase 6: Clinical Sentinel
-const ClinicalSentinel = require('./services/ClinicalSentinel');
+// Phase 3 + 6: Clinical Sentinel + WOLF Guard Perimeter
+const { ClinicalSentinel, tenantBreachDetector } = require('./services/ClinicalSentinel');
 // setInterval(() => { ClinicalSentinel.startSurveillance(); }, 300000);
 
 // Database Connection (Keep this to test DB)
@@ -716,6 +717,10 @@ app.use(requestLoggerMiddleware);
 app.use(resolveHospital);
 logger.info('DEBUG_STARTUP: Tenant Resolution middleware applied');
 
+// Phase 3: WOLF Guard — Cross-Tenant Breach Detection
+app.use(tenantBreachDetector);
+logger.info('DEBUG_STARTUP: WOLF Guard tenantBreachDetector applied');
+
 // Phase 3: Metrics Collection Middleware
 app.use(metricsMiddleware);
 logger.info('DEBUG_STARTUP: Line 162 - Metrics Middleware applied');
@@ -736,101 +741,15 @@ logger.debug('DEBUG: Middleware Checkpoint 4 - Support');
 // Support Portal Routes (Public dashboard)
 app.use('/api/support', supportRoutes);
 
-logger.debug('DEBUG: Middleware Checkpoint 5 - SelfHeal');
-// Self-Healing Routes (Admin dashboard)
-app.use('/api/selfheal', selfhealRoutes);
-
-logger.debug('DEBUG: Middleware Checkpoint 6 - Overwatch Skipped');
-// AI Overwatch Routes (Monitoring dashboard)
-// console.error('DEBUG: Mounting Overwatch Routes...');
-// app.use('/api/overwatch', overwatchRoutes);
-// console.error('DEBUG: Overwatch Routes Mounted');
-
-// Initialize AI Overwatch
-// Overwatch.initSentry(app);
-// Overwatch.initTelegramBot();
-logger.info('AI Overwatch initialized (Skipped)');
-
-
-
-// Phase 6: Clinical Sentinel
-/*
+// Phase 5: Universal Translator (HL7 MLLP TCP Server)
 try {
-    logger.info('DEBUG: Require ClinicalSentinel...');
-    const ClinicalSentinel = require('./services/ClinicalSentinel');
-    // Run sweep every 5 minutes (300000 ms)
-    setInterval(() => {
-        try {
-            logger.info('Clinical Sentinel Start Sweep');
-            ClinicalSentinel.startSurveillance();
-        } catch (e) {
-            logger.error('Clinical Sentinel Sweep Failed', e);
-        }
-    }, 300000);
-    logger.info('DEBUG: Clinical Sentinel activated');
+    const HL7Receiver = require('./services/HL7Receiver');
+    HL7Receiver.start(6000);
+    logger.info('🔬 HL7 MLLP Universal Translator TCP Engine listening on port 6000');
 } catch (e) {
-    logger.error('CRITICAL: Clinical Sentinel Failed to Load', e);
-}
-*/
-
-// Phase 5: The Universal Translator (HL7 TCP Server)
-// console.error('DEBUG: Require HL7Receiver...');
-// const HL7Receiver = require('./services/HL7Receiver');
-// try {
-//     HL7Receiver.start(6001); // Changed to 6001 to avoid collision
-//     console.error('DEBUG: HL7 Receiver started');
-// } catch (e) { console.error('DEBUG: HL7 Start Error', e); }
-
-
-logger.info('DEBUG: Skipping DB Recovery & IO (Isolation Mode)');
-// [SECURITY] Removed dangerous /api/fix-patients endpoint.
-// Database Connection (Skipped)
-// DatabaseRecovery.init(pool);
-globalThis.io = io;
-logger.info('DEBUG: IO Assigned');
-
-// Wolf Video: Initialize WebRTC Signaling on Socket.IO
-try {
-    initializeSignaling(io, pool);
-    logger.info('📹 Wolf Video: WebRTC Signaling initialized');
-} catch (err) {
-    logger.error('Failed to initialize video signaling:', err);
+    logger.error('[HL7] TCP Engine Initialization Error:', e.message);
 }
 
-// Wolf Runner: Delivery Order Tracking Rooms
-io.on('connection', (socket) => {
-    // Patient joins order tracking room
-    socket.on('join_order_tracking', (data) => {
-        if (data && data.orderId) {
-            const room = `order_${data.orderId}`;
-            socket.join(room);
-            logger.info(`[TRACKING] Patient joined room ${room}`);
-        }
-    });
-
-    // Patient leaves order tracking room
-    socket.on('leave_order_tracking', (data) => {
-        if (data && data.orderId) {
-            const room = `order_${data.orderId}`;
-            socket.leave(room);
-            logger.info(`[TRACKING] Patient left room ${room}`);
-        }
-    });
-});
-
-// Phase 5: Start Self-Healing Service (check every 2 minutes)
-// SelfHealingService.start(120000);
-// console.log('TRACE: SelfHealing Started');
-
-logger.info('DEBUG: Defining Root Route...');
-// Routes
-app.get('/', (req, res) => {
-    res.json({ message: 'Wolf HMS API is running', status: 'OK', version: '1.0.5' });
-});
-logger.info('DEBUG: Root Route Defined');
-
-// Import Routes
-logger.info('📦 Loading all routes...');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const opdRoutes = require('./routes/opdRoutes');
@@ -844,31 +763,60 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const financeRoutes = require('./routes/financeRoutes');
 const clinicalRoutes = require('./routes/clinicalRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes'); // [FIX] import missing routes
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const migrationRoutes = require('./routes/migration_routes');
-const corporateRoutes = require('./routes/corporateRoutes'); // [ENTERPRISE] B2B Billing
+const corporateRoutes = require('./routes/corporateRoutes');
+const icuRoutes = require('./routes/icuRoutes');
+const maternityRoutes = require('./routes/maternityRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const runnerRoutes = require('./routes/runnerRoutes');
+const labTestParamsRoutes = require('./routes/labTestParamsRoutes');
+const radiologyRoutes = require('./routes/radiologyRoutes');
+const nurseRoutes = require('./routes/nurseRoutes');
+const rosterRoutes = require('./routes/rosterRoutes');
+const bedRoutes = require('./routes/bedRoutes');
+const carePlanRoutes = require('./routes/carePlanRoutes');
+const transitionRoutes = require('./routes/transitionRoutes');
+const emergencyRoutes = require('./routes/emergencyRoutes');
+const telehealthRoutes = require('./routes/telehealthRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const receptionRoutes = require('./routes/receptionRoutes');
+const auditRoutes = require('./routes/auditRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const specialistRoutes = require('./routes/specialistRoutes');
+const treatmentPackageRoutes = require('./routes/treatmentPackageRoutes');
+const chargesRoutes = require('./routes/chargesRoutes');
+const doctorAnalyticsRoutes = require('./routes/doctorAnalyticsRoutes');
+const equipmentRoutes = require('./routes/equipmentRoutes');
+const bloodBankRoutes = require('./routes/bloodBankRoutes');
+const automationRoutes = require('./routes/automationRoutes');
+const instrumentRoutes = require('./routes/instrumentRoutes');
+const cssdRoutes = require('./routes/cssdRoutes');
+const smsRoutes = require('./routes/smsRoutes');
+const posRoutes = require('./routes/posRoutes');
+const preauthRoutes = require('./routes/preauthRoutes');
+const parkingRoutes = require('./routes/parkingRoutes');
+const logisticsRoutes = require('./routes/logisticsRoutes');
+const wardPassRoutes = require('./routes/wardPassRoutes');
+const hospitalRoutes = require('./routes/hospitalRoutes');
+const tpaRoutes = require('./routes/tpaRoutes');
+const orderSetRoutes = require('./routes/orderSetRoutes');
+const insuranceRoutes = require('./routes/insuranceRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/opd', opdRoutes);
-app.use('/api/admissions', admissionRoutes);
-app.use('/api/patients', patientRoutes);
-app.use('/api/lab', labRoutes);
-app.use('/api/pharmacy', pharmacyRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/wards', wardRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/finance', financeRoutes);
-app.use('/api/clinical', clinicalRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/dashboard', dashboardRoutes); // [FIX] Mount dashboard routes
-app.use('/api/migration', migrationRoutes); // [NEW] Wolf Migrator Routes
 app.use('/api/corporate', corporateRoutes); // [ENTERPRISE]
 app.use('/api/v1/corporate', corporateRoutes); // [ENTERPRISE] Support v1 prefix as well
+// [HORIZON 1] Critical Care & Obstetric Routes (Protected under tenantResolver & authenticateToken)
+app.use('/api/icu', tenantResolver, authenticateToken, icuRoutes);
+app.use('/api/maternity', tenantResolver, authenticateToken, maternityRoutes);
 const radiologyOrderRoutes = require('./routes/radiologyOrderRoutes');
+
+const auth2faRoutes = require('./routes/auth2faRoutes');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', auth2faRoutes);
 app.use('/api/opd', opdRoutes);
 app.use('/api/admission', admissionRoutes);
 app.use('/api/patients', patientRoutes);
@@ -880,61 +828,9 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/clinical', clinicalRoutes);
 app.use('/api/admin', adminRoutes);
-
-// Phase 11: Radiology RIS
-app.use('/api/ris', radiologyOrderRoutes);
-const dicomMockRoutes = require('./routes/dicomMockRoutes');
-app.use('/api/dicom', dicomMockRoutes);
-const pacsWebhookRoutes = require('./routes/pacsWebhookRoutes');
-app.use('/api/pacs', pacsWebhookRoutes);
-const nurseRoutes = require('./routes/nurseRoutes');
-const receptionRoutes = require('./routes/receptionRoutes');
-const settingsRoutes = require('./routes/settingsRoutes');
-const doctorAnalyticsRoutes = require('./routes/doctorAnalyticsRoutes');
-const equipmentRoutes = require('./routes/equipmentRoutes');
-const bloodBankRoutes = require('./routes/bloodBankRoutes');
-const automationRoutes = require('./routes/automationRoutes');
-const tpaRoutes = require('./routes/tpaRoutes');
-const carePlanRoutes = require('./routes/carePlanRoutes');
-const transitionRoutes = require('./routes/transitionRoutes');
-const orderSetRoutes = require('./routes/orderSetRoutes');
-const insuranceRoutes = require('./routes/insuranceRoutes');
-const emergencyRoutes = require('./routes/emergencyRoutes');
-const instrumentRoutes = require('./routes/instrumentRoutes');
-const labTestParamsRoutes = require('./routes/labTestParamsRoutes');
-const cssdRoutes = require('./routes/cssdRoutes');
-const radiologyRoutes = require('./routes/radiologyRoutes');
-const smsRoutes = require('./routes/smsRoutes');
-// const deviceRoutes = require('./routes/deviceRoutes'); // Needs serialport
-const rosterRoutes = require('./routes/rosterRoutes');
-// const securityRoutes = require('./routes/securityRoutes'); // Needs @turf
-// const paymentRoutes = require('./routes/paymentRoutes'); // Needs razorpay
-const posRoutes = require('./routes/posRoutes');
-const auditRoutes = require('./routes/auditRoutes');
-const bedRoutes = require('./routes/bedRoutes');
-const preauthRoutes = require('./routes/preauthRoutes');
-const parkingRoutes = require('./routes/parkingRoutes');
-const logisticsRoutes = require('./routes/logisticsRoutes');
-const wardPassRoutes = require('./routes/wardPassRoutes');
-// const visitorRoutes = require('./routes/visitorRoutes'); // Needs serialport
-const hospitalRoutes = require('./routes/hospitalRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-const specialistRoutes = require('./routes/specialistRoutes'); // Visiting Doctor Billing
-const treatmentPackageRoutes = require('./routes/treatmentPackageRoutes'); // All-inclusive packages
-const chargesRoutes = require('./routes/chargesRoutes'); // Centralized Billing Queue
-// const totpRoutes = require('./routes/totpRoutes'); // Needs otpauth
-
-// Wolf Video: Pure WebRTC Video Calling
-const telehealthRoutes = require('./routes/telehealthRoutes');
-const { initializeSignaling } = require('./services/videoSignaling');
-logger.info('✅ All routes imported');
-
-
-// =============================================
-// MOUNT ALL API ROUTES
-// =============================================
-logger.info('📦 Mounting all API routes...');
-
+app.use('/api/payment', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/runner', runnerRoutes);
 // [CRITICAL] Inline Sync Endpoint for robust migration
 app.post('/api/sync/restore', async (req, res) => {
     const SYNC_SECRET = 'WolfHMS_Migration_Secret_2026';
@@ -1035,18 +931,55 @@ app.use('/api/roster', rosterRoutes);
 app.use('/api/beds', bedRoutes);
 app.use('/api/care-plans', carePlanRoutes);
 app.use('/api/transitions', transitionRoutes);
-app.use('/api/order-sets', orderSetRoutes);
 
 // Finance & Billing
 app.use('/api/finance', financeRoutes);
-app.use('/api/tpa', tpaRoutes);
-app.use('/api/insurance', insuranceRoutes);
-app.use('/api/pos', posRoutes);
-app.use('/api/payments', require('./routes/paymentRoutes')); // Needs razorpay - Enabled
-app.use('/api/preauth', preauthRoutes);
-app.use('/api/packages', treatmentPackageRoutes); // Treatment Packages
-app.use('/api/ai', require('./routes/enterpriseAIRoutes')); // Phase 8: Enterprise AI (4 Pillars)
-app.use('/api/charges', chargesRoutes); // Centralized Billing Queue (Gold Standard)
+app.use('/api/payment', require('./routes/paymentRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/runner', require('./routes/runnerRoutes'));
+
+// [MIGRATION] Phase 9B: Login Security Tables
+app.get('/api/test/migrate-login-security', async (req, res) => {
+    try {
+        console.log('🔧 Running Login Security Migration...');
+
+        // 1. Add lockout columns to users
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_login_count INT DEFAULT 0');
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ');
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS last_failed_ip VARCHAR(45)');
+
+        // 2. Create login_audit_log table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS login_audit_log (
+                id SERIAL PRIMARY KEY,
+                user_id INT,
+                username VARCHAR(255),
+                hospital_id INT,
+                action VARCHAR(50) NOT NULL,
+                ip_address VARCHAR(45),
+                user_agent TEXT,
+                details JSONB,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        `);
+
+        // 3. Add ip_address and user_agent to refresh_tokens if not exist
+        await pool.query('ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45)');
+        await pool.query('ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS user_agent TEXT');
+
+        // 4. Indexes for performance
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_login_audit_hospital ON login_audit_log(hospital_id)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_login_audit_user ON login_audit_log(user_id)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_login_audit_action ON login_audit_log(action)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_login_audit_created ON login_audit_log(created_at DESC)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_users_locked ON users(locked_until)');
+
+        res.json({ success: true, message: 'Login security migration complete' });
+    } catch (err) {
+        console.error('Migration error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // [WOLF VAULT] HCX/TPA Webhook Router - Async callbacks with correlation ID routing
 const hcxWebhookController = require('./controllers/HcxWebhookController');
@@ -1109,6 +1042,13 @@ app.use('/api/cssd', cssdRoutes);
 
 // Blood Bank
 app.use('/api/blood-bank', bloodBankRoutes);
+
+// ─────────────────────────────────────────────────────────────
+// PHASE 7 — Revenue Defense: Live Billing Interceptor & Folio API
+// ─────────────────────────────────────────────────────────────
+const billingInterceptorRoutes = require('./routes/billingInterceptorRoutes');
+app.use('/api/billing', billingInterceptorRoutes);
+logger.info('📦 Billing Interceptor mounted at /api/billing (Phase 7: Revenue Defense)');
 // app.use('/api/mortuary', require('./routes/mortuaryRoutes'));
 
 // Physiotherapy (Tier 2)
@@ -1128,8 +1068,8 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/ai-billing', require('./routes/aiBillingRoutes'));
 app.use('/api/automation', automationRoutes);
 
-// Security (Wolf Security 2.0)
-// app.use('/api/security', securityRoutes); // Disabled: needs @turf
+// Security (Wolf Security 2.0) — Guard Tracking & Command Centre
+app.use('/api/security', require('./routes/securityRoutes'));
 
 // app.use('/api/devices', deviceRoutes); // Disabled: needs serialport
 app.use('/api/sms', smsRoutes);
@@ -1146,6 +1086,16 @@ app.use('/api/admin/recovery', adminRecoveryRoutes);
 // SaaS Platform Control Plane
 const platformRoutes = require('./routes/platformRoutes');
 app.use('/api/platform', platformRoutes);
+
+// ═══════════════════════════════════════════════════════
+// Horizon 2 — Dental, Ophthalmology, Orthopedics
+// ═══════════════════════════════════════════════════════
+const dentalRoutes = require('./routes/dentalRoutes');
+const ophthalmologyRoutes = require('./routes/ophthalmologyRoutes');
+const orthopedicRoutes = require('./routes/orthopedicRoutes');
+app.use('/api/dental', tenantResolver, dentalRoutes);
+app.use('/api/ophthalmology', tenantResolver, ophthalmologyRoutes);
+app.use('/api/orthopedics', tenantResolver, orthopedicRoutes);
 
 
 // MFA (Multi-Factor Authentication)

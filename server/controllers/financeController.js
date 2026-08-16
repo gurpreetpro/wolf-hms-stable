@@ -45,11 +45,45 @@ const checkAccountingPeriod = async (date, hospitalId) => {
 // Generate Invoice - Multi-Tenant
 const generateInvoice = async (req, res, next) => {
     try {
-    const { admission_id, patient_id, additionalItems, discount } = req.body;
+    const { admission_id, patient_id, additionalItems, discount, items } = req.body;
     const user_id = req.user.id;
     const hospitalId = getHospitalId(req);
 
+    // If admission_id is falsy, generate an Outpatient/OPD invoice
+    if (!admission_id) {
+        const opdItems = items || additionalItems || [];
+        let grandTotal = opdItems.reduce((sum, item) => sum + (parseFloat(item.amount || item.price || item.unit_price || 0) * (item.quantity || 1)), 0);
+        if (discount) grandTotal -= discount;
+        grandTotal = Math.max(grandTotal, 100);
 
+        const invoice = await prisma.invoices.create({
+            data: {
+                patients: { connect: { id: patient_id } },
+                total_amount: grandTotal,
+                users: { connect: { id: parseInt(user_id) } },
+                hospitals: { connect: { id: parseInt(hospitalId) } },
+                status: 'Pending',
+                invoice_items: {
+                    create: opdItems.map(item => ({
+                        description: item.description,
+                        quantity: item.quantity || 1,
+                        unit_price: parseFloat(item.amount || item.price || item.unit_price || 0),
+                        total_price: parseFloat(item.amount || item.price || item.unit_price || 0) * (item.quantity || 1),
+                        hospital_id: parseInt(hospitalId)
+                    }))
+                }
+            },
+            include: {
+                invoice_items: true
+            }
+        });
+
+        if (discount) {
+            await pool.query('INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price, hospital_id) VALUES ($1, $2, $3, $4, $5, $6)', [invoice.id, 'Discount', 1, -discount, -discount, hospitalId]);
+        }
+
+        return ResponseHandler.success(res, { invoice, items: [] }, 'Invoice generated successfully', 201);
+    }
 
     let admission;
     try {
@@ -449,16 +483,20 @@ const getInvoiceItems = asyncHandler(async (req, res) => {
 // Record Payment - Multi-Tenant
 const recordPayment = asyncHandler(async (req, res) => {
     const { invoice_id } = req.params;
-    const { amount, payment_mode, reference_number, notes } = req.body;
+    const { amount, payment_mode, reference_number, notes, mode, transaction_id } = req.body;
     const hospitalId = getHospitalId(req);
     const user_id = req.user?.id;
+
+    // Resolve aliases for simulation script compatibility
+    const resolvedMode = payment_mode || mode || 'Cash';
+    const resolvedRef = reference_number || transaction_id || '';
 
     // Delegate to FinanceService (which uses billingService)
     const result = await FinanceService.recordPayment({
         invoiceId: invoice_id,
         amount,
-        paymentMode: payment_mode,
-        referenceNumber: reference_number,
+        paymentMode: resolvedMode,
+        referenceNumber: resolvedRef,
         notes,
         userId: user_id,
         hospitalId
@@ -935,26 +973,29 @@ const getDailyRevenueReport = asyncHandler(async (req, res) => {
     const end = endDate ? new Date(endDate) : new Date();
     end.setHours(23,59,59,999);
 
-    const invoices = await prisma.invoices.aggregate({
-        _sum: { total_amount: true }, // [FIX] total_amount
-        _count: { id: true },
-        where: { generated_at: { gte: start, lte: end }, OR: [{ hospital_id: parseInt(hospitalId) }, { hospital_id: null }] } // [FIX] generated_at, NO deleted_at
-    });
-    const payments = await prisma.payments.aggregate({
-        _sum: { amount: true }, _count: { id: true },
-        where: { payment_date: { gte: start, lte: end }, OR: [{ hospital_id: parseInt(hospitalId) }, { hospital_id: null }] } // [FIX] NO deleted_at
-    });
-    const adjRes = await pool.query(
-        `SELECT SUM(amount) as total, COUNT(id) as count FROM adjustments WHERE created_at BETWEEN $1 AND $2 AND (hospital_id = $3)`,
+    const invoiceRes = await pool.query(
+        `SELECT COALESCE(SUM(total_amount), 0) as total, COUNT(id) as count FROM invoices WHERE generated_at BETWEEN $1 AND $2 AND (hospital_id = $3 OR hospital_id IS NULL)`,
         [start, end, hospitalId]
     );
+    const paymentRes = await pool.query(
+        `SELECT COALESCE(SUM(amount), 0) as total, COUNT(id) as count FROM payments WHERE received_at BETWEEN $1 AND $2 AND (hospital_id = $3 OR hospital_id IS NULL)`,
+        [start, end, hospitalId]
+    );
+    const adjRes = await pool.query(
+        `SELECT COALESCE(SUM(amount), 0) as total, COUNT(id) as count FROM adjustments WHERE created_at BETWEEN $1 AND $2 AND (hospital_id = $3)`,
+        [start, end, hospitalId]
+    ).catch(() => ({ rows: [{ total: 0, count: 0 }] }));
+
+    const charges = { count: parseInt(invoiceRes.rows[0].count), amount: parseFloat(invoiceRes.rows[0].total) };
+    const collections = { count: parseInt(paymentRes.rows[0].count), amount: parseFloat(paymentRes.rows[0].total) };
+    const adjustments = { count: parseInt(adjRes.rows[0].count), amount: parseFloat(adjRes.rows[0].total || 0) };
 
     ResponseHandler.success(res, {
         dateRange: { start, end },
-        charges: { count: invoices._count.id, amount: Number(invoices._sum.total_amount || 0) },
-        collections: { count: payments._count.id, amount: Number(payments._sum.amount || 0) },
-        adjustments: { count: parseInt(adjRes.rows[0].count), amount: parseFloat(adjRes.rows[0].total || 0) },
-        netRevenue: Number(invoices._sum.total_amount || 0) - parseFloat(adjRes.rows[0].total || 0)
+        charges,
+        collections,
+        adjustments,
+        netRevenue: charges.amount - adjustments.amount
     });
 });
 

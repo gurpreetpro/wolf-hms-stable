@@ -200,7 +200,7 @@ const requestPriceChange = asyncHandler(async (req, res) => {
 // Get Price Requests - Multi-Tenant
 const getPriceRequests = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT pcr.*, i.name as item_name, u.username as requested_by_name FROM price_change_requests pcr JOIN inventory_items i ON pcr.inventory_id = i.id JOIN users u ON pcr.requested_by = u.id WHERE pcr.status = 'Pending' AND (pcr.hospital_id = $1 OR pcr.hospital_id IS NULL) ORDER BY pcr.created_at DESC`, [hospitalId]); 
+    const result = await pool.query(`SELECT pcr.*, i.name as item_name, u.username as requested_by_name FROM price_change_requests pcr JOIN inventory_items i ON pcr.item_id = i.id JOIN users u ON pcr.requested_by = u.id WHERE pcr.status = 'Pending' AND (pcr.hospital_id = $1 OR pcr.hospital_id IS NULL) ORDER BY pcr.created_at DESC`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 

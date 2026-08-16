@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, RefreshControl, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Package, CheckCircle2, Clock } from 'lucide-react-native';
@@ -32,6 +32,16 @@ export const InstrumentTrackingScreen = ({ navigation }: any) => {
   const filtered = instruments.filter(i => filter === 'ALL' || i.status === filter);
 
   const handleIssue = (inst: Instrument) => {
+    // ── CRITICAL SAFETY CHECK: block issuance if expired or BI failed ──
+    if (inst.isExpired || inst.biTestPassed === false) {
+      Vibration.vibrate(400);
+      Alert.alert(
+        'CRITICAL SAFETY BLOCK',
+        'CRITICAL: Tray is expired or failed biological indicator testing. Issuance blocked.',
+        [{ text: 'Understood', style: 'destructive' }]
+      );
+      return;
+    }
     Alert.alert('Issue Instrument', `Issue ${inst.name} to ${inst.department}?`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Issue', onPress: () => setInstruments(prev => prev.map(i => i.id === inst.id ? { ...i, status: 'ISSUED' as const } : i)) },

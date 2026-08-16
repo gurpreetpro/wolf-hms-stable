@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polygon } from 'react-leaflet';
 import { Battery, Wifi } from 'lucide-react';
 import L from 'leaflet';
@@ -35,18 +35,17 @@ const createGuardIcon = (heading) => L.divIcon({
 });
 
 // Map Updater Hook
-const MapUpdater = ({ center }) => {
+const MapUpdater = React.memo(({ center }) => {
     const map = useMap();
     useEffect(() => {
         if(center) map.flyTo(center, map.getZoom());
     }, [center, map]);
     return null;
-};
+});
 
-const GuardMap = ({ activeGuards = [] }) => {
+const GuardMap = React.memo(({ activeGuards = [] }) => {
     const [guards, setGuards] = useState({}); // { guardId: { lat, lng, heading... } }
     const [geofences, setGeofences] = useState([]); 
-    // socket state removed as we don't strictly need to store it if we cleanup in useEffect
     
     // Fetch Geofences
     useEffect(() => {
@@ -70,10 +69,9 @@ const GuardMap = ({ activeGuards = [] }) => {
 
     // Socket Connection
     useEffect(() => {
-        const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080'); // Uses env var for prod
+        const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:8080');
 
         newSocket.on('guard_location_update', (data) => {
-            // console.log('[GuardMap] Location Update:', data);
             setGuards(prev => ({
                 ...prev,
                 [data.guard_id]: data
@@ -84,11 +82,13 @@ const GuardMap = ({ activeGuards = [] }) => {
     }, []);
 
     // Center Map (Focus on first active guard or Facility Center)
-    const facilityCenter = [28.6139, 77.2090]; // Default: New Delhi (Change to actual facility coords)
-    const activeGuardIds = Object.keys(guards);
-    const center = activeGuardIds.length > 0 
-        ? [guards[activeGuardIds[0]].latitude, guards[activeGuardIds[0]].longitude] 
-        : facilityCenter;
+    const facilityCenter = useMemo(() => [28.6139, 77.2090], []);
+    const activeGuardIds = useMemo(() => Object.keys(guards), [guards]);
+    const center = useMemo(() => {
+        return activeGuardIds.length > 0 
+            ? [guards[activeGuardIds[0]].latitude, guards[activeGuardIds[0]].longitude] 
+            : facilityCenter;
+    }, [activeGuardIds, guards, facilityCenter]);
 
      // Zone Styling
      const getZoneStyle = (type) => ({
@@ -97,6 +97,54 @@ const GuardMap = ({ activeGuards = [] }) => {
         fillOpacity: 0.1,
         weight: 2
     });
+
+    const renderedGeofences = useMemo(() => {
+        return geofences.map(zone => (
+            <Polygon 
+                key={zone.id}
+                positions={zone.coordinates}
+                pathOptions={getZoneStyle(zone.zone_type)}
+            >
+                 <Popup className="glass-popup">
+                    <div style={{ color: '#000' }}>
+                        <strong>{zone.name}</strong><br/>
+                        <small>{zone.zone_type}</small>
+                    </div>
+                </Popup>
+            </Polygon>
+        ));
+    }, [geofences]);
+
+    const renderedMarkers = useMemo(() => {
+        return Object.values(guards).map((guard) => (
+            <Marker 
+                key={guard.guard_id || guard.id} 
+                position={[guard.latitude, guard.longitude]} 
+                icon={createGuardIcon(guard.heading || 0)}
+            >
+                <Popup className="glass-popup">
+                    <div style={{ color: '#000', minWidth: '150px' }}>
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <strong style={{ fontSize: '1.1em' }}>{guard.username}</strong>
+                            <span className="badge bg-primary">{guard.speed ? Number(guard.speed).toFixed(1) : 0} m/s</span>
+                        </div>
+                        
+                        <div className="d-flex gap-2 mb-1" style={{ fontSize: '0.9em' }}>
+                            <div className={`d-flex align-items-center ${(guard.batteryLevel < 20) ? 'text-danger fw-bold' : ''}`}>
+                                <Battery size={16} className="me-1" /> 
+                                {guard.batteryLevel !== undefined && guard.batteryLevel !== null ? `${guard.batteryLevel}%` : 'N/A'}
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <Wifi size={16} className="me-1" /> 
+                                {guard.signalStrength !== undefined && guard.signalStrength !== null ? `${guard.signalStrength}/5` : 'N/A'}
+                            </div>
+                        </div>
+                        <small className="text-muted">Last Update: {new Date().toLocaleTimeString()}</small>
+                    </div>
+                </Popup>
+            </Marker>
+        ));
+    }, [guards]);
 
     return (
         <div className="guard-map-container" style={{ height: '100%', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--sec-glass-border)' }}>
@@ -114,50 +162,9 @@ const GuardMap = ({ activeGuards = [] }) => {
 
                 <MapUpdater center={center} />
 
-                 {/* Geofences */}
-                 {geofences.map(zone => (
-                    <Polygon 
-                        key={zone.id}
-                        positions={zone.coordinates}
-                        pathOptions={getZoneStyle(zone.zone_type)}
-                    >
-                         <Popup className="glass-popup">
-                            <div style={{ color: '#000' }}>
-                                <strong>{zone.name}</strong><br/>
-                                <small>{zone.zone_type}</small>
-                            </div>
-                        </Popup>
-                    </Polygon>
-                ))}
+                {renderedGeofences}
 
-                {Object.values(guards).map((guard) => (
-                    <Marker 
-                        key={guard.guard_id || guard.id} 
-                        position={[guard.latitude, guard.longitude]} 
-                        icon={createGuardIcon(guard.heading || 0)}
-                    >
-                        <Popup className="glass-popup">
-                            <div style={{ color: '#000', minWidth: '150px' }}>
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <strong style={{ fontSize: '1.1em' }}>{guard.username}</strong>
-                                    <span className="badge bg-primary">{guard.speed ? Number(guard.speed).toFixed(1) : 0} m/s</span>
-                                </div>
-                                
-                                <div className="d-flex gap-2 mb-1" style={{ fontSize: '0.9em' }}>
-                                    <div className={`d-flex align-items-center ${(guard.batteryLevel < 20) ? 'text-danger fw-bold' : ''}`}>
-                                        <Battery size={16} className="me-1" /> 
-                                        {guard.batteryLevel !== undefined && guard.batteryLevel !== null ? `${guard.batteryLevel}%` : 'N/A'}
-                                    </div>
-                                    <div className="d-flex align-items-center">
-                                        <Wifi size={16} className="me-1" /> 
-                                        {guard.signalStrength !== undefined && guard.signalStrength !== null ? `${guard.signalStrength}/5` : 'N/A'}
-                                    </div>
-                                </div>
-                                <small className="text-muted">Last Update: {new Date().toLocaleTimeString()}</small>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                {renderedMarkers}
             </MapContainer>
 
             {/* CSS for Marker Animation */}
@@ -189,6 +196,6 @@ const GuardMap = ({ activeGuards = [] }) => {
             `}</style>
         </div>
     );
-};
+});
 
 export default GuardMap;

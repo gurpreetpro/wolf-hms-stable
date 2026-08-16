@@ -16,8 +16,10 @@ const parseLabReport = asyncHandler(async (req, res) => {
         return ResponseHandler.error(res, "No file uploaded", 400);
     }
 
+    const targetPatientName = req.body.patient_name || req.query.patient_name || "";
+
     try {
-        console.log(`[OCR] Processing file: ${req.file.path} (${req.file.mimetype})`);
+        console.log(`[OCR] Processing file: ${req.file.path} (${req.file.mimetype}). Target Patient: ${targetPatientName}`);
 
         // Create debug log
         const debugPath = path.join(__dirname, '../logs/ocr_debug.log');
@@ -32,14 +34,45 @@ const parseLabReport = asyncHandler(async (req, res) => {
         
         const prompt = `
         You are an expert Laboratory Information System (LIS) parser.
-        Extract the test parameters and values from this medical lab report image.
+        Extract the test parameters, values, reference ranges, abnormality flags, and verify the patient name.
         
         Return ONLY a raw JSON object (no markdown formatting, no backticks).
-        The keys should be the parameter names (lowercase, snake_case if needed).
-        The values should be numbers where possible, or strings if they are qualitative.
+        
+        The JSON object must have keys for each parameter at the root level, containing their numeric or qualitative values.
+        It must also contain a special key "_metadata" with:
+        1. "reference_ranges": mapping parameter keys to their printed biological reference interval strings (e.g. "4.0 - 11.0").
+        2. "flags": mapping parameter keys to their clinical flags ("High", "Low", "Normal").
+        3. "patient_verification": an object with:
+           - "patient_name_on_report": name of the patient printed on the report sheet.
+           - "target_patient_name": "${targetPatientName}"
+           - "name_match_status": Compare patient_name_on_report with target_patient_name. Set this to "Match" if they are the same or highly similar (e.g. including middle initials or spelling variations), "Mismatch" if they are completely different names, or "Missing" if no patient name is printed on the sheet.
 
         Example Output:
-        { "wbc": 6.15, "rbc": 4.03, "hgb": 11.1, "plt": 457 }
+        {
+          "wbc": 6.15,
+          "rbc": 4.03,
+          "hgb": 11.1,
+          "plt": 457,
+          "_metadata": {
+            "reference_ranges": {
+              "wbc": "4.0 - 11.0",
+              "rbc": "4.5 - 5.9",
+              "hgb": "12.0 - 16.0",
+              "plt": "150 - 450"
+            },
+            "flags": {
+              "wbc": "Normal",
+              "rbc": "Normal",
+              "hgb": "Low",
+              "plt": "High"
+            },
+            "patient_verification": {
+              "patient_name_on_report": "John Doe",
+              "target_patient_name": "${targetPatientName}",
+              "name_match_status": "Match"
+            }
+          }
+        }
         `;
 
         const imagePart = {

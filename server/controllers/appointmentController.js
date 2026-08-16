@@ -37,7 +37,7 @@ const getAppointments = asyncHandler(async (req, res) => {
 
     let query = `
         SELECT a.id, a.patient_id, p.name as patient_name, p.phone as patient_phone,
-            p.age as patient_age, p.gender as patient_gender,
+            EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as patient_age, p.gender as patient_gender,
             a.doctor_id, u.name as doctor_name, a.department,
             a.appointment_date, a.appointment_time, a.status, a.reason, a.notes, a.created_at
         FROM appointments a

@@ -190,7 +190,10 @@ const WardDashboard = () => {
             });
             if (res.data && res.data.data) {
                 setActiveEmergency(res.data.data);
-                emergencySound.play(); // Resume sound if active
+                try { emergencySound.play(); } catch (e) {}
+            } else {
+                setActiveEmergency(null);
+                try { emergencySound.stop(); } catch (e) {}
             }
         } catch (err) {
             console.error('Failed to fetch emergency status:', err);
@@ -198,21 +201,20 @@ const WardDashboard = () => {
     };
 
     const handleResolveEmergency = async () => {
-        // Direct resolve for reliability (native confirm was causing issues)
         try {
             const token = localStorage.getItem('token');
-            // Optimistic update to remove banner immediately
+            const targetId = activeEmergency?.id || activeEmergency?.event_id;
             setActiveEmergency(null);
-            emergencySound.stop();
+            try { emergencySound.stop(); } catch (e) {}
 
-            await api.post('/api/emergency/resolve', { id: activeEmergency?.id }, {
+            await api.post('/api/emergency/resolve', { id: targetId, event_id: targetId }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            alert('Emergency Resolved.');
         } catch (err) {
             console.error('Failed to resolve emergency:', err);
             const msg = err.response?.data?.message || 'Failed to resolve. Please try again.';
             alert(`Error: ${msg}`);
+            fetchActiveEmergency();
         }
     };
 
@@ -221,8 +223,14 @@ const WardDashboard = () => {
         fetchMyAssignments();
         fetchActiveEmergency();
 
-        // Socket.IO Connection
-        const socket = io('/', { path: '/socket.io' });
+        // Socket.IO Connection (Supports both root and reverse-proxy subpath /wolf/socket.io)
+        const token = localStorage.getItem('token');
+        const socketPath = window.location.pathname.includes('/wolf') ? '/wolf/socket.io' : '/socket.io';
+        const socket = io('/', { 
+            path: socketPath,
+            auth: { token },
+            transports: ['websocket', 'polling']
+        });
 
         socket.on('connect', () => {
             console.log('✅ Ward Dashboard Connected to Socket');
@@ -237,22 +245,18 @@ const WardDashboard = () => {
         socket.on('emergency_broadcast', (data) => {
             console.log('🚨 EMERGENCY ALERT:', data);
             setActiveEmergency(data);
-            emergencySound.play();
+            try { emergencySound.play(); } catch (e) {}
         });
 
         socket.on('emergency_resolved', (data) => {
             console.log('✅ Emergency Resolved:', data);
             setActiveEmergency(null);
-            emergencySound.stop();
-            alert(`Emergency Resolved by ${data.resolved_by}`);
+            try { emergencySound.stop(); } catch (e) {}
         });
 
         // IoT Device Data Listener
         socket.on('iot_vitals_received', (data) => {
             console.log('📡 IoT Data:', data);
-            // In a real app, use a Toast. For demo, alert is fine or a custom notification state.
-            // Using alert might block UI, so let's log and maybe use a small timeout alert or just rely on console/refresh
-            // But user wants to SEE it.
             const msg = `📡 IoT Update from ${data.bedNumber}:\n${data.type}: ${data.value}`;
             alert(msg);
             fetchWardData();
@@ -260,7 +264,7 @@ const WardDashboard = () => {
 
         return () => {
             socket.disconnect();
-            emergencySound.stop(); // Stop sound on unmount
+            try { emergencySound.stop(); } catch (e) {}
         };
     }, []);
 
@@ -369,13 +373,20 @@ const WardDashboard = () => {
     const triggerEmergency = async (code) => {
         try {
             const token = localStorage.getItem('token');
-            await api.post('/api/emergency/trigger', {
+            const res = await api.post('/api/emergency/dispatch', {
                 code: code,
-                location: selectedWard === 'All' ? 'Ward A' : selectedWard // Use selected ward or default
+                location: selectedWard === 'All' ? 'Ward A' : selectedWard
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            alert(`CODE ${code.toUpperCase()} TRIGGERED!`);
+            const emergencyData = res.data?.data || {
+                id: res.data?.event_id || Date.now(),
+                code: code,
+                location: selectedWard === 'All' ? 'Ward A' : selectedWard,
+                status: 'Active'
+            };
+            setActiveEmergency(emergencyData);
+            try { emergencySound.play(); } catch (e) {}
             setShowEmergencyModal(false);
         } catch (err) {
             console.error(err);
@@ -419,11 +430,19 @@ const WardDashboard = () => {
     // Apply search filter to tasks
     const filteredTasks = searchQuery.trim()
         ? assignmentFilteredTasks.filter(t =>
-            t.patient_name?.toLowerCase().includes(searchQuery.toLowerCase())
+            t.patient_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.description?.toLowerCase().includes(searchQuery.toLowerCase())
         )
         : assignmentFilteredTasks;
 
-    if (loading) return <Container className="py-4"><div className="text-center">Loading...</div></Container>;
+    if (loading) {
+        return (
+            <Container className="py-5 text-center">
+                <Spinner animation="border" variant="primary" />
+                <p className="mt-2 text-muted">Loading Smart Ward...</p>
+            </Container>
+        );
+    }
 
     if (fetchError) {
         return (
@@ -441,15 +460,15 @@ const WardDashboard = () => {
         <Container className="py-4">
             {/* Active Emergency Banner */}
             {activeEmergency && (
-                <div className="bg-danger text-white p-3 mb-4 rounded shadow-lg d-flex justify-content-between align-items-center animate-pulse border border-white border-3">
+                <div className="bg-danger text-white p-3 mb-4 rounded shadow-lg d-flex justify-content-between align-items-center animate-pulse border border-white border-3" style={{ animation: 'pulse 1.5s infinite' }}>
                     <div className="d-flex align-items-center gap-3">
-                        <AlertTriangle size={32} className="text-warning" />
+                        <AlertTriangle size={36} className="text-warning" />
                         <div>
-                            <h4 className="mb-0 fw-bold">🚨 ACTIVE EMERGENCY: CODE {activeEmergency.code}</h4>
-                            <div className="fs-5">Location: {activeEmergency.location}</div>
+                            <h4 className="mb-0 fw-bold">🚨 ACTIVE EMERGENCY: CODE {String(activeEmergency.code || activeEmergency.emergency_type || activeEmergency.type || 'ALERT').toUpperCase().replace('CODE_', '')}</h4>
+                            <div className="fs-5">Location: {activeEmergency.location || 'Ward'} • Status: ACTIVE (Broadcasting to All Units)</div>
                         </div>
                     </div>
-                    <Button variant="light" size="lg" className="text-danger fw-bold" onClick={handleResolveEmergency}>
+                    <Button variant="light" size="lg" className="text-danger fw-bold shadow" onClick={handleResolveEmergency}>
                         <CheckSquare size={20} className="me-2" /> RESOLVE / STAND DOWN
                     </Button>
                 </div>

@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, Button, Tabs, Tab, Table, Badge, Card, Spinner } from 'react-bootstrap';
 import { User, Activity, FileText, CheckCircle, XCircle } from 'lucide-react';
 import axios from 'axios';
 
-const GuardProfileModal = ({ show, onHide, guard }) => {
+const GuardProfileModal = React.memo(({ show, onHide, guard }) => {
     const [handovers, setHandovers] = useState([]);
     const [metrics, setMetrics] = useState({ efficiency: 95, response: 'N/A', steps: 0, patrols: 0 });
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (show && guard) {
-            fetchHandovers();
-            fetchMetrics();
-        }
-    }, [show, guard]);
-
-    const fetchHandovers = async () => {
+    const fetchHandovers = useCallback(async () => {
+        if (!guard?.guard_id) return;
         try {
             setLoading(true);
             const res = await axios.get(`/api/security/handover/${guard.guard_id}`);
@@ -27,16 +21,17 @@ const GuardProfileModal = ({ show, onHide, guard }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [guard?.guard_id]);
 
-    const fetchMetrics = async () => {
+    const fetchMetrics = useCallback(async () => {
+        if (!guard?.guard_id) return;
         try {
             const res = await axios.get(`/api/security/guard/${guard.guard_id}/metrics`);
             if (res.data.success) {
                 const d = res.data.data;
                 setMetrics({
                     efficiency: d.efficiencyScore || 95,
-                    response: '2m 14s', // Still calculated/mocked on backend for now
+                    response: '2m 14s',
                     steps: guard.steps || 0,
                     patrols: d.totalPatrols || 0
                 });
@@ -44,7 +39,57 @@ const GuardProfileModal = ({ show, onHide, guard }) => {
         } catch (error) {
             console.error("Failed to load metrics", error);
         }
-    };
+    }, [guard?.guard_id, guard?.steps]);
+
+    useEffect(() => {
+        if (show && guard) {
+            fetchHandovers();
+            fetchMetrics();
+        }
+    }, [show, guard, fetchHandovers, fetchMetrics]);
+
+    const renderedHandovers = useMemo(() => {
+        if (loading) return <div className="text-center p-4"><Spinner animation="border" variant="info"/></div>;
+        if (!handovers || handovers.length === 0) return <p className="text-muted text-center">No digital logs on file.</p>;
+        
+        return handovers.map(log => (
+            <Card key={log.id} className="mb-3 bg-dark border-secondary">
+                <Card.Header className="d-flex justify-content-between align-items-center py-2">
+                    <span className="text-info small fw-bold">
+                        <FileText size={14} className="me-2"/>
+                        SHIFT END: {new Date(log.created_at).toLocaleString()}
+                    </span>
+                    <Badge bg="secondary">SIGNED</Badge>
+                </Card.Header>
+                <Card.Body>
+                    <div className="row">
+                        <div className="col-md-8 border-end border-secondary">
+                            <h6 className="text-muted small">NOTES</h6>
+                            <p className="small mb-0">{log.notes}</p>
+                            <div className="mt-3">
+                                <h6 className="text-muted small">INVENTORY CHECK</h6>
+                                <div className="d-flex gap-3 small">
+                                    {Object.entries(log.inventory_check || {}).map(([item, checked]) => (
+                                        <span key={item} className={checked ? 'text-success' : 'text-danger'}>
+                                            {checked ? <CheckCircle size={12}/> : <XCircle size={12}/>} {item.toUpperCase()}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-4 d-flex flex-column align-items-center justify-content-center">
+                            <div className="bg-white p-2 rounded mb-1 w-100 d-flex justify-content-center">
+                                {log.signature_url ? (
+                                    <img src={log.signature_url} alt="Sig" style={{maxHeight: '60px', maxWidth: '100%'}}/> 
+                                ) : <span className="text-muted small">No Sig</span>}
+                            </div>
+                            <small className="text-muted" style={{fontSize: '0.6rem'}}>DIGITALLY SIGNED</small>
+                        </div>
+                    </div>
+                </Card.Body>
+            </Card>
+        ));
+    }, [loading, handovers]);
 
     if (!guard) return null;
 
@@ -85,46 +130,7 @@ const GuardProfileModal = ({ show, onHide, guard }) => {
                     
                     <Tab eventKey="logbook" title="DIGITAL LOGBOOK">
                         <div className="p-2" style={{maxHeight: '400px', overflowY: 'auto'}}>
-                            {loading ? <div className="text-center p-4"><Spinner animation="border" variant="info"/></div> : (
-                                handovers.length === 0 ? <p className="text-muted text-center">No digital logs on file.</p> :
-                                handovers.map(log => (
-                                    <Card key={log.id} className="mb-3 bg-dark border-secondary">
-                                        <Card.Header className="d-flex justify-content-between align-items-center py-2">
-                                            <span className="text-info small fw-bold">
-                                                <FileText size={14} className="me-2"/>
-                                                SHIFT END: {new Date(log.created_at).toLocaleString()}
-                                            </span>
-                                            <Badge bg="secondary">SIGNED</Badge>
-                                        </Card.Header>
-                                        <Card.Body>
-                                            <div className="row">
-                                                <div className="col-md-8 border-end border-secondary">
-                                                    <h6 className="text-muted small">NOTES</h6>
-                                                    <p className="small mb-0">{log.notes}</p>
-                                                    <div className="mt-3">
-                                                        <h6 className="text-muted small">INVENTORY CHECK</h6>
-                                                        <div className="d-flex gap-3 small">
-                                                            {Object.entries(log.inventory_check || {}).map(([item, checked]) => (
-                                                                <span key={item} className={checked ? 'text-success' : 'text-danger'}>
-                                                                    {checked ? <CheckCircle size={12}/> : <XCircle size={12}/>} {item.toUpperCase()}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-md-4 d-flex flex-column align-items-center justify-content-center">
-                                                    <div className="bg-white p-2 rounded mb-1 w-100 d-flex justify-content-center">
-                                                        {log.signature_url ? (
-                                                            <img src={log.signature_url}  alt="Sig" style={{maxHeight: '60px', maxWidth: '100%'}}/> 
-                                                        ) : <span className="text-muted small">No Sig</span>}
-                                                    </div>
-                                                    <small className="text-muted" style={{fontSize: '0.6rem'}}>DIGITALLY SIGNED</small>
-                                                </div>
-                                            </div>
-                                        </Card.Body>
-                                    </Card>
-                                ))
-                            )}
+                            {renderedHandovers}
                         </div>
                     </Tab>
                 </Tabs>
@@ -134,6 +140,6 @@ const GuardProfileModal = ({ show, onHide, guard }) => {
             </Modal.Footer>
         </Modal>
     );
-};
+});
 
 export default GuardProfileModal;

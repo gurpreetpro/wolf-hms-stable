@@ -1531,6 +1531,7 @@ model hospitals {
   edi_transmissions             edi_transmissions[]
   dialysis_sessions             dialysis_sessions[]
 
+
   @@index([code], map: "idx_hospitals_code")
   @@index([custom_domain], map: "idx_hospitals_custom_domain")
   @@index([is_active], map: "idx_hospitals_is_active")
@@ -4275,8 +4276,9 @@ model users {
   vitals_logs                                                             vitals_logs[]
   wound_assessments                                                       wound_assessments[]
   oncology_staging_notes                                                  oncology_staging[]
-  chemo_administrations                                                   chemo_sessions[]
-  dialysis_performed                                                      dialysis_sessions[]
+  chemo_administrations                                                           chemo_sessions[]
+  dialysis_performed                                                                      dialysis_sessions[]
+
 
   @@index([email], map: "idx_users_email")
   @@index([hospital_id], map: "idx_users_hospital_id")
@@ -5314,4 +5316,431 @@ model inventory_transfers {
   notes            String?
   created_at       DateTime  @default(now()) @db.Timestamp(6)
   updated_at       DateTime  @default(now()) @db.Timestamp(6)
+}
+
+// --- HORIZON 1: CRITICAL CARE / ICU DASHBOARD CORE ---
+
+model icu_ventilator_logs {
+  id               Int      @id @default(autoincrement())
+  admission_id     Int
+  ventilator_mode  String?  @db.VarChar(50)
+  peep             Float?
+  fio2             Float?
+  respiratory_rate Int?
+  tidal_volume     Float?
+  peak_pressure    Float?
+  plateau_pressure Float?
+  sp02             Float?
+  ie_ratio         String?  @db.VarChar(20)
+  recorded_by      Int?
+  hospital_id      Int?
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+  updated_at       DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([admission_id], map: "idx_icu_vent_admission")
+  @@index([hospital_id], map: "idx_icu_vent_hospital")
+}
+
+model icu_fluid_io_charting {
+  id                    Int      @id @default(autoincrement())
+  admission_id          Int
+  chart_time            DateTime @db.Timestamp(6)
+  iv_fluids_ml          Float?   @default(0.0)
+  blood_products_ml     Float?   @default(0.0)
+  oral_intake_ml        Float?   @default(0.0)
+  enteral_feeding_ml    Float?   @default(0.0)
+  total_intake_ml       Float?   @default(0.0)
+  urine_output_ml       Float?   @default(0.0)
+  drain_output_ml       Float?   @default(0.0)
+  stool_output_ml       Float?   @default(0.0)
+  emesis_ml             Float?   @default(0.0)
+  total_output_ml       Float?   @default(0.0)
+  hourly_balance_ml     Float?   @default(0.0)
+  cumulative_balance_ml Float?   @default(0.0)
+  notes                 String?
+  recorded_by           Int?
+  hospital_id           Int?
+  created_at            DateTime @default(now()) @db.Timestamp(6)
+  updated_at            DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([admission_id], map: "idx_icu_io_admission")
+  @@index([hospital_id], map: "idx_icu_io_hospital")
+  @@index([chart_time], map: "idx_icu_io_chart_time")
+}
+
+// --- HORIZON 1: MATERNITY / OBGYN CORE ---
+
+model maternity_antenatal_profiles {
+  id                    Int       @id @default(autoincrement())
+  patient_id            String    @db.Uuid
+  gravidity             Int       @default(1)
+  parity                Int       @default(0)
+  abortions             Int       @default(0)
+  living_children       Int       @default(0)
+  lmp                   DateTime? @db.Date
+  edd                   DateTime? @db.Date
+  gestational_age_weeks Float?
+  risk_category         String?   @default("LOW_RISK") @db.VarChar(50)
+  blood_group           String?   @db.VarChar(10)
+  rh_factor             String?   @db.VarChar(10)
+  special_notes         String?
+  hospital_id           Int?
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_maternity_antenatal_patient")
+  @@index([hospital_id], map: "idx_maternity_antenatal_hospital")
+}
+
+model maternity_labor_partographs {
+  id                       Int      @id @default(autoincrement())
+  antenatal_profile_id     Int?
+  admission_id             Int?
+  patient_id               String   @db.Uuid
+  recorded_at              DateTime @default(now()) @db.Timestamp(6)
+  cervical_dilation_cm     Float
+  fetal_heart_rate_bpm     Int
+  fhr_pattern              String?  @db.VarChar(50)
+  contractions_per_10min   Int
+  contraction_duration_sec Int
+  amniotic_fluid_status    String?  @db.VarChar(50)
+  maternal_bp_systolic     Int?
+  maternal_bp_diastolic    Int?
+  maternal_pulse_bpm       Int?
+  oxytocin_units_min       Float?   @default(0.0)
+  alert_zone_triggered     Boolean  @default(false)
+  action_zone_triggered    Boolean  @default(false)
+  recorded_by              Int?
+  hospital_id              Int?
+  created_at               DateTime @default(now()) @db.Timestamp(6)
+  updated_at               DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_maternity_parto_patient")
+  @@index([antenatal_profile_id], map: "idx_maternity_parto_profile")
+  @@index([hospital_id], map: "idx_maternity_parto_hospital")
+}
+
+model maternity_delivery_registry {
+  id                       Int      @id @default(autoincrement())
+  patient_id               String   @db.Uuid
+  admission_id             Int?
+  antenatal_profile_id     Int?
+  delivery_timestamp       DateTime @db.Timestamp(6)
+  delivery_type            String   @db.VarChar(50)
+  indication_for_lscs      String?
+  obstetrician_id          Int?
+  pediatrician_id          Int?
+  newborn_gender           String   @db.VarChar(20)
+  newborn_weight_kg        Float
+  apgar_1min               Int
+  apgar_5min               Int
+  apgar_10min              Int?
+  birth_certificate_number String?  @unique @db.VarChar(100)
+  complications            String?
+  blood_loss_ml            Float?
+  hospital_id              Int?
+  created_at               DateTime @default(now()) @db.Timestamp(6)
+  updated_at               DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_maternity_delivery_patient")
+  @@index([hospital_id], map: "idx_maternity_delivery_hospital")
+}
+
+// --- HORIZON 2: DENTAL MODULE ---
+
+model dental_visits {
+  id              Int       @id @default(autoincrement())
+  patient_id      String    @db.Uuid
+  admission_id    Int?
+  visit_date      DateTime  @default(now()) @db.Timestamp(6)
+  chief_complaint String?
+  diagnosis       String?
+  treatment_plan  String?
+  notes           String?
+  odontogram      Json?     @default("{}")
+  tooth_chart_url String?
+  doctor_id       Int?
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_dental_visits_patient")
+  @@index([hospital_id], map: "idx_dental_visits_hospital")
+}
+
+model dental_procedures {
+  id                Int       @id @default(autoincrement())
+  visit_id          Int?
+  patient_id        String    @db.Uuid
+  procedure_name    String    @db.VarChar(255)
+  tooth_number      String?   @db.VarChar(50)
+  quadrant          String?   @db.VarChar(20)
+  surface           String?   @db.VarChar(50)
+  procedure_code    String?   @db.VarChar(50)
+  fee               Decimal?  @db.Decimal(10, 2)
+  discount          Decimal?  @default(0) @db.Decimal(10, 2)
+  net_amount        Decimal?  @db.Decimal(10, 2)
+  status            String?   @default("Completed") @db.VarChar(50)
+  performed_by      Int?
+  performed_at      DateTime? @db.Timestamp(6)
+  notes             String?
+  hospital_id       Int?
+  created_at        DateTime  @default(now()) @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([visit_id], map: "idx_dental_procedures_visit")
+  @@index([patient_id], map: "idx_dental_procedures_patient")
+  @@index([hospital_id], map: "idx_dental_procedures_hospital")
+}
+
+model dental_inventory {
+  id              Int       @id @default(autoincrement())
+  item_name       String    @db.VarChar(255)
+  category        String?   @db.VarChar(100)
+  brand           String?   @db.VarChar(255)
+  batch_number    String?   @db.VarChar(50)
+  expiry_date     DateTime? @db.Date
+  stock_quantity  Int?      @default(0)
+  reorder_level   Int?      @default(5)
+  unit_price      Decimal?  @db.Decimal(10, 2)
+  supplier_name   String?   @db.VarChar(255)
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([hospital_id], map: "idx_dental_inventory_hospital")
+  @@index([category], map: "idx_dental_inventory_category")
+}
+
+model dental_lab_orders {
+  id              Int       @id @default(autoincrement())
+  patient_id      String    @db.Uuid
+  visit_id        Int?
+  lab_type        String    @db.VarChar(100)
+  tooth_number    String?   @db.VarChar(50)
+  shade           String?   @db.VarChar(20)
+  material        String?   @db.VarChar(100)
+  instructions    String?
+  due_date        DateTime? @db.Date
+  status          String?   @default("Pending") @db.VarChar(50)
+  completed_at    DateTime? @db.Timestamp(6)
+  cost            Decimal?  @db.Decimal(10, 2)
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_dental_lab_orders_patient")
+  @@index([hospital_id], map: "idx_dental_lab_orders_hospital")
+}
+
+// --- HORIZON 2: OPHTHALMOLOGY MODULE ---
+
+model ophthalmology_visits {
+  id                    Int       @id @default(autoincrement())
+  patient_id            String    @db.Uuid
+  admission_id          Int?
+  visit_date            DateTime  @default(now()) @db.Timestamp(6)
+  chief_complaint       String?
+  vision_od_unaided     String?   @db.VarChar(20)
+  vision_os_unaided     String?   @db.VarChar(20)
+  vision_od_best        String?   @db.VarChar(20)
+  vision_os_best        String?   @db.VarChar(20)
+  iop_od                Decimal?  @db.Decimal(5, 1)
+  iop_os                Decimal?  @db.Decimal(5, 1)
+  refraction_sphere_od  Decimal?  @db.Decimal(5, 2)
+  refraction_sphere_os  Decimal?  @db.Decimal(5, 2)
+  refraction_cylinder_od Decimal? @db.Decimal(5, 2)
+  refraction_cylinder_os Decimal? @db.Decimal(5, 2)
+  refraction_axis_od    Int?
+  refraction_axis_os    Int?
+  diagnosis             String?
+  treatment_plan        String?
+  doctor_id             Int?
+  hospital_id           Int?
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_ophth_visits_patient")
+  @@index([hospital_id], map: "idx_ophth_visits_hospital")
+}
+
+model ophthalmology_procedures {
+  id                Int       @id @default(autoincrement())
+  visit_id          Int?
+  patient_id        String    @db.Uuid
+  procedure_name    String    @db.VarChar(255)
+  eye               String    @db.VarChar(10)
+  procedure_code    String?   @db.VarChar(50)
+  surgeon_id        Int?
+  surgery_date      DateTime? @db.Timestamp(6)
+  iol_implanted     Boolean?  @default(false)
+  iol_power         Decimal?  @db.Decimal(5, 2)
+  iol_model         String?   @db.VarChar(255)
+  fee               Decimal?  @db.Decimal(10, 2)
+  discount          Decimal?  @default(0) @db.Decimal(10, 2)
+  net_amount        Decimal?  @db.Decimal(10, 2)
+  status            String?   @default("Completed") @db.VarChar(50)
+  complications     String?
+  notes             String?
+  hospital_id       Int?
+  created_at        DateTime  @default(now()) @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([visit_id], map: "idx_ophth_procedures_visit")
+  @@index([patient_id], map: "idx_ophth_procedures_patient")
+  @@index([hospital_id], map: "idx_ophth_procedures_hospital")
+}
+
+model ophthalmology_biometry {
+  id              Int       @id @default(autoincrement())
+  patient_id      String    @db.Uuid
+  visit_id        Int?
+  eye             String    @db.VarChar(10)
+  axial_length_mm Decimal?  @db.Decimal(5, 2)
+  k1_d            Decimal?  @db.Decimal(6, 2)
+  k2_d            Decimal?  @db.Decimal(6, 2)
+  acd_mm          Decimal?  @db.Decimal(5, 2)
+  lens_thickness_mm Decimal? @db.Decimal(5, 2)
+  wtW_mm          Decimal?  @db.Decimal(5, 2)
+  iol_formula     String?   @db.VarChar(50)
+  target_refraction Decimal? @db.Decimal(5, 2)
+  iol_power_se    Decimal?  @db.Decimal(5, 2)
+  iol_power_te    Decimal?  @db.Decimal(5, 2)
+  iol_power_ae    Decimal?  @db.Decimal(5, 2)
+  measured_by     Int?
+  measured_at     DateTime? @db.Timestamp(6)
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_ophth_biometry_patient")
+  @@index([hospital_id], map: "idx_ophth_biometry_hospital")
+}
+
+model ophthalmology_inventory {
+  id              Int       @id @default(autoincrement())
+  item_name       String    @db.VarChar(255)
+  category        String?   @db.VarChar(100)
+  brand           String?   @db.VarChar(255)
+  model           String?   @db.VarChar(255)
+  diopter_range   String?   @db.VarChar(50)
+  batch_number    String?   @db.VarChar(50)
+  expiry_date     DateTime? @db.Date
+  stock_quantity  Int?      @default(0)
+  reorder_level   Int?      @default(5)
+  unit_price      Decimal?  @db.Decimal(10, 2)
+  supplier_name   String?   @db.VarChar(255)
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([hospital_id], map: "idx_ophth_inventory_hospital")
+  @@index([category], map: "idx_ophth_inventory_category")
+}
+
+// --- HORIZON 2: ORTHOPEDIC MODULE ---
+
+model orthopedic_visits {
+  id                    Int       @id @default(autoincrement())
+  patient_id            String    @db.Uuid
+  admission_id          Int?
+  visit_date            DateTime  @default(now()) @db.Timestamp(6)
+  chief_complaint       String?
+  injury_mechanism      String?
+  affected_joint        String?   @db.VarChar(100)
+  affected_side         String?   @db.VarChar(20)
+  pain_score_nrs        Int?
+  swelling_present      Boolean?  @default(false)
+  deformity_present     Boolean?  @default(false)
+  range_of_motion_json  Json?     @default("{}")
+  xray_findings         String?
+  mri_findings          String?
+  diagnosis             String?
+  treatment_plan        String?
+  doctor_id             Int?
+  hospital_id           Int?
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+  updated_at            DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_ortho_visits_patient")
+  @@index([hospital_id], map: "idx_ortho_visits_hospital")
+}
+
+model orthopedic_procedures {
+  id                Int       @id @default(autoincrement())
+  visit_id          Int?
+  patient_id        String    @db.Uuid
+  procedure_name    String    @db.VarChar(255)
+  procedure_code    String?   @db.VarChar(50)
+  joint             String?   @db.VarChar(100)
+  side              String?   @db.VarChar(20)
+  approach          String?   @db.VarChar(100)
+  surgeon_id        Int?
+  surgery_date      DateTime? @db.Timestamp(6)
+  implants_used_json Json?    @default("[]")
+  bone_cement_used  Boolean?  @default(false)
+  tourniquet_time_min Int?
+  blood_loss_ml     Int?
+  fee               Decimal?  @db.Decimal(10, 2)
+  discount          Decimal?  @default(0) @db.Decimal(10, 2)
+  net_amount        Decimal?  @db.Decimal(10, 2)
+  status            String?   @default("Completed") @db.VarChar(50)
+  complications     String?
+  notes             String?
+  hospital_id       Int?
+  created_at        DateTime  @default(now()) @db.Timestamp(6)
+  updated_at        DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([visit_id], map: "idx_ortho_procedures_visit")
+  @@index([patient_id], map: "idx_ortho_procedures_patient")
+  @@index([hospital_id], map: "idx_ortho_procedures_hospital")
+}
+
+model orthopedic_implants {
+  id              Int       @id @default(autoincrement())
+  implant_name    String    @db.VarChar(255)
+  category        String?   @db.VarChar(100)
+  manufacturer    String?   @db.VarChar(255)
+  model_number    String?   @db.VarChar(100)
+  lot_number      String?   @db.VarChar(100)
+  batch_number    String?   @db.VarChar(50)
+  expiry_date     DateTime? @db.Date
+  size            String?   @db.VarChar(50)
+  material        String?   @db.VarChar(100)
+  stock_quantity  Int?      @default(0)
+  reorder_level   Int?      @default(2)
+  unit_price      Decimal?  @db.Decimal(10, 2)
+  supplier_name   String?   @db.VarChar(255)
+  is_sterile      Boolean?  @default(true)
+  hospital_id     Int?
+  created_at      DateTime  @default(now()) @db.Timestamp(6)
+  updated_at      DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([hospital_id], map: "idx_ortho_implants_hospital")
+  @@index([category], map: "idx_ortho_implants_category")
+  @@index([lot_number], map: "idx_ortho_implants_lot")
+}
+
+model orthopedic_physio_orders {
+  id               Int       @id @default(autoincrement())
+  patient_id       String    @db.Uuid
+  procedure_id     Int?
+  visit_id         Int?
+  physio_type      String    @db.VarChar(100)
+  frequency        String?   @db.VarChar(50)
+  duration_weeks   Int?
+  sessions_per_week Int?
+  total_sessions   Int?
+  completed_sessions Int?    @default(0)
+  weight_bearing_status String? @db.VarChar(50)
+  rom_goals_json   Json?     @default("{}")
+  precautions      String?
+  status           String?   @default("Active") @db.VarChar(50)
+  ordered_by       Int?
+  hospital_id      Int?
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([patient_id], map: "idx_ortho_physio_patient")
+  @@index([hospital_id], map: "idx_ortho_physio_hospital")
 }

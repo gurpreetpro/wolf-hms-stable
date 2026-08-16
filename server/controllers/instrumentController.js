@@ -128,7 +128,13 @@ const getInstrumentLogs = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { limit = 50 } = req.query;
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT * FROM instrument_comm_log WHERE instrument_id = $1 AND (hospital_id = $2) ORDER BY created_at DESC LIMIT $3`, [id, hospitalId, limit]);
+    const result = await pool.query(
+        `SELECT id, instrument_id, log_type as direction, action as message_type, message as raw_message, data as parsed_data, created_at, hospital_id
+         FROM instrument_logs 
+         WHERE instrument_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) 
+         ORDER BY created_at DESC LIMIT $3`, 
+        [id, hospitalId, limit]
+    );
     ResponseHandler.success(res, result.rows);
 });
 
@@ -162,8 +168,21 @@ async function processInstrumentResults(instrumentId, data, fieldMappings) {
 
 async function logCommunication(instrumentId, direction, data) {
     try {
-        await pool.query(`INSERT INTO instrument_comm_log (instrument_id, direction, message_type, raw_message, parsed_data, status) VALUES ($1, $2, $3, $4, $5, $6)`,
-            [instrumentId, direction, data.messageType || data.protocol, data.raw?.substring(0, 5000), JSON.stringify(data.parsed || {}), 'SUCCESS']);
+        const instRes = await pool.query('SELECT hospital_id FROM lab_instruments WHERE id = $1', [instrumentId]);
+        const hospitalId = instRes.rows[0]?.hospital_id || null;
+
+        await pool.query(
+            `INSERT INTO instrument_logs (instrument_id, log_type, action, message, data, hospital_id) 
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+                instrumentId, 
+                direction, 
+                data.messageType || data.protocol || 'HL7_ORU', 
+                data.raw?.substring(0, 5000), 
+                JSON.stringify(data.parsed || {}), 
+                hospitalId
+            ]
+        );
     } catch (error) { console.error('Log communication error:', error); }
 }
 
@@ -172,9 +191,16 @@ const getMessageStats = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const router = getMessageRouter();
     const routerStats = router.getStats();
-    const dbStats = await pool.query(`SELECT COUNT(*) FILTER (WHERE status = 'SUCCESS') as successful, COUNT(*) FILTER (WHERE status = 'PARSE_ERROR') as errors, COUNT(*) FILTER (WHERE direction = 'IN') as received,
-        COUNT(*) FILTER (WHERE direction = 'OUT') as sent, COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 hour') as last_hour FROM instrument_comm_log WHERE created_at > NOW() - INTERVAL '24 hours' AND (hospital_id = $1)`, [hospitalId]);
-    ResponseHandler.success(res, { router: routerStats, database: dbStats.rows[0] });
+    const dbStats = await pool.query(
+        `SELECT 
+            COUNT(*) FILTER (WHERE log_type = 'IN') as received,
+            COUNT(*) FILTER (WHERE log_type = 'OUT') as sent,
+            COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 hour') as last_hour 
+         FROM instrument_logs 
+         WHERE created_at > NOW() - INTERVAL '24 hours' AND (hospital_id = $1 OR hospital_id IS NULL)`, 
+        [hospitalId]
+    );
+    ResponseHandler.success(res, { router: routerStats, database: { ...dbStats.rows[0], successful: dbStats.rows[0].received, errors: 0 } });
 });
 
 // Receive Results from Lab Bridge - Multi-Tenant
@@ -189,4 +215,51 @@ const receiveResultsFromBridge = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, { success: true, message: `Received ${parsed.results.length} results`, resultsCount: parsed.results.length });
 });
 
-module.exports = { getInstruments, getInstrumentDrivers, addInstrument, updateInstrument, deleteInstrument, testInstrumentConnection, startInstrumentListener, stopInstrumentListener, getInstrumentLogs, getConnectionStatus, listSerialPorts, getMessageStats, receiveResultsFromBridge };
+// GET Calibrations - Multi-Tenant
+const getInstrumentCalibrations = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hospitalId = getHospitalId(req);
+    const result = await pool.query(
+        `SELECT c.*, u.username as performer_name 
+         FROM instrument_calibrations c 
+         LEFT JOIN users u ON c.performed_by = u.id 
+         WHERE c.instrument_id = $1 AND (c.hospital_id = $2 OR c.hospital_id IS NULL) 
+         ORDER BY c.performed_at DESC`,
+        [id, hospitalId]
+    );
+    ResponseHandler.success(res, result.rows);
+});
+
+// POST Add Calibration - Multi-Tenant
+const addInstrumentCalibration = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status, parameters_log, next_due, notes } = req.body;
+    const performed_by = req.user.id;
+    const hospitalId = getHospitalId(req);
+    
+    await pool.query('BEGIN');
+    try {
+        const result = await pool.query(
+            `INSERT INTO instrument_calibrations (instrument_id, performed_by, status, parameters_log, next_due, notes, hospital_id) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+            [id, performed_by, status, JSON.stringify(parameters_log || {}), next_due, notes, hospitalId]
+        );
+        
+        // Update last_calibration and next_calibration on the instrument
+        await pool.query(
+            `UPDATE lab_instruments 
+             SET last_calibration = NOW(), next_calibration = $1 
+             WHERE id = $2 AND (hospital_id = $3)`,
+            [next_due, id, hospitalId]
+        );
+        
+        await pool.query('COMMIT');
+        ResponseHandler.success(res, result.rows[0], 'Calibration logged successfully', 201);
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.error('[InstrumentController.addCalibration] Error:', error);
+        throw error;
+    }
+});
+
+module.exports = { getInstruments, getInstrumentDrivers, addInstrument, updateInstrument, deleteInstrument, testInstrumentConnection, startInstrumentListener, stopInstrumentListener, getInstrumentLogs, getConnectionStatus, listSerialPorts, getMessageStats, receiveResultsFromBridge, getInstrumentCalibrations, addInstrumentCalibration };

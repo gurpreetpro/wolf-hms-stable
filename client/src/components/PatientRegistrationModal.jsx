@@ -7,7 +7,7 @@ import InsuranceVerifier from './InsuranceVerifier';
 import ABHALinker from './ABHALinker';
 import PaymentModal from './PaymentModal';
 
-const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = null }) => {
+const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = null, abhaPreFill = null }) => {
     const [doctors, setDoctors] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
@@ -183,7 +183,7 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
         setError('');
-        
+
         // Auto-update consultation fee when doctor is selected
         if (name === 'doctor_id' && value) {
             const selectedDoctor = doctors.find(d => d.id === parseInt(value));
@@ -204,7 +204,7 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
     const handleVisitTypeChange = (e) => {
         const type = e.target.value;
         setVisitType(type);
-        
+
         // Auto-update Amount logic
         if (type === 'Follow-up') {
             setPaymentData(prev => ({ ...prev, amount: '0', mode: 'Free' }));
@@ -212,12 +212,12 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
             setIsEmergency(true);
             setPaymentData(prev => ({ ...prev, amount: '1000' })); // Emergency Flat Fee example
         } else {
-             // Reset to Doctor Fee
-             if (formData.doctor_id) {
+            // Reset to Doctor Fee
+            if (formData.doctor_id) {
                 const doc = doctors.find(d => d.id === parseInt(formData.doctor_id));
                 if (doc) setPaymentData(prev => ({ ...prev, amount: String(doc.consultation_fee || 500), mode: 'Cash' }));
-             }
-             setIsEmergency(false);
+            }
+            setIsEmergency(false);
         }
     };
 
@@ -338,7 +338,7 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
 
             // Use data from API response (includes UHID and doctor_name)
             // [FIX] Unwrap correctly: res.data is the axios body, res.data.data is the actual payload from ResponseHandler
-            const responseData = res.data.data || res.data; 
+            const responseData = res.data.data || res.data;
             const apiPatient = responseData.patient || {};
             const apiVisit = responseData.visit || {};
             const apiToken = responseData.token;
@@ -428,13 +428,34 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
     };
 
 
+    // Process ABHA pre-fill data from ABHA Scanner
+    useEffect(() => {
+        if (abhaPreFill && show) {
+            setFormData(prev => ({
+                ...prev,
+                name: abhaPreFill.name || prev.name,
+                dob: abhaPreFill.dob ? new Date(abhaPreFill.dob).toISOString().split('T')[0] || abhaPreFill.dob : prev.dob,
+                gender: abhaPreFill.gender || prev.gender,
+                phone: abhaPreFill.phone || prev.phone,
+                address: abhaPreFill.address || prev.address
+            }));
+            setIsExistingPatient(false);
+            setFoundPatientId(null);
+            setError('');
+            // Also store ABHA link data for later persistence
+            if (abhaPreFill.abhaNumber) {
+                setLinkedABHA({ healthId: abhaPreFill.abhaNumber, verified: abhaPreFill.abhaVerified });
+            }
+        }
+    }, [abhaPreFill, show]);
+
     // Moved to bottom to fix no-use-before-define
     useEffect(() => {
         if (show) {
             fetchDoctors();
             if (existingPatient) {
                 loadExistingPatient(existingPatient);
-            } else {
+            } else if (!abhaPreFill) {
                 resetForm();
             }
         }
@@ -510,7 +531,7 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
                         {/* Phase 1: Emergency Toggle & Visit Type */}
                         <div className="d-flex justify-content-between align-items-center mb-4 p-3 rounded" style={{ background: isEmergency ? '#fee2e2' : '#f8f9fa' }}>
                             <div className="d-flex align-items-center gap-3">
-                                <Form.Check 
+                                <Form.Check
                                     type="switch"
                                     id="emergency-switch"
                                     label={<span className={`fw-bold ${isEmergency ? 'text-danger' : 'text-dark'}`}>🚨 EMERGENCY MODE</span>}
@@ -521,8 +542,8 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
                             </div>
                             <div className="d-flex align-items-center gap-2">
                                 <span className="small fw-bold text-muted">Visit Type:</span>
-                                <Form.Select 
-                                    size="sm" 
+                                <Form.Select
+                                    size="sm"
                                     style={{ width: '150px' }}
                                     value={visitType}
                                     onChange={handleVisitTypeChange}
@@ -683,99 +704,99 @@ const PatientRegistrationModal = ({ show, onHide, onRegister, existingPatient = 
 
                             {!isEmergency && (
                                 <Tab eventKey="insurance" title="🛡️ Insurance & ABHA">
-                                <Alert variant="info" className="py-2 mb-3">
-                                    <small><Shield size={14} className="me-1" /> Link insurance policy or ABHA for cashless treatment and health record sharing.</small>
-                                </Alert>
-
-                                {/* ABHA Section */}
-                                <div className="p-3 bg-light rounded mb-3">
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <span className="fw-bold">
-                                            <Shield size={16} className="me-2 text-primary" />
-                                            ABHA (Ayushman Bharat Health Account)
-                                        </span>
-                                        {linkedABHA && (
-                                            <Badge bg="success">
-                                                <CheckCircle size={12} className="me-1" />
-                                                Linked
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <p className="small text-muted mb-2">
-                                        Link ABHA number for digital health records and interoperability.
-                                    </p>
-                                    <Button
-                                        variant={linkedABHA ? "outline-success" : "outline-primary"}
-                                        size="sm"
-                                        onClick={() => setShowABHALinker(true)}
-                                        disabled={!isExistingPatient && !foundPatientId}
-                                    >
-                                        <Shield size={14} className="me-1" />
-                                        {linkedABHA ? 'View ABHA' : 'Link ABHA Number'}
-                                    </Button>
-                                    {!isExistingPatient && !foundPatientId && (
-                                        <small className="text-muted d-block mt-1">Save patient first to link ABHA</small>
-                                    )}
-                                </div>
-
-                                {/* Insurance Section */}
-                                <div className="p-3 bg-light rounded mb-3">
-                                    <div className="d-flex justify-content-between align-items-center mb-2">
-                                        <span className="fw-bold">
-                                            <CreditCard size={16} className="me-2 text-success" />
-                                            Insurance / TPA Verification
-                                        </span>
-                                        {verifiedInsurance && (
-                                            <Badge bg="success">
-                                                <CheckCircle size={12} className="me-1" />
-                                                Verified
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <Row className="mb-2">
-                                        <Col md={6}>
-                                            <Form.Group className="mb-2">
-                                                <Form.Label className="small">Insurance Provider</Form.Label>
-                                                <Form.Control
-                                                    size="sm"
-                                                    name="insuranceProvider"
-                                                    value={formData.insuranceProvider}
-                                                    onChange={handleChange}
-                                                    placeholder="e.g., Medi Assist, Paramount"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-2">
-                                                <Form.Label className="small">Policy Number</Form.Label>
-                                                <Form.Control
-                                                    size="sm"
-                                                    name="policyNumber"
-                                                    value={formData.policyNumber}
-                                                    onChange={handleChange}
-                                                    placeholder="Policy number"
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                    <Button
-                                        variant={verifiedInsurance ? "outline-success" : "success"}
-                                        size="sm"
-                                        onClick={() => setShowInsuranceVerifier(true)}
-                                        disabled={!isExistingPatient && !foundPatientId}
-                                    >
-                                        <CreditCard size={14} className="me-1" />
-                                        {verifiedInsurance ? 'View Policy Details' : 'Verify & Link Insurance'}
-                                    </Button>
-                                </div>
-
-                                {verifiedInsurance && (
-                                    <Alert variant="success" className="py-2">
-                                        <strong>Insurance Verified:</strong> {verifiedInsurance.providerName}<br />
-                                        <small>Sum Insured: ₹{verifiedInsurance.sumInsured?.toLocaleString()} | Balance: ₹{verifiedInsurance.availableBalance?.toLocaleString()}</small>
+                                    <Alert variant="info" className="py-2 mb-3">
+                                        <small><Shield size={14} className="me-1" /> Link insurance policy or ABHA for cashless treatment and health record sharing.</small>
                                     </Alert>
-                                )}
-                            </Tab>
+
+                                    {/* ABHA Section */}
+                                    <div className="p-3 bg-light rounded mb-3">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <span className="fw-bold">
+                                                <Shield size={16} className="me-2 text-primary" />
+                                                ABHA (Ayushman Bharat Health Account)
+                                            </span>
+                                            {linkedABHA && (
+                                                <Badge bg="success">
+                                                    <CheckCircle size={12} className="me-1" />
+                                                    Linked
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <p className="small text-muted mb-2">
+                                            Link ABHA number for digital health records and interoperability.
+                                        </p>
+                                        <Button
+                                            variant={linkedABHA ? "outline-success" : "outline-primary"}
+                                            size="sm"
+                                            onClick={() => setShowABHALinker(true)}
+                                            disabled={!isExistingPatient && !foundPatientId}
+                                        >
+                                            <Shield size={14} className="me-1" />
+                                            {linkedABHA ? 'View ABHA' : 'Link ABHA Number'}
+                                        </Button>
+                                        {!isExistingPatient && !foundPatientId && (
+                                            <small className="text-muted d-block mt-1">Save patient first to link ABHA</small>
+                                        )}
+                                    </div>
+
+                                    {/* Insurance Section */}
+                                    <div className="p-3 bg-light rounded mb-3">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <span className="fw-bold">
+                                                <CreditCard size={16} className="me-2 text-success" />
+                                                Insurance / TPA Verification
+                                            </span>
+                                            {verifiedInsurance && (
+                                                <Badge bg="success">
+                                                    <CheckCircle size={12} className="me-1" />
+                                                    Verified
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <Row className="mb-2">
+                                            <Col md={6}>
+                                                <Form.Group className="mb-2">
+                                                    <Form.Label className="small">Insurance Provider</Form.Label>
+                                                    <Form.Control
+                                                        size="sm"
+                                                        name="insuranceProvider"
+                                                        value={formData.insuranceProvider}
+                                                        onChange={handleChange}
+                                                        placeholder="e.g., Medi Assist, Paramount"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                            <Col md={6}>
+                                                <Form.Group className="mb-2">
+                                                    <Form.Label className="small">Policy Number</Form.Label>
+                                                    <Form.Control
+                                                        size="sm"
+                                                        name="policyNumber"
+                                                        value={formData.policyNumber}
+                                                        onChange={handleChange}
+                                                        placeholder="Policy number"
+                                                    />
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                        <Button
+                                            variant={verifiedInsurance ? "outline-success" : "success"}
+                                            size="sm"
+                                            onClick={() => setShowInsuranceVerifier(true)}
+                                            disabled={!isExistingPatient && !foundPatientId}
+                                        >
+                                            <CreditCard size={14} className="me-1" />
+                                            {verifiedInsurance ? 'View Policy Details' : 'Verify & Link Insurance'}
+                                        </Button>
+                                    </div>
+
+                                    {verifiedInsurance && (
+                                        <Alert variant="success" className="py-2">
+                                            <strong>Insurance Verified:</strong> {verifiedInsurance.providerName}<br />
+                                            <small>Sum Insured: ₹{verifiedInsurance.sumInsured?.toLocaleString()} | Balance: ₹{verifiedInsurance.availableBalance?.toLocaleString()}</small>
+                                        </Alert>
+                                    )}
+                                </Tab>
                             )}
 
                             <Tab eventKey="vitals" title="⚡ Triage Vitals (Optional)">

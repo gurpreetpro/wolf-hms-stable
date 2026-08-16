@@ -330,7 +330,7 @@ class InsuranceService {
                 COUNT(*) FILTER (WHERE status IN ('submitted', 'under_review')) as pending_claims,
                 COALESCE(SUM(claimed_amount), 0) as total_claimed,
                 COALESCE(SUM(settlement_amount), 0) as total_settled,
-                COALESCE(AVG(EXTRACT(DAY FROM (settlement_date - submitted_at::date))), 0) as avg_settlement_days
+                COALESCE(AVG(settlement_date - submitted_at::date), 0) as avg_settlement_days
             FROM insurance_claims
             WHERE submitted_at >= NOW() - INTERVAL '90 days'
         `);

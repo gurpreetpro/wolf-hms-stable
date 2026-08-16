@@ -65,7 +65,11 @@ import AssetDashboard from './pages/AssetDashboard';
 import CommsDashboard from './pages/CommsDashboard';
 import ClinicalPathwaysDashboard from './pages/ClinicalPathwaysDashboard';
 import InfectionControlDashboard from './pages/InfectionControlDashboard';
-import FHIRExplorer from './pages/FHIRExplorer';
+import ICUDashboard from './pages/clinical/ICUDashboard';
+import DentalDashboard from './pages/clinical/DentalDashboard';
+import OphthalmologyDashboard from './pages/clinical/OphthalmologyDashboard';
+import OrthopedicDashboard from './pages/clinical/OrthopedicDashboard';
+import FHIRExplorer from './pages/FHIRExplorer'; // FHIR Lab / Interop Explorer
 
 // Phase 2: Revenue & Clinical AI
 import PriorAuthDashboard from './pages/PriorAuthDashboard';
@@ -142,6 +146,7 @@ import TreatmentPackageManager from './pages/TreatmentPackageManager';
 import TPAProviderAdmin from './pages/TPAProviderAdmin';
 import CloudBackupConsole from './pages/CloudBackupConsole';
 import EnterpriseAIDashboard from './pages/EnterpriseAIDashboard'; // Phase 8: Enterprise AI
+import SecurityDashboard from './pages/admin/SecurityDashboard'; // Phase 9B: Login Security
 
 // Phase 13: Remaining Gap Closure (Deep Scan Audit — Medium + Low)
 import AutomationDashboard from './components/AutomationDashboard';
@@ -157,272 +162,298 @@ function App() {
     <ThemeProvider>
       <HospitalProfileProvider>
         <SystemStatusProvider>
-        <ErrorBoundary>
-          {/* Global Real-time Notification Toast */}
-          <NotificationToast maxNotifications={5} autoDismiss={8000} />
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/security-setup" element={<SecuritySetup />} />
-              <Route path="/activate" element={<Activation />} />
-              <Route path="/activated" element={<Activation />} />
-              <Route path="/demo" element={<DemoPage />} />
-              <Route path="/service-unavailable" element={<ServiceUnavailable />} />
-              
-              {/* Developer Portal - Master Domain Landing */}
-              <Route path="/developer" element={<MasterDomainLanding />} />
-              {/* Public Lab Report Access (No Login) */}
-              <Route path="/report/:token" element={<PublicReportView />} />
+          <ErrorBoundary>
+            {/* Global Real-time Notification Toast */}
+            <NotificationToast maxNotifications={5} autoDismiss={8000} />
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/security-setup" element={<SecuritySetup />} />
+                <Route path="/activate" element={<Activation />} />
+                <Route path="/activated" element={<Activation />} />
+                <Route path="/demo" element={<DemoPage />} />
+                <Route path="/service-unavailable" element={<ServiceUnavailable />} />
 
-              {/* SaaS Platform Control Plane - Super Admin Only */}
-              <Route element={<ProtectedRoute allowedRoles={['admin', 'administrator', 'platform_admin']} />}>
+                {/* Developer Portal - Master Domain Landing */}
+                <Route path="/developer" element={<MasterDomainLanding />} />
+                {/* Public Lab Report Access (No Login) */}
+                <Route path="/report/:token" element={<PublicReportView />} />
+
+                {/* SaaS Platform Control Plane - Super Admin Only */}
+                <Route element={<ProtectedRoute allowedRoles={['admin', 'administrator', 'platform_admin']} />}>
                   <Route path="/platform" element={<PlatformDashboard />} />
-              </Route>
-
-              {/* ============================================== */}
-              {/* ROLE-BASED ACCESS CONTROL (RBAC) - Phase 1    */}
-              {/* ============================================== */}
-
-              {/* Common routes - Any authenticated user */}
-              <Route element={<ProtectedRoute />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/" element={<DashboardHome />} />
-                  <Route path="/queue-display" element={<QueueDisplay />} />
-                  <Route path="/ai-demo" element={<AIDemoPage />} />
                 </Route>
-              </Route>
 
-              {/* Reception/OPD - receptionist, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['receptionist', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/opd" element={<OPDReception />} />
-                  <Route path="/patients" element={<OPDReception />} />
-                  <Route path="/appointments" element={<AppointmentsPage />} />
+                {/* ============================================== */}
+                {/* ROLE-BASED ACCESS CONTROL (RBAC) - Phase 1    */}
+                {/* ============================================== */}
+
+                {/* Common routes - Any authenticated user */}
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/" element={<DashboardHome />} />
+                    <Route path="/queue-display" element={<QueueDisplay />} />
+                    <Route path="/ai-demo" element={<AIDemoPage />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Doctor Dashboard - doctor, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['doctor', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/doctor" element={<DoctorDashboard />} />
+                {/* Reception/OPD - receptionist, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['receptionist', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/opd" element={<OPDReception />} />
+                    <Route path="/patients" element={<OPDReception />} />
+                    <Route path="/appointments" element={<AppointmentsPage />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Ward/Nursing Clinical - nurse, ward_incharge, doctor, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['nurse', 'ward_incharge', 'doctor', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/ward" element={<WardDashboard />} />
-                  <Route path="/ward/:wardId" element={<WardDashboard />} />
+                {/* Doctor Dashboard - doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/doctor" element={<DoctorDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Ward Management - In-Charge Only */}
-              <Route element={<ProtectedRoute allowedRoles={['ward_incharge', 'doctor', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/ward-management" element={<WardManagement />} />
+                {/* Ward/Nursing Clinical - nurse, ward_incharge, doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['nurse', 'ward_incharge', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/ward" element={<WardDashboard />} />
+                    <Route path="/ward/:wardId" element={<WardDashboard />} />
+                    <Route path="/icu" element={<ICUDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Lab Dashboard - lab_tech, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['lab_tech', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/lab" element={<LabDashboard />} />
+                {/* Ward Management - In-Charge Only */}
+                <Route element={<ProtectedRoute allowedRoles={['ward_incharge', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/ward-management" element={<WardManagement />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Pharmacy - pharmacist, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['pharmacist', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/pharmacy" element={<PharmacyDashboard />} />
+                {/* Lab Dashboard - lab_tech, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['lab_tech', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/lab" element={<LabDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Radiology - radiology_tech, lab_tech, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['radiology_tech', 'lab_tech', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/radiology" element={<RadiologyDashboard />} />
+                {/* Pharmacy - pharmacist, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['pharmacist', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/pharmacy" element={<PharmacyDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Blood Bank - blood_bank_tech, lab_tech, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['blood_bank_tech', 'lab_tech', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/blood-bank" element={<BloodBankDashboard />} />
+                {/* Radiology - radiology_tech, lab_tech, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['radiology_tech', 'lab_tech', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/radiology" element={<RadiologyDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Anaesthesia - anaesthetist, doctor, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['anaesthetist', 'doctor', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/anaesthesia" element={<AnaesthesiaDashboard />} />
+                {/* Blood Bank - blood_bank_tech, lab_tech, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['blood_bank_tech', 'lab_tech', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/blood-bank" element={<BloodBankDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* OT Management - surgeon, doctor, nurse, admin (Phase 10) */}
-              <Route element={<ProtectedRoute allowedRoles={['surgeon', 'doctor', 'nurse', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/ot" element={<OTDashboard />} />
-                  <Route path="/pac" element={<PACDashboard />} />
-                  <Route path="/cssd" element={<CSSDDashboard />} />
-                  <Route path="/anaesthesia-console" element={<AnaesthesiaConsole />} />
-                  <Route path="/pacu" element={<PACUDashboard />} />
+                {/* Dental Suite - dentist, oral_surgeon, doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['dentist', 'oral_surgeon', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/dental" element={<DentalDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Finance/Billing - billing, accountant, admin */}
-              <Route element={<ProtectedRoute allowedRoles={['billing', 'accountant', 'receptionist', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/finance" element={<FinanceDashboard />} />
-                  <Route path="/billing" element={<BillingDashboard />} />
-                  <Route path="/insurance" element={<InsuranceCommandCenter />} />
-                  <Route path="/insurance/claims" element={<InsuranceCommandCenter />} />
+                {/* Ophthalmology Suite - ophthalmologist, optometrist, doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['ophthalmologist', 'optometrist', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/ophthalmology" element={<OphthalmologyDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Admin Only Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
-
-                  <Route path="/admin/settings" element={<AdminSettings />} />
-                  <Route path="/admin/staff" element={<StaffManagement />} />
-                  <Route path="/admin/prices" element={<PriceApprovals />} />
-                  <Route path="/admin/equipment" element={<EquipmentApprovals />} />
-                  <Route path="/admin/wards" element={<WardManagement />} />
-                  <Route path="/admin/recovery" element={<AdminRecoveryConsole />} />
-                  <Route path="/admin/migration" element={<MigratorWizard />} />
-                  <Route path="/settings" element={<AdminSettings />} />
-                  <Route path="/admin/mortuary" element={<MortuaryDashboard />} />
-                  <Route path="/admin/reviews" element={<DoctorReviewsPanel />} />
-                  <Route path="/admin/articles" element={<ArticlesManager />} />
-                  <Route path="/admin/home-lab" element={<HomeCollectionDashboard />} />
-                  <Route path="/admin/vault" element={<InsuranceVault />} />
-                  <Route path="/admin/insurance" element={<InsuranceVault />} />
-                  {/* Phase 5 - Delivery & Location Tracking */}
-                  <Route path="/admin/route-replay" element={<RouteReplay />} />
-                  <Route path="/admin/staff-locations" element={<StaffLocationDashboard />} />
-                  {/* Wave 1 Compliance */}
-                  <Route path="/admin/quality" element={<QualityDashboard />} />
-                  <Route path="/admin/waste" element={<WasteManagementDashboard />} />
-                  {/* Wave 2 Reports */}
-                  <Route path="/admin/reports" element={<AdvancedReportsDashboard />} />
-                  {/* Wave 3 Neonatal */}
-                  <Route path="/admin/neonatal" element={<NeonatalDashboard />} />
-                  {/* Wave 4 Operations */}
-                  <Route path="/admin/ambulance" element={<AmbulanceDashboard />} />
-                  <Route path="/admin/dietary" element={<DietaryDashboard />} />
-                  <Route path="/admin/laundry" element={<LaundryDashboard />} />
-                  <Route path="/admin/mortuary" element={<MortuaryDashboard />} />
-                  {/* Wave 5 Support Services */}
-                  <Route path="/admin/visitors" element={<VisitorManagement />} />
-                  <Route path="/admin/staff-scheduling" element={<StaffSchedulingDashboard />} />
-                  <Route path="/admin/assets" element={<AssetDashboard />} />
-                  <Route path="/admin/communications" element={<CommsDashboard />} />
-                  <Route path="/admin/clinical-pathways" element={<ClinicalPathwaysDashboard />} />
-                  {/* Phase 1: A-Tier Upgrade */}
-                  <Route path="/admin/infection-control" element={<InfectionControlDashboard />} />
-                  <Route path="/admin/fhir" element={<FHIRExplorer />} />
-                  {/* Phase 2: Revenue & Clinical AI */}
-                  <Route path="/admin/prior-auth" element={<PriorAuthDashboard />} />
-                  <Route path="/admin/procurement" element={<ProcurementDashboard />} />
-                  <Route path="/admin/auto-reorder" element={<AutoReorderEngine />} />
-                  {/* Phase 3: Advanced Analytics & Operations */}
-                  <Route path="/admin/predictive-analytics" element={<PredictiveAnalytics />} />
-                  <Route path="/admin/population-health" element={<PopulationHealth />} />
-                  <Route path="/admin/pathology" element={<AnatomicPathology />} />
-                  {/* Phase 4: Enterprise Polish */}
-                  <Route path="/admin/credit-debit-notes" element={<CreditDebitNotes />} />
-                  <Route path="/admin/multi-payer" element={<MultiPayerSplit />} />
-                  <Route path="/admin/hl7-adt" element={<HL7ADTFeed />} />
-                  <Route path="/admin/nabh" element={<NABHCertification />} />
-                  <Route path="/admin/white-label" element={<WhiteLabelSaaS />} />
-                  {/* Phase 6: Clinical Depth (S-Tier) */}
-                  <Route path="/admin/cpoe" element={<CPOEDashboard />} />
-                  <Route path="/admin/cdi" element={<CDIDashboard />} />
-                  <Route path="/admin/patient-safety" element={<PatientSafetyDashboard />} />
-                  <Route path="/admin/emar" element={<EMARDashboard />} />
-                  <Route path="/admin/closed-loop-med" element={<ClosedLoopMedication />} />
-                  {/* Phase 7: AI & Intelligence Layer (S-Tier) */}
-                  <Route path="/admin/clinical-ai" element={<ClinicalAIAssistant />} />
-                  <Route path="/admin/smart-scheduling" element={<SmartScheduling />} />
-                  <Route path="/admin/ews" element={<EarlyWarningScore />} />
-                  <Route path="/admin/revenue-ai" element={<RevenueCycleAI />} />
-                  <Route path="/admin/clinical-nlp" element={<ClinicalNLP />} />
-                  {/* Phase 8: Patient Engagement & Telehealth (S-Tier) */}
-                  <Route path="/admin/patient-portal" element={<PatientPortal />} />
-                  <Route path="/admin/telehealth" element={<TelehealthConsole />} />
-                  <Route path="/admin/patient-feedback" element={<PatientFeedback />} />
-                  <Route path="/admin/health-education" element={<HealthEducation />} />
-                  <Route path="/admin/rpm" element={<RemotePatientMonitoring />} />
-                  {/* Phase 9: Compliance, Governance & Audit (S-Tier) */}
-                  <Route path="/admin/hipaa-compliance" element={<HIPAACompliance />} />
-                  <Route path="/admin/audit-trail" element={<AuditTrail />} />
-                  <Route path="/admin/consent-management" element={<ConsentManagement />} />
-                  <Route path="/admin/regulatory-reporting" element={<RegulatoryReporting />} />
-                  <Route path="/admin/data-privacy" element={<DataPrivacy />} />
-                  {/* Phase 10: Infrastructure, DevOps & Platform (S-Tier) */}
-                  <Route path="/admin/system-config" element={<SystemConfiguration />} />
-                  <Route path="/admin/integration-hub" element={<IntegrationHub />} />
-                  <Route path="/admin/backup-dr" element={<BackupDisasterRecovery />} />
-                  <Route path="/admin/performance" element={<PerformanceMonitoring />} />
-                  <Route path="/admin/multi-tenant" element={<MultiTenantAdmin />} />
-                  {/* Phase 11: Staff, HR & Workforce Management (S-Tier) */}
-                  <Route path="/admin/staff-roster" element={<StaffRoster />} />
-                  <Route path="/admin/credentialing" element={<Credentialing />} />
-                  <Route path="/admin/training" element={<TrainingCompetency />} />
-                  <Route path="/admin/payroll" element={<PayrollIntegration />} />
-                  <Route path="/admin/workforce-analytics" element={<WorkforceAnalytics />} />
-                  <Route path="/admin/erp-sync" element={<ERPSyncDashboard />} /> {/* Enterprise Phase 5 */}
-                  {/* Phase 12: Critical Backend Gap Closure (Deep Scan Audit Fix) */}
-                  <Route path="/admin/emergency" element={<EmergencyCommandCenter />} />
-                  <Route path="/admin/bed-transfer" element={<BedTransferManager />} />
-                  <Route path="/admin/treatment-packages" element={<TreatmentPackageManager />} />
-                  <Route path="/admin/enterprise-ai" element={<EnterpriseAIDashboard />} /> {/* Phase 8: Enterprise AI Command Center */}
-                  <Route path="/admin/tpa-admin" element={<TPAProviderAdmin />} />
-                  <Route path="/admin/cloud-backup" element={<CloudBackupConsole />} />
-                  {/* Phase 13: Remaining Gap Closure (Medium + Low) */}
-                  <Route path="/admin/automation" element={<AutomationDashboard />} />
-                  <Route path="/admin/specialist-referral" element={<SpecialistReferralManager />} />
-                  <Route path="/admin/clinical-scales" element={<ClinicalScalesDashboard />} />
-                  <Route path="/admin/pos" element={<POSTerminal />} />
-                  <Route path="/admin/problem-list" element={<ProblemListManager />} />
-                  <Route path="/admin/transition-planner" element={<TransitionPlanner />} />
-                  <Route path="/admin/ward-pass" element={<WardPassManager />} />
+                {/* Orthopedic Suite - orthopedist, surgeon, doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['orthopedist', 'surgeon', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/orthopedic" element={<OrthopedicDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Super Admin Only - Developer Dashboard (Multi-Tenant Platform) */}
-              <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/admin/superadmin" element={<SuperAdminPage />} />
+                {/* Anaesthesia - anaesthetist, doctor, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['anaesthetist', 'doctor', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/anaesthesia" element={<AnaesthesiaDashboard />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Service Departments: Housekeeping */}
-              <Route element={<ProtectedRoute allowedRoles={['housekeeping', 'nurse', 'ward_incharge', 'admin', 'administrator']} />}>
-                <Route element={<DashboardLayout />}>
+                {/* OT Management - surgeon, doctor, nurse, admin (Phase 10) */}
+                <Route element={<ProtectedRoute allowedRoles={['surgeon', 'doctor', 'nurse', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/ot" element={<OTDashboard />} />
+                    <Route path="/pac" element={<PACDashboard />} />
+                    <Route path="/cssd" element={<CSSDDashboard />} />
+                    <Route path="/anaesthesia-console" element={<AnaesthesiaConsole />} />
+                    <Route path="/pacu" element={<PACUDashboard />} />
+                  </Route>
+                </Route>
+
+                {/* Finance/Billing - billing, accountant, admin */}
+                <Route element={<ProtectedRoute allowedRoles={['billing', 'accountant', 'receptionist', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/finance" element={<FinanceDashboard />} />
+                    <Route path="/billing" element={<BillingDashboard />} />
+                    <Route path="/insurance" element={<InsuranceCommandCenter />} />
+                    <Route path="/insurance/claims" element={<InsuranceCommandCenter />} />
+                  </Route>
+                </Route>
+
+                {/* Admin Only Routes */}
+                <Route element={<ProtectedRoute allowedRoles={['admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
+
+                    <Route path="/admin/settings" element={<AdminSettings />} />
+                    <Route path="/admin/staff" element={<StaffManagement />} />
+                    <Route path="/admin/prices" element={<PriceApprovals />} />
+                    <Route path="/admin/equipment" element={<EquipmentApprovals />} />
+                    <Route path="/admin/wards" element={<WardManagement />} />
+                    <Route path="/admin/recovery" element={<AdminRecoveryConsole />} />
+                    <Route path="/admin/migration" element={<MigratorWizard />} />
+                    <Route path="/settings" element={<AdminSettings />} />
+                    <Route path="/admin/mortuary" element={<MortuaryDashboard />} />
+                    <Route path="/admin/reviews" element={<DoctorReviewsPanel />} />
+                    <Route path="/admin/articles" element={<ArticlesManager />} />
+                    <Route path="/admin/home-lab" element={<HomeCollectionDashboard />} />
+                    <Route path="/admin/vault" element={<InsuranceVault />} />
+                    <Route path="/admin/insurance" element={<InsuranceVault />} />
+                    {/* Phase 5 - Delivery & Location Tracking */}
+                    <Route path="/admin/route-replay" element={<RouteReplay />} />
+                    <Route path="/admin/staff-locations" element={<StaffLocationDashboard />} />
+                    {/* Wave 1 Compliance */}
+                    <Route path="/admin/quality" element={<QualityDashboard />} />
+                    <Route path="/admin/waste" element={<WasteManagementDashboard />} />
+                    {/* Wave 2 Reports */}
+                    <Route path="/admin/reports" element={<AdvancedReportsDashboard />} />
+                    {/* Wave 3 Neonatal */}
+                    <Route path="/admin/neonatal" element={<NeonatalDashboard />} />
+                    {/* Wave 4 Operations */}
+                    <Route path="/admin/ambulance" element={<AmbulanceDashboard />} />
+                    <Route path="/admin/dietary" element={<DietaryDashboard />} />
+                    <Route path="/admin/laundry" element={<LaundryDashboard />} />
+                    <Route path="/admin/mortuary" element={<MortuaryDashboard />} />
+                    {/* Wave 5 Support Services */}
+                    <Route path="/admin/visitors" element={<VisitorManagement />} />
+                    <Route path="/admin/staff-scheduling" element={<StaffSchedulingDashboard />} />
+                    <Route path="/admin/assets" element={<AssetDashboard />} />
+                    <Route path="/admin/communications" element={<CommsDashboard />} />
+                    <Route path="/admin/clinical-pathways" element={<ClinicalPathwaysDashboard />} />
+                    {/* Phase 1: A-Tier Upgrade */}
+                    <Route path="/admin/infection-control" element={<InfectionControlDashboard />} />
+                    <Route path="/admin/fhir" element={<FHIRExplorer />} />
+                    {/* Phase 2: Revenue & Clinical AI */}
+                    <Route path="/admin/prior-auth" element={<PriorAuthDashboard />} />
+                    <Route path="/admin/procurement" element={<ProcurementDashboard />} />
+                    <Route path="/admin/auto-reorder" element={<AutoReorderEngine />} />
+                    {/* Phase 3: Advanced Analytics & Operations */}
+                    <Route path="/admin/predictive-analytics" element={<PredictiveAnalytics />} />
+                    <Route path="/admin/population-health" element={<PopulationHealth />} />
+                    <Route path="/admin/pathology" element={<AnatomicPathology />} />
+                    {/* Phase 4: Enterprise Polish */}
+                    <Route path="/admin/credit-debit-notes" element={<CreditDebitNotes />} />
+                    <Route path="/admin/multi-payer" element={<MultiPayerSplit />} />
+                    <Route path="/admin/hl7-adt" element={<HL7ADTFeed />} />
+                    <Route path="/admin/nabh" element={<NABHCertification />} />
+                    <Route path="/admin/white-label" element={<WhiteLabelSaaS />} />
+                    {/* Phase 6: Clinical Depth (S-Tier) */}
+                    <Route path="/admin/cpoe" element={<CPOEDashboard />} />
+                    <Route path="/admin/cdi" element={<CDIDashboard />} />
+                    <Route path="/admin/patient-safety" element={<PatientSafetyDashboard />} />
+                    <Route path="/admin/emar" element={<EMARDashboard />} />
+                    <Route path="/admin/closed-loop-med" element={<ClosedLoopMedication />} />
+                    {/* Phase 7: AI & Intelligence Layer (S-Tier) */}
+                    <Route path="/admin/clinical-ai" element={<ClinicalAIAssistant />} />
+                    <Route path="/admin/smart-scheduling" element={<SmartScheduling />} />
+                    <Route path="/admin/ews" element={<EarlyWarningScore />} />
+                    <Route path="/admin/revenue-ai" element={<RevenueCycleAI />} />
+                    <Route path="/admin/clinical-nlp" element={<ClinicalNLP />} />
+                    {/* Phase 8: Patient Engagement & Telehealth (S-Tier) */}
+                    <Route path="/admin/patient-portal" element={<PatientPortal />} />
+                    <Route path="/admin/telehealth" element={<TelehealthConsole />} />
+                    <Route path="/admin/patient-feedback" element={<PatientFeedback />} />
+                    <Route path="/admin/health-education" element={<HealthEducation />} />
+                    <Route path="/admin/rpm" element={<RemotePatientMonitoring />} />
+                    {/* Phase 9: Compliance, Governance & Audit (S-Tier) */}
+                    <Route path="/admin/hipaa-compliance" element={<HIPAACompliance />} />
+                    <Route path="/admin/audit-trail" element={<AuditTrail />} />
+                    <Route path="/admin/consent-management" element={<ConsentManagement />} />
+                    <Route path="/admin/regulatory-reporting" element={<RegulatoryReporting />} />
+                    <Route path="/admin/data-privacy" element={<DataPrivacy />} />
+                    {/* Phase 10: Infrastructure, DevOps & Platform (S-Tier) */}
+                    <Route path="/admin/system-config" element={<SystemConfiguration />} />
+                    <Route path="/admin/integration-hub" element={<IntegrationHub />} />
+                    <Route path="/admin/backup-dr" element={<BackupDisasterRecovery />} />
+                    <Route path="/admin/performance" element={<PerformanceMonitoring />} />
+                    <Route path="/admin/multi-tenant" element={<MultiTenantAdmin />} />
+                    {/* Phase 11: Staff, HR & Workforce Management (S-Tier) */}
+                    <Route path="/admin/staff-roster" element={<StaffRoster />} />
+                    <Route path="/admin/credentialing" element={<Credentialing />} />
+                    <Route path="/admin/training" element={<TrainingCompetency />} />
+                    <Route path="/admin/payroll" element={<PayrollIntegration />} />
+                    <Route path="/admin/workforce-analytics" element={<WorkforceAnalytics />} />
+                    <Route path="/admin/erp-sync" element={<ERPSyncDashboard />} /> {/* Enterprise Phase 5 */}
+                    {/* Phase 12: Critical Backend Gap Closure (Deep Scan Audit Fix) */}
+                    <Route path="/admin/emergency" element={<EmergencyCommandCenter />} />
+                    <Route path="/admin/bed-transfer" element={<BedTransferManager />} />
+                    <Route path="/admin/treatment-packages" element={<TreatmentPackageManager />} />
+                    <Route path="/admin/enterprise-ai" element={<EnterpriseAIDashboard />} /> {/* Phase 8: Enterprise AI Command Center */}
+                    <Route path="/admin/dental" element={<DentalDashboard />} /> {/* Horizon 2: Dental Suite */}
+                    <Route path="/admin/ophthalmology" element={<OphthalmologyDashboard />} /> {/* Horizon 2: Ophthalmology Suite */}
+                    <Route path="/admin/orthopedic" element={<OrthopedicDashboard />} /> {/* Horizon 2: Orthopedic Suite */}
+                    <Route path="/admin/security" element={<SecurityDashboard />} /> {/* Phase 9B: Login Security */}
+                    <Route path="/admin/tpa-admin" element={<TPAProviderAdmin />} />
+                    <Route path="/admin/cloud-backup" element={<CloudBackupConsole />} />
+                    {/* Phase 13: Remaining Gap Closure (Medium + Low) */}
+                    <Route path="/admin/automation" element={<AutomationDashboard />} />
+                    <Route path="/admin/specialist-referral" element={<SpecialistReferralManager />} />
+                    <Route path="/admin/clinical-scales" element={<ClinicalScalesDashboard />} />
+                    <Route path="/admin/pos" element={<POSTerminal />} />
+                    <Route path="/admin/problem-list" element={<ProblemListManager />} />
+                    <Route path="/admin/transition-planner" element={<TransitionPlanner />} />
+                    <Route path="/admin/ward-pass" element={<WardPassManager />} />
+                  </Route>
+                </Route>
+
+                {/* Super Admin Only - Developer Dashboard (Multi-Tenant Platform) */}
+                <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/admin/superadmin" element={<SuperAdminPage />} />
+                  </Route>
+                </Route>
+
+                {/* Service Departments: Housekeeping */}
+                <Route element={<ProtectedRoute allowedRoles={['housekeeping', 'nurse', 'ward_incharge', 'admin', 'administrator']} />}>
+                  <Route element={<DashboardLayout />}>
                     <Route path="/housekeeping" element={<HousekeepingDashboard />} />
                     <Route path="/dietary" element={<DietaryDashboard />} />
-                </Route>
-              </Route>
-
-
-              {/* Security Command Center - Phase 7 */}
-              <Route element={<ProtectedRoute allowedRoles={['security_guard', 'admin', 'administrator', 'security_manager']} />}>
-                  <Route element={<DashboardLayout />}>
-                      <Route path="/security" element={<GuardCommandCentre />} /> 
-                      <Route path="/security/control" element={<GuardCommandCentre />} />
-                      <Route path="/security/visitors" element={<VisitorManagement />} />
-                      <Route path="/reception/visitors" element={<VisitorManagement />} />
                   </Route>
-              </Route>
+                </Route>
 
-              {/* Catch all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
-        </ErrorBoundary>
+
+                {/* Security Command Center - Phase 7 */}
+                <Route element={<ProtectedRoute allowedRoles={['security_guard', 'admin', 'administrator', 'security_manager']} />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/security" element={<GuardCommandCentre />} />
+                    <Route path="/security/control" element={<GuardCommandCentre />} />
+                    <Route path="/security/visitors" element={<VisitorManagement />} />
+                    <Route path="/reception/visitors" element={<VisitorManagement />} />
+                  </Route>
+                </Route>
+
+                {/* Catch all */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </ErrorBoundary>
         </SystemStatusProvider>
       </HospitalProfileProvider>
     </ThemeProvider>

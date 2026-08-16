@@ -1,16 +1,17 @@
 const pool = require('../config/db');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
+const logger = require('../services/Logger');
 
 // Get all wards with bed counts - MULTI-TENANT
 const getWards = asyncHandler(async (req, res) => {
     const hospitalId = req.hospital_id;
     // const hospitalId = 1; // [DEBUG] FORCE ID 1 - Reverted
     console.log(`[DEBUG] getWards - User: ${req.user?.username}, Role: ${req.user?.role}, HospitalID: ${hospitalId}`);
-    
+
     // Check if is_active column exists (safety net)
     // Actually, purely logging for now.
-    
+
     const result = await pool.query(`
         SELECT w.*, 
                 COUNT(b.id) as total_beds,
@@ -22,7 +23,7 @@ const getWards = asyncHandler(async (req, res) => {
         GROUP BY w.id
         ORDER BY w.name
     `, [hospitalId]);
-    
+
     console.log(`[DEBUG] getWards - Found ${result.rows.length} wards`);
     ResponseHandler.success(res, result.rows);
 });
@@ -31,7 +32,7 @@ const getWards = asyncHandler(async (req, res) => {
 const createWard = asyncHandler(async (req, res) => {
     const { name, type, floor, capacity, billing_cycle } = req.body;
     const hospitalId = req.hospital_id;
-    
+
     try {
         const result = await pool.query(
             `INSERT INTO wards (name, type, floor, capacity, billing_cycle, hospital_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
@@ -80,7 +81,7 @@ const deleteWard = asyncHandler(async (req, res) => {
 const getBeds = asyncHandler(async (req, res) => {
     const { ward_id } = req.query;
     const hospitalId = req.hospital_id;
-    
+
     // Join with admissions and patients to get patient name for occupied beds
     // [FIX] Derive status from admission existence because 'beds.status' might be out of sync
     let query = `
@@ -207,7 +208,7 @@ const handleRequest = asyncHandler(async (req, res) => {
     const processed_by = req.user.id;
     const hospitalId = req.hospital_id;
     const client = await pool.connect();
-    
+
     try {
         await client.query('BEGIN');
         const reqResult = await client.query("SELECT * FROM ward_change_requests WHERE id = $1 AND hospital_id = $2", [id, hospitalId]);
@@ -279,7 +280,7 @@ const addVitals = asyncHandler(async (req, res) => {
     const { admission_id, patient_id, temperature, systolic_bp, diastolic_bp, heart_rate, spo2, respiratory_rate, consciousness_level, notes } = req.body;
     const hospitalId = req.hospital_id;
     const recorded_by = req.user.id;
-    
+
     const result = await pool.query(
         `INSERT INTO patient_vitals 
         (admission_id, patient_id, recorded_by, temperature, systolic_bp, diastolic_bp, heart_rate, spo2, respiratory_rate, consciousness_level, notes, hospital_id)
@@ -293,7 +294,7 @@ const addVitals = asyncHandler(async (req, res) => {
 const getEMAR = asyncHandler(async (req, res) => {
     const { admissionId } = req.params;
     const hospitalId = req.hospital_id;
-    
+
     // Get Patient ID from Admission
     const admRes = await pool.query('SELECT patient_id FROM admissions WHERE id = $1 AND hospital_id = $2', [admissionId, hospitalId]);
     if (admRes.rows.length === 0) return ResponseHandler.error(res, 'Admission not found', 404);
@@ -304,7 +305,7 @@ const getEMAR = asyncHandler(async (req, res) => {
         'SELECT * FROM prescriptions WHERE patient_id = $1 AND is_active = true AND hospital_id = $2 ORDER BY created_at DESC LIMIT 1',
         [patientId, hospitalId]
     );
-    
+
     // Get Logs
     const logsRes = await pool.query(
         'SELECT l.*, u.username as administered_by_name FROM emar_logs l LEFT JOIN users u ON l.administered_by = u.id WHERE l.admission_id = $1 AND l.hospital_id = $2 ORDER BY l.administered_at DESC',
@@ -338,7 +339,7 @@ const markBedClean = asyncHandler(async (req, res) => {
     const hospitalId = req.hospital_id;
 
     if (status !== 'Available') {
-         return ResponseHandler.error(res, 'Invalid status. Only marking as Available is allowed here.', 400);
+        return ResponseHandler.error(res, 'Invalid status. Only marking as Available is allowed here.', 400);
     }
 
     const client = await pool.connect();
@@ -380,11 +381,104 @@ const markBedClean = asyncHandler(async (req, res) => {
     }
 });
 
+// ================================================================
+// BCMA — Barcode Medication Administration (WOLF Ultimate Guardrails)
+// ================================================================
+
+const MARService = require('../services/MARService');
+
+/**
+ * POST /api/ward/mar/scan
+ * Wires to MARService.verifyScanAndAdminister
+ */
+const marScan = asyncHandler(async (req, res) => {
+    const { patientUhid, drugBarcode } = req.body;
+    const nurseId = req.user?.id;
+    const hospitalId = req.hospital_id;
+
+    if (!patientUhid || !drugBarcode) {
+        return ResponseHandler.error(res, 'Both patient UHID and medication barcode are required.', 400);
+    }
+
+    if (!nurseId) {
+        return ResponseHandler.error(res, 'Authenticated nurse required.', 401);
+    }
+
+    try {
+        const result = await MARService.verifyScanAndAdminister(
+            patientUhid, drugBarcode, nurseId, hospitalId
+        );
+
+        if (!result.success) {
+            // Return the specific status code and warnings so the frontend can display them
+            return ResponseHandler.error(
+                res,
+                result.message,
+                result.status === 'CLINICAL_WARNING' ? 409 : // Conflict
+                    result.status === 'MISSING_INPUT' ? 400 :
+                        result.status === 'PATIENT_NOT_FOUND' || result.status === 'DRUG_NOT_FOUND' ? 404 :
+                            result.status === 'DRUG_EXPIRED' ? 410 : // Gone
+                                result.status === 'UNAUTHORIZED' ? 401 :
+                                    400,
+                { status: result.status, warnings: result.warnings || [] }
+            );
+        }
+
+        ResponseHandler.success(res, result, 'Medication administered successfully.', 201);
+    } catch (err) {
+        logger.error('[MAR] Scan error:', err);
+        ResponseHandler.error(res, 'Internal server error during MAR scan.', 500);
+    }
+});
+
+/**
+ * POST /api/ward/handover
+ * Wires to MARService.logHandover
+ */
+const marHandover = asyncHandler(async (req, res) => {
+    const { unit, shift, situation, background, assessment, recommendation } = req.body;
+    const createdBy = req.user?.id;
+    const hospitalId = req.hospital_id;
+
+    if (!unit || !shift || !situation) {
+        return ResponseHandler.error(res, 'Unit, shift, and situation are required.', 400);
+    }
+
+    if (!createdBy) {
+        return ResponseHandler.error(res, 'Authenticated user required.', 401);
+    }
+
+    try {
+        const result = await MARService.logHandover({
+            unit,
+            shift,
+            situation,
+            background,
+            assessment,
+            recommendation,
+            createdBy,
+            hospitalId
+        });
+
+        if (!result.success) {
+            return ResponseHandler.error(res, result.message, 400);
+        }
+
+        ResponseHandler.success(res, result, 'Handover logged.', 201);
+    } catch (err) {
+        logger.error('[MAR] Handover error:', err);
+        ResponseHandler.error(res, 'Internal server error during handover.', 500);
+    }
+});
+
 module.exports = {
     getWards, createWard, updateWard, deleteWard,
     getBeds, createBed, updateBed, deleteBed,
     markBedClean, // [PHASE 3]
     getConsumables, getCharges, requestChange, getRequests, handleRequest,
     getAssignments,
-    getVitals, addVitals, getEMAR, addEMAR
+    getVitals, addVitals, getEMAR, addEMAR,
+    // BCMA
+    marScan,
+    marHandover
 };

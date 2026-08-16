@@ -1,73 +1,60 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken, authorize } = require('../middleware/authMiddleware');
 const securityController = require('../controllers/securityController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const guardController = require('../controllers/security/guardController');
 
-// Incidents
-router.get('/incidents', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getIncidents);
-router.post('/incidents', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.createIncident);
-router.put('/incidents/:id/status', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.updateIncidentStatus);
+// ============================================
+// LOGIN SECURITY ENDPOINTS
+// ============================================
 
-// Visitors
-router.get('/visitors', protect, authorize('admin', 'security_guard', 'security_manager', 'receptionist'), securityController.getVisitors);
-router.post('/visitors/check-in', protect, authorize('admin', 'security_guard', 'security_manager', 'receptionist'), securityController.checkInVisitor);
-router.put('/visitors/:id/check-out', protect, authorize('admin', 'security_guard', 'security_manager', 'receptionist'), securityController.checkOutVisitor);
+// Security Dashboard Stats
+router.get('/stats', authenticateToken, securityController.getSecurityStats);
 
-// Patrols
-router.get('/patrols/active', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getActivePatrols);
-router.post('/patrols/start', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.startPatrol);
-router.put('/patrols/:id/checkpoint', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.updatePatrolCheckpoint);
-router.put('/patrols/:id/end', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.endPatrol);
+// Login Audit Trail
+router.get('/audit-log', authenticateToken, authorize('admin'), securityController.getAuditLog);
 
-// System Control
-router.post('/lockdown', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.toggleLockdown);
+// Active Session Management
+router.get('/sessions', authenticateToken, authorize('admin'), securityController.getActiveSessions);
+router.post('/sessions/:id/revoke', authenticateToken, authorize('admin'), securityController.revokeSession);
 
-// Wolf Voice
-router.post('/voice/token', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getVoiceToken);
+// Account Management
+router.post('/users/:id/unlock', authenticateToken, authorize('admin'), securityController.unlockAccount);
+router.post('/users/:id/revoke-all', authenticateToken, authorize('admin'), securityController.revokeAllUserSessions);
 
-// SCC: Gates
-router.get('/gates', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getGates);
-router.post('/gates/:id/toggle', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.toggleGate);
+// Password Validation
+router.post('/validate-password', authenticateToken, securityController.validatePassword);
 
-// SCC: Missions
-router.get('/missions', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getMissions);
-router.post('/missions/dispatch', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.dispatchMission);
+// ============================================
+// GUARD TRACKING & COMMAND CENTRE ENDPOINTS
+// (Used by SecurityDashboardV2.jsx)
+// ============================================
 
-// SCC - Phase 4 (Wolf Voice)
-router.post('/voice/command', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.processVoiceCommand);
+// Guard Online Status
+router.get('/guards/online', authenticateToken, guardController.getOnlineGuards);
 
-// SCC - Phase 5 (Command & Control)
-router.post('/dispatch', protect, authorize('admin', 'security_manager'), securityController.sendDispatch);
-router.post('/sos', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.handlePanicButton);
+// Active Patrols (alternative endpoint for guard map data)
+router.get('/patrols/active', authenticateToken, guardController.getActivePatrols);
 
-// SCC - Phase 4.1 (Overwatch / Tracking)
-router.get('/geofences', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getGeofences);
-router.post('/location', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.updateLocation);
-router.post('/sensor-logs', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.logSensorData);
+// Guard Ping
+router.post('/guards/ping', authenticateToken, authorize('admin'), guardController.pingGuard);
 
-// SCC - Phase 1 (Command & Control)
-router.get('/command/map', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getCommandMap);
-router.post('/command/ping', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.requestGuardLocation);
+// Ping All Guards (broadcast)
+router.post('/guards/ping-all', authenticateToken, authorize('admin'), guardController.pingAllGuards);
 
-// Phase 7 - Guard Command Centre Dashboard
-router.get('/guards/online', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getOnlineGuards);
-router.post('/guards/ping-all', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.pingAllGuards);
-router.post('/guards/request-photo', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.requestPhoto);
+// Request Photo from Guard
+router.post('/guards/request-photo', authenticateToken, authorize('admin'), guardController.requestPhoto);
 
-// Floor Plan Maps (Phase 10)
-router.post('/maps', protect, authorize('admin', 'security_manager'), securityController.saveFloorPlan);
-router.get('/maps/active', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getActiveFloorPlan);
+// Guard Location Update (callable by mobile app or dashboard)
+router.post('/location', authenticateToken, guardController.updateLocation);
 
-// Location History & Mapping (Phase 11)
-router.get('/guard/:id/history', protect, authorize('admin', 'security_manager'), securityController.getGuardLocationHistory);
-router.post('/mapping/start', protect, authorize('admin', 'security_manager'), securityController.startMappingSession);
-router.post('/mapping/stop', protect, authorize('admin', 'security_manager'), securityController.stopMappingSession);
+// Hospital Lockdown
+router.post('/lockdown', authenticateToken, authorize('admin'), guardController.toggleLockdown);
 
-// Phase 14: Analytics
-router.get('/guard/:id/metrics', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getGuardMetrics);
+// Dispatch Message to Guards
+router.post('/dispatch', authenticateToken, authorize('admin'), guardController.sendDispatch);
 
-// Digital Logbook (Phase 13)
-router.post('/handover', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.submitHandover);
-router.get('/handover/:guardId', protect, authorize('admin', 'security_guard', 'security_manager'), securityController.getHandoverHistory);
+// Guard Performance Metrics
+router.get('/guards/:id/metrics', authenticateToken, guardController.getGuardMetrics);
 
 module.exports = router;

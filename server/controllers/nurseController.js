@@ -276,9 +276,9 @@ const recordConsumable = asyncHandler(async (req, res) => {
 
     // Record usage in patient_consumables
     const result = await pool.query(
-        `INSERT INTO patient_consumables (admission_id, consumable_id, quantity, notes, recorded_by, hospital_id) 
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [admission_id, consumable_id, quantity, notes, user_id, hospitalId]
+        `INSERT INTO patient_consumables (admission_id, consumable_id, item_name, quantity, unit_price, total_price, notes, used_by, hospital_id) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [admission_id, consumable_id, consumable?.name || 'Unknown', quantity, unitPrice, unitPrice * quantity, notes, user_id, hospitalId]
     );
 
     // [BILLING FIX] Add to invoice for real-time billing

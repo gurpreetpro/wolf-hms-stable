@@ -227,4 +227,105 @@ router.post('/parameters/import', authMiddleware.protect, async (req, res) => {
     }
 });
 
+// =============================================
+// DELTA CHECK RULES CRUD API
+// =============================================
+
+// Get all delta check rules for the hospital tenant
+router.get('/delta-rules', authMiddleware.protect, async (req, res) => {
+    try {
+        const hospitalId = req.user?.hospital_id;
+        const result = await pool.query(`
+            SELECT d.*, t.name as test_name
+            FROM delta_check_rules d
+            JOIN lab_test_types t ON d.test_type_id = t.id
+            WHERE d.hospital_id = $1 OR d.hospital_id IS NULL
+            ORDER BY t.name, d.parameter_name
+        `, [hospitalId]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Get delta rules error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Add a new delta check rule
+router.post('/delta-rules', authMiddleware.protect, async (req, res) => {
+    try {
+        const { test_type_id, parameter_name, max_percent_change, max_absolute_change, time_window_hours, is_active } = req.body;
+        const hospitalId = req.user?.hospital_id;
+
+        if (!test_type_id || !parameter_name || max_percent_change === undefined || max_absolute_change === undefined) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        const result = await pool.query(`
+            INSERT INTO delta_check_rules 
+            (test_type_id, parameter_name, max_percent_change, max_absolute_change, time_window_hours, is_active, hospital_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [test_type_id, parameter_name, parseFloat(max_percent_change), parseFloat(max_absolute_change), time_window_hours || 72, is_active !== false, hospitalId]);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Create delta rule error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Update a delta check rule
+router.put('/delta-rules/:id', authMiddleware.protect, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { max_percent_change, max_absolute_change, time_window_hours, is_active } = req.body;
+        const hospitalId = req.user?.hospital_id;
+
+        const check = await pool.query('SELECT 1 FROM delta_check_rules WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+        if (check.rows.length === 0) {
+            return res.status(404).json({ message: 'Delta rule not found' });
+        }
+
+        const result = await pool.query(`
+            UPDATE delta_check_rules
+            SET max_percent_change = COALESCE($1, max_percent_change),
+                max_absolute_change = COALESCE($2, max_absolute_change),
+                time_window_hours = COALESCE($3, time_window_hours),
+                is_active = COALESCE($4, is_active),
+                updated_at = NOW()
+            WHERE id = $5
+            RETURNING *
+        `, [
+            max_percent_change !== undefined ? parseFloat(max_percent_change) : null,
+            max_absolute_change !== undefined ? parseFloat(max_absolute_change) : null,
+            time_window_hours !== undefined ? parseInt(time_window_hours) : null,
+            is_active,
+            id
+        ]);
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Update delta rule error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Delete a delta check rule
+router.delete('/delta-rules/:id', authMiddleware.protect, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const hospitalId = req.user?.hospital_id;
+
+        const check = await pool.query('SELECT 1 FROM delta_check_rules WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+        if (check.rows.length === 0) {
+            return res.status(404).json({ message: 'Delta rule not found' });
+        }
+
+        await pool.query('DELETE FROM delta_check_rules WHERE id = $1', [id]);
+        res.json({ message: 'Delta rule deleted successfully' });
+    } catch (error) {
+        console.error('Delete delta rule error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;

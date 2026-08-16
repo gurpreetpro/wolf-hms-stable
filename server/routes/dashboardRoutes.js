@@ -66,9 +66,9 @@ router.get('/kpi', protect, asyncHandler(async (req, res) => {
             [hospitalId]
         ),
         pool.query(
-            `SELECT AVG(EXTRACT(EPOCH FROM (consultation_time - check_in_time)) / 60) as avg_wait
+            `SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (NOW() - created_at)) / 60), 0) as avg_wait
              FROM opd_visits 
-             WHERE hospital_id = $1 AND visit_date = $2 AND consultation_time IS NOT NULL`,
+             WHERE hospital_id = $1 AND visit_date = $2 AND status = 'Waiting'`,
             [hospitalId, today]
         )
     ]);
@@ -96,14 +96,15 @@ router.get('/departments', protect, asyncHandler(async (req, res) => {
 
     const departments = await pool.query(`
         SELECT 
-            department,
-            COUNT(*) FILTER (WHERE status = 'Waiting') as waiting,
-            COUNT(*) FILTER (WHERE status = 'In Consultation') as in_progress,
-            COUNT(*) FILTER (WHERE status = 'Completed') as completed
-        FROM opd_visits 
-        WHERE hospital_id = $1 AND visit_date = $2
-        GROUP BY department
-        ORDER BY department
+            u.department,
+            COUNT(*) FILTER (WHERE o.status = 'Waiting') as waiting,
+            COUNT(*) FILTER (WHERE o.status = 'In Consultation') as in_progress,
+            COUNT(*) FILTER (WHERE o.status = 'Completed') as completed
+        FROM opd_visits o
+        JOIN users u ON o.doctor_id = u.id
+        WHERE o.hospital_id = $1 AND o.visit_date = $2
+        GROUP BY u.department
+        ORDER BY u.department
     `, [hospitalId, today]);
 
     res.json({

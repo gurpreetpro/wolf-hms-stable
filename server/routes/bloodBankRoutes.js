@@ -111,4 +111,187 @@ router.get('/surgery/:surgery_id/blood', bloodBankController.getSurgeryBloodRequ
 router.put('/surgery/requirements/:id/checklist', authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.updatePreOpChecklist);
 router.post('/surgery/prepare-blood', authorize('admin', 'blood_bank_tech'), bloodBankController.prepareSurgeryBlood);
 
+// ============================================
+// PHASE 11: BEDSIDE TRANSFUSION BCMA VERIFICATION
+// ============================================
+router.post('/bedside/start-transfusion', protect, authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.bedsideVerifyAndStartTransfusion);
+
+// ============================================
+// PHASE 9: ISBT 128 COMPLIANCE (NABH Standard)
+// ============================================
+const BloodBankService = require('../services/BloodBankService');
+const { getHospitalId } = require('../utils/tenantHelper');
+
+// POST /api/blood-bank/isbt/register
+//   Register a blood unit by scanning three ISBT 128 barcodes.
+router.post('/isbt/register', protect, authorize('admin', 'blood_bank_tech'), async (req, res) => {
+    try {
+        const hospitalId = getHospitalId(req);
+        const {
+            dinBarcode, productBarcode, bloodGroupBarcode,
+            donorId, volume_ml, storageLocation, bagNumber, collectionDate
+        } = req.body;
+
+        if (!dinBarcode || !productBarcode || !bloodGroupBarcode) {
+            return res.status(400).json({
+                success: false,
+                message: 'All three ISBT barcodes are required: dinBarcode, productBarcode, bloodGroupBarcode'
+            });
+        }
+
+        const result = await BloodBankService.registerISBTUnit(
+            dinBarcode, productBarcode, bloodGroupBarcode, hospitalId,
+            {
+                donorId: donorId || null,
+                volume_ml: volume_ml || 450,
+                storageLocation: storageLocation || null,
+                bagNumber: bagNumber || null,
+                createdBy: req.user?.id || null,
+                collectionDate: collectionDate || null
+            }
+        );
+
+        if (!result.success) {
+            return res.status(409).json({
+                success: false,
+                message: result.message
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: result.message,
+            data: { unit: result.unit, parsed: result.parsed }
+        });
+    } catch (error) {
+        console.error('[ISBT Register] Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error during ISBT unit registration.'
+        });
+    }
+});
+
+// POST /api/blood-bank/isbt/cross-match
+//   Secure cross-match with TTI hard-lock guardrail.
+//   The guardrail checks TTI results, expiry, and status BEFORE allowing cross-match.
+router.post('/isbt/cross-match', protect, authorize('admin', 'blood_bank_tech'), async (req, res) => {
+    try {
+        const hospitalId = getHospitalId(req);
+        const {
+            requestId, isbtDinScanned, patientId, patientSampleId,
+            method, result, interpretation,
+            immediateSpin, incubation37c, agsPhase, antibodyDetected, reactionStrength
+        } = req.body;
+
+        if (!requestId || !isbtDinScanned) {
+            return res.status(400).json({
+                success: false,
+                message: 'requestId and isbtDinScanned are required.'
+            });
+        }
+
+        const crossMatchResult = await BloodBankService.secureCrossMatch(
+            parseInt(requestId),
+            String(isbtDinScanned),
+            req.user?.id || null,
+            hospitalId,
+            {
+                patientId: patientId || null,
+                patientSampleId: patientSampleId || null,
+                method: method || 'Tube',
+                result: result || 'Compatible',
+                interpretation: interpretation || null,
+                immediateSpin: immediateSpin || null,
+                incubation37c: incubation37c || null,
+                agsPhase: agsPhase || null,
+                antibodyDetected: antibodyDetected || false,
+                reactionStrength: reactionStrength || null
+            }
+        );
+
+        if (!crossMatchResult.success) {
+            return res.status(409).json({
+                success: false,
+                blocked: true,
+                reason: crossMatchResult.reason,
+                message: crossMatchResult.message,
+                data: {
+                    reactiveMarkers: crossMatchResult.reactiveMarkers || null,
+                    expiryDate: crossMatchResult.expiryDate || null
+                }
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: crossMatchResult.message,
+            data: { crossMatch: crossMatchResult.crossMatch, unit: crossMatchResult.unit }
+        });
+    } catch (error) {
+        console.error('[ISBT Cross-Match] Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error during secure cross-match.'
+        });
+    }
+});
+
+// ============================================
+// PHASE 10: IOT COLD-CHAIN THERMAL QUARANTINE
+// ============================================
+
+// POST /api/blood-bank/iot/temperature
+//   Log a temperature reading from an IoT sensor on storage equipment.
+//   If the reading is out of range, automatically triggers quarantine of all
+//   affected blood units and sets the equipment alarm.
+router.post('/iot/temperature', protect, authorize('admin', 'blood_bank_tech', 'system_iot'), async (req, res) => {
+    try {
+        const hospitalId = getHospitalId(req);
+        const { equipmentId, temperature, recordedBy } = req.body;
+
+        if (!equipmentId || temperature === undefined || temperature === null) {
+            return res.status(400).json({
+                success: false,
+                message: 'equipmentId and temperature are required.'
+            });
+        }
+
+        const parsedTemp = parseFloat(temperature);
+        if (isNaN(parsedTemp)) {
+            return res.status(400).json({
+                success: false,
+                message: 'temperature must be a valid number.'
+            });
+        }
+
+        const result = await BloodBankService.logEquipmentTemperature(
+            parseInt(equipmentId),
+            parsedTemp,
+            recordedBy || req.user?.id || null,
+            hospitalId
+        );
+
+        if (result.thermal_breach) {
+            return res.status(200).json({
+                success: true,
+                thermal_breach: true,
+                message: result.message
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            thermal_breach: false,
+            message: result.message
+        });
+    } catch (error) {
+        console.error('[IoT Temperature] Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error during temperature logging.'
+        });
+    }
+});
+
 module.exports = router;

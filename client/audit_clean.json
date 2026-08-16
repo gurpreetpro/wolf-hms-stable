@@ -1,0 +1,100 @@
+[
+  {
+    "pkg": "@remix-run/router",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "<=1.23.1",
+    "via": "React Router vulnerable to XSS via Open Redirects"
+  },
+  {
+    "pkg": "ajv",
+    "severity": "moderate",
+    "fixAvailable": true,
+    "range": "<6.14.0",
+    "via": "ajv has ReDoS when using `$data` option"
+  },
+  {
+    "pkg": "axios",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "1.0.0 - 1.13.4",
+    "via": "Axios is Vulnerable to Denial of Service via __proto__ Key in mergeConfig"
+  },
+  {
+    "pkg": "brace-expansion",
+    "severity": "moderate",
+    "fixAvailable": true,
+    "range": "<1.1.13",
+    "via": "brace-expansion: Zero-step sequence causes process hang and memory exhaustion"
+  },
+  {
+    "pkg": "esbuild",
+    "severity": "moderate",
+    "fixAvailable": true,
+    "range": "<=0.24.2",
+    "via": "esbuild enables any website to send any requests to the development server and read the response"
+  },
+  {
+    "pkg": "flatted",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "<=3.4.1",
+    "via": "flatted vulnerable to unbounded recursion DoS in parse() revive phase; Prototype Pollution via parse() in NodeJS flatted"
+  },
+  {
+    "pkg": "lodash",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "<=4.17.23",
+    "via": "Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions; lodash vulnerable to Code Injection via `_.template` imports key names; lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`"
+  },
+  {
+    "pkg": "lodash-es",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "<=4.17.23",
+    "via": "Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions; lodash vulnerable to Code Injection via `_.template` imports key names; lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`"
+  },
+  {
+    "pkg": "minimatch",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "<=3.1.3",
+    "via": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern; minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments; minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions"
+  },
+  {
+    "pkg": "react-router",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "6.4.0-pre.0 - 6.30.2",
+    "via": "@remix-run/router"
+  },
+  {
+    "pkg": "react-router-dom",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "6.4.0-pre.0 - 6.30.2",
+    "via": "@remix-run/router; react-router"
+  },
+  {
+    "pkg": "rollup",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "4.0.0 - 4.58.0",
+    "via": "Rollup 4 has Arbitrary File Write via Path Traversal"
+  },
+  {
+    "pkg": "socket.io-parser",
+    "severity": "high",
+    "fixAvailable": true,
+    "range": "4.0.0 - 4.2.5",
+    "via": "socket.io allows an unbounded number of binary attachments"
+  },
+  {
+    "pkg": "vite",
+    "severity": "moderate",
+    "fixAvailable": true,
+    "range": "<=6.1.6",
+    "via": "Websites were able to send any requests to the development server and read the response in vite; Vite bypasses server.fs.deny when using ?raw??; Vite has an `server.fs.deny` bypass with an invalid `request-target`; Vite's server.fs.deny bypassed with /. for files under project root; Vite allows server.fs.deny to be bypassed with .svg or relative paths; Vite middleware may serve files starting with the same name with the public directory; Vite's `server.fs` settings were not applied to HTML files; vite allows server.fs.deny bypass via backslash on Windows; Vite has a `server.fs.deny` bypassed for `inline` and `raw` with `?import` query"
+  }
+]

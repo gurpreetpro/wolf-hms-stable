@@ -115,14 +115,32 @@ const LabHistoryTab = ({ labHistory, fetchHistory }) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {Object.entries(resultToView.result_json).map(([key, val], idx) => (
-                                            <tr key={idx}>
-                                                <td>{key}</td>
-                                                <td className="fw-bold">{typeof val === 'object' ? val.value : val}</td>
-                                                <td>{typeof val === 'object' ? val.unit : '-'}</td>
-                                                <td className="text-muted">{typeof val === 'object' ? val.range : '-'}</td>
-                                            </tr>
-                                        ))}
+                                        {Object.entries(resultToView.result_json)
+                                            .filter(([key]) => !key.startsWith('_'))
+                                            .map(([key, val], idx) => {
+                                                const metadata = resultToView.result_json._metadata || {};
+                                                const range = metadata.reference_ranges?.[key] || (typeof val === 'object' ? val.range : '-');
+                                                const flag = metadata.flags?.[key] || (typeof val === 'object' ? val.flag : null);
+                                                const displayVal = typeof val === 'object' ? val.value : val;
+                                                const unit = typeof val === 'object' ? val.unit : '-';
+
+                                                return (
+                                                    <tr key={idx}>
+                                                        <td className="text-capitalize">{key.replace(/_/g, ' ')}</td>
+                                                        <td className="fw-bold">
+                                                            {displayVal}
+                                                            {flag && flag !== 'Normal' && (
+                                                                <Badge bg={flag === 'High' ? 'danger' : 'primary'} className="ms-2">
+                                                                    {flag}
+                                                                </Badge>
+                                                            )}
+                                                        </td>
+                                                        <td>{unit}</td>
+                                                        <td className="text-muted">{range}</td>
+                                                    </tr>
+                                                );
+                                            })
+                                        }
                                     </tbody>
                                 </Table>
                             ) : (

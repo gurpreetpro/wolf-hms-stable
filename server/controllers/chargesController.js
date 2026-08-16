@@ -9,6 +9,7 @@
  */
 
 const prisma = require('../config/prisma');
+const { getHospitalId } = require('../utils/tenantHelper');
 
 // Get Socket.io instance (will be set from server.js)
 let io = null;
@@ -43,10 +44,11 @@ const createCharge = async (req, res) => {
         }
 
         const total_price = quantity * parseFloat(unit_price);
+        const hospitalId = getHospitalId(req);
 
         const charge = await prisma.pending_charges.create({
             data: {
-                hospital_id: req.hospitalId,
+                hospital_id: hospitalId,
                 patient_id,
                 admission_id: admission_id || null,
                 charge_type,
@@ -70,7 +72,7 @@ const createCharge = async (req, res) => {
 
         // Emit real-time event to billing dashboard
         if (io) {
-            io.to(`hospital_${req.hospitalId}`).emit('new_charge', {
+            io.to(`hospital_${hospitalId}`).emit('new_charge', {
                 ...charge,
                 patient_name: charge.patients?.name
             });
@@ -110,8 +112,9 @@ const getPendingCharges = async (req, res) => {
             limit = 50
         } = req.query;
 
+        const hospitalId = getHospitalId(req);
         const where = {
-            hospital_id: req.hospitalId
+            hospital_id: hospitalId
         };
 
         if (patient_id) where.patient_id = patient_id;
@@ -192,8 +195,9 @@ const getPatientCharges = async (req, res) => {
         const { patientId } = req.params;
         const { status, admission_id } = req.query;
 
+        const hospitalId = getHospitalId(req);
         const where = {
-            hospital_id: req.hospitalId,
+            hospital_id: hospitalId,
             patient_id: patientId
         };
 
@@ -233,6 +237,7 @@ const getPatientCharges = async (req, res) => {
 const addChargesToInvoice = async (req, res) => {
     try {
         const { charge_ids, invoice_id, create_new_invoice } = req.body;
+        const hospitalId = getHospitalId(req);
 
         if (!charge_ids || !Array.isArray(charge_ids) || charge_ids.length === 0) {
             return res.status(400).json({
@@ -245,7 +250,7 @@ const addChargesToInvoice = async (req, res) => {
         const charges = await prisma.pending_charges.findMany({
             where: {
                 id: { in: charge_ids },
-                hospital_id: req.hospitalId,
+                hospital_id: hospitalId,
                 status: 'pending'
             },
             include: {
@@ -275,7 +280,7 @@ const addChargesToInvoice = async (req, res) => {
         if (create_new_invoice || !invoice_id) {
             const newInvoice = await prisma.invoices.create({
                 data: {
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     patient_id: patientIds[0],
                     admission_id: charges[0].admission_id,
                     total_amount: 0,
@@ -310,7 +315,7 @@ const addChargesToInvoice = async (req, res) => {
                     quantity: c.quantity,
                     unit_price: c.unit_price,
                     total_price: c.total_price,
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     item_type: c.charge_type,
                     reference_id: c.source_id
                 }))
@@ -326,7 +331,7 @@ const addChargesToInvoice = async (req, res) => {
 
         // Emit event
         if (io) {
-            io.to(`hospital_${req.hospitalId}`).emit('charges_invoiced', {
+            io.to(`hospital_${hospitalId}`).emit('charges_invoiced', {
                 charge_ids,
                 invoice_id: targetInvoiceId,
                 patient_id: patientIds[0]
@@ -356,11 +361,12 @@ const cancelCharge = async (req, res) => {
     try {
         const { id } = req.params;
         const { reason } = req.body;
+        const hospitalId = getHospitalId(req);
 
         const charge = await prisma.pending_charges.findFirst({
             where: {
                 id: parseInt(id),
-                hospital_id: req.hospitalId,
+                hospital_id: hospitalId,
                 status: 'pending'
             }
         });
@@ -383,7 +389,7 @@ const cancelCharge = async (req, res) => {
         });
 
         if (io) {
-            io.to(`hospital_${req.hospitalId}`).emit('charge_cancelled', { id: parseInt(id) });
+            io.to(`hospital_${hospitalId}`).emit('charge_cancelled', { id: parseInt(id) });
         }
 
         return res.json({
@@ -407,6 +413,7 @@ const waiveCharge = async (req, res) => {
     try {
         const { id } = req.params;
         const { reason, authorized_by } = req.body;
+        const hospitalId = getHospitalId(req);
 
         // Only admin/billing_manager can waive charges
         if (!['admin', 'billing_manager', 'finance_user'].includes(req.role)) {
@@ -419,7 +426,7 @@ const waiveCharge = async (req, res) => {
         const charge = await prisma.pending_charges.findFirst({
             where: {
                 id: parseInt(id),
-                hospital_id: req.hospitalId,
+                hospital_id: hospitalId,
                 status: 'pending'
             }
         });
@@ -442,7 +449,7 @@ const waiveCharge = async (req, res) => {
         });
 
         if (io) {
-            io.to(`hospital_${req.hospitalId}`).emit('charge_waived', { id: parseInt(id) });
+            io.to(`hospital_${hospitalId}`).emit('charge_waived', { id: parseInt(id) });
         }
 
         return res.json({
@@ -466,25 +473,26 @@ const getBillingQueueSummary = async (req, res) => {
     try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const hospitalId = getHospitalId(req);
 
         const [pendingCount, pendingTotal, todayCount, todayTotal, insuranceCount, insuranceTotal] = await Promise.all([
             prisma.pending_charges.count({
-                where: { hospital_id: req.hospitalId, status: 'pending' }
+                where: { hospital_id: hospitalId, status: 'pending' }
             }),
             prisma.pending_charges.aggregate({
-                where: { hospital_id: req.hospitalId, status: 'pending' },
+                where: { hospital_id: hospitalId, status: 'pending' },
                 _sum: { total_price: true }
             }),
             prisma.pending_charges.count({
                 where: {
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     status: 'pending',
                     created_at: { gte: today }
                 }
             }),
             prisma.pending_charges.aggregate({
                 where: {
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     status: 'pending',
                     created_at: { gte: today }
                 },
@@ -493,14 +501,14 @@ const getBillingQueueSummary = async (req, res) => {
             // Insurance eligible charges
             prisma.pending_charges.count({
                 where: {
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     status: 'pending',
                     insurance_eligible: true
                 }
             }),
             prisma.pending_charges.aggregate({
                 where: {
-                    hospital_id: req.hospitalId,
+                    hospital_id: hospitalId,
                     status: 'pending',
                     insurance_eligible: true
                 },
@@ -511,7 +519,7 @@ const getBillingQueueSummary = async (req, res) => {
         // Get breakdown by charge type
         const byType = await prisma.pending_charges.groupBy({
             by: ['charge_type'],
-            where: { hospital_id: req.hospitalId, status: 'pending' },
+            where: { hospital_id: hospitalId, status: 'pending' },
             _count: { id: true },
             _sum: { total_price: true }
         });

@@ -7,7 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 exports.getPendingPAC = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const query = `
-        SELECT s.id as surgery_id, s.patient_id, s.procedure_name, s.start_time, p.name as patient_name, p.age, p.gender, pac.fitness_status as current_status
+        SELECT s.id as surgery_id, s.patient_id, s.procedure_name, s.start_time, p.name as patient_name, EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as age, p.gender, pac.fitness_status as current_status
         FROM surgeries s JOIN patients p ON s.patient_id = p.id LEFT JOIN pac_assessments pac ON s.id = pac.surgery_id
         WHERE s.status IN ('Scheduled', 'Urgent') AND (s.hospital_id = $1 OR s.hospital_id IS NULL) ORDER BY s.start_time ASC
     `;

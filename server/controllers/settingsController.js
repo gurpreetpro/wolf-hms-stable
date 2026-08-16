@@ -58,7 +58,7 @@ exports.updateSettings = asyncHandler(async (req, res) => {
 // Get Services - Multi-Tenant
 exports.getServices = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query('SELECT * FROM services WHERE (hospital_id = $1) ORDER BY name', [hospitalId]);
+    const result = await pool.query('SELECT *, service_name as name FROM services WHERE (hospital_id = $1) ORDER BY service_name', [hospitalId]);
     ResponseHandler.success(res, result.rows);
 });
 

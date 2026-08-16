@@ -162,7 +162,7 @@ async function runNuclearSimulation() {
                     // FORCE CLEANUP
                     const bedNum = bed.bed_number || bed.number;
                     // 3. Clear existing admission for this bed (if any)
-                    const existingAdm = await pool.query("SELECT id FROM admissions WHERE ward = $1 AND bed_number = $2 AND status = 'Admitted'", ['General', bedNum]); // Assuming General Ward
+                    const existingAdm = await pool.query("SELECT id FROM admissions WHERE ward = $1 AND bed_number = $2 AND status = 'Admitted'", [bed.ward_name || 'General Ward B', bedNum]); // Assuming General Ward
                     if (existingAdm.rows.length > 0) {
                         const admId = existingAdm.rows[0].id;
                         console.log(`🧹 Force clearing Bed ${bedNum} (Admission ID: ${admId})...`);
@@ -184,7 +184,7 @@ async function runNuclearSimulation() {
 
                     const admitData = {
                         patient_id: patientId,
-                        ward: bed.ward || 'General',
+                        ward: bed.ward_name || bed.ward || 'General Ward B',
                         bed_number: bed.bed_number || bed.number,
                         diagnosis: 'Simulation Fever',
                         doctor_id: doctorId,

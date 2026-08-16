@@ -29,9 +29,9 @@ const baseConfig = {
     database: process.env.DB_NAME || 'hospital_db',
     password: process.env.DB_PASSWORD || 'password',
     // Connection pool settings for scale
-    max: parseInt(process.env.DB_POOL_SIZE) || 20,
+    max: parseInt(process.env.DB_POOL_SIZE) || 50,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
+    connectionTimeoutMillis: 10000,
 };
 
 /**

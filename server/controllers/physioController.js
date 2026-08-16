@@ -35,7 +35,7 @@ const getPatients = asyncHandler(async (req, res) => {
     const { status } = req.query;
 
     let query = `
-        SELECT rp.*, p.name AS patient_name, p.age, p.gender, 
+        SELECT rp.*, p.name AS patient_name, EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as age, p.gender, 
                u.username AS assigned_therapist_name
         FROM rehab_plans rp
         LEFT JOIN patients p ON rp.patient_id = p.id
@@ -157,7 +157,7 @@ const getSessions = asyncHandler(async (req, res) => {
     let query = `
         SELECT rs.*, u.username AS therapist_name 
         FROM rehab_sessions rs 
-        LEFT JOIN users u ON rs.performed_by = u.id
+        LEFT JOIN users u ON rs.therapist_id = u.id
         WHERE rs.hospital_id = $1
     `;
     const params = [hospitalId];
@@ -167,7 +167,7 @@ const getSessions = asyncHandler(async (req, res) => {
         query += ` AND rs.plan_id = $${idx++}`;
         params.push(plan_id);
     }
-    query += ' ORDER BY rs.session_date DESC, rs.created_at DESC';
+    query += ' ORDER BY rs.scheduled_time DESC, rs.created_at DESC';
 
     const result = await pool.query(query, params);
     ResponseHandler.success(res, result.rows);

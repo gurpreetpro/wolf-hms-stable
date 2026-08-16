@@ -1,0 +1,11 @@
+form-data [CRITICAL] fix:node-telegram-bot-api@0.67.0
+node-telegram-bot-api [MODERATE] fix:node-telegram-bot-api@0.67.0
+nodemailer [HIGH] fix:nodemailer@8.0.4
+nodemon [HIGH] fix:nodemon@3.1.14
+qs [MODERATE] fix:node-telegram-bot-api@0.67.0
+request [CRITICAL] fix:node-telegram-bot-api@0.67.0
+request-promise [MODERATE] fix:node-telegram-bot-api@0.67.0
+request-promise-core [MODERATE] fix:node-telegram-bot-api@0.67.0
+semver [HIGH] fix:nodemon@3.1.14
+simple-update-notifier [HIGH] fix:nodemon@3.1.14
+tough-cookie [MODERATE] fix:node-telegram-bot-api@0.67.0

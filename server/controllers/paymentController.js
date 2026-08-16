@@ -203,10 +203,83 @@ const generateQR = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * Settle patient folio balance
+ */
+const settlePayment = asyncHandler(async (req, res) => {
+    const { patientId, amount, method = 'UPI', gatewayReference } = req.body;
+    const hospitalId = req.hospitalId || 1;
+
+    if (!patientId || !amount) {
+        return ResponseHandler.error(res, 'Patient ID and amount are required', 400);
+    }
+
+    const numericAmount = parseFloat(amount);
+    const ref = gatewayReference || `pay_${method}_${Date.now()}`;
+
+    // 1. Get or create patient folio
+    const folioCheck = await pool.query(
+        `SELECT id, total_accumulated FROM patient_folios WHERE patient_id = $1 LIMIT 1`,
+        [patientId]
+    );
+
+    let folioId;
+    if (folioCheck.rows.length === 0) {
+        const newFolio = await pool.query(
+            `INSERT INTO patient_folios (patient_id, hospital_id, total_accumulated, status) VALUES ($1, $2, 0, 'Active') RETURNING id`,
+            [patientId, hospitalId]
+        );
+        folioId = newFolio.rows[0].id;
+    } else {
+        folioId = folioCheck.rows[0].id;
+    }
+
+    // 2. Insert negative folio_transaction (payment credit)
+    const creditAmount = -numericAmount;
+    await pool.query(`
+        INSERT INTO folio_transactions (
+            folio_id, hospital_id, source_module, item_name, 
+            quantity, unit_price, total_price, auto_captured, 
+            metadata, created_at
+        ) VALUES (
+            $1, $2, 'PAYMENT', $3,
+            1, $4, $4, true,
+            $5, NOW()
+        )
+    `, [
+        folioId, 
+        hospitalId, 
+        `Payment Settlement (${method})`, 
+        creditAmount, 
+        JSON.stringify({ gatewayReference: ref, method })
+    ]);
+
+    // 3. Update patient_folios total_accumulated
+    const folioRes = await pool.query(`
+        UPDATE patient_folios
+        SET total_accumulated = GREATEST(0, total_accumulated - $1),
+            status = CASE WHEN total_accumulated - $1 <= 0 THEN 'Settled' ELSE 'Active' END,
+            closed_at = CASE WHEN total_accumulated - $1 <= 0 THEN NOW() ELSE closed_at END
+        WHERE id = $2
+        RETURNING total_accumulated, status
+    `, [numericAmount, folioId]);
+
+    const newBalance = folioRes.rows[0] ? parseFloat(folioRes.rows[0].total_accumulated) : 0;
+
+    ResponseHandler.success(res, {
+        status: 'success',
+        message: `Payment of ₹${numericAmount} settled via ${method}. Gateway Ref: ${ref}`,
+        settledAmount: numericAmount,
+        newBalance: newBalance,
+        gatewayReference: ref
+    });
+});
+
 module.exports = { 
     createOrder, 
     verifyPayment, 
     createPaymentLink, 
     generateQR,
+    settlePayment,
     clearRazorpayCache // Export for use when settings are updated
 };

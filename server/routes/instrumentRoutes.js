@@ -107,6 +107,12 @@ router.get('/stats', protect, instrumentController.getMessageStats);
 // GET logs for specific instrument
 router.get('/:id/logs', protect, instrumentController.getInstrumentLogs);
 
+// GET calibrations history for specific instrument
+router.get('/:id/calibrations', protect, instrumentController.getInstrumentCalibrations);
+
+// POST record a new calibration run for specific instrument
+router.post('/:id/calibrations', protect, authorize('admin', 'super_admin', 'lab_manager', 'lab_tech'), instrumentController.addInstrumentCalibration);
+
 // POST add new instrument
 router.post('/', protect, authorize('admin', 'super_admin', 'lab_manager'), instrumentController.addInstrument);
 

@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Button, Modal, Form, Tab, Tabs, Alert, Badge, Spinner } from 'react-bootstrap';
-import { Settings, Plus, Edit2, Trash2, Save, Download, RefreshCw, Beaker, Link } from 'lucide-react';
+
+import { Settings, Plus, Edit2, Trash2, Save, Download, RefreshCw, Beaker, Link, Activity } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
 const LabTestParamsAdmin = () => {
@@ -19,6 +20,15 @@ const LabTestParamsAdmin = () => {
     const [showParamModal, setShowParamModal] = useState(false);
     const [showMappingModal, setShowMappingModal] = useState(false);
     const [editingParam, setEditingParam] = useState(null);
+
+    // Delta rules states
+    const [deltaRules, setDeltaRules] = useState([]);
+    const [testTypes, setTestTypes] = useState([]);
+    const [showDeltaModal, setShowDeltaModal] = useState(false);
+    const [editingDeltaRule, setEditingDeltaRule] = useState(null);
+    const [deltaForm, setDeltaForm] = useState({
+        test_type_id: '', parameter_name: '', max_percent_change: '', max_absolute_change: '', time_window_hours: 72, is_active: true
+    });
 
     // Form state
     const [paramForm, setParamForm] = useState({
@@ -39,17 +49,20 @@ const LabTestParamsAdmin = () => {
         try {
             const token = localStorage.getItem('token');
             const headers = { Authorization: `Bearer ${token}` };
-
-            const [paramsRes, mappingsRes, catsRes] = await Promise.all([
+            const [paramsRes, mappingsRes, catsRes, deltaRulesRes, testTypesRes] = await Promise.all([
                 api.get('/api/lab-params/parameters', { headers }),
                 api.get('/api/lab-params/mappings', { headers }),
-                api.get('/api/lab-params/categories', { headers })
+                api.get('/api/lab-params/categories', { headers }),
+                api.get('/api/lab-params/delta-rules', { headers }).catch(() => ({ data: [] })),
+                api.get('/api/lab/test-types', { headers }).catch(() => ({ data: [] }))
             ]);
 
             const paramsData = paramsRes.data.flat ? paramsRes.data : (paramsRes.data?.data || { grouped: {}, flat: [] });
             setParameters(paramsData);
             setMappings(Array.isArray(mappingsRes.data) ? mappingsRes.data : (mappingsRes.data?.data || []));
             setCategories(Array.isArray(catsRes.data) ? catsRes.data : (catsRes.data?.data || []));
+            setDeltaRules(Array.isArray(deltaRulesRes.data) ? deltaRulesRes.data : (deltaRulesRes.data?.data || []));
+            setTestTypes(Array.isArray(testTypesRes.data) ? testTypesRes.data : (testTypesRes.data?.data || []));
             setError(null);
         } catch (err) {
             setError('Failed to load data');
@@ -142,6 +155,55 @@ const LabTestParamsAdmin = () => {
             loadData();
         } catch (err) {
             console.error('Delete mapping error:', err);
+        }
+    };
+
+    const openAddDeltaRule = () => {
+        setEditingDeltaRule(null);
+        setDeltaForm({ test_type_id: '', parameter_name: '', max_percent_change: '', max_absolute_change: '', time_window_hours: 72, is_active: true });
+        setShowDeltaModal(true);
+    };
+
+    const openEditDeltaRule = (rule) => {
+        setEditingDeltaRule(rule);
+        setDeltaForm({
+            test_type_id: rule.test_type_id || '',
+            parameter_name: rule.parameter_name || '',
+            max_percent_change: rule.max_percent_change || '',
+            max_absolute_change: rule.max_absolute_change || '',
+            time_window_hours: rule.time_window_hours || 72,
+            is_active: rule.is_active !== false
+        });
+        setShowDeltaModal(true);
+    };
+
+    const saveDeltaRule = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const headers = { Authorization: `Bearer ${token}` };
+
+            if (editingDeltaRule) {
+                await api.put(`/api/lab-params/delta-rules/${editingDeltaRule.id}`, deltaForm, { headers });
+            } else {
+                await api.post('/api/lab-params/delta-rules', deltaForm, { headers });
+            }
+            setShowDeltaModal(false);
+            loadData();
+        } catch (err) {
+            console.error('Save delta rule error:', err);
+            alert('Failed to save delta rule');
+        }
+    };
+
+    const deleteDeltaRule = async (id) => {
+        if (!window.confirm('Delete this delta rule?')) return;
+        try {
+            const token = localStorage.getItem('token');
+            const headers = { Authorization: `Bearer ${token}` };
+            await api.delete(`/api/lab-params/delta-rules/${id}`, { headers });
+            loadData();
+        } catch (err) {
+            console.error('Delete delta rule error:', err);
         }
     };
 
@@ -333,6 +395,66 @@ const LabTestParamsAdmin = () => {
                         </Card.Body>
                     </Card>
                 </Tab>
+
+                {/* Delta Check Rules Tab */}
+                <Tab eventKey="deltaRules" title={<><Activity size={16} className="me-1" /> Delta Check Rules</>}>
+                    <Card className="shadow-sm border-0">
+                        <Card.Header className="bg-white d-flex justify-content-between align-items-center">
+                            <span className="fw-bold">Configure Delta Check Alert Thresholds</span>
+                            <Button variant="primary" size="sm" onClick={openAddDeltaRule}>
+                                <Plus size={14} className="me-1" /> Add Delta Rule
+                            </Button>
+                        </Card.Header>
+                        <Card.Body className="p-0">
+                            <Table hover striped size="sm" className="mb-0">
+                                <thead className="table-light">
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Parameter</th>
+                                        <th>Max % Change</th>
+                                        <th>Max Abs Change</th>
+                                        <th>Time Limit (hrs)</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {deltaRules.map(r => (
+                                        <tr key={r.id}>
+                                            <td className="fw-medium">{r.test_name}</td>
+                                            <td><code>{r.parameter_name}</code></td>
+                                            <td>{r.max_percent_change}%</td>
+                                            <td>{r.max_absolute_change}</td>
+                                            <td>{r.time_window_hours} hours</td>
+                                            <td>
+                                                {r.is_active ? (
+                                                    <Badge bg="success">Active</Badge>
+                                                ) : (
+                                                    <Badge bg="secondary">Disabled</Badge>
+                                                )}
+                                            </td>
+                                            <td>
+                                                <Button size="sm" variant="link" onClick={() => openEditDeltaRule(r)}>
+                                                    <Edit2 size={14} />
+                                                </Button>
+                                                <Button size="sm" variant="link" className="text-danger" onClick={() => deleteDeltaRule(r.id)}>
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {deltaRules.length === 0 && (
+                                        <tr>
+                                            <td colSpan={7} className="text-center text-muted py-4">
+                                                No delta check rules configured. Click "Add Delta Rule" to get started.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </Card.Body>
+                    </Card>
+                </Tab>
             </Tabs>
 
             {/* Parameter Modal */}
@@ -440,6 +562,82 @@ const LabTestParamsAdmin = () => {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowMappingModal(false)}>Cancel</Button>
                     <Button variant="success" onClick={saveMapping}><Save size={14} className="me-1" /> Save</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delta Rule Modal */}
+            <Modal show={showDeltaModal} onHide={() => setShowDeltaModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{editingDeltaRule ? 'Edit' : 'Add'} Delta Check Rule</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Test Type *</Form.Label>
+                        <Form.Select 
+                            value={deltaForm.test_type_id} 
+                            onChange={e => setDeltaForm({ ...deltaForm, test_type_id: e.target.value })}
+                            disabled={!!editingDeltaRule}
+                        >
+                            <option value="">Select Test...</option>
+                            {testTypes.map(t => (
+                                <option key={t.id} value={t.id}>{t.name} (₹{t.price})</option>
+                            ))}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Parameter Key *</Form.Label>
+                        <Form.Control 
+                            value={deltaForm.parameter_name} 
+                            onChange={e => setDeltaForm({ ...deltaForm, parameter_name: e.target.value })} 
+                            placeholder="e.g., hemoglobin, wbc, platelets"
+                            disabled={!!editingDeltaRule}
+                        />
+                    </Form.Group>
+                    <Row>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Max Percent Change (%) *</Form.Label>
+                                <Form.Control 
+                                    type="number" 
+                                    step="0.1"
+                                    value={deltaForm.max_percent_change} 
+                                    onChange={e => setDeltaForm({ ...deltaForm, max_percent_change: e.target.value })} 
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Max Absolute Change *</Form.Label>
+                                <Form.Control 
+                                    type="number" 
+                                    step="0.001"
+                                    value={deltaForm.max_absolute_change} 
+                                    onChange={e => setDeltaForm({ ...deltaForm, max_absolute_change: e.target.value })} 
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Time Window (Hours)</Form.Label>
+                        <Form.Control 
+                            type="number" 
+                            value={deltaForm.time_window_hours} 
+                            onChange={e => setDeltaForm({ ...deltaForm, time_window_hours: parseInt(e.target.value) || 72 })} 
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Check 
+                            type="switch"
+                            id="delta-active-switch"
+                            label="Rule Active"
+                            checked={deltaForm.is_active}
+                            onChange={e => setDeltaForm({ ...deltaForm, is_active: e.target.checked })}
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeltaModal(false)}>Cancel</Button>
+                    <Button variant="success" onClick={saveDeltaRule}><Save size={14} className="me-1" /> Save</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

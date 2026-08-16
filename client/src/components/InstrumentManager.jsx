@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Row, Col, Alert, Spinner, Modal, Form, ProgressBar } from 'react-bootstrap';
-import { Usb, RefreshCw, Settings, Activity, Plus, CheckCircle, XCircle, Play, Square, Trash2, Wifi, WifiOff } from 'lucide-react';
+import { Usb, RefreshCw, Settings, Activity, Plus, CheckCircle, XCircle, Play, Square, Trash2, Wifi, WifiOff, Calendar, Terminal, HardDrive, List } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
 const InstrumentManager = () => {
@@ -9,6 +9,20 @@ const InstrumentManager = () => {
     const [liveData, setLiveData] = useState([]);
     const [driverRegistry, setDriverRegistry] = useState({ data: [], byManufacturer: {} });
     
+    // Telemetry and Calibrations state hooks
+    const [showTelemetryModal, setShowTelemetryModal] = useState(false);
+    const [selectedInstrument, setSelectedInstrument] = useState(null);
+    const [telemetryLogs, setTelemetryLogs] = useState([]);
+    const [telemetryLoading, setTelemetryLoading] = useState(false);
+    
+    const [showCalibrationsModal, setShowCalibrationsModal] = useState(false);
+    const [calibrations, setCalibrations] = useState([]);
+    const [calibrationsLoading, setCalibrationsLoading] = useState(false);
+    const [showNewCalibrationForm, setShowNewCalibrationForm] = useState(false);
+    const [calibrationForm, setCalibrationForm] = useState({
+        status: 'Pass', notes: '', next_due: '', parameters_log: {}
+    });
+
     // Wizard State
     const [showAddModal, setShowAddModal] = useState(false);
     const [wizardStep, setWizardStep] = useState(1);
@@ -61,12 +75,68 @@ const InstrumentManager = () => {
         }
     };
 
+    const fetchTelemetryLogs = async (id) => {
+        setTelemetryLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await api.get(`/api/instruments/${id}/logs`, { 
+                headers: { Authorization: `Bearer ${token}` } 
+            });
+            setTelemetryLogs(res.data?.data || res.data || []);
+        } catch (err) {
+            console.error('Fetch telemetry error:', err);
+        }
+        setTelemetryLoading(false);
+    };
+
+    const fetchCalibrations = async (id) => {
+        setCalibrationsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await api.get(`/api/instruments/${id}/calibrations`, { 
+                headers: { Authorization: `Bearer ${token}` } 
+            });
+            setCalibrations(res.data?.data || res.data || []);
+        } catch (err) {
+            console.error('Fetch calibrations error:', err);
+        }
+        setCalibrationsLoading(false);
+    };
+
+    const handleSaveCalibration = async () => {
+        if (!selectedInstrument) return;
+        try {
+            const token = localStorage.getItem('token');
+            await api.post(`/api/instruments/${selectedInstrument.id}/calibrations`, calibrationForm, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setShowNewCalibrationForm(false);
+            setCalibrationForm({ status: 'Pass', notes: '', next_due: '', parameters_log: {} });
+            fetchCalibrations(selectedInstrument.id);
+            fetchInstruments(); // Refresh table
+        } catch (err) {
+            console.error('Save calibration error:', err);
+            alert('Failed to log calibration: ' + (err.response?.data?.message || err.message));
+        }
+    };
+
     useEffect(() => {
         fetchInstruments();
         fetchDriverRegistry();
         const interval = setInterval(fetchLiveData, 5000);
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        let interval;
+        if (showTelemetryModal && selectedInstrument) {
+            fetchTelemetryLogs(selectedInstrument.id);
+            interval = setInterval(() => {
+                fetchTelemetryLogs(selectedInstrument.id);
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [showTelemetryModal, selectedInstrument]);
 
     // Wizard Actions
     const openAddWizard = () => {
@@ -230,18 +300,29 @@ const InstrumentManager = () => {
                                             <td>
                                                 <div className="d-flex gap-1">
                                                     {inst.is_active ? (
-                                                        <Button size="sm" variant="outline-warning" onClick={() => stopInstrument(inst.id)} title="Stop">
+                                                        <Button size="sm" variant="outline-warning" onClick={() => stopInstrument(inst.id)} title="Stop Connection">
                                                             <Square size={12}/>
                                                         </Button>
                                                     ) : (
-                                                        <Button size="sm" variant="outline-success" onClick={() => startInstrument(inst.id)} title="Start">
+                                                        <Button size="sm" variant="outline-success" onClick={() => startInstrument(inst.id)} title="Start Connection">
                                                             <Play size={12}/>
                                                         </Button>
                                                     )}
-                                                    <Button size="sm" variant="outline-secondary" title="Settings">
-                                                        <Settings size={12}/>
+                                                    <Button size="sm" variant="outline-info" title="View Telemetry Console" onClick={() => {
+                                                        setSelectedInstrument(inst);
+                                                        setShowTelemetryModal(true);
+                                                    }}>
+                                                        <Terminal size={12}/>
                                                     </Button>
-                                                    <Button size="sm" variant="outline-danger" onClick={() => deleteInstrument(inst.id)} title="Delete">
+                                                    <Button size="sm" variant="outline-secondary" title="Calibration Log" onClick={() => {
+                                                        setSelectedInstrument(inst);
+                                                        setCalibrationForm({ status: 'Pass', notes: '', next_due: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], parameters_log: {} });
+                                                        fetchCalibrations(inst.id);
+                                                        setShowCalibrationsModal(true);
+                                                    }}>
+                                                        <Calendar size={12}/>
+                                                    </Button>
+                                                    <Button size="sm" variant="outline-danger" onClick={() => deleteInstrument(inst.id)} title="Delete Instrument">
                                                         <Trash2 size={12}/>
                                                     </Button>
                                                 </div>
@@ -455,6 +536,184 @@ const InstrumentManager = () => {
                             </Button>
                         )}
                     </div>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Live Telemetry Log Terminal Modal */}
+            <Modal show={showTelemetryModal} onHide={() => setShowTelemetryModal(false)} size="lg" centered>
+                <Modal.Header closeButton className="bg-dark text-white">
+                    <Modal.Title className="d-flex align-items-center gap-2 small font-monospace" style={{ fontSize: '14px' }}>
+                        <Terminal size={18} className="text-info" />
+                        LIVE ANALYZER PACKET STREAM: {selectedInstrument?.name} (ID: {selectedInstrument?.id})
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="bg-black p-0">
+                    <div 
+                        className="p-3 text-success font-monospace" 
+                        style={{ height: '400px', overflowY: 'auto', fontSize: '12px', lineHeight: '1.5' }}
+                    >
+                        {telemetryLoading && telemetryLogs.length === 0 ? (
+                            <div className="text-center py-5 text-muted">
+                                <Spinner animation="border" variant="info" size="sm" />
+                                <div className="mt-2">Establishing analyzer connection listener stream...</div>
+                            </div>
+                        ) : telemetryLogs.length === 0 ? (
+                            <div className="text-muted py-5 text-center">
+                                [SYSTEM] Waiting for socket communication line data packets from analyzer...
+                                <br />[Subnet: {selectedInstrument?.connection_config?.host || 'localhost'} on Port {selectedInstrument?.connection_config?.port}]
+                            </div>
+                        ) : (
+                            <div className="d-flex flex-column gap-1">
+                                {telemetryLogs.slice().reverse().map((log, idx) => (
+                                    <div key={log.id || idx} className="border-bottom border-dark pb-2 mb-2">
+                                        <div className="text-info small">
+                                            [{new Date(log.created_at).toISOString()}] {log.direction === 'IN' ? '📥 INBOUND MESSAGE' : '📤 OUTBOUND MESSAGE'} - {log.message_type}
+                                        </div>
+                                        <div className="text-white mt-1" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                            {log.raw_message}
+                                        </div>
+                                        {log.parsed_data && Object.keys(log.parsed_data).length > 0 && (
+                                            <div className="text-muted small mt-1">
+                                                Parsed JSON: {JSON.stringify(log.parsed_data)}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </Modal.Body>
+                <Modal.Footer className="bg-dark border-0">
+                    <Button variant="outline-info" size="sm" onClick={() => fetchTelemetryLogs(selectedInstrument.id)}>
+                        <RefreshCw size={12} className="me-1" /> Force Refresh
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setShowTelemetryModal(false)}>Close Console</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Calibration Manager & Schedule Modal */}
+            <Modal show={showCalibrationsModal} onHide={() => setShowCalibrationsModal(false)} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title className="d-flex align-items-center gap-2">
+                        <Calendar className="text-primary" />
+                        Calibration Registry & Maintenance Schedule: {selectedInstrument?.name}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Row className="mb-4">
+                        <Col md={12} className="d-flex justify-content-between align-items-center">
+                            <h6 className="fw-bold mb-0">Calibration History Logs</h6>
+                            <Button 
+                                size="sm" 
+                                variant={showNewCalibrationForm ? 'outline-secondary' : 'primary'}
+                                onClick={() => setShowNewCalibrationForm(!showNewCalibrationForm)}
+                            >
+                                {showNewCalibrationForm ? 'Cancel Logging' : 'Log Maintenance Calibration'}
+                            </Button>
+                        </Col>
+                    </Row>
+
+                    {/* New Calibration Form */}
+                    {showNewCalibrationForm && (
+                        <Card className="bg-light p-3 border-0 mb-4 shadow-sm">
+                            <h6 className="fw-bold text-primary mb-3">Record Calibration Event</h6>
+                            <Form>
+                                <Row className="g-3">
+                                    <Col md={4}>
+                                        <Form.Group>
+                                            <Form.Label>Calibration Status *</Form.Label>
+                                            <Form.Select 
+                                                value={calibrationForm.status} 
+                                                onChange={e => setCalibrationForm({ ...calibrationForm, status: e.target.value })}
+                                            >
+                                                <option value="Pass">Pass (Within Thresholds)</option>
+                                                <option value="Fail">Fail (Calibration Fault)</option>
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group>
+                                            <Form.Label>Next Calibration Due *</Form.Label>
+                                            <Form.Control 
+                                                type="date"
+                                                value={calibrationForm.next_due}
+                                                onChange={e => setCalibrationForm({ ...calibrationForm, next_due: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4} className="d-flex align-items-end">
+                                        <Button 
+                                            variant="success" 
+                                            className="w-100" 
+                                            onClick={handleSaveCalibration}
+                                            disabled={!calibrationForm.next_due}
+                                        >
+                                            Commit Calibration Log
+                                        </Button>
+                                    </Col>
+                                    <Col md={12}>
+                                        <Form.Group>
+                                            <Form.Label>Maintenance Notes / Calibration Details</Form.Label>
+                                            <Form.Control 
+                                                as="textarea"
+                                                rows={2}
+                                                value={calibrationForm.notes}
+                                                onChange={e => setCalibrationForm({ ...calibrationForm, notes: e.target.value })}
+                                                placeholder="Enter parameters adjusted, reagent calibrator lot numbers, etc."
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Card>
+                    )}
+
+                    {/* Calibration Logs Table */}
+                    {calibrationsLoading ? (
+                        <div className="text-center py-4">
+                            <Spinner animation="border" variant="primary" size="sm" />
+                            <div className="mt-2 text-muted">Retrieving calibration records...</div>
+                        </div>
+                    ) : (
+                        <Table hover responsive className="align-middle mb-0 text-center">
+                            <thead className="table-light">
+                                <tr>
+                                    <th>Performed At</th>
+                                    <th>Technician</th>
+                                    <th>Outcome</th>
+                                    <th>Maintenance Details</th>
+                                    <th>Next Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {calibrations.map(c => (
+                                    <tr key={c.id}>
+                                        <td>{new Date(c.performed_at).toLocaleString('en-IN')}</td>
+                                        <td className="fw-medium">{c.performer_name || 'System Operator'}</td>
+                                        <td>
+                                            <Badge bg={c.status === 'Pass' ? 'success' : 'danger'}>
+                                                {c.status}
+                                            </Badge>
+                                        </td>
+                                        <td className="text-start">{c.notes || '-'}</td>
+                                        <td className="fw-medium text-primary">
+                                            {c.next_due ? new Date(c.next_due).toLocaleDateString('en-IN') : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {calibrations.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" className="text-center text-muted py-3">
+                                            No calibration events logged for this analyzer.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </Table>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowCalibrationsModal(false)}>Close Calendar</Button>
                 </Modal.Footer>
             </Modal>
 

@@ -5,6 +5,8 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.get('/config', protect, getAlertConfig); // Get alert routing config
 router.post('/trigger', protect, triggerEmergency);
+router.post('/code-blue', protect, triggerEmergency);
+router.post('/dispatch', protect, triggerEmergency);
 router.get('/status', protect, getActiveEmergency);
 router.post('/resolve', protect, authorize('admin', 'anaesthetist', 'doctor', 'ward_incharge', 'nurse'), resolveEmergency);
 router.post('/respond', protect, authorize('admin', 'anaesthetist', 'doctor'), respondToEmergency);

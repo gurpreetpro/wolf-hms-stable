@@ -95,10 +95,13 @@ const parseORU = (message) => {
             };
         } else if (segmentType === 'ORC') {
             // ORC|RE|ORDER123 ...
-            currentOrderBarcode = fields[2];
+            currentOrderBarcode = fields[2] || fields[3] || currentOrderBarcode;
+        } else if (segmentType === 'OBR') {
+            // OBR|1|ORDER123|ORDER123|CBC ...
+            currentOrderBarcode = fields[2] || fields[3] || fields[4] || currentOrderBarcode;
         } else if (segmentType === 'OBX') {
             // OBX|1|NM|WBC^White Blood Count||10.5|10*3/uL|4.0-10.0|H||F
-            if (!currentOrderBarcode) continue;
+            const barcode = currentOrderBarcode || currentPatientId || 'AUTO_LAB';
             
             const testId = fields[3]?.split('^')[0]; // Identifier
             const testName = fields[3]?.split('^')[1] || testId;
@@ -108,7 +111,7 @@ const parseORU = (message) => {
             const flag = fields[8]; // H, L, N
             
             results.push({
-                barcode: currentOrderBarcode,
+                barcode: barcode,
                 testName,
                 testCode: testId,
                 value,

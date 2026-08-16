@@ -34,9 +34,12 @@ const {
     updateReagent,
     useReagent,
     getLowStockAlerts,
+    getReagentForecast,
     getQCMaterials,
     addQCResult,
     getQCResults,
+    getQCViolations,
+    acknowledgeQCViolation,
     generateReportToken,
     getPublicReport,
     // Phase 4 Upgrades
@@ -71,6 +74,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 router.post('/order', protect, authorize('doctor', 'admin'), orderTest);
 router.get('/queue', protect, authorize('lab_tech', 'admin'), getLabQueue);
 router.post('/upload-result', protect, authorize('lab_tech', 'admin'), uploadResult);
+router.post('/request/:id/results', protect, authorize('lab_tech', 'admin', 'doctor'), uploadResult);
 router.get('/stats', protect, authorize('lab_tech', 'admin'), getLabStats);
 router.get('/tests', protect, getLabTests); // Available to all authenticated users
 router.get('/patient/:patient_id', protect, getLabResultsByPatient);
@@ -134,11 +138,14 @@ router.post('/reagents', protect, authorize('lab_tech', 'admin'), addReagent);
 router.put('/reagents/:id', protect, authorize('lab_tech', 'admin'), updateReagent);
 router.post('/reagents/:id/use', protect, authorize('lab_tech', 'admin'), useReagent);
 router.get('/reagents/low-stock', protect, authorize('lab_tech', 'admin'), getLowStockAlerts);
+router.get('/reagents/:id/forecast', protect, authorize('lab_tech', 'admin'), getReagentForecast);
 
 // QC Management
 router.get('/qc/materials', protect, authorize('lab_tech', 'admin'), getQCMaterials);
 router.post('/qc/results', protect, authorize('lab_tech', 'admin'), addQCResult);
 router.get('/qc/results/:material_id', protect, authorize('lab_tech', 'admin'), getQCResults);
+router.get('/qc/violations', protect, authorize('lab_tech', 'admin'), getQCViolations);
+router.post('/qc/violations/:id/acknowledge', protect, authorize('lab_tech', 'admin'), acknowledgeQCViolation);
 
 // Report Sharing
 router.post('/report/:id/generate-link', protect, authorize('lab_tech', 'admin'), generateReportToken);

@@ -1,80 +1,73 @@
 import React from 'react';
-import { Card, CardContent, Typography, Grid, Box, Switch, Button, Chip } from '@mui/material';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { Card, Row, Col, Badge, Button } from 'react-bootstrap';
+import { Lock, Unlock, AlertTriangle } from 'lucide-react';
 
 const GateKeeper = ({ gates = [], onToggleGate }) => {
-    
-    const getStatusColor = (status) => {
+
+    const getStatusVariant = (status) => {
         switch (status) {
             case 'OPEN': return 'success';
-            case 'LOCKED': return 'error';
+            case 'LOCKED': return 'danger';
             case 'MAINTENANCE': return 'warning';
-            default: return 'default';
+            default: return 'secondary';
         }
     };
 
     return (
-        <Card sx={{ bgcolor: 'rgba(0,0,0,0.6)', color: 'white', height: '100%', border: '1px solid #333' }}>
-            <CardContent>
-                <Box display="flex" alignItems="center" mb={2}>
-                    <Typography variant="h6" sx={{ flexGrow: 1, color: '#00e5ff' }}>
+        <Card bg="dark" text="white" className="h-100 border-secondary">
+            <Card.Body>
+                <div className="d-flex align-items-center mb-3">
+                    <Card.Title className="flex-grow-1 mb-0" style={{ color: '#00e5ff' }}>
                         GATE KEEPER (IoT)
-                    </Typography>
-                    <Chip label={`${gates.length} CONNECTED`} size="small" color="primary" variant="outlined" />
-                </Box>
+                    </Card.Title>
+                    <Badge bg="primary" className="border border-primary">
+                        {gates.length} CONNECTED
+                    </Badge>
+                </div>
 
-                <Grid container spacing={2}>
+                <Row className="g-2">
                     {gates.map((gate) => (
-                        <Grid item xs={12} key={gate.id}>
-                            <Box 
-                                sx={{ 
-                                    p: 2, 
-                                    bgcolor: 'rgba(255,255,255,0.05)', 
-                                    borderRadius: 1,
-                                    borderLeft: `4px solid ${gate.status === 'OPEN' ? '#00e676' : '#f50057'}`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
+                        <Col xs={12} key={gate.id}>
+                            <div
+                                className="d-flex align-items-center justify-content-between p-2 rounded"
+                                style={{
+                                    backgroundColor: 'rgba(255,255,255,0.05)',
+                                    borderLeft: `4px solid ${gate.status === 'OPEN' ? '#00e676' : '#f50057'}`
                                 }}
                             >
-                                <Box>
-                                    <Typography variant="subtitle1" fontWeight="bold">{gate.name}</Typography>
-                                    <Typography variant="caption" color="gray">{gate.location}</Typography>
-                                </Box>
+                                <div>
+                                    <div className="fw-bold">{gate.name}</div>
+                                    <small className="text-muted">{gate.location}</small>
+                                </div>
 
-                                <Box display="flex" alignItems="center" gap={2}>
-                                    <Chip 
-                                        icon={gate.status === 'OPEN' ? <LockOpenIcon /> : <LockIcon />} 
-                                        label={gate.status} 
-                                        color={getStatusColor(gate.status)} 
-                                        size="small"
-                                    />
-                                    
-                                    <Button 
-                                        variant="outlined" 
-                                        size="small"
-                                        color={gate.status === 'OPEN' ? 'error' : 'success'}
+                                <div className="d-flex align-items-center gap-2">
+                                    <Badge bg={getStatusVariant(gate.status)} className="d-flex align-items-center gap-1">
+                                        {gate.status === 'OPEN' ? <Unlock size={12} /> : <Lock size={12} />}
+                                        {gate.status}
+                                    </Badge>
+
+                                    <Button
+                                        variant={gate.status === 'OPEN' ? 'outline-danger' : 'outline-success'}
+                                        size="sm"
                                         onClick={() => onToggleGate(gate.id, gate.status === 'OPEN' ? 'LOCKED' : 'OPEN')}
                                     >
                                         {gate.status === 'OPEN' ? 'LOCK' : 'OPEN'}
                                     </Button>
-                                </Box>
-                            </Box>
-                        </Grid>
+                                </div>
+                            </div>
+                        </Col>
                     ))}
 
                     {gates.length === 0 && (
-                        <Grid item xs={12}>
-                            <Box p={3} textAlign="center" color="gray">
-                                <WarningAmberIcon fontSize="large" sx={{ mb: 1, opacity: 0.5 }} />
-                                <Typography>No IoT Gates Detected</Typography>
-                            </Box>
-                        </Grid>
+                        <Col xs={12}>
+                            <div className="text-center text-muted p-4">
+                                <AlertTriangle size={32} className="mb-2 opacity-50" />
+                                <div>No IoT Gates Detected</div>
+                            </div>
+                        </Col>
                     )}
-                </Grid>
-            </CardContent>
+                </Row>
+            </Card.Body>
         </Card>
     );
 };

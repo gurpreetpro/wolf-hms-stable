@@ -16,7 +16,10 @@ const {
     getRequests,
     handleRequest,
     getAssignments,
-    getVitals, addVitals, getEMAR, addEMAR
+    getVitals, addVitals, getEMAR, addEMAR,
+    // BCMA
+    marScan,
+    marHandover
 } = require('../controllers/wardController');
 
 // Ward routes - Admin only for CUD
@@ -36,8 +39,8 @@ router.get('/dashboard', protect, async (req, res) => {
             'SELECT status, COUNT(*) as count FROM beds WHERE hospital_id = $1 GROUP BY status',
             [req.hospital_id || 1]
         );
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             wards: wards.rows[0]?.ward_count || 0,
             beds: beds.rows
         });
@@ -74,5 +77,11 @@ router.get('/vitals/:admissionId', protect, getVitals);
 router.post('/vitals', protect, addVitals);
 router.get('/emar/:admissionId', protect, getEMAR);
 router.post('/emar', protect, addEMAR);
+
+// ================================================================
+// BCMA — Barcode Medication Administration (WOLF Ultimate Guardrails)
+// ================================================================
+router.post('/mar/scan', protect, authorize('nurse', 'admin', 'ward_incharge'), marScan);
+router.post('/handover', protect, authorize('nurse', 'admin', 'ward_incharge'), marHandover);
 
 module.exports = router;

@@ -65,6 +65,7 @@ const Sidebar = () => {
         { to: '/admin/vault', icon: Shield, label: '🔐 Insurance Vault', roles: ['admin'], section: 'admin' },
         { to: '/admin/reviews', icon: Activity, label: '⭐ Patient Reviews', roles: ['admin'], section: 'admin' },
         { to: '/admin/route-replay', icon: Navigation, label: '🗺️ Route Replay', roles: ['admin'], section: 'admin' },
+        { to: '/admin/security', icon: Shield, label: '🛡️ Security Center', roles: ['admin'], section: 'admin' },
         { to: '/admin/staff-locations', icon: Activity, label: '📍 Staff Locations', roles: ['admin'], section: 'admin' },
         { to: '/settings', icon: Settings, label: '⚙️ System Settings', roles: ['admin'], section: 'admin' },
         { to: '/admin/treatment-packages', icon: Package, label: '📦 Treatment Packages', roles: ['admin'], section: 'admin' },

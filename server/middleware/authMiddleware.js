@@ -30,7 +30,7 @@ const protect = (req, res, next) => {
                 req.parent_hospital_id !== null && 
                 tokenHospitalId === req.parent_hospital_id;
 
-            if (!isPlatformAdmin && !isHubAccessingSpoke && tokenHospitalId && domainHospitalId && tokenHospitalId !== domainHospitalId) {
+            if (!isPlatformAdmin && !isHubAccessingSpoke && tokenHospitalId && domainHospitalId && String(tokenHospitalId) !== String(domainHospitalId)) {
                 console.warn(`[AuthMiddleware] ⛔ BLOCKED Cross-Tenant Access! Token(ID:${tokenHospitalId}) vs Domain(ID:${domainHospitalId})`);
                 return res.status(403).json({ 
                     message: 'Access Forbidden: You are logged into a different hospital. Please logout and login with the correct credentials.',

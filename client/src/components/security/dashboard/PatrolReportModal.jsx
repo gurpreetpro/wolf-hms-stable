@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { X, Printer, Download, Calendar, Users, FileText } from 'lucide-react';
 import './PatrolReportModal.css';
 
 /**
  * PatrolReportModal - Print/Export patrol reports
  */
-const PatrolReportModal = ({ 
+const PatrolReportModal = React.memo(({ 
     guards = [],
     events = [],
     onClose,
@@ -16,7 +16,7 @@ const PatrolReportModal = ({
     const [dateRange, setDateRange] = useState('today');
 
     // Default translations
-    const t = {
+    const t = useMemo(() => ({
         patrolReport: 'Patrol Report',
         patrolReportHi: 'गश्त रिपोर्ट',
         print: 'Print',
@@ -34,7 +34,26 @@ const PatrolReportModal = ({
         eventLog: 'Event Log',
         generatedOn: 'Generated on',
         ...translations
-    };
+    }), [translations]);
+
+    const renderedEvents = useMemo(() => {
+        if (!events || events.length === 0) {
+            return (
+                <tr>
+                    <td colSpan={3} style={{textAlign: 'center', color: '#666'}}>
+                        No events recorded
+                    </td>
+                </tr>
+            );
+        }
+        return events.slice(0, 20).map((event, idx) => (
+            <tr key={idx} className={`event-${event.type?.toLowerCase()}`}>
+                <td>{new Date(event.timestamp).toLocaleTimeString('en-IN')}</td>
+                <td>{event.type || 'INFO'}</td>
+                <td>{event.message}</td>
+            </tr>
+        ));
+    }, [events]);
 
     const handlePrint = () => {
         const content = printRef.current;
@@ -209,27 +228,13 @@ const PatrolReportModal = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {events.length === 0 ? (
-                                <tr>
-                                    <td colSpan={3} style={{textAlign: 'center', color: '#666'}}>
-                                        No events recorded
-                                    </td>
-                                </tr>
-                            ) : (
-                                events.slice(0, 20).map((event, idx) => (
-                                    <tr key={idx} className={`event-${event.type?.toLowerCase()}`}>
-                                        <td>{new Date(event.timestamp).toLocaleTimeString('en-IN')}</td>
-                                        <td>{event.type || 'INFO'}</td>
-                                        <td>{event.message}</td>
-                                    </tr>
-                                ))
-                            )}
+                            {renderedEvents}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     );
-};
+});
 
 export default PatrolReportModal;

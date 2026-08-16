@@ -1,19 +1,14 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 const OverwatchMap = ({ activePatrols = [], activeIncidents = [] }) => {
-    const theme = useTheme();
 
-    // Mock Floor Plan (Gradient Rectangle for now)
-    // In production, this would be an image or SVG
     return (
-        <Box
-            sx={{
+        <div
+            style={{
                 width: '100%',
                 height: '400px',
-                background: `linear-gradient(45deg, ${theme.palette.grey[900]} 30%, #001e3c 90%)`,
-                borderRadius: 2,
+                background: 'linear-gradient(45deg, #1a1a2e 30%, #001e3c 90%)',
+                borderRadius: 8,
                 border: '1px solid rgba(0, 255, 255, 0.3)',
                 boxShadow: '0 0 15px rgba(0, 255, 255, 0.1)',
                 position: 'relative',
@@ -32,25 +27,24 @@ const OverwatchMap = ({ activePatrols = [], activeIncidents = [] }) => {
                 opacity: 0.3
             }} />
 
-            <Typography variant="h6" sx={{ color: 'rgba(0,255,255,0.7)', userSelect: 'none', position: 'absolute', top: 20, left: 20 }}>
+            <h6 style={{ color: 'rgba(0,255,255,0.7)', userSelect: 'none', position: 'absolute', top: 20, left: 20, margin: 0 }}>
                 SECTOR A: NORTH WING [LIVE]
-            </Typography>
+            </h6>
 
             {/* Render Patrols */}
             {activePatrols.map((patrol, index) => (
-                <Box
+                <div
                     key={'patrol-' + index}
-                    sx={{
+                    style={{
                         position: 'absolute',
-                        // Random positions for demo if no coords (Phase 1 PDR is pending calibration)
-                        top: `${20 + (index * 15)}%`, 
+                        top: `${20 + (index * 15)}%`,
                         left: `${30 + (index * 20)}%`,
                         width: 12,
                         height: 12,
-                        bgcolor: '#00ff00',
+                        backgroundColor: '#00ff00',
                         borderRadius: '50%',
                         boxShadow: '0 0 10px #00ff00',
-                        animation: 'pulse 1.5s infinite'
+                        animation: 'scc-pulse 1.5s infinite'
                     }}
                     title={`Guard: ${patrol.guard_name}`}
                 />
@@ -58,17 +52,17 @@ const OverwatchMap = ({ activePatrols = [], activeIncidents = [] }) => {
 
             {/* Render Incidents */}
             {activeIncidents.map((incident, index) => (
-                <Box
+                <div
                     key={'incident-' + index}
-                    sx={{
+                    style={{
                         position: 'absolute',
                         top: '50%',
                         left: '60%',
                         width: 20,
                         height: 20,
-                        bgcolor: 'red',
-                        clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', // Triangle
-                        animation: 'flash 1s infinite'
+                        backgroundColor: 'red',
+                        clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+                        animation: 'scc-flash 1s infinite'
                     }}
                     title={`Incident: ${incident.title}`}
                 />
@@ -76,18 +70,18 @@ const OverwatchMap = ({ activePatrols = [], activeIncidents = [] }) => {
 
             <style>
                 {`
-                @keyframes pulse {
+                @keyframes scc-pulse {
                     0% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(1.5); opacity: 0.5; }
                     100% { transform: scale(1); opacity: 1; }
                 }
-                @keyframes flash {
+                @keyframes scc-flash {
                     0%, 100% { opacity: 1; }
                     50% { opacity: 0; }
                 }
                 `}
             </style>
-        </Box>
+        </div>
     );
 };
 

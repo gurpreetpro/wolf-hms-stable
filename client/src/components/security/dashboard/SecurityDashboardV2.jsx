@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useState, useCallback } from 'react';
-import { 
+import {
     Shield, Building2, Mic, MicOff, Volume2, VolumeX,
     RefreshCw, Radio, Bell, Lock, Camera, Printer, Settings,
     Activity, Users, MapPin, ChevronDown
@@ -11,6 +11,9 @@ import ThemeToggle from '../../ThemeToggle';
 import { LanguageProvider, useLanguage } from '../../../contexts/LanguageContext';
 // import QuickCommandPanel from './QuickCommandPanel'; // Deprecated
 import LiveOverwatchMap from '../cockpit/LiveOverwatchMap';
+import GuardMap from '../GuardMap';
+import VisitorsLog from '../VisitorsLog';
+import WidgetErrorBoundary from '../../WidgetErrorBoundary';
 import VoiceChannelBar from './VoiceChannelBar';
 import PatrolReportModal from './PatrolReportModal';
 import AlertSettingsModal from './AlertSettingsModal';
@@ -38,72 +41,72 @@ function reducer(state, action) {
     switch (action.type) {
         case 'SET_GUARDS':
             return { ...state, guards: action.payload };
-            
+
         case 'UPDATE_GUARD_LOCATION': {
             const guardData = action.payload;
             const exists = state.guards.find(g => g.guard_id === guardData.guard_id);
             let newGuards;
             if (exists) {
-                newGuards = state.guards.map(g => 
-                    g.guard_id === guardData.guard_id 
-                        ? { ...g, ...guardData, lastUpdate: new Date().toISOString(), status: 'ONLINE' } 
+                newGuards = state.guards.map(g =>
+                    g.guard_id === guardData.guard_id
+                        ? { ...g, ...guardData, lastUpdate: new Date().toISOString(), status: 'ONLINE' }
                         : g
                 );
             } else {
-                newGuards = [...state.guards, { 
-                    ...guardData, 
-                    lastUpdate: new Date().toISOString(), 
-                    status: 'ONLINE' 
+                newGuards = [...state.guards, {
+                    ...guardData,
+                    lastUpdate: new Date().toISOString(),
+                    status: 'ONLINE'
                 }];
             }
-            const newSelected = state.selectedGuard?.guard_id === guardData.guard_id 
-                ? { ...state.selectedGuard, ...guardData, lastUpdate: new Date().toISOString() } 
+            const newSelected = state.selectedGuard?.guard_id === guardData.guard_id
+                ? { ...state.selectedGuard, ...guardData, lastUpdate: new Date().toISOString() }
                 : state.selectedGuard;
             return { ...state, guards: newGuards, selectedGuard: newSelected };
         }
-        
+
         case 'NEW_ALERT':
-            return { 
-                ...state, 
+            return {
+                ...state,
                 alerts: [action.payload, ...state.alerts].slice(0, 20)
             };
-            
+
         case 'ACKNOWLEDGE_ALERT':
             return {
                 ...state,
                 alerts: state.alerts.filter(a => (a.id || a.incident_id) !== action.payload)
             };
-            
+
         case 'NEW_EVENT':
-            return { 
-                ...state, 
+            return {
+                ...state,
                 events: [action.payload, ...state.events].slice(0, 50)
             };
-            
+
         case 'SELECT_GUARD':
             return { ...state, selectedGuard: action.payload };
-            
+
         case 'SET_LOCKDOWN':
             return { ...state, isLockdownActive: action.payload };
-            
+
         case 'TOGGLE_SOUND':
             return { ...state, soundEnabled: !state.soundEnabled };
-            
+
         case 'SET_LANGUAGE':
             return { ...state, language: action.payload };
-            
+
         case 'TOGGLE_VOICE_CHANNEL':
             return { ...state, voiceChannelActive: !state.voiceChannelActive };
-            
+
         case 'SET_HOSPITAL':
-            return { 
-                ...state, 
+            return {
+                ...state,
                 hospitalName: action.payload.name,
                 hospitalId: action.payload.id,
                 hospitalLatitude: action.payload.latitude || null,
                 hospitalLongitude: action.payload.longitude || null
             };
-            
+
         default:
             return state;
     }
@@ -122,38 +125,46 @@ const SecurityDashboardV2Inner = () => {
     // Use language context for translations
     const { t } = useLanguage();
 
+    // Mock guard data for demo/development when backend is unavailable
+    const MOCK_GUARDS = [
+        { guard_id: 1, username: 'Officer Rohit', photoUrl: null, status: 'PATROLLING', latitude: 28.6139, longitude: 77.2090, heading: 45, speed: 1.2, batteryLevel: 0.85, shiftStart: '08:00', shiftEnd: '20:00', lastUpdate: new Date().toISOString() },
+        { guard_id: 2, username: 'Officer Singh', photoUrl: null, status: 'ONLINE', latitude: 28.6152, longitude: 77.2110, heading: 180, speed: 0.0, batteryLevel: 0.62, shiftStart: '08:00', shiftEnd: '20:00', lastUpdate: new Date().toISOString() },
+        { guard_id: 3, username: 'Officer Priya', photoUrl: null, status: 'PATROLLING', latitude: 28.6115, longitude: 77.2075, heading: 270, speed: 0.8, batteryLevel: 0.93, shiftStart: '08:00', shiftEnd: '20:00', lastUpdate: new Date().toISOString() },
+        { guard_id: 4, username: 'Officer Vikram', photoUrl: null, status: 'IDLE', latitude: 28.6170, longitude: 77.2125, heading: 0, speed: 0.0, batteryLevel: 0.41, shiftStart: '20:00', shiftEnd: '08:00', lastUpdate: new Date().toISOString() },
+    ];
+
     // Fetch initial data
     const fetchGuards = useCallback(async () => {
         setIsRefreshing(true);
         try {
             // First try to get online guards with recent locations
-            try {
-                const onlineRes = await api.get('/security/guards/online');
-                if (onlineRes.data?.data && onlineRes.data.data.length > 0) {
-                    const guards = onlineRes.data.data.map(g => ({
-                        guard_id: g.guard_id,
-                        username: g.username,
-                        photoUrl: g.photo_url,
-                        status: g.status,
-                        latitude: g.latitude,
-                        longitude: g.longitude,
-                        heading: g.heading,
-                        speed: g.speed,
-                        batteryLevel: g.battery_level,
-                        shiftStart: g.shift_start,
-                        shiftEnd: g.shift_end,
-                        lastUpdate: g.last_update
-                    }));
-                    dispatch({ type: 'SET_GUARDS', payload: guards });
-                    return;
-                }
-            } catch {
-                console.log('[SecurityDashboard] Online guards endpoint not available, falling back to patrols');
+            const onlineRes = await api.get('/api/security/guards/online');
+            if (onlineRes.data?.data && onlineRes.data.data.length > 0) {
+                const guards = onlineRes.data.data.map(g => ({
+                    guard_id: g.guard_id,
+                    username: g.username,
+                    photoUrl: g.photo_url,
+                    status: g.status,
+                    latitude: g.latitude,
+                    longitude: g.longitude,
+                    heading: g.heading,
+                    speed: g.speed,
+                    batteryLevel: g.battery_level,
+                    shiftStart: g.shift_start,
+                    shiftEnd: g.shift_end,
+                    lastUpdate: g.last_update
+                }));
+                dispatch({ type: 'SET_GUARDS', payload: guards });
+                return;
             }
-            
+        } catch {
+            console.log('[SecurityDashboard] Online guards endpoint not available, falling back to patrols');
+        }
+
+        try {
             // Fallback: Fetch active patrols to get guard data
-            const response = await api.get('/security/patrols/active');
-            if (response.data?.data) {
+            const response = await api.get('/api/security/patrols/active');
+            if (response.data?.data && response.data.data.length > 0) {
                 const guards = response.data.data.map(patrol => ({
                     guard_id: patrol.guard_id,
                     username: patrol.guard_name,
@@ -165,12 +176,20 @@ const SecurityDashboardV2Inner = () => {
                     lastUpdate: new Date().toISOString()
                 }));
                 dispatch({ type: 'SET_GUARDS', payload: guards });
+                return;
             }
-        } catch (error) {
-            console.error('[SecurityDashboard] Failed to fetch guards:', error);
-        } finally {
-            setIsRefreshing(false);
+        } catch {
+            console.log('[SecurityDashboard] Patrols endpoint not available either');
         }
+
+        // Final fallback: Use mock data so the dashboard isn't empty
+        console.log('[SecurityDashboard] Using mock guard data for demo');
+        dispatch({ type: 'SET_GUARDS', payload: MOCK_GUARDS });
+        dispatch({
+            type: 'NEW_EVENT',
+            payload: { message: 'Using demo data — configure guard accounts and start patrol to see live data', type: 'INFO', timestamp: new Date().toISOString() }
+        });
+        setIsRefreshing(false);
     }, []);
 
     // Socket connection
@@ -179,37 +198,37 @@ const SecurityDashboardV2Inner = () => {
         const authData = localStorage.getItem('wolf_auth');
         let token = null;
         let hospitalId = 1;
-        
+
         if (authData) {
             try {
                 const parsed = JSON.parse(authData);
                 token = parsed.token;
                 hospitalId = parsed.user?.hospital_id || 1;
-                dispatch({ 
-                    type: 'SET_HOSPITAL', 
-                    payload: { 
-                        id: hospitalId, 
-                        name: parsed.user?.hospitalName || 'Wolf Hospital' 
+                dispatch({
+                    type: 'SET_HOSPITAL',
+                    payload: {
+                        id: hospitalId,
+                        name: parsed.user?.hospitalName || 'Wolf Hospital'
                     }
                 });
             } catch {
                 console.warn('[SecurityDashboard] Failed to parse auth data');
             }
         }
-        
+
         // Fetch hospital settings to get location for map centering
         const fetchHospitalLocation = async () => {
             try {
-                const response = await api.get('/admin/hospital-settings');
+                const response = await api.get('/api/settings/hospital-profile');
                 if (response.data?.data) {
                     const settings = response.data.data;
                     // Look for latitude/longitude in settings
                     const lat = settings.latitude || settings.hospital_latitude;
                     const lng = settings.longitude || settings.hospital_longitude;
                     if (lat && lng) {
-                        dispatch({ 
-                            type: 'SET_HOSPITAL', 
-                            payload: { 
+                        dispatch({
+                            type: 'SET_HOSPITAL',
+                            payload: {
                                 id: hospitalId,
                                 name: settings.hospital_name || 'Wolf Hospital',
                                 latitude: parseFloat(lat),
@@ -223,43 +242,43 @@ const SecurityDashboardV2Inner = () => {
             }
         };
         fetchHospitalLocation();
-        
+
         // Connect socket
         connectSocket(token, hospitalId);
-        
+
         // Subscribe to events
         const handleLocationUpdate = (data) => {
             dispatch({ type: 'UPDATE_GUARD_LOCATION', payload: data });
-            dispatch({ 
-                type: 'NEW_EVENT', 
-                payload: { 
-                    message: `${data.username || 'Guard'} location updated`, 
-                    type: 'INFO', 
-                    timestamp: new Date().toISOString() 
+            dispatch({
+                type: 'NEW_EVENT',
+                payload: {
+                    message: `${data.username || 'Guard'} location updated`,
+                    type: 'INFO',
+                    timestamp: new Date().toISOString()
                 }
             });
         };
-        
+
         const handleSecurityAlert = (data) => {
             dispatch({ type: 'NEW_ALERT', payload: data });
-            dispatch({ 
-                type: 'NEW_EVENT', 
-                payload: { 
-                    message: `ALERT: ${data.type} - ${data.guard_name || 'Unknown'}`, 
-                    type: 'ALERT', 
-                    timestamp: new Date().toISOString() 
+            dispatch({
+                type: 'NEW_EVENT',
+                payload: {
+                    message: `ALERT: ${data.type} - ${data.guard_name || 'Unknown'}`,
+                    type: 'ALERT',
+                    timestamp: new Date().toISOString()
                 }
             });
         };
-        
+
         const handleLockdown = (data) => {
             dispatch({ type: 'SET_LOCKDOWN', payload: data.status === 'LOCKDOWN' });
-            dispatch({ 
-                type: 'NEW_EVENT', 
-                payload: { 
-                    message: data.status === 'LOCKDOWN' ? 'LOCKDOWN ACTIVATED' : 'Lockdown ended', 
-                    type: 'ALERT', 
-                    timestamp: new Date().toISOString() 
+            dispatch({
+                type: 'NEW_EVENT',
+                payload: {
+                    message: data.status === 'LOCKDOWN' ? 'LOCKDOWN ACTIVATED' : 'Lockdown ended',
+                    type: 'ALERT',
+                    timestamp: new Date().toISOString()
                 }
             });
         };
@@ -283,9 +302,9 @@ const SecurityDashboardV2Inner = () => {
     // Command handlers
     const handlePingAll = async () => {
         try {
-            await api.post('/security/guards/ping-all');
-            dispatch({ 
-                type: 'NEW_EVENT', 
+            await api.post('/api/security/guards/ping-all');
+            dispatch({
+                type: 'NEW_EVENT',
                 payload: { message: 'Ping sent to all guards', type: 'INFO', timestamp: new Date().toISOString() }
             });
         } catch (error) {
@@ -295,9 +314,9 @@ const SecurityDashboardV2Inner = () => {
 
     const handleBroadcast = async (message) => {
         try {
-            await api.post('/security/dispatch', { message, priority: 'High' });
-            dispatch({ 
-                type: 'NEW_EVENT', 
+            await api.post('/api/security/dispatch', { message, priority: 'High' });
+            dispatch({
+                type: 'NEW_EVENT',
                 payload: { message: `Broadcast sent: "${message}"`, type: 'INFO', timestamp: new Date().toISOString() }
             });
         } catch (error) {
@@ -307,7 +326,7 @@ const SecurityDashboardV2Inner = () => {
 
     const handleLockdown = async (enable) => {
         try {
-            await api.post('/security/lockdown', { enabled: enable });
+            await api.post('/api/security/lockdown', { enabled: enable });
             dispatch({ type: 'SET_LOCKDOWN', payload: enable });
         } catch (error) {
             console.error('[SecurityDashboard] Lockdown toggle failed:', error);
@@ -316,9 +335,9 @@ const SecurityDashboardV2Inner = () => {
 
     const handlePingGuard = async (guardId) => {
         try {
-            await api.post('/security/guards/ping', { guardId });
-            dispatch({ 
-                type: 'NEW_EVENT', 
+            await api.post('/api/security/guards/ping', { guardId });
+            dispatch({
+                type: 'NEW_EVENT',
                 payload: { message: `Ping sent to guard ${guardId}`, type: 'INFO', timestamp: new Date().toISOString() }
             });
         } catch (error) {
@@ -328,9 +347,9 @@ const SecurityDashboardV2Inner = () => {
 
     const handleRequestPhoto = async (guardId) => {
         try {
-            await api.post('/security/guards/request-photo', { guardId });
-            dispatch({ 
-                type: 'NEW_EVENT', 
+            await api.post('/api/security/guards/request-photo', { guardId });
+            dispatch({
+                type: 'NEW_EVENT',
                 payload: { message: `Photo requested from guard ${guardId}`, type: 'INFO', timestamp: new Date().toISOString() }
             });
         } catch (error) {
@@ -340,7 +359,7 @@ const SecurityDashboardV2Inner = () => {
 
     const handleAcknowledgeAlert = async (alertId) => {
         try {
-            await api.put(`/security/incidents/${alertId}`, { status: 'In Progress' });
+            await api.put(`/api/security/incidents/${alertId}`, { status: 'In Progress' });
             dispatch({ type: 'ACKNOWLEDGE_ALERT', payload: alertId });
         } catch (error) {
             console.error('[SecurityDashboard] Acknowledge alert failed:', error);
@@ -354,7 +373,7 @@ const SecurityDashboardV2Inner = () => {
     return (
         <div className={`security-dashboard-v2 ${state.isLockdownActive ? 'lockdown-active' : ''}`}>
             {/* Alert Banner */}
-            <AlertBanner 
+            <AlertBanner
                 alerts={state.alerts}
                 onAcknowledge={handleAcknowledgeAlert}
                 onDismiss={(id) => dispatch({ type: 'ACKNOWLEDGE_ALERT', payload: id })}
@@ -392,10 +411,10 @@ const SecurityDashboardV2Inner = () => {
                         <button className="header-btn" onClick={() => state.guards.forEach(g => handleRequestPhoto(g.guard_id))} title="Request Photos">
                             <Camera size={18} />
                         </button>
-                         <button className="header-btn" onClick={() => setShowPatrolReport(true)} title="Print Report">
+                        <button className="header-btn" onClick={() => setShowPatrolReport(true)} title="Print Report">
                             <Printer size={18} />
                         </button>
-                         <button className="header-btn" onClick={() => setShowAlertSettings(true)} title="Settings">
+                        <button className="header-btn" onClick={() => setShowAlertSettings(true)} title="Settings">
                             <Settings size={18} />
                         </button>
                     </div>
@@ -409,7 +428,7 @@ const SecurityDashboardV2Inner = () => {
                     </div>
 
                     {/* Refresh */}
-                    <button 
+                    <button
                         className={`header-btn ${isRefreshing ? 'spinning' : ''}`}
                         onClick={fetchGuards}
                         title={t.refresh}
@@ -424,7 +443,7 @@ const SecurityDashboardV2Inner = () => {
                     <ThemeToggle />
 
                     {/* Sound Toggle */}
-                    <button 
+                    <button
                         className="header-btn"
                         onClick={() => dispatch({ type: 'TOGGLE_SOUND' })}
                         title={state.soundEnabled ? 'Mute' : 'Unmute'}
@@ -432,7 +451,7 @@ const SecurityDashboardV2Inner = () => {
                         {state.soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
                     </button>
 
-                     {/* Status Badge */}
+                    {/* Status Badge */}
                     <div className="status-badge">
                         <span className="status-dot" />
                         <span>LIVE</span>
@@ -446,9 +465,9 @@ const SecurityDashboardV2Inner = () => {
                 <section className="guards-section">
                     <div className="guards-section-header">
                         <h2 className="guards-section-title">Active Units</h2>
-                         <div className="d-flex gap-2">
+                        <div className="d-flex gap-2">
                             {/* Filter controls can go here */}
-                         </div>
+                        </div>
                     </div>
                     <div className="guards-grid">
                         {state.guards.length === 0 ? (
@@ -475,21 +494,43 @@ const SecurityDashboardV2Inner = () => {
                     </div>
                 </section>
 
-                 {/* Right: Map (40%) */}
+                {/* Right: Map (40%) */}
                 <section className="map-section">
-                     <div className="map-section-header">
+                    <div className="map-section-header">
                         <h2 className="map-section-title">Live Map</h2>
                     </div>
-                    <LiveOverwatchMap 
-                        guards={state.guards}
-                        selectedGuard={state.selectedGuard}
-                        onSelectGuard={(g) => dispatch({ type: 'SELECT_GUARD', payload: g })}
-                        hospitalLocation={{
-                            latitude: state.hospitalLatitude,
-                            longitude: state.hospitalLongitude,
-                            name: state.hospitalName
-                        }}
-                    />
+                    <WidgetErrorBoundary name="Live Overwatch Map">
+                        <LiveOverwatchMap
+                            guards={state.guards}
+                            selectedGuard={state.selectedGuard}
+                            onSelectGuard={(g) => dispatch({ type: 'SELECT_GUARD', payload: g })}
+                            hospitalLocation={{
+                                latitude: state.hospitalLatitude,
+                                longitude: state.hospitalLongitude,
+                                name: state.hospitalName
+                            }}
+                        />
+                    </WidgetErrorBoundary>
+                </section>
+
+                {/* Guard Map Widget — isolated fault boundary */}
+                <section className="map-section mt-3">
+                    <div className="map-section-header">
+                        <h2 className="map-section-title">Guard Map</h2>
+                    </div>
+                    <WidgetErrorBoundary name="Guard Map">
+                        <GuardMap activeGuards={state.guards} />
+                    </WidgetErrorBoundary>
+                </section>
+
+                {/* Visitors Log Widget — isolated fault boundary */}
+                <section className="guards-section mt-3">
+                    <div className="guards-section-header">
+                        <h2 className="guards-section-title">Visitors Log</h2>
+                    </div>
+                    <WidgetErrorBoundary name="Visitors Log">
+                        <VisitorsLog visitors={state.guards} />
+                    </WidgetErrorBoundary>
                 </section>
             </main>
 
@@ -518,12 +559,12 @@ const SecurityDashboardV2Inner = () => {
 
                 <div className="voice-channel-mini">
                     <div className="d-flex flex-column flex-grow-1">
-                        <span className="text-muted small" style={{fontSize: '10px'}}>VOICE CHANNEL</span>
+                        <span className="text-muted small" style={{ fontSize: '10px' }}>VOICE CHANNEL</span>
                         <div className={`voice-channel-status ${state.voiceChannelActive ? 'connected' : 'disconnected'}`}>
                             {state.voiceChannelActive ? 'CONNECTED' : 'DISCONNECTED'}
                         </div>
                     </div>
-                    <button 
+                    <button
                         className={`ptt-button ${state.voiceChannelActive ? 'active' : ''}`}
                         onClick={() => dispatch({ type: 'TOGGLE_VOICE_CHANNEL' })}
                         title="Toggle Voice Channel"
@@ -535,14 +576,14 @@ const SecurityDashboardV2Inner = () => {
 
             {/* Voice Channel Bar (floating at bottom) */}
             {state.voiceChannelActive && (
-                <VoiceChannelBar 
+                <VoiceChannelBar
                     onClose={() => dispatch({ type: 'TOGGLE_VOICE_CHANNEL' })}
                 />
             )}
 
             {/* Modals */}
             {showPatrolReport && (
-                <PatrolReportModal 
+                <PatrolReportModal
                     guards={state.guards}
                     events={state.events}
                     onClose={() => setShowPatrolReport(false)}
@@ -550,7 +591,7 @@ const SecurityDashboardV2Inner = () => {
             )}
 
             {showAlertSettings && (
-                <AlertSettingsModal 
+                <AlertSettingsModal
                     onClose={() => setShowAlertSettings(false)}
                 />
             )}

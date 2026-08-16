@@ -12,7 +12,7 @@ const generateSummary = asyncHandler(async (req, res) => {
     const admissionRes = await pool.query(
         `SELECT a.*, 
                 a.admission_date AS admitted_at,
-                p.name as patient_name, p.age, p.gender, p.uhid, p.phone, p.address,
+                p.name as patient_name, EXTRACT(YEAR FROM AGE(COALESCE(p.dob, NOW())))::integer as age, p.gender, p.uhid, p.phone, p.address,
                 p.blood_group, p.dob, p.abha_id,
                 d.username as doctor_name, d.registration_no as doctor_reg_no
          FROM admissions a 

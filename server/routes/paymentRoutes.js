@@ -7,5 +7,6 @@ router.post('/orders', protect, paymentController.createOrder);
 router.post('/verify', protect, paymentController.verifyPayment);
 router.post('/link', protect, paymentController.createPaymentLink);
 router.get('/qr/:invoiceId', protect, paymentController.generateQR);
+router.post('/settle', protect, paymentController.settlePayment);
 
 module.exports = router;
