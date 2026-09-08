@@ -122399,7 +122399,7 @@ const GuardMap = React.memo(({ activeGuards = [] }) => {
     setGuards((prev2) => ({ ...prev2, ...initialMap }));
   }, [activeGuards]);
   reactExports.useEffect(() => {
-    const newSocket = lookup("http://localhost:8080");
+    const newSocket = lookup(window.location.origin);
     newSocket.on("guard_location_update", (data) => {
       setGuards((prev2) => ({
         ...prev2,
@@ -122634,7 +122634,7 @@ const VoiceChannelBar = ({
     try {
       setIsConnecting(true);
       setConnectionError(null);
-      const response = await api.post("/security/voice/token", {
+      const response = await api.post("/api/security/voice/token", {
         channelName
       });
       if ((_a = response.data) == null ? void 0 : _a.data) {

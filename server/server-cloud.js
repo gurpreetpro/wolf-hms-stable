@@ -1365,6 +1365,7 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/overwatch', overwatchRoutes);
 app.use('/api/backup', cloudBackupRoutes);
 app.use('/api/security', securityRoutes);
+app.use('/api/locations', require('./routes/locationRoutes'));
 app.use('/api/hospitals', hospitalRoutes);
 app.use('/api/roster', rosterRoutes);
 app.use('/api/sessions', sessionRoutes);

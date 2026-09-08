@@ -12,7 +12,7 @@ const LIVEKIT_URL = 'ws://163.245.208.73:7880';
  * 
  * WebRTC-based Push-to-Talk for Security Command Center
  */
-const VoiceChannelBar = ({ 
+const VoiceChannelBar = ({
     onClose,
     channelName = 'patrol-main',
     translations = {}
@@ -23,7 +23,7 @@ const VoiceChannelBar = ({
     const [connectionError, setConnectionError] = useState(null);
     const [activeParticipants, setActiveParticipants] = useState([]);
     const [roomName, setRoomName] = useState(null);
-    
+
     // Refs for streams and connection
     const localStreamRef = useRef(null);
     const wsRef = useRef(null);
@@ -49,11 +49,11 @@ const VoiceChannelBar = ({
         try {
             setIsConnecting(true);
             setConnectionError(null);
-            
-            const response = await api.post('/security/voice/token', {
+
+            const response = await api.post('/api/security/voice/token', {
                 channelName: channelName
             });
-            
+
             if (response.data?.data) {
                 const { token, room, url } = response.data.data;
                 setRoomName(room);
@@ -71,37 +71,37 @@ const VoiceChannelBar = ({
     // Initialize audio and connect
     useEffect(() => {
         let mounted = true;
-        
+
         // Connect to LiveKit server (defined inside useEffect to avoid hoisting issues)
         const connectToLiveKit = (tokenData) => {
             try {
                 const ws = new WebSocket(`${tokenData.url}/rtc?access_token=${tokenData.token}`);
                 wsRef.current = ws;
-                
+
                 ws.onopen = () => {
                     console.log('[VoiceChannel] Connected to LiveKit');
                     if (mounted) {
                         setIsConnected(true);
                         setIsConnecting(false);
-                        
+
                         // Add self as participant
                         const authData = JSON.parse(localStorage.getItem('wolf_auth') || '{}');
                         const username = authData.user?.username || 'Control Room';
-                        setActiveParticipants([{ 
-                            id: 'self', 
-                            name: username, 
+                        setActiveParticipants([{
+                            id: 'self',
+                            name: username,
                             isSelf: true,
-                            isSpeaking: false 
+                            isSpeaking: false
                         }]);
                     }
                 };
-                
+
                 ws.onmessage = (event) => {
                     try {
                         const data = JSON.parse(event.data);
                         // Handle participant updates
                         if (data.type === 'participant_joined' && mounted) {
-                            setActiveParticipants(prev => 
+                            setActiveParticipants(prev =>
                                 prev.some(p => p.id === data.participant.id) ? prev : [...prev, {
                                     id: data.participant.id,
                                     name: data.participant.name || `Guard ${data.participant.id}`,
@@ -109,7 +109,7 @@ const VoiceChannelBar = ({
                                 }]
                             );
                         } else if (data.type === 'participant_left' && mounted) {
-                            setActiveParticipants(prev => 
+                            setActiveParticipants(prev =>
                                 prev.filter(p => p.id !== data.participant.id)
                             );
                         }
@@ -117,15 +117,15 @@ const VoiceChannelBar = ({
                         // Binary data (audio)
                     }
                 };
-                
+
                 ws.onerror = () => {
                     if (mounted) setConnectionError('Connection failed');
                 };
-                
+
                 ws.onclose = () => {
                     if (mounted) setIsConnected(false);
                 };
-                
+
             } catch (error) {
                 console.error('[VoiceChannel] Failed to connect:', error);
                 if (mounted) {
@@ -134,32 +134,32 @@ const VoiceChannelBar = ({
                 }
             }
         };
-        
+
         const initialize = async () => {
             // Get token
             const tokenData = await fetchToken();
             if (!tokenData || !mounted) return;
-            
+
             try {
                 // Request microphone permission
-                const stream = await navigator.mediaDevices.getUserMedia({ 
+                const stream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         echoCancellation: true,
                         noiseSuppression: true,
                         autoGainControl: true
                     }
                 });
-                
+
                 localStreamRef.current = stream;
-                
+
                 // Mute initially
                 stream.getAudioTracks().forEach(track => {
                     track.enabled = false;
                 });
-                
+
                 // Connect to LiveKit via WebSocket
                 connectToLiveKit(tokenData);
-                
+
             } catch (error) {
                 console.error('[VoiceChannel] Microphone access denied:', error);
                 if (mounted) {
@@ -168,9 +168,9 @@ const VoiceChannelBar = ({
                 }
             }
         };
-        
+
         initialize();
-        
+
         return () => {
             mounted = false;
             // Cleanup
@@ -190,12 +190,12 @@ const VoiceChannelBar = ({
                 track.enabled = enabled;
             });
             setIsMuted(!enabled);
-            
+
             // Update self speaking state
-            setActiveParticipants(prev => 
+            setActiveParticipants(prev =>
                 prev.map(p => p.isSelf ? { ...p, isSpeaking: enabled } : p)
             );
-            
+
             // Notify server
             if (wsRef.current?.readyState === WebSocket.OPEN) {
                 wsRef.current.send(JSON.stringify({
@@ -211,7 +211,7 @@ const VoiceChannelBar = ({
         const handleKeyDown = (e) => {
             // Ignore if typing in input
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            
+
             if (e.code === 'Space' && !e.repeat && isConnected) {
                 e.preventDefault();
                 setMicEnabled(true);
@@ -272,8 +272,8 @@ const VoiceChannelBar = ({
                 <span>{activeParticipants.length}</span>
                 <div className="participant-avatars">
                     {activeParticipants.slice(0, 5).map(p => (
-                        <div 
-                            key={p.id} 
+                        <div
+                            key={p.id}
                             className={`participant-avatar ${p.isSpeaking ? 'speaking' : ''} ${p.isSelf ? 'self' : ''}`}
                             title={p.name}
                         >
@@ -289,7 +289,7 @@ const VoiceChannelBar = ({
             </div>
 
             {/* PTT Button */}
-            <button 
+            <button
                 className={`ptt-button ${!isMuted ? 'active' : ''}`}
                 onMouseDown={() => setMicEnabled(true)}
                 onMouseUp={() => setMicEnabled(false)}

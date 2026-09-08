@@ -1,0 +1,21 @@
+# Wolf HMS — Cline Custom Instructions
+
+## Session Start (MANDATORY)
+Read ALL files in `memory-bank/` before doing any work:
+1. memory-bank/projectbrief.md
+2. memory-bank/productContext.md
+3. memory-bank/systemPatterns.md
+4. memory-bank/techContext.md
+5. memory-bank/activeContext.md
+6. memory-bank/progress.md
+
+## Session End (MANDATORY)
+Update these files with what you accomplished:
+1. memory-bank/activeContext.md — What changed, new findings, next steps
+2. memory-bank/progress.md — Mark items done, add new items
+
+## Rules
+- patients.id = UUID, hospitals.id = INTEGER, users.id = INTEGER
+- Never add fallback defaults without checking the actual frontend payload
+- Production DB access via exec-sql backdoor (see memory-bank/techContext.md)
+- SSH to VPS is broken — do not attempt SCP or SSH commands

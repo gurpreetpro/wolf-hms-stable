@@ -26,6 +26,10 @@ class LocationService {
         this.watchId = null;
     }
 
+    setGuardId(id) {
+        this.guardId = id;
+    }
+
     async init() {
         // 1. Request Permissions
         let { status } = await Location.requestForegroundPermissionsAsync();
@@ -70,7 +74,7 @@ class LocationService {
 
     handleGPS(location) {
         const { latitude, longitude, accuracy, heading } = location.coords;
-        
+
         // Trust GPS if accuracy is good
         if (accuracy <= FUSION_CONFIG.GPS_THRESHOLD) {
             this.currentPosition = {
@@ -91,7 +95,7 @@ class LocationService {
     handleSensorData(data) {
         // Basic Step Detection (Peak Detection on Mag of Accel)
         const { x, y, z } = data.accel;
-        const mag = Math.sqrt(x*x + y*y + z*z);
+        const mag = Math.sqrt(x * x + y * y + z * z);
         const now = Date.now();
 
         if (mag > 1.2 && (now - this.lastStepTime > 500)) { // 1.2G threshold, 500ms debounce
@@ -109,7 +113,7 @@ class LocationService {
             // Calculate new lat/lng based on heading and stride length
             // Delta Lat = (d * cos(theta)) / EarthRadius
             // Delta Lng = (d * sin(theta)) / (EarthRadius * cos(lat))
-            
+
             const R = 6378137; // Earth Radius in meters
             const d = FUSION_CONFIG.STRIDE_LENGTH;
             const theta = (this.currentPosition.heading * Math.PI) / 180; // Radians
@@ -126,7 +130,7 @@ class LocationService {
                 longitude: newLng,
                 accuracy: this.currentPosition.accuracy + 0.5 // Degrade accuracy slightly
             };
-            
+
             console.log('[PDR] Step Detected. Estimated Pos:', newLat, newLng);
         }
     }
@@ -149,23 +153,23 @@ class LocationService {
         if (this.intervalId) clearInterval(this.intervalId);
 
         this.intervalId = setInterval(async () => {
-             const payload = {
-                 ...this.currentPosition,
-                 isMapping: this.isMapping,
-                 sessionId: this.sessionId,
-                 timestamp: new Date().toISOString()
-             };
-             
-             try {
-                 await securityService.updateLocation(payload);
-                 // Also emit via socket for real-time dashboard
-                 socketService.getSocket()?.emit('guard_location_update', { 
-                     guard_id: 'CURRENT_USER_ID', // Replaced by backend auth context usually, but good to send if needed
-                     ...payload 
-                 });
-             } catch (e) {
-                 console.error('Failed to report location', e);
-             }
+            const payload = {
+                ...this.currentPosition,
+                isMapping: this.isMapping,
+                sessionId: this.sessionId,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                await securityService.updateLocation(payload);
+                // Also emit via socket for real-time dashboard
+                socketService.getSocket()?.emit('guard_location_update', {
+                    guard_id: this.guardId,
+                    ...payload
+                });
+            } catch (e) {
+                console.error('Failed to report location', e);
+            }
         }, interval);
     }
 }
