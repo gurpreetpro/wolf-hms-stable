@@ -4,7 +4,7 @@
 
 ### Cloud Server
 - **VPS IP**: `185.213.27.158` (Ubuntu, Debian-based)
-- **SSH**: `ssh -i coolify.pem root@185.213.27.158` ⚠️ KEY CURRENTLY REJECTED
+- **SSH**: Password auth via Node.js `ssh2` library (see `VPS_CREDENTIALS.md` for credentials)
 - **Coolify**: Container orchestration panel (for deployment management)
 
 ### Process Management
@@ -21,17 +21,14 @@
 ### Database
 - **PostgreSQL 15** in Docker container `wolf_fitness_db`
 - Database name: `wolf_hms_prod`
-- User: `wolf` | Password: `password`
-- Connection: `postgresql://wolf:password@localhost:5432/wolf_hms_prod`
+- User: `wolf` | Password: see `VPS_CREDENTIALS.md`
+- Connection: see `VPS_CREDENTIALS.md` for full connection string
 - Container OS: Alpine Linux (limited tooling)
 
 ### SQL Backdoor (Remote DB Operations)
-```
-POST http://185.213.27.158/wolf/api/health/exec-sql
-Content-Type: application/json
-Body: { "setupKey": "WolfSetup2024!", "sql": "YOUR SQL HERE" }
-```
-This is the primary way to perform production DB operations when SSH is down.
+Endpoint: `POST /wolf/api/health/exec-sql` — see `.agents/skills/database-ops/SKILL.md` for usage.
+Credentials (setupKey): see `VPS_CREDENTIALS.md`.
+This is the primary way to perform production DB operations.
 
 ### Shell Commands via DB Container
 ```sql
@@ -137,13 +134,13 @@ npx expo start
 
 ## Authentication
 - **Web**: JWT Bearer token in `Authorization` header
-- **Admin Login**: `admin_user` / `Admin@123`
+- **Admin Login**: see `VPS_CREDENTIALS.md` for production credentials
 - **Patient App**: OTP-based authentication
 - **Token Storage**: localStorage (web), SecureStore (mobile)
 
 ## Known Infrastructure Constraints
-1. SSH key (`coolify.pem`) rejected by VPS — cannot SCP files
-2. GitHub token expired — `git push` fails
+1. Standard SSH from Windows fails — use Node.js `ssh2` with password auth (keyboard-interactive)
+2. GitHub token expired — `git push` fails (code deployed via SFTP, not git)
 3. No CI/CD pipeline exists
 4. No staging environment — production is the only deployment
 5. Redis optional — falls back to in-memory caching

@@ -96,21 +96,21 @@ export const AuthProvider = ({ children }) => {
     isLoggedIn();
   }, []);
 
-  // App State Listener for Bio-Lock
-  useEffect(() => {
-      const subscription = AppState.addEventListener('change', nextAppState => {
-          if (
-              appState.current.match(/inactive|background/) && 
-              nextAppState === 'active' &&
-              userToken // Only lock if logged in
-          ) {
-              setIsLocked(true);
-          }
-          appState.current = nextAppState;
-      });
-
-      return () => subscription.remove();
-  }, [userToken]);
+  // App State Listener for Bio-Lock (DISABLED - too aggressive, locks on every foreground)
+  // Re-enable once biometric enrollment is confirmed working
+  // useEffect(() => {
+  //     const subscription = AppState.addEventListener('change', nextAppState => {
+  //         if (
+  //             appState.current.match(/inactive|background/) && 
+  //             nextAppState === 'active' &&
+  //             userToken // Only lock if logged in
+  //         ) {
+  //             setIsLocked(true);
+  //         }
+  //         appState.current = nextAppState;
+  //     });
+  //     return () => subscription.remove();
+  // }, [userToken]);
 
   return (
     <AuthContext.Provider value={{ login, logout, isLoading, userToken, userData, isLocked, unlockApp, dutyMode, setDutyMode }}>

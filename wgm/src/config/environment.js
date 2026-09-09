@@ -5,11 +5,11 @@
  * by changing the ENV variable below.
  */
 
-// Set to 'development' for local testing, 'production' for cloud
-const ENV = 'production'; // Explicitly set to Production mechanism
+// Set to 'vps_cloud' for VPS deployment, 'development' for local
+const ENV = 'vps_cloud';
 
-// Production URL (Cloud Run)
-const PROD_URL = 'https://wolf-hms-server-test-fdurncganq-el.a.run.app';
+// Production URL (VPS)
+const VPS_URL = 'http://185.213.27.158/wolf';
 
 const CONFIG = {
   development: {
@@ -21,6 +21,11 @@ const CONFIG = {
     API_URL: 'https://wolf-hms-server-test-fdurncganq-el.a.run.app/api',
     SOCKET_URL: 'https://wolf-hms-server-test-fdurncganq-el.a.run.app',
     ENV_NAME: 'Test Cloud',
+  },
+  vps_cloud: {
+    API_URL: 'http://185.213.27.158/wolf/api',
+    SOCKET_URL: 'http://185.213.27.158',
+    ENV_NAME: 'VPS Cloud',
   },
   production: {
     API_URL: 'https://wolf-hms-server-1026194439642.asia-south1.run.app/api',

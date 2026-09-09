@@ -40,14 +40,15 @@
 ## 🔄 In Progress / Immediate Fixes
 
 ### Emergency System (Deployment)
-- [ ] Deploy fixed `emergencyController.js` to VPS (BLOCKED: SSH rejected)
-- [ ] Deploy rebuilt frontend bundle to VPS (BLOCKED: SSH rejected)
+- [ ] Deploy fixed `emergencyController.js` to VPS (SSH now works — use ssh2 deploy script)
+- [ ] Deploy rebuilt frontend bundle to VPS
 - [ ] Add staff notification list UI after emergency trigger
 
 ### Wolf Guard (Verification & Deployment)
 - [ ] Run local server test of all 19 security endpoints
 - [ ] Rebuild client dist after GuardMap.jsx fix
-- [ ] Deploy all Wolf Guard changes to VPS (BLOCKED: SSH rejected)
+- [x] Deploy guardController.js to VPS (status column fix — deployed 2026-09-08)
+- [ ] Deploy remaining Wolf Guard changes (securityRoutes, server-cloud.js)
 - [ ] Fix `pingAllGuards` — still references `gl.last_update` (should be `gl."timestamp"`)
 
 ### Pharmacy
@@ -60,14 +61,16 @@
 ## ❌ Not Started
 
 ### Deployment & DevOps
-- [ ] Fix SSH access to VPS (get new key or password from Coolify panel)
+- [x] Fix SSH access to VPS — password auth via ssh2 Node.js library (2026-09-08)
 - [ ] Fix GitHub token for git push
 - [ ] Set up CI/CD pipeline (GitHub Actions or Coolify webhooks)
 - [ ] Create staging environment
 
 ### Mobile Apps
 - [ ] Wolf Care App — Android APK build & deployment
-- [ ] Wolf Guard Mobile (WGM) — APK build & test with guard_kumar user
+- [x] Wolf Guard Mobile (WGM) — APK builds, WebView fixed, cleartext enabled, bio-lock disabled
+- [ ] WGM — Production login test (need valid credentials)
+- [ ] WGM — UI overhaul (14 screens reviewed by Kimi K2, plan created)
 - [ ] Wolf Ultimate — APK build
 
 ### Frontend
@@ -104,5 +107,22 @@
 | No responder list shown after alert | 🟡 Medium | DB done, UI not built | Frontend component missing |
 | `pingAllGuards` references `gl.last_update` | 🟡 Medium | Not fixed | Same column mismatch as old getOnlineGuards |
 | Git push fails | 🟡 Medium | Not fixed | GitHub token expired |
-| SSH to VPS rejected | 🔴 Critical | Not fixed | coolify.pem key mismatch |
+| ~~SSH to VPS rejected~~ | ~~🔴 Critical~~ | ✅ RESOLVED | Password auth via ssh2 (2026-09-08) |
+| WGM fake SOS button | 🔴 Critical | Not fixed | Calls no API, just shows alert |
+| WGM fake Patrol Start/Stop | 🟡 Medium | Not fixed | Writes to local array only |
+| WGM 3 competing themes | 🟡 Medium | Not fixed | Cyber dark vs iOS light vs purple |
 
+### Agent Infrastructure (2026-09-08)
+- [x] AGENTS.md rewritten — secrets scrubbed, review checklist, rules/skills indexed
+- [x] 5 rules created in `.agents/rules/`
+- [x] 2 new skills created: `deployment`, `wolf-guard-mobile`
+- [x] `techContext.md` secrets scrubbed
+- [x] `.gitignore` null-byte corruption fixed, deduplicated
+- [x] `VPS_CREDENTIALS.md` created (gitignored)
+- [x] `coolify.pem` untracked from git (`git rm --cached`) + ignored via `*.pem` wildcard
+- [x] `token.txt` (expired JWT) added to `.gitignore`
+- [x] `activeContext.md` and `progress.md` updated
+
+### Security Notes
+- **`coolify.pem` is still in git history** (committed in `703fe3a`). The key is already non-functional (rejected by VPS, replaced with password auth). Decision: do NOT purge from history now (would rewrite all hashes). Purge after `git push` is restored, if needed.
+- **Credential rotation**: VPS password (`nBRAR619`) was set via Hostinger panel reset. DB password (`password`) and SQL backdoor key are unchanged from initial setup. Consider rotating after `git push` is restored.
