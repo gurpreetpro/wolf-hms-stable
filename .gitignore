@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 
 # Environment files
@@ -46,7 +46,7 @@ simulation_*.json
 # Database dumps
 *.sql.bak
 *.dump
-*.sql
+!server/migrations/*.sql
 backups/
 
 # Large binary/archive files (too large for GitHub)
@@ -88,3 +88,6 @@ path/
 scratch/
 scratch_*.png
 redocly.yaml
+
+query.sql
+server/COMPLETE_MIGRATION_SCRIPT.sql
