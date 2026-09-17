@@ -7,7 +7,7 @@ const {
     NotFoundError, 
     AuthenticationError,
     asyncHandler 
-} = require('../../utils/errors');
+} = require('../utils/errors');
 
 describe('Custom Error Classes', () => {
     

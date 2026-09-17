@@ -34,7 +34,7 @@ const TIER_2_BLOCK_MS = 60 * 60 * 1000; // 1 hour
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 // Periodic cleanup of stale entries
-setInterval(() => {
+const cleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [ip, data] of failureTracker.entries()) {
         // If tier 2 blocked and block expired, or no failures in window, remove
@@ -49,6 +49,9 @@ setInterval(() => {
         }
     }
 }, CLEANUP_INTERVAL_MS);
+if (cleanupTimer && typeof cleanupTimer.unref === 'function') {
+    cleanupTimer.unref();
+}
 
 /**
  * Get current tier and allowed limit for an IP
@@ -147,7 +150,7 @@ const slidingAuthLimiter = (options = {}) => {
     // Track per-IP request count for the sliding window
     const requestCounts = new Map();
 
-    // Periodic cleanup
+    // Periodic cleanup (unref to avoid hanging Jest or process exit)
     setInterval(() => {
         const now = Date.now();
         for (const [ip, timestamps] of requestCounts.entries()) {
@@ -158,7 +161,7 @@ const slidingAuthLimiter = (options = {}) => {
                 requestCounts.set(ip, valid);
             }
         }
-    }, 60 * 1000); // Cleanup every 1 minute
+    }, 60 * 1000).unref(); // Cleanup every 1 minute
 
     return (req, res, next) => {
         const ip = req.ip || req.connection.remoteAddress || 'unknown';
@@ -252,6 +255,7 @@ router.post('/reset-password', publicAuthLimiter, sanitize, resetPassword);
 // Protected Routes
 // Login uses the sliding-scale rate limiter
 router.post('/login', authLimiter, sanitize, validate('login'), login);
+router.post('/token/refresh', refreshToken);
 router.post('/refresh-token', refreshToken);
 router.post('/logout', logout);
 router.post('/demo-login', demoLogin);

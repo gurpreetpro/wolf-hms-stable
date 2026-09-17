@@ -23,15 +23,24 @@ console.log('[dbPools] DEBUG: dbHost resolved to:', dbHost);
 const isCloudSQL = dbHost.startsWith('/cloudsql/');
 console.log('[dbPools] DEBUG: isCloudSQL =', isCloudSQL);
 
+// [Phase 4 Hardening] Env-tunable connection pool limits
+const getPoolConfig = () => ({
+    max: parseInt(process.env.PG_POOL_MAX, 10) || parseInt(process.env.DB_POOL_SIZE, 10) || 10,
+    idleTimeoutMillis: parseInt(process.env.PG_POOL_IDLE_TIMEOUT, 10) || 30000,
+    connectionTimeoutMillis: parseInt(process.env.PG_POOL_CONN_TIMEOUT, 10) || 5000
+});
+
+const poolConfig = getPoolConfig();
+
 // Base pool configuration
 const baseConfig = {
     user: process.env.DB_USER || 'postgres',
     database: process.env.DB_NAME || 'hospital_db',
     password: process.env.DB_PASSWORD || 'password',
     // Connection pool settings for scale
-    max: parseInt(process.env.DB_POOL_SIZE) || 50,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    max: poolConfig.max,
+    idleTimeoutMillis: poolConfig.idleTimeoutMillis,
+    connectionTimeoutMillis: poolConfig.connectionTimeoutMillis,
 };
 
 /**
@@ -168,6 +177,7 @@ module.exports = {
     // Utilities
     healthCheck,
     shutdown,
+    getPoolConfig,
     
     // Configuration info
     config: {

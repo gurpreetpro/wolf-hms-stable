@@ -1,3 +1,12 @@
+// [QUARANTINE] This scenario test requires a live DB and running server.
+const isDbTest = process.env.DB_TESTS === '1';
+
+if (!isDbTest) {
+    describe.skip('deadly scenario (requires DB_TESTS=1)', () => {
+        it('skipped in automated CI / non-DB mode', () => {});
+    });
+} else {
+
 const request = require('supertest');
 const { pool, app } = require('../server');
 const { generateLicense } = require('../utils/licenseUtil');
@@ -239,3 +248,5 @@ describe('🔥 Deadly Extreme System Test', () => {
     });
 
 });
+
+} // END QUARANTINE

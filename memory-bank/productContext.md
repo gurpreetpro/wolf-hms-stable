@@ -49,9 +49,12 @@
 - **Pages**: InsuranceCommandCenter.jsx, PriorAuthDashboard.jsx, TPAProviderAdmin.jsx
 - **Components**: InsuranceVerificationModal.jsx, ClaimsDashboard.jsx, EligibilityVerification.jsx, PreauthDashboard.jsx, PreAuthForm.jsx, PMJAYClaimBuilder.jsx, PMJAYPackageSelector.jsx, PMJAYAnalytics.jsx
 
-### Security Guard (Wolf Guard Mobile)
-- **Screens**: PatrolScreen, ParkingScreen, VisitorEntryScreen, DispatchScreen, VehicleInspectionScreen, ReportIncidentScreen, CommsScreen, LogisticsScreen, ShiftHandoverScreen, QRScannerScreen
-- **Services**: Geofencing, Location tracking, SOS hardware button, HIPS, Voice commands, AI assistance
+### Security Guard & Tactical Operations (Wolf Guard Mobile & Cockpit)
+- **Web Pages**: SecurityDashboardV2.jsx (`/security`), FloorPlanManager.jsx (`/security/floor-plans`, `/admin/floor-plans`)
+- **Web Components**: LiveOverwatchMap.jsx, FloorPlanStudioModal.jsx, GuardProfileModal.jsx, PatrolReportModal.jsx, DispatchModal.jsx, GuardMap.jsx
+- **Web Workflows**: Live guard telemetry overwatch, multi-floor indoor blueprint switching (`B1`, `L1`, `L2`), CAD/blueprint upload, visual 4-corner affine georeferencing, walkable corridor graph tracing, zone perimeter creation, real-time HQ ping & photo dispatch
+- **Mobile (Wolf Guard Mobile)**: PatrolScreen, ParkingScreen, VisitorEntryScreen, DispatchScreen, VehicleInspectionScreen, ReportIncidentScreen, CommsScreen, LogisticsScreen, ShiftHandoverScreen, QRScannerScreen, DutySelectionScreen, ProfileScreen
+- **Mobile Services**: Geofencing, Location tracking, Dead Reckoning (PDR), Heading Estimator (gyro+magnetometer fusion), Step Detector (Weinberg dynamic formula), Corridor Particle Filter (Monte Carlo map-matching), Barometer floor detection, SOS hardware hook, HIPS, Voice commands, AI assistance
 
 ### Patient (Wolf Care App)
 - **Screens**: Login (OTP), Appointments, Orders (home lab), Records, Profile, Video Call

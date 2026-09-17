@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, ImageOverlay, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon, Polyline, useMap } from 'react-leaflet';
+import L from '../../../utils/leafletDistortable';
+import { API_BASE } from '../../../config';
 
 // Fix for default markers
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -15,8 +15,8 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Custom Guard Icon with status colors
-const createGuardIcon = (status) => {
+// Custom Guard Icon with status colors, floor badge, and directional heading cone
+const createGuardIcon = (status, floor_number = 1, heading = null, guard_id = '') => {
     const colors = {
         ONLINE: '#00c853',
         PATROLLING: '#00d4ff',
@@ -25,42 +25,147 @@ const createGuardIcon = (status) => {
         SOS: '#ff1744'
     };
     const color = colors[status?.toUpperCase()] || colors.ONLINE;
+    const floorVal = parseInt(floor_number, 10) || 1;
+    const floorLabel = floorVal <= 0 ? `B${Math.abs(floorVal) + 1}` : `L${floorVal}`;
+    const hasHeading = heading != null && !isNaN(heading);
+    const headingDeg = hasHeading ? parseFloat(heading) : 0;
     
     return L.divIcon({
         className: 'guard-marker',
         html: `
-            <div style="
-                width: 36px;
-                height: 36px;
-                background: ${color};
-                border: 3px solid white;
-                border-radius: 50%;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                ${status?.toUpperCase() === 'SOS' ? 'animation: sosPulse 0.5s ease-in-out infinite;' : ''}
-            ">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
+            <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                ${hasHeading ? `
+                    <div style="
+                        position: absolute;
+                        top: -12px;
+                        left: -12px;
+                        width: 68px;
+                        height: 68px;
+                        pointer-events: none;
+                        transform: rotate(${headingDeg}deg);
+                        transform-origin: center center;
+                        z-index: 1;
+                    ">
+                        <svg width="68" height="68" viewBox="0 0 68 68">
+                            <polygon points="34,2 48,26 20,26" fill="${color}" opacity="0.35"/>
+                            <polygon points="34,6 40,22 28,22" fill="${color}" opacity="0.9"/>
+                        </svg>
+                    </div>
+                ` : ''}
+                <div style="
+                    position: relative;
+                    width: 36px;
+                    height: 36px;
+                    background: ${color};
+                    border: 2.5px solid white;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 2;
+                    ${status?.toUpperCase() === 'SOS' ? 'animation: sosPulse 0.5s ease-in-out infinite;' : ''}
+                ">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <div style="
+                        position: absolute;
+                        bottom: -6px;
+                        right: -8px;
+                        background: #0f172a;
+                        color: #00f0ff;
+                        border: 1.5px solid #00f0ff;
+                        border-radius: 4px;
+                        font-size: 9px;
+                        font-weight: 900;
+                        padding: 0 4px;
+                        line-height: 13px;
+                        letter-spacing: 0.5px;
+                        box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+                    ">${floorLabel}</div>
+                </div>
             </div>
         `,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -18]
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -22]
     });
 };
 
 /**
+ * DistortableImageLayer - 4-corner affine georeferenced blueprint renderer
+ */
+const DistortableImageLayer = ({ floorPlan, defaultCenter }) => {
+    const map = useMap();
+    const layerRef = useRef(null);
+
+    useEffect(() => {
+        if (!map) return;
+        if (layerRef.current) {
+            map.removeLayer(layerRef.current);
+            layerRef.current = null;
+        }
+
+        const imageUrl = floorPlan?.image_url || floorPlan?.url || floorPlan?.blueprint_file;
+        if (!imageUrl) return;
+
+        const fullImageUrl = imageUrl.startsWith('http') ? imageUrl : `${API_BASE}${imageUrl}`;
+
+        // 4-corner DistortableImage locked mode
+        if (floorPlan?.corners && Array.isArray(floorPlan.corners) && floorPlan.corners.length === 4 && typeof L.distortableImageOverlay === 'function') {
+            try {
+                const leafletCorners = [
+                    L.latLng(floorPlan.corners[0].lat, floorPlan.corners[0].lng),
+                    L.latLng(floorPlan.corners[1].lat, floorPlan.corners[1].lng),
+                    L.latLng(floorPlan.corners[2].lat, floorPlan.corners[2].lng),
+                    L.latLng(floorPlan.corners[3].lat, floorPlan.corners[3].lng)
+                ];
+
+                const overlay = L.distortableImageOverlay(fullImageUrl, {
+                    corners: leafletCorners,
+                    mode: 'lock',
+                    opacity: 0.88,
+                    actions: []
+                }).addTo(map);
+
+                layerRef.current = overlay;
+            } catch (err) {
+                console.warn('[LiveOverwatchMap] Error creating distortable overlay, falling back:', err);
+            }
+        }
+
+        // Fallback to 2-corner image bounds if distortable image overlay failed or not available
+        if (!layerRef.current) {
+            const bounds = (floorPlan?.bounds && Array.isArray(floorPlan.bounds) && floorPlan.bounds.length === 2)
+                ? floorPlan.bounds
+                : [
+                    [defaultCenter[0] + 0.001, defaultCenter[1] - 0.001],
+                    [defaultCenter[0] - 0.001, defaultCenter[1] + 0.001]
+                ];
+
+            const overlay = L.imageOverlay(fullImageUrl, bounds, { opacity: 0.85 }).addTo(map);
+            layerRef.current = overlay;
+        }
+
+        return () => {
+            if (layerRef.current && map) {
+                map.removeLayer(layerRef.current);
+                layerRef.current = null;
+            }
+        };
+    }, [map, floorPlan, defaultCenter]);
+
+    return null;
+};
+
+/**
  * MapBoundsController - Auto-fits map to show all guards or hospital
- * This solves the "world map is too big" problem
  */
 const MapBoundsController = ({ guards, hospitalLocation, selectedGuard }) => {
     const map = useMap();
     
     useEffect(() => {
-        // If a guard is selected, fly to them
         if (selectedGuard?.latitude && selectedGuard?.longitude) {
             map.flyTo([selectedGuard.latitude, selectedGuard.longitude], 18, {
                 animate: true,
@@ -69,19 +174,16 @@ const MapBoundsController = ({ guards, hospitalLocation, selectedGuard }) => {
             return;
         }
         
-        // Get all valid guard locations
         const validGuards = guards.filter(g => 
             g.latitude && g.longitude && 
             !isNaN(g.latitude) && !isNaN(g.longitude)
         );
         
         if (validGuards.length > 0) {
-            // Create bounds from all guard locations
             const bounds = L.latLngBounds(
                 validGuards.map(g => [g.latitude, g.longitude])
             );
             
-            // Add padding and fit bounds
             map.fitBounds(bounds, {
                 padding: [50, 50],
                 maxZoom: 18,
@@ -89,35 +191,26 @@ const MapBoundsController = ({ guards, hospitalLocation, selectedGuard }) => {
                 duration: 0.5
             });
         } else if (hospitalLocation?.latitude && hospitalLocation?.longitude) {
-            // No guards online - center on hospital location
             map.setView([hospitalLocation.latitude, hospitalLocation.longitude], 16);
         }
-        // If no guards and no hospital location, keep default view
-        
     }, [guards, hospitalLocation, selectedGuard, map]);
     
     return null;
 };
 
 /**
- * LiveOverwatchMap - Real-time guard tracking map
- * Features:
- * - Auto-centers on guards or hospital location
- * - Status-colored guard markers
- * - Geofence visualization
- * - Floor plan overlay support
+ * LiveOverwatchMap - Real-time tactical guard tracking cockpit
  */
 const LiveOverwatchMap = ({ 
     guards = [], 
     onSelectGuard, 
     floorPlan, 
     selectedGuard,
-    hospitalLocation = null,  // { latitude, longitude, name }
-    geofences = []
+    hospitalLocation = null,
+    geofences = [],
+    onOpenStudio = null
 }) => {
-    // Default center fallback (India center) - used only if no other data
     const defaultCenter = useMemo(() => {
-        // Try to get center from guards
         const validGuards = guards.filter(g => g.latitude && g.longitude);
         if (validGuards.length > 0) {
             const avgLat = validGuards.reduce((sum, g) => sum + g.latitude, 0) / validGuards.length;
@@ -125,28 +218,19 @@ const LiveOverwatchMap = ({
             return [avgLat, avgLng];
         }
         
-        // Try hospital location
         if (hospitalLocation?.latitude && hospitalLocation?.longitude) {
             return [hospitalLocation.latitude, hospitalLocation.longitude];
         }
         
-        // Fallback to India center
-        return [20.5937, 78.9629];
+        return [30.8045, 75.4725];
     }, [guards, hospitalLocation]);
     
-    // Calculate initial zoom based on number of guards
     const initialZoom = useMemo(() => {
         const validGuards = guards.filter(g => g.latitude && g.longitude);
-        if (validGuards.length === 0) return 16;
+        if (validGuards.length === 0) return 17;
         if (validGuards.length === 1) return 18;
-        return 15; // Will be overridden by fitBounds anyway
+        return 16;
     }, [guards]);
-    
-    // Floor plan bounds
-    const imageBounds = floorPlan?.bounds || [
-        [defaultCenter[0] + 0.001, defaultCenter[1] - 0.001],
-        [defaultCenter[0] - 0.001, defaultCenter[1] + 0.001]
-    ];
 
     return (
         <div className="live-overwatch-map" style={{ 
@@ -165,13 +249,18 @@ const LiveOverwatchMap = ({
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
             >
-                {/* Dark Mode Base Layer */}
+                {/* Dark Mode Base Layer - ESRI World Dark Gray Canvas */}
                 <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                    attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    maxZoom={20}
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                    attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                    maxZoom={19}
                 />
-                
+                <TileLayer
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+                    attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                    maxZoom={19}
+                />
+
                 {/* Auto-fit bounds controller */}
                 <MapBoundsController 
                     guards={guards}
@@ -179,14 +268,67 @@ const LiveOverwatchMap = ({
                     selectedGuard={selectedGuard}
                 />
                 
-                {/* Floor Plan Overlay */}
+                {/* 4-Corner Georeferenced Floor Plan Overlay (Stock photos suppressed) */}
                 {floorPlan && (
-                    <ImageOverlay
-                        url={floorPlan.url}
-                        bounds={imageBounds}
-                        opacity={0.8}
+                    floorPlan.blueprint_file || 
+                    (floorPlan.image_url && !floorPlan.image_url.includes('unsplash.com')) || 
+                    (floorPlan.url && !floorPlan.url.includes('unsplash.com'))
+                ) && (
+                    <DistortableImageLayer 
+                        floorPlan={floorPlan} 
+                        defaultCenter={defaultCenter} 
                     />
                 )}
+
+                {/* Walkable Corridors Visualization */}
+                {floorPlan?.walkable_graph?.edges && floorPlan.walkable_graph.nodes && (
+                    (() => {
+                        const nodeMap = new Map(floorPlan.walkable_graph.nodes.map(n => [n.id, n]));
+                        return floorPlan.walkable_graph.edges.map((edge, idx) => {
+                            const f = nodeMap.get(edge.from);
+                            const t = nodeMap.get(edge.to);
+                            if (!f || !t) return null;
+                            return (
+                                <Polyline
+                                    key={idx}
+                                    positions={[[f.lat, f.lng], [t.lat, t.lng]]}
+                                    pathOptions={{
+                                        color: '#00f0ff',
+                                        weight: 2.5,
+                                        opacity: 0.45,
+                                        dashArray: '3, 6'
+                                    }}
+                                />
+                            );
+                        });
+                    })()
+                )}
+
+                {/* Floor Security Zones */}
+                {floorPlan?.zones && floorPlan.zones.map(zone => {
+                    if (!zone.polygon_coordinates || !Array.isArray(zone.polygon_coordinates) || zone.polygon_coordinates.length < 3) return null;
+                    return (
+                        <Polygon
+                            key={zone.id}
+                            positions={zone.polygon_coordinates}
+                            pathOptions={{
+                                color: zone.color || '#00f0ff',
+                                fillColor: zone.color || '#00f0ff',
+                                fillOpacity: 0.18,
+                                weight: 2
+                            }}
+                        >
+                            <Popup>
+                                <div style={{ textAlign: 'center', minWidth: '120px' }}>
+                                    <strong style={{ color: zone.color || '#00f0ff' }}>{zone.name}</strong>
+                                    <div style={{ fontSize: '11px', textTransform: 'uppercase', color: '#94a3b8', marginTop: '2px' }}>
+                                        {zone.zone_type} • {zone.risk_level} risk
+                                    </div>
+                                </div>
+                            </Popup>
+                        </Polygon>
+                    );
+                })}
                 
                 {/* Hospital Location Marker */}
                 {hospitalLocation?.latitude && hospitalLocation?.longitude && (
@@ -239,7 +381,7 @@ const LiveOverwatchMap = ({
                     />
                 ))}
 
-                {/* Guard Markers */}
+                {/* Guard Markers with Heading FOV Cone */}
                 {guards.map(guard => {
                     if (!guard.latitude || !guard.longitude) return null;
                     
@@ -247,13 +389,13 @@ const LiveOverwatchMap = ({
                         <Marker 
                             key={guard.guard_id} 
                             position={[guard.latitude, guard.longitude]}
-                            icon={createGuardIcon(guard.status)}
+                            icon={createGuardIcon(guard.status, guard.floor_number, guard.heading, guard.guard_id)}
                             eventHandlers={{
                                 click: () => onSelectGuard && onSelectGuard(guard),
                             }}
                         >
                             <Popup>
-                                <div style={{ textAlign: 'center', minWidth: '120px' }}>
+                                <div style={{ textAlign: 'center', minWidth: '130px' }}>
                                     <strong style={{ fontSize: '14px' }}>{guard.username || 'Guard'}</strong>
                                     <br/>
                                     <span style={{
@@ -270,9 +412,20 @@ const LiveOverwatchMap = ({
                                     }}>
                                         {guard.status || 'Unknown'}
                                     </span>
-                                    {guard.batteryLevel && (
-                                        <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                                            🔋 {Math.round(guard.batteryLevel * 100)}%
+                                    <div style={{ fontSize: '11px', color: '#00f0ff', fontWeight: 'bold', marginTop: '4px' }}>
+                                        🏢 Floor {guard.floor_number <= 0 ? `B${Math.abs(guard.floor_number) + 1}` : `L${guard.floor_number || 1}`}
+                                        {guard.altitude ? ` (${guard.altitude > 0 ? '+' : ''}${parseFloat(guard.altitude).toFixed(1)}m)` : ''}
+                                    </div>
+                                    {guard.heading != null && !isNaN(guard.heading) && (
+                                        <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>
+                                            🧭 Heading {Math.round(guard.heading)}°
+                                        </div>
+                                    )}
+                                    {guard.batteryLevel != null && (
+                                        <div style={{ fontSize: '11px', color: '#9e9e9e', marginTop: '2px' }}>
+                                            🔋 {typeof guard.batteryLevel === 'number' && guard.batteryLevel <= 1
+                                                ? Math.round(guard.batteryLevel * 100)
+                                                : guard.batteryLevel}%
                                         </div>
                                     )}
                                 </div>
@@ -309,7 +462,38 @@ const LiveOverwatchMap = ({
                 LIVE
             </div>
             
-            {/* Guard Count */}
+            {/* Quick Align / Studio Button */}
+            {onOpenStudio && (
+                <button
+                    onClick={onOpenStudio}
+                    style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        padding: '6px 12px',
+                        background: 'rgba(15, 23, 42, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        borderRadius: '20px',
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        color: '#00f0ff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        zIndex: 1000,
+                        border: '1px solid rgba(0, 240, 255, 0.35)',
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                        transition: 'all 0.2s ease'
+                    }}
+                    title="Open Georeferencing Studio to align blueprint with satellite map"
+                >
+                    <span>📐</span>
+                    <span>Align Layout</span>
+                </button>
+            )}
+            
+            {/* Guard Count & Floor Info */}
             <div style={{
                 position: 'absolute',
                 bottom: '12px',
@@ -320,12 +504,22 @@ const LiveOverwatchMap = ({
                 fontSize: '12px',
                 color: 'white',
                 zIndex: 1000,
-                border: '1px solid rgba(255,255,255,0.1)'
+                border: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
             }}>
-                <span style={{ color: '#00d4ff', fontWeight: 'bold' }}>
-                    {guards.filter(g => g.latitude && g.longitude).length}
-                </span>
-                <span style={{ color: '#9e9e9e' }}> guards visible</span>
+                <div>
+                    <span style={{ color: '#00d4ff', fontWeight: 'bold' }}>
+                        {guards.filter(g => g.latitude && g.longitude).length}
+                    </span>
+                    <span style={{ color: '#9e9e9e' }}> guards active</span>
+                </div>
+                {floorPlan && (
+                    <div style={{ borderLeft: '1px solid #334155', paddingLeft: '10px', color: '#00f0ff', fontSize: '11px', fontWeight: 600 }}>
+                        Level {floorPlan.floor_number <= 0 ? `B${Math.abs(floorPlan.floor_number) + 1}` : `L${floorPlan.floor_number}`} • {floorPlan.building_name || 'Main Block'}
+                    </div>
+                )}
             </div>
             
             {/* CSS for animations */}

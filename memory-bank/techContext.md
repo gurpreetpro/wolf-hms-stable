@@ -25,10 +25,10 @@
 - Connection: see `VPS_CREDENTIALS.md` for full connection string
 - Container OS: Alpine Linux (limited tooling)
 
-### SQL Backdoor (Remote DB Operations)
-Endpoint: `POST /wolf/api/health/exec-sql` — see `.agents/skills/database-ops/SKILL.md` for usage.
-Credentials (setupKey): see `VPS_CREDENTIALS.md`.
-This is the primary way to perform production DB operations.
+### Database Administration & Operations
+- **Primary Tool**: `server/scripts/admin-cli.js` invoked via SSH on host with `MIGRATION_CLI_TOKEN`.
+- **Legacy Backdoor**: `POST /wolf/api/health/exec-sql` is **DEPRECATED & NEUTRALIZED (HTTP 410 Gone)** in Phase 2.
+- See `scripts/admin-runbooks/` and `.agents/skills/database-ops/SKILL.md` for operation guides.
 
 ### Shell Commands via DB Container
 ```sql
@@ -119,6 +119,9 @@ npx expo start
 | `@ant-design/icons` | Icon set |
 | `dayjs` / `moment` | Date handling |
 | `html2canvas` / `jspdf` | Client-side PDF generation |
+| `leaflet` | Interactive GIS mapping engine |
+| `leaflet-distortableimage` | 4-corner affine georeferencing & blueprint warping |
+| `leaflet-toolbar` | Toolbar UI actions for Leaflet plugins |
 
 ### Mobile Dependencies (Common across apps)
 | Package | Purpose |

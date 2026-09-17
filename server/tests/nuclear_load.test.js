@@ -1,3 +1,12 @@
+// [QUARANTINE] This scenario test requires a live DB and running server.
+const isDbTest = process.env.DB_TESTS === '1';
+
+if (!isDbTest) {
+    describe.skip('nuclear load (requires DB_TESTS=1)', () => {
+        it('skipped in automated CI / non-DB mode', () => {});
+    });
+} else {
+
 const request = require('supertest');
 const { pool, app } = require('../server');
 const { generateLicense } = require('../utils/licenseUtil');
@@ -148,3 +157,5 @@ describe('☢️ NUCLEAR LOAD TESTS (Concurrency & Race Conditions)', () => {
     });
 
 });
+
+} // END QUARANTINE

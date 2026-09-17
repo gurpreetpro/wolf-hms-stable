@@ -22,7 +22,8 @@ import {
     Grid3x3 as Grid,
     Package,
     BrainCircuit,
-    RefreshCcw
+    RefreshCcw,
+    Map
 } from 'lucide-react';
 
 
@@ -65,6 +66,7 @@ const Sidebar = () => {
         { to: '/admin/vault', icon: Shield, label: '🔐 Insurance Vault', roles: ['admin'], section: 'admin' },
         { to: '/admin/reviews', icon: Activity, label: '⭐ Patient Reviews', roles: ['admin'], section: 'admin' },
         { to: '/admin/route-replay', icon: Navigation, label: '🗺️ Route Replay', roles: ['admin'], section: 'admin' },
+        { to: '/admin/floor-plans', icon: Map, label: '📐 Floor Plan Studio', roles: ['admin'], section: 'admin' },
         { to: '/admin/security', icon: Shield, label: '🛡️ Security Center', roles: ['admin'], section: 'admin' },
         { to: '/admin/staff-locations', icon: Activity, label: '📍 Staff Locations', roles: ['admin'], section: 'admin' },
         { to: '/settings', icon: Settings, label: '⚙️ System Settings', roles: ['admin'], section: 'admin' },
@@ -99,6 +101,7 @@ const Sidebar = () => {
         // ── Support ──
         { to: '/cssd', icon: Archive, label: 'CSSD / Sterilization', roles: ['nurse', 'admin', 'ward_incharge'], section: 'support' },
         { to: '/security', icon: Shield, label: 'Security Overwatch', roles: ['security_guard', 'admin', 'security_manager'], section: 'support' },
+        { to: '/security/floor-plans', icon: Map, label: '📐 Floor Plans', roles: ['security_guard', 'admin', 'security_manager'], section: 'support' },
     ];
 
     const filteredLinks = allLinks.filter(link => link.roles.includes(userRole));

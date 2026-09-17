@@ -153,32 +153,23 @@ const tests = [
 ];
 
 // ─── Runner ───────────────────────────────────────────────
-async function runTests() {
-    console.log('\n🐺 Wolf HMS — E2E Test Suite (Phase 5)\n');
-    console.log(`Target: ${BASE_URL}`);
-    console.log('─'.repeat(50));
+const isSmoke = process.env.SMOKE === '1';
 
-    for (const t of tests) {
-        await t();
-    }
+(isSmoke ? describe : describe.skip)('Wolf HMS — E2E Test Suite (Manual / Smoke)', () => {
+    it('executes end-to-end flow against live backend', async () => {
+        console.log('\n🐺 Wolf HMS — E2E Test Suite (Phase 5)\n');
+        console.log(`Target: ${BASE_URL}`);
+        console.log('─'.repeat(50));
 
-    console.log('\n' + '─'.repeat(50));
-    const passed = results.filter(r => r.status === '✅ PASS').length;
-    const failed = results.filter(r => r.status === '❌ FAIL').length;
-    console.log(`\n📊 Results: ${passed} passed, ${failed} failed, ${results.length} total`);
-    
-    if (failed > 0) {
-        console.log('\n❌ Failed tests:');
-        results.filter(r => r.status === '❌ FAIL').forEach(r => {
-            console.log(`   - ${r.name}: ${r.error}`);
-        });
-    }
+        for (const t of tests) {
+            await t();
+        }
 
-    console.log('\n🐺 Test suite complete.\n');
-    process.exit(failed > 0 ? 1 : 0);
-}
-
-runTests().catch(err => {
-    console.error('Test runner failed:', err);
-    process.exit(1);
+        console.log('\n' + '─'.repeat(50));
+        const passed = results.filter(r => r.status === '✅ PASS').length;
+        const failed = results.filter(r => r.status === '❌ FAIL').length;
+        console.log(`\n📊 Results: ${passed} passed, ${failed} failed, ${results.length} total`);
+        
+        expect(failed).toBe(0);
+    }, 30000);
 });

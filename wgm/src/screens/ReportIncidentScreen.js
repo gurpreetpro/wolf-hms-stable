@@ -1,29 +1,35 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, Appbar, TextInput, Button, HelperText, SegmentedButtons } from 'react-native-paper';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Text, TextInput, Button, SegmentedButtons } from 'react-native-paper';
 import * as Location from 'expo-location';
+import ScreenShell from '../components/ScreenShell';
 import securityService from '../services/securityService';
+import { COLORS } from '../theme';
 
 export default function ReportIncidentScreen({ navigation }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [locationName, setLocationName] = useState('Fetching location...');
+    const [locationName, setLocationName] = useState('Fetching GPS fix...');
     const [severity, setSeverity] = useState('Low');
     const [type, setType] = useState('Security');
-    
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         (async () => {
-             const loc = await Location.getCurrentPositionAsync({});
-             setLocationName(`${loc.coords.latitude.toFixed(5)}, ${loc.coords.longitude.toFixed(5)}`);
+            try {
+                const loc = await Location.getCurrentPositionAsync({});
+                if (loc?.coords) {
+                    setLocationName(`${loc.coords.latitude.toFixed(5)}, ${loc.coords.longitude.toFixed(5)}`);
+                }
+            } catch (e) {
+                setLocationName('Sector Main Compound (GPS Unavailable)');
+            }
         })();
     }, []);
 
     const handleSubmit = async () => {
-        if (!title || !description) {
-            Alert.alert('Missing Fields', 'Please provide a title and description.');
+        if (!title.trim() || !description.trim()) {
+            Alert.alert('Missing Fields', 'Please provide an incident title and detailed description.');
             return;
         }
 
@@ -38,125 +44,131 @@ export default function ReportIncidentScreen({ navigation }) {
                 media_urls: []
             });
 
-            if (res.data.success || res.status === 201) {
-                Alert.alert('Report Submitted', 'Incident has been logged successfully.', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
+            if (res.data?.success || res.status === 201) {
+                Alert.alert('Report Submitted', 'Incident log dispatched successfully to Command Center.', [
+                    { text: 'OK', onPress: () => {
+                        setTitle('');
+                        setDescription('');
+                        if (navigation.canGoBack()) navigation.goBack();
+                    }}
                 ]);
             }
         } catch (e) {
             console.error(e);
-            Alert.alert('Error', 'Failed to submit report. Please check connection.');
+            Alert.alert('Error', 'Failed to submit report. Please check network connectivity.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Appbar.Header style={{ backgroundColor: '#050a14' }}>
-                <Appbar.BackAction onPress={() => navigation.goBack()} color="#00f3ff" />
-                <Appbar.Content 
-                    title={<Text style={{color: '#00f3ff', fontWeight: 'bold'}}>REPORT INCIDENT</Text>} 
+        <ScreenShell
+            title="Report Incident"
+            badgeText="ALERT"
+            badgeColor={COLORS.statusRed}
+        >
+            <View style={styles.formCard}>
+                <TextInput
+                    label="Incident Title *"
+                    value={title}
+                    onChangeText={setTitle}
+                    mode="outlined"
+                    style={styles.input}
+                    textColor={COLORS.textPrimary}
+                    placeholder="e.g., Broken Lock at West Gate"
+                    placeholderTextColor={COLORS.textMuted}
+                    theme={{ colors: { primary: COLORS.accent } }}
                 />
-            </Appbar.Header>
 
-            <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{flex: 1}}>
-                <ScrollView contentContainerStyle={styles.content}>
-                    
-                    <Text style={styles.label}>Severity Level</Text>
-                    <SegmentedButtons
-                        value={severity}
-                        onValueChange={setSeverity}
-                        buttons={[
-                            { value: 'Low', label: 'Low', style: {backgroundColor: severity==='Low' ? '#4ade80' : undefined} },
-                            { value: 'Medium', label: 'Med', style: {backgroundColor: severity==='Medium' ? '#facc15' : undefined} },
-                            { value: 'High', label: 'High', style: {backgroundColor: severity==='High' ? '#ff6600' : undefined} },
-                            { value: 'Critical', label: 'Crit', style: {backgroundColor: severity==='Critical' ? '#ff003c' : undefined} },
-                        ]}
-                        style={styles.input}
-                    />
+                <Text style={styles.label}>SEVERITY LEVEL</Text>
+                <SegmentedButtons
+                    value={severity}
+                    onValueChange={setSeverity}
+                    buttons={[
+                        { value: 'Low', label: 'Low' },
+                        { value: 'Medium', label: 'Med' },
+                        { value: 'High', label: 'High' },
+                        { value: 'Critical', label: 'Crit' },
+                    ]}
+                    style={styles.segmented}
+                />
 
-                    <TextInput
-                        label="Incident Title"
-                        value={title}
-                        onChangeText={setTitle}
-                        mode="outlined"
-                        style={styles.input}
-                        textColor='white'
-                        theme={{colors: {primary: '#00f3ff', background: '#0a1220'}}}
-                    />
+                <Text style={styles.label}>INCIDENT CLASSIFICATION</Text>
+                <SegmentedButtons
+                    value={type}
+                    onValueChange={setType}
+                    buttons={[
+                        { value: 'Security', label: 'Security' },
+                        { value: 'Safety', label: 'Safety' },
+                        { value: 'Medical', label: 'Medical' },
+                    ]}
+                    style={styles.segmented}
+                />
 
-                    <TextInput
-                        label="Type (e.g. Theft, Fire, Violence)"
-                        value={type}
-                        onChangeText={setType}
-                        mode="outlined"
-                        style={styles.input}
-                        textColor='white'
-                        theme={{colors: {primary: '#00f3ff', background: '#0a1220'}}}
-                    />
+                <TextInput
+                    label="Incident Location (GPS Coords)"
+                    value={locationName}
+                    editable={false}
+                    mode="outlined"
+                    style={styles.input}
+                    textColor={COLORS.textMuted}
+                    left={<TextInput.Icon icon="map-marker" color={COLORS.accent} />}
+                />
 
-                    <TextInput
-                        label="Location"
-                        value={locationName}
-                        onChangeText={setLocationName}
-                        mode="outlined"
-                        style={styles.input}
-                        textColor='white'
-                        theme={{colors: {primary: '#00f3ff', background: '#0a1220'}}}
-                        right={<TextInput.Icon icon="crosshairs-gps" color="#00f3ff"/>}
-                    />
+                <TextInput
+                    label="Description of Event *"
+                    value={description}
+                    onChangeText={setDescription}
+                    mode="outlined"
+                    multiline
+                    numberOfLines={4}
+                    style={[styles.input, { minHeight: 100 }]}
+                    textColor={COLORS.textPrimary}
+                    placeholder="Describe what occurred, individuals involved, and action taken..."
+                    placeholderTextColor={COLORS.textMuted}
+                    theme={{ colors: { primary: COLORS.accent } }}
+                />
 
-                    <TextInput
-                        label="Description / Details"
-                        value={description}
-                        onChangeText={setDescription}
-                        mode="outlined"
-                        multiline
-                        numberOfLines={5}
-                        style={styles.input}
-                        textColor='white'
-                        theme={{colors: {primary: '#00f3ff', background: '#0a1220'}}}
-                    />
-
-                    <Button 
-                        mode="contained" 
-                        onPress={handleSubmit} 
-                        loading={loading}
-                        disabled={loading}
-                        buttonColor="#00f3ff"
-                        textColor="black"
-                        style={styles.submitBtn}
-                        labelStyle={{fontWeight: 'bold', fontSize: 16}}
-                    >
-                        SUBMIT REPORT
-                    </Button>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </View>
+                <Button
+                    mode="contained"
+                    onPress={handleSubmit}
+                    loading={loading}
+                    style={styles.submitBtn}
+                    labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+                >
+                    DISPATCH INCIDENT REPORT
+                </Button>
+            </View>
+        </ScreenShell>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#050a14',
-    },
-    content: {
-        padding: 20,
-    },
-    label: {
-        color: '#666',
-        marginBottom: 10,
-        fontWeight: 'bold',
+    formCard: {
+        backgroundColor: COLORS.surface,
+        borderRadius: 18,
+        padding: 18,
+        borderWidth: 1,
+        borderColor: COLORS.border,
     },
     input: {
-        marginBottom: 20,
-        backgroundColor: '#0a1220',
+        marginBottom: 14,
+        backgroundColor: COLORS.surface,
+    },
+    label: {
+        color: COLORS.textMuted,
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginBottom: 6,
+        letterSpacing: 0.5,
+    },
+    segmented: {
+        marginBottom: 16,
     },
     submitBtn: {
-        marginTop: 20,
-        paddingVertical: 8,
-        borderRadius: 8,
-    }
+        marginTop: 10,
+        backgroundColor: COLORS.statusRed,
+        borderRadius: 10,
+        paddingVertical: 4,
+    },
 });

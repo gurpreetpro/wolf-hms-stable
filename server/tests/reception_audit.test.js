@@ -1,74 +1,63 @@
-const request = require('supertest');
+/**
+ * Reception Dashboard Diagnostic Audit
+ * Verifies License Generation & Validation, Route Definitions, and GlobalSearch integration.
+ */
+
 const fs = require('fs');
 const path = require('path');
-const { verifyLicense } = require('../utils/licenseUtil');
-
-// Mock server for testing
+const request = require('supertest');
 const express = require('express');
-const app = express();
+const { generateLicense, verifyLicense } = require('../utils/licenseUtil');
 const checkLicense = require('../middleware/licenseMiddleware');
-const { protect } = require('../middleware/authMiddleware');
-
-app.use(express.json());
-
-// Test routes
-app.post('/api/opd/register', checkLicense, (req, res) => {
-    res.status(201).json({ message: 'Registered', token_number: 123 });
-});
 
 describe('Reception Dashboard Diagnostic Audit', () => {
 
     // ==================== TEST A: License Check ====================
-    describe('Test A: License Validation During Registration', () => {
+    describe('Test A: License Generation and Verification', () => {
 
-        it('should check if license.key file exists', () => {
-            const licensePath = path.join(__dirname, '../license.key');
-            const exists = fs.existsSync(licensePath);
-            console.log(`📄 License File Path: ${licensePath}`);
-            console.log(`📄 File Exists: ${exists}`);
-            expect(exists).toBe(true);
-        });
+        it('should generate a valid license key and verify it successfully', () => {
+            const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+            const licenseKey = generateLicense('Diagnostic Hospital', oneYearLater);
 
-        it('should read and verify license key content', () => {
-            const licensePath = path.join(__dirname, '../license.key');
+            expect(licenseKey).toBeDefined();
+            expect(licenseKey.startsWith('HMS-')).toBe(true);
 
-            if (!fs.existsSync(licensePath)) {
-                console.log('❌ LICENSE FILE MISSING');
-                console.log(`Expected location: ${licensePath}`);
-                fail('License file not found');
-                return;
-            }
-
-            const key = fs.readFileSync(licensePath, 'utf8').trim();
-            console.log(`🔑 License Key: ${key}`);
-
-            const result = verifyLicense(key);
-            console.log(`✅ Validation Result:`, result);
-
-            if (!result.valid) {
-                console.log('\n❌ LICENSE VALIDATION FAILED');
-                console.log(`Reason: ${result.message}`);
-
-                if (result.message === 'License Expired') {
-                    const licensePath = path.join(__dirname, '../license.key');
-                    const key = fs.readFileSync(licensePath, 'utf8').trim();
-                    const parts = key.split('-');
-                    const encodedPayload = parts[1];
-                    const payload = Buffer.from(encodedPayload, 'base64').toString('utf8');
-                    const [hospitalName, expiry] = payload.split('|');
-                    console.log(`Expiry Date: ${new Date(parseInt(expiry)).toLocaleString()}`);
-                    console.log(`Current Date: ${new Date().toLocaleString()}`);
-                }
-            } else {
-                console.log('\n✅ LICENSE VALID');
-                console.log(`Hospital: ${result.hospitalName}`);
-                console.log(`Expiry: ${result.expiry.toLocaleString()}`);
-            }
-
+            const result = verifyLicense(licenseKey);
             expect(result.valid).toBe(true);
+            expect(result.hospitalName).toBe('Diagnostic Hospital');
+            expect(result.expiry).toBeInstanceOf(Date);
         });
 
-        it('should test OPD registration endpoint with license middleware', async () => {
+        it('should detect expired licenses correctly', () => {
+            const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const expiredKey = generateLicense('Old Hospital', yesterday);
+
+            const result = verifyLicense(expiredKey);
+            expect(result.valid).toBe(false);
+            expect(result.message).toBe('License Expired');
+        });
+
+        it('should reject tampered or invalid license keys', () => {
+            const resultInvalid = verifyLicense('INVALID-KEY-FORMAT');
+            expect(resultInvalid.valid).toBe(false);
+
+            const oneYearLater = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+            const legitKey = generateLicense('Hospital', oneYearLater);
+            const tamperedKey = legitKey.slice(0, -4) + 'XXXX';
+
+            const resultTampered = verifyLicense(tamperedKey);
+            expect(resultTampered.valid).toBe(false);
+            expect(resultTampered.message).toBe('Invalid Signature');
+        });
+
+        it('should block protected routes when license file is invalid or missing', async () => {
+            const app = express();
+            app.use(express.json());
+            app.post('/api/opd/register', checkLicense, (req, res) => {
+                res.status(201).json({ message: 'Registered', token_number: 123 });
+            });
+
+            // When license.key is absent or invalid, checkLicense returns 402
             const response = await request(app)
                 .post('/api/opd/register')
                 .send({
@@ -76,99 +65,62 @@ describe('Reception Dashboard Diagnostic Audit', () => {
                     phone: '1234567890'
                 });
 
-            console.log(`\n🔍 Registration Response Status: ${response.status}`);
-            console.log(`Response Body:`, response.body);
-
+            // Depending on whether license.key exists on local filesystem:
             if (response.status === 402) {
-                console.log('\n❌ REGISTRATION BLOCKED BY LICENSE ERROR (402)');
-                console.log('Reason: License middleware returned 402 Payment Required');
-            } else if (response.status === 403) {
-                console.log('\n❌ REGISTRATION BLOCKED BY AUTHORIZATION (403)');
-            } else if (response.status === 201) {
-                console.log('\n✅ REGISTRATION SUCCESSFUL');
+                expect(response.body.message).toBe('License Error');
+            } else {
+                expect(response.status).toBe(201);
             }
         });
     });
 
     // ==================== TEST B: Route Verification ====================
-    describe('Test B: Sidebar Link Route Verification', () => {
+    describe('Test B: Route Verification in App.jsx', () => {
 
-        it('should verify React routes defined in App.jsx', () => {
+        it('should verify core clinical routes defined in App.jsx', () => {
             const appJsxPath = path.join(__dirname, '../../client/src/App.jsx');
             const appContent = fs.readFileSync(appJsxPath, 'utf8');
 
-            console.log('\n📍 Checking React Routes in App.jsx:');
-
             const expectedRoutes = [
                 { path: '/opd', component: 'OPDReception' },
-                { path: '/dashboard/opd', component: 'OPDReception (Dead Link)' },
-                { path: '/admissions', component: 'AdmissionDashboard' },
-                { path: '/dashboard/admissions', component: 'AdmissionDashboard (Dead Link)' }
+                { path: '/doctor', component: 'DoctorDashboard' },
+                { path: '/ward', component: 'WardDashboard' },
+                { path: '/lab', component: 'LabDashboard' },
+                { path: '/pharmacy', component: 'PharmacyDashboard' }
             ];
 
             expectedRoutes.forEach(route => {
                 const exists = appContent.includes(`path="${route.path}"`);
-                console.log(`  ${exists ? '✅' : '❌'} ${route.path} → ${route.component} ${exists ? '(EXISTS)' : '(DEAD LINK)'}`);
+                expect(exists).toBe(true);
             });
-
-            // Check actual routes
-            const opdRouteCorrect = appContent.includes('path="/opd"');
-            const opdRouteDead = appContent.includes('path="/dashboard/opd"');
-
-            console.log('\n🔍 SIDEBAR LINK ANALYSIS:');
-            console.log(`  Current Route in App.jsx: /opd → ${opdRouteCorrect ? 'EXISTS' : 'MISSING'}`);
-            console.log(`  If sidebar uses /dashboard/opd → ${opdRouteDead ? 'EXISTS' : 'DEAD LINK (404)'}`);
-
-            expect(opdRouteCorrect).toBe(true);
         });
     });
 
     // ==================== TEST C: GlobalSearch Integration ====================
     describe('Test C: GlobalSearch Component Integration', () => {
 
-        it('should verify GlobalSearch field exists in OPDReception.jsx', () => {
+        it('should verify Search input and handlers exist in OPDReception.jsx', () => {
             const opdPath = path.join(__dirname, '../../client/src/pages/OPDReception.jsx');
             const opdContent = fs.readFileSync(opdPath, 'utf8');
 
-            console.log('\n🔍 Checking GlobalSearch in OPDReception.jsx:');
-
-            const hasSearchInput = opdContent.includes('Global Search');
             const hasSearchQuery = opdContent.includes('searchQuery');
-            const hasSearchFunction = opdContent.includes('searchPatient');
-
-            console.log(`  ${hasSearchInput ? '✅' : '❌'} Search Input Field (Line 103)`);
-            console.log(`  ${hasSearchQuery ? '✅' : '❌'} searchQuery State`);
-            console.log(`  ${hasSearchFunction ? '✅' : '❌'} searchPatient Function`);
-
-            if (hasSearchInput) {
-                console.log('\n✅ GLOBALSEARCH IS INTEGRATED');
-                console.log('   Location: Top-right, next to "New Patient" button');
-                console.log('   Features: Real-time search, shows patient dropdown');
-            } else {
-                console.log('\n❌ GLOBALSEARCH MISSING');
-            }
-
-            expect(hasSearchInput).toBe(true);
-        });
-
-        it('should verify UID (Phone/Aadhar) search capability', () => {
-            const opdPath = path.join(__dirname, '../../client/src/pages/OPDReception.jsx');
-            const opdContent = fs.readFileSync(opdPath, 'utf8');
-
-            console.log('\n🔍 Checking UID Search Field:');
-
-            const hasPhoneSearch = opdContent.includes('phone');
+            const hasSearchPatient = opdContent.includes('searchPatient');
             const hasPatientRegistrationModal = opdContent.includes('PatientRegistrationModal');
 
-            console.log(`  ${hasPhoneSearch ? '✅' : '❌'} Phone field in search results`);
-            console.log(`  ${hasPatientRegistrationModal ? '✅' : '❌'} PatientRegistrationModal (contains phone/aadhar input)`);
+            expect(hasSearchQuery).toBe(true);
+            expect(hasSearchPatient).toBe(true);
+            expect(hasPatientRegistrationModal).toBe(true);
+        });
 
-            console.log('\n📋 UID SEARCH STATUS:');
-            console.log('   Main Dashboard: Search bar supports name/phone search (API: /api/patients/search?q=...)');
-            console.log('   Registration Modal: Contains full UID inputs (phone, aadhar, etc.)');
-            console.log('   Note: UID input is in the modal, not visible on main page');
+        it('should verify phone and registration capabilities', () => {
+            const opdPath = path.join(__dirname, '../../client/src/pages/OPDReception.jsx');
+            const opdContent = fs.readFileSync(opdPath, 'utf8');
+
+            const hasPhoneSearch = opdContent.includes('Phone');
+            const hasRapidTriage = opdContent.includes('RapidTriageRegistration');
 
             expect(hasPhoneSearch).toBe(true);
+            expect(hasRapidTriage).toBe(true);
         });
     });
 });

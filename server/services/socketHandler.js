@@ -37,6 +37,17 @@ const socketHandler = (io) => {
             const allStaffRoom = `hosp_${socket.hospital_id}_role_all_staff`;
             socket.join(allStaffRoom);
         }
+
+        // --- Personal & Hospital Room Joining for Targeted Commands (Ping, Photo, Dispatch) ---
+        if (socket.user_id) {
+            socket.join(`guard_${socket.user_id}`);
+            socket.join(`user_${socket.user_id}`);
+            console.log(`[Socket] ${socket.id} joined personal rooms: guard_${socket.user_id}, user_${socket.user_id}`);
+        }
+        if (socket.hospital_id) {
+            socket.join(`hospital_${socket.hospital_id}`);
+            console.log(`[Socket] ${socket.id} joined hospital room: hospital_${socket.hospital_id}`);
+        }
         
         // --- General Events ---
         socket.on('join', (room) => {

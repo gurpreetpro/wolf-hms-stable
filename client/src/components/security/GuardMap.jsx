@@ -132,7 +132,7 @@ const GuardMap = React.memo(({ activeGuards = [] }) => {
                         <div className="d-flex gap-2 mb-1" style={{ fontSize: '0.9em' }}>
                             <div className={`d-flex align-items-center ${(guard.batteryLevel < 20) ? 'text-danger fw-bold' : ''}`}>
                                 <Battery size={16} className="me-1" />
-                                {guard.batteryLevel !== undefined && guard.batteryLevel !== null ? `${guard.batteryLevel}%` : 'N/A'}
+                                {guard.batteryLevel !== undefined && guard.batteryLevel !== null ? `${typeof guard.batteryLevel === 'number' && guard.batteryLevel <= 1 ? Math.round(guard.batteryLevel * 100) : guard.batteryLevel}%` : 'N/A'}
                             </div>
                             <div className="d-flex align-items-center">
                                 <Wifi size={16} className="me-1" />
@@ -154,10 +154,16 @@ const GuardMap = React.memo(({ activeGuards = [] }) => {
                 style={{ height: '100%', width: '100%' }}
                 zoomControl={false}
             >
-                {/* Dark Mode Tiles */}
+                {/* ESRI World Dark Gray Canvas (Keyless, Zero Watermark) */}
                 <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                    attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                    maxZoom={16}
+                />
+                <TileLayer
+                    url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+                    attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                    maxZoom={16}
                 />
 
                 <MapUpdater center={center} />

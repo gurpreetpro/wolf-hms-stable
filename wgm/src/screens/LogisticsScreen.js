@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
-import { Text, Card, Avatar, Button, Modal, Portal, Provider, TextInput, RadioButton } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { Text, Card, Avatar, Button, Modal, Portal, Provider, TextInput } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ScreenShell from '../components/ScreenShell';
 import api from '../services/api';
+import { COLORS } from '../theme';
 
 export default function LogisticsScreen({ navigation }) {
-    const [viewMode, setViewMode] = useState('MENU'); // MENU, KEYS, PACKAGES, LOSTFOUND
+    const [viewMode, setViewMode] = useState('MENU'); // MENU, KEYS, PACKAGES
     const [loading, setLoading] = useState(false);
     
     // Key Data
@@ -23,7 +25,11 @@ export default function LogisticsScreen({ navigation }) {
         try {
             const res = await api.get('/logistics/keys');
             setKeys(res.data.data);
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { 
+            console.error(e); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const fetchPackages = async () => {
@@ -31,7 +37,11 @@ export default function LogisticsScreen({ navigation }) {
         try {
             const res = await api.get('/logistics/packages');
             setPackages(res.data.data);
-        } catch (e) { console.error(e); } finally { setLoading(false); }
+        } catch (e) { 
+            console.error(e); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const handleKeyAction = async () => {
@@ -47,7 +57,9 @@ export default function LogisticsScreen({ navigation }) {
             fetchKeys();
         } catch (e) {
             console.error('Key Action Failed');
-        } finally { setLoading(false); }
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     const submitPackage = async () => {
@@ -56,42 +68,75 @@ export default function LogisticsScreen({ navigation }) {
             await api.post('/logistics/packages', {
                 recipient_name: pkgForm.recipient,
                 courier_name: pkgForm.courier,
-                tracking_no: pkgForm.track
+                tracking_number: pkgForm.track
             });
             setPkgForm({ recipient: '', courier: '', track: '' });
-            fetchPackages(); // refresh list
-            alert("Package Logged");
-        } catch (e) { alert("Failed"); } finally { setLoading(false); }
+            fetchPackages();
+        } catch (e) { 
+            console.error(e); 
+        } finally { 
+            setLoading(false); 
+        }
     };
-
-    // --- Renderers ---
 
     const renderMenu = () => (
         <View style={styles.grid}>
-            <TouchableOpacity style={[styles.gridItem, {backgroundColor: '#FF9500'}]} onPress={() => { setViewMode('KEYS'); fetchKeys(); }}>
-                <MaterialCommunityIcons name="key-chain" size={40} color="white" />
-                <Text style={styles.gridLabel}>Key Management</Text>
+            <TouchableOpacity 
+                style={[styles.gridItem, { backgroundColor: COLORS.accentOrange }]} 
+                onPress={() => { setViewMode('KEYS'); fetchKeys(); }}
+                activeOpacity={0.8}
+            >
+                <MaterialCommunityIcons name="key-variant" size={40} color={COLORS.textPrimary} />
+                <Text style={styles.gridLabel}>Key Vault</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.gridItem, {backgroundColor: '#32ADE6'}]} onPress={() => { setViewMode('PACKAGES'); fetchPackages(); }}>
-                <MaterialCommunityIcons name="package-variant" size={40} color="white" />
+            
+            <TouchableOpacity 
+                style={[styles.gridItem, { backgroundColor: COLORS.accentBlue }]} 
+                onPress={() => { setViewMode('PACKAGES'); fetchPackages(); }}
+                activeOpacity={0.8}
+            >
+                <MaterialCommunityIcons name="truck-delivery" size={40} color={COLORS.textPrimary} />
                 <Text style={styles.gridLabel}>Courier / Packages</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.gridItem, {backgroundColor: '#AF52DE'}]} onPress={() => { setViewMode('LOSTFOUND'); }}>
-                <MaterialCommunityIcons name="bag-suitcase" size={40} color="white" />
+
+            <TouchableOpacity 
+                style={[styles.gridItem, { backgroundColor: COLORS.accentPurple }, styles.gridItemDisabled]} 
+                disabled={true} 
+                onPress={() => {}}
+            >
+                <MaterialCommunityIcons name="bag-suitcase" size={40} color={COLORS.textPrimary} style={styles.dimmedIcon} />
                 <Text style={styles.gridLabel}>Lost & Found</Text>
+                <View style={styles.comingSoonBadge}>
+                    <Text style={styles.comingSoonText}>COMING SOON</Text>
+                </View>
             </TouchableOpacity>
         </View>
     );
 
     const renderKeys = () => (
         <View>
-            <Button icon="refresh" mode="text" onPress={fetchKeys}>Refresh Inventory</Button>
+            <Button icon="refresh" mode="text" onPress={fetchKeys} textColor={COLORS.accent}>
+                Refresh Inventory
+            </Button>
             {keys.map(k => (
-                <Card key={k.id} style={styles.card} onPress={() => { setSelectedKey(k); setShowKeyModal(true); }}>
+                <Card 
+                    key={k.id} 
+                    style={styles.card} 
+                    onPress={() => { setSelectedKey(k); setShowKeyModal(true); }}
+                >
                     <Card.Title
                         title={k.key_name}
+                        titleStyle={{ color: COLORS.textPrimary, fontWeight: 'bold' }}
                         subtitle={k.status === 'AVAILABLE' ? 'In Cabinet' : `With: ${k.current_holder}`}
-                        left={(props) => <Avatar.Icon {...props} icon="key" style={{backgroundColor: k.status === 'AVAILABLE' ? '#4CD964' : '#FF3B30'}} />}
+                        subtitleStyle={{ color: COLORS.textMuted }}
+                        left={(props) => (
+                            <Avatar.Icon 
+                                {...props} 
+                                icon="key" 
+                                style={{ backgroundColor: k.status === 'AVAILABLE' ? COLORS.statusGreen : COLORS.statusRed }} 
+                                color={COLORS.textPrimary}
+                            />
+                        )}
                     />
                 </Card>
             ))}
@@ -102,21 +147,48 @@ export default function LogisticsScreen({ navigation }) {
         <View>
             <Card style={styles.card}>
                 <Card.Content>
-                    <Text style={{color:'white', marginBottom: 10, fontWeight: 'bold'}}>LOG INCOMING PACKAGE</Text>
-                    <TextInput label="Recipient Name (e.g. 302 Mr. Smith)" value={pkgForm.recipient} onChangeText={t => setPkgForm({...pkgForm, recipient: t})} style={styles.input} />
-                    <TextInput label="Courier (e.g. Amazon)" value={pkgForm.courier} onChangeText={t => setPkgForm({...pkgForm, courier: t})} style={styles.input} />
-                    <Button mode="contained" onPress={submitPackage} loading={loading} style={{marginTop: 10}}>LOG ARRIVAL</Button>
+                    <Text style={{ color: COLORS.textPrimary, marginBottom: 10, fontWeight: 'bold' }}>
+                        LOG INCOMING PACKAGE
+                    </Text>
+                    <TextInput 
+                        label="Recipient Name (e.g. 302 Mr. Smith)" 
+                        value={pkgForm.recipient} 
+                        onChangeText={t => setPkgForm({...pkgForm, recipient: t})} 
+                        style={styles.input} 
+                        mode="outlined"
+                        textColor={COLORS.textPrimary}
+                    />
+                    <TextInput 
+                        label="Courier (e.g. Amazon / BlueDart)" 
+                        value={pkgForm.courier} 
+                        onChangeText={t => setPkgForm({...pkgForm, courier: t})} 
+                        style={styles.input} 
+                        mode="outlined"
+                        textColor={COLORS.textPrimary}
+                    />
+                    <Button 
+                        mode="contained" 
+                        onPress={submitPackage} 
+                        loading={loading} 
+                        style={{ marginTop: 10, backgroundColor: COLORS.accentBlue }}
+                    >
+                        LOG ARRIVAL
+                    </Button>
                 </Card.Content>
             </Card>
             
-            <Text style={{color:'gray', margin: 10}}>RECENT ARRIVALS</Text>
+            <Text style={{ color: COLORS.textMuted, marginVertical: 12, fontWeight: 'bold', letterSpacing: 0.5 }}>
+                RECENT ARRIVALS
+            </Text>
             {packages.map(p => (
                 <View key={p.id} style={styles.pkgItem}>
                     <View>
-                        <Text style={{color:'white', fontWeight:'bold'}}>{p.recipient_name}</Text>
-                        <Text style={{color:'#aaa', fontSize: 12}}>{p.courier_name} • {new Date(p.created_at).toLocaleTimeString()}</Text>
+                        <Text style={{ color: COLORS.textPrimary, fontWeight: 'bold' }}>{p.recipient_name}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12 }}>
+                            {p.courier_name} • {new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
                     </View>
-                    <MaterialCommunityIcons name="check-circle" color="#4CD964" size={20} />
+                    <MaterialCommunityIcons name="check-circle" color={COLORS.statusGreen} size={22} />
                 </View>
             ))}
         </View>
@@ -124,70 +196,144 @@ export default function LogisticsScreen({ navigation }) {
 
     return (
         <Provider>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    {viewMode === 'MENU' ? (
-                         <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <MaterialCommunityIcons name="arrow-left" size={28} color="white" />
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity onPress={() => setViewMode('MENU')}>
-                            <MaterialCommunityIcons name="menu" size={28} color="white" />
-                        </TouchableOpacity>
-                    )}
-                    <Text style={styles.headerTitle}>
-                        {viewMode === 'MENU' ? 'Site Logistics' : viewMode}
-                    </Text>
-                    <View style={{width: 28}} />
-                </View>
+            <ScreenShell
+                title={viewMode === 'MENU' ? 'Logistics & Access' : viewMode === 'KEYS' ? 'Key Vault' : 'Package Log'}
+                badgeText="GATE"
+                badgeColor={COLORS.accentOrange}
+                showBack={true}
+                onBack={viewMode === 'MENU' ? () => navigation.goBack() : () => setViewMode('MENU')}
+            >
+                {viewMode === 'MENU' && renderMenu()}
+                {viewMode === 'KEYS' && renderKeys()}
+                {viewMode === 'PACKAGES' && renderPackages()}
 
-                <ScrollView style={styles.content}>
-                    {viewMode === 'MENU' && renderMenu()}
-                    {viewMode === 'KEYS' && renderKeys()}
-                    {viewMode === 'PACKAGES' && renderPackages()}
-                    {viewMode === 'LOSTFOUND' && <Text style={{color:'white', textAlign:'center', marginTop: 50}}>Feature Coming in v2.1</Text>}
-                </ScrollView>
-
-                {/* Key Modal */}
+                {/* Key Checkout Modal */}
                 <Portal>
-                    <Modal visible={showKeyModal} onDismiss={() => setShowKeyModal(false)} contentContainerStyle={styles.modal}>
+                    <Modal 
+                        visible={showKeyModal} 
+                        onDismiss={() => setShowKeyModal(false)} 
+                        contentContainerStyle={styles.modal}
+                    >
                         <Text style={styles.modalTitle}>{selectedKey?.key_name}</Text>
-                        <Text style={{color:'#aaa', textAlign:'center', marginBottom: 20}}>
-                            Currently: {selectedKey?.status}
+                        <Text style={{ color: COLORS.textMuted, marginBottom: 15, textAlign: 'center' }}>
+                            Status: {selectedKey?.status}
                         </Text>
                         
                         {selectedKey?.status === 'AVAILABLE' ? (
-                            <>
-                                <TextInput label="Checkout To (Name)" value={holderName} onChangeText={setHolderName} />
-                                <Button mode="contained" onPress={handleKeyAction} style={styles.modalBtn}>CHECK OUT</Button>
-                            </>
+                            <View>
+                                <TextInput 
+                                    label="Guard / Holder Name" 
+                                    value={holderName} 
+                                    onChangeText={setHolderName}
+                                    style={{ marginBottom: 15, backgroundColor: COLORS.surface }}
+                                    mode="outlined"
+                                    textColor={COLORS.textPrimary}
+                                />
+                                <Button 
+                                    mode="contained" 
+                                    onPress={handleKeyAction} 
+                                    loading={loading}
+                                    style={{ backgroundColor: COLORS.accentOrange }}
+                                >
+                                    CHECKOUT KEY
+                                </Button>
+                            </View>
                         ) : (
-                            <Button mode="contained" onPress={handleKeyAction} style={styles.modalBtn} buttonColor="#4CD964">MARK RETURNED</Button>
+                            <Button 
+                                mode="contained" 
+                                onPress={handleKeyAction} 
+                                loading={loading}
+                                style={{ backgroundColor: COLORS.statusGreen }}
+                            >
+                                RETURN KEY TO CABINET
+                            </Button>
                         )}
-                        <Button onPress={() => setShowKeyModal(false)} style={{marginTop: 10}}>Cancel</Button>
+                        <Button onPress={() => setShowKeyModal(false)} style={{ marginTop: 10 }}>
+                            Cancel
+                        </Button>
                     </Modal>
                 </Portal>
-            </View>
+            </ScreenShell>
         </Provider>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000' },
-    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 50, backgroundColor: '#1c1c1e' },
-    headerTitle: { color: 'white', fontSize: 18, fontWeight: 'bold' },
-    content: { padding: 20 },
-    
-    grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-    gridItem: { width: '48%', aspectRatio: 1, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginBottom: 15 },
-    gridLabel: { color: 'white', marginTop: 10, fontWeight: 'bold', textAlign: 'center' },
-
-    card: { backgroundColor: '#111', marginBottom: 10, borderColor:'#333', borderWidth: 1 },
-    input: { marginBottom: 10, backgroundColor: '#222' },
-    
-    pkgItem: { flexDirection: 'row', justifyContent:'space-between', padding: 15, borderBottomWidth: 1, borderBottomColor: '#222' },
-
-    modal: { backgroundColor: '#222', padding: 20, margin: 20, borderRadius: 10 },
-    modalTitle: { color: 'white', fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 5 },
-    modalBtn: { marginTop: 20 }
+    grid: { 
+        flexDirection: 'row', 
+        flexWrap: 'wrap', 
+        gap: 16, 
+        justifyContent: 'space-between',
+        paddingTop: 8,
+    },
+    gridItem: { 
+        width: '47%', 
+        height: 120, 
+        borderRadius: 18, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        elevation: 3,
+    },
+    gridItemDisabled: { 
+        opacity: 0.5 
+    },
+    dimmedIcon: { 
+        opacity: 0.7 
+    },
+    gridLabel: { 
+        color: COLORS.textPrimary, 
+        fontWeight: 'bold', 
+        marginTop: 10, 
+        fontSize: 14 
+    },
+    comingSoonBadge: { 
+        position: 'absolute', 
+        top: 8, 
+        right: 8, 
+        backgroundColor: COLORS.surfaceElevated, 
+        paddingHorizontal: 6, 
+        paddingVertical: 2, 
+        borderRadius: 4 
+    },
+    comingSoonText: { 
+        color: COLORS.accentOrange, 
+        fontSize: 9, 
+        fontWeight: 'bold' 
+    },
+    card: { 
+        marginBottom: 12, 
+        backgroundColor: COLORS.surface, 
+        borderColor: COLORS.border, 
+        borderWidth: 1,
+        borderRadius: 16,
+    },
+    input: { 
+        marginBottom: 12, 
+        backgroundColor: COLORS.surface 
+    },
+    pkgItem: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        backgroundColor: COLORS.surface, 
+        padding: 14, 
+        borderRadius: 12, 
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    modal: { 
+        backgroundColor: COLORS.surface, 
+        padding: 20, 
+        margin: 20, 
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    modalTitle: { 
+        color: COLORS.textPrimary, 
+        fontSize: 20, 
+        fontWeight: 'bold', 
+        textAlign: 'center' 
+    }
 });

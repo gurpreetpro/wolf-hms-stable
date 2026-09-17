@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Image, ScrollView } from 'react-native';
-import { Text, TextInput, Button, SegmentedButtons, Card, Avatar, ActivityIndicator, Modal, Portal, Provider } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
+import { Text, TextInput, Button, SegmentedButtons, Card, Portal, Provider } from 'react-native-paper';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ScreenShell from '../components/ScreenShell';
 import api from '../services/api';
+import { COLORS } from '../theme';
 
 export default function ParkingScreen({ navigation }) {
     const [mode, setMode] = useState('ENTRY'); // ENTRY | EXIT
@@ -31,10 +33,6 @@ export default function ParkingScreen({ navigation }) {
                 const photo = await cameraRef.takePictureAsync({ quality: 0.5, base64: true });
                 setCapturedImage(photo.uri);
                 setIsCameraOpen(false);
-                
-                // Simulate OCR for MVP
-                // In production, send photo.base64 to Google Cloud Vision API here
-                // setVehicleNo("KA 05 MN 1234"); 
             } catch (e) {
                 Alert.alert("Error", "Failed to capture image");
             }
@@ -51,7 +49,7 @@ export default function ParkingScreen({ navigation }) {
             const res = await api.post('/parking/entry', {
                 vehicle_no: vehicleNo,
                 vehicle_type: vehicleType,
-                image_url: capturedImage // In real app, upload first and send URL
+                image_url: capturedImage
             });
             if (res.data.success) {
                 Alert.alert("Success", "Vehicle Checked In");
@@ -113,7 +111,7 @@ export default function ParkingScreen({ navigation }) {
     if (!permission.granted) {
         return (
             <View style={styles.center}>
-                <Text>Camera permission is required for ANPR.</Text>
+                <Text style={{ color: COLORS.textPrimary }}>Camera permission is required for ANPR.</Text>
                 <Button onPress={requestPermission}>Grant Permission</Button>
             </View>
         );
@@ -122,7 +120,7 @@ export default function ParkingScreen({ navigation }) {
     // --- Camera View Overlay ---
     if (isCameraOpen) {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, backgroundColor: COLORS.background }}>
                 <CameraView style={{ flex: 1 }} ref={ref => setCameraRef(ref)}>
                     <View style={styles.camOverlay}>
                         <Text style={styles.camText}>Align Plate in Box</Text>
@@ -141,95 +139,94 @@ export default function ParkingScreen({ navigation }) {
 
     return (
         <Provider>
-            <View style={styles.container}>
-                {/* Header */}
-                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={{marginRight: 10}}>
-                        <MaterialCommunityIcons name="arrow-left" size={28} color="white" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Wolf Parking System</Text>
-                </View>
+            <ScreenShell 
+                title="Wolf Parking System" 
+                badgeText="GATE" 
+                badgeColor={COLORS.accentOrange}
+                showBack={true}
+            >
+                <SegmentedButtons
+                    value={mode}
+                    onValueChange={setMode}
+                    buttons={[
+                        { value: 'ENTRY', label: 'ENTRY (Check-In)', icon: 'login' },
+                        { value: 'EXIT', label: 'EXIT (Payment)', icon: 'logout' },
+                    ]}
+                    style={{ marginBottom: 16 }}
+                />
 
-                <View style={{padding: 15}}>
-                    <SegmentedButtons
-                        value={mode}
-                        onValueChange={setMode}
-                        buttons={[
-                            { value: 'ENTRY', label: 'ENTRY (Check-In)', icon: 'login' },
-                            { value: 'EXIT', label: 'EXIT (Payment)', icon: 'logout' },
-                        ]}
-                        style={{marginBottom: 20}}
-                    />
+                <Card style={styles.card}>
+                    <Card.Content>
+                        <Text style={styles.label}>VEHICLE PLATE ANPR</Text>
+                        
+                        <View style={styles.inputRow}>
+                            <TextInput
+                                mode="outlined"
+                                label="Vehicle Number (e.g. KA05MN1234)"
+                                value={vehicleNo}
+                                onChangeText={t => setVehicleNo(t.toUpperCase())}
+                                style={{ flex: 1, backgroundColor: COLORS.surface }}
+                                textColor={COLORS.textPrimary}
+                                right={<TextInput.Icon icon="camera" onPress={() => setIsCameraOpen(true)} color={COLORS.accent} />}
+                            />
+                        </View>
 
-                    <Card style={styles.card}>
-                        <Card.Content>
-                            <Text style={styles.label}>VEHICLE PLATE ANPR</Text>
-                            
-                            <View style={styles.inputRow}>
-                                <TextInput
-                                    mode="outlined"
-                                    label="Vehicle Number (e.g. KA05MN1234)"
-                                    value={vehicleNo}
-                                    onChangeText={t => setVehicleNo(t.toUpperCase())}
-                                    style={{flex: 1, backgroundColor: '#1c1c1e'}}
-                                    textColor="white"
-                                    right={<TextInput.Icon icon="camera" onPress={() => setIsCameraOpen(true)} color="#00f3ff"/>}
-                                />
-                            </View>
+                        {mode === 'ENTRY' && (
+                            <>
+                                <Text style={[styles.label, { marginTop: 15 }]}>VEHICLE TYPE</Text>
+                                <View style={styles.typeRow}>
+                                    {['CAR', 'BIKE', 'TRUCK'].map(t => (
+                                        <TouchableOpacity 
+                                            key={t} 
+                                            style={[styles.typeBtn, vehicleType === t && styles.activeType]}
+                                            onPress={() => setVehicleType(t)}
+                                        >
+                                            <MaterialCommunityIcons 
+                                                name={t === 'BIKE' ? 'motorbike' : t.toLowerCase()} 
+                                                size={24} 
+                                                color={vehicleType === t ? COLORS.onAccent : COLORS.textMuted} 
+                                            />
+                                            <Text style={{ color: vehicleType === t ? COLORS.onAccent : COLORS.textMuted, fontSize: 12 }}>{t}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                                
+                                <Button 
+                                    mode="text" 
+                                    icon="car-wrench" 
+                                    textColor={COLORS.statusRed}
+                                    onPress={() => navigation.navigate('VehicleInspection', { vehicle_no: vehicleNo })}
+                                >
+                                    Log Existing Damage (Inspection)
+                                </Button>
+                            </>
+                        )}
 
-                            {mode === 'ENTRY' && (
-                                <>
-                                    <Text style={[styles.label, {marginTop: 15}]}>VEHICLE TYPE</Text>
-                                    <View style={styles.typeRow}>
-                                        {['CAR', 'BIKE', 'TRUCK'].map(t => (
-                                            <TouchableOpacity 
-                                                key={t} 
-                                                style={[styles.typeBtn, vehicleType === t && styles.activeType]}
-                                                onPress={() => setVehicleType(t)}
-                                            >
-                                                <MaterialCommunityIcons name={t === 'BIKE' ? 'motorbike' : t.toLowerCase()} size={24} color={vehicleType === t ? 'black' : 'gray'} />
-                                                <Text style={{color: vehicleType === t ? 'black' : 'gray', fontSize: 12}}>{t}</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                    
-                                    <Button 
-                                        mode="text" 
-                                        icon="car-wrench" 
-                                        textColor="#FF3B30"
-                                        onPress={() => navigation.navigate('VehicleInspection', { vehicle_no: vehicleNo })}
-                                    >
-                                        Log Existing Damage (Inspection)
-                                    </Button>
-                                </>
-                            )}
+                        {capturedImage && (
+                            <Image source={{ uri: capturedImage }} style={styles.previewImg} />
+                        )}
 
-                            {capturedImage && (
-                                <Image source={{uri: capturedImage}} style={styles.previewImg} />
-                            )}
-
-                            <Button 
-                                mode="contained" 
-                                style={styles.actionBtn}
-                                loading={loading}
-                                onPress={mode === 'ENTRY' ? submitEntry : calculateExit}
-                            >
-                                {mode === 'ENTRY' ? 'CHECK IN VEHICLE' : 'CALCULATE FEE'}
-                            </Button>
-                        </Card.Content>
-                    </Card>
-                </View>
+                        <Button 
+                            mode="contained" 
+                            style={styles.actionBtn}
+                            loading={loading}
+                            onPress={mode === 'ENTRY' ? submitEntry : calculateExit}
+                        >
+                            {mode === 'ENTRY' ? 'CHECK IN VEHICLE' : 'CALCULATE FEE'}
+                        </Button>
+                    </Card.Content>
+                </Card>
 
                 {/* Payment Modal */}
                 <Portal>
                     <Modal visible={showPaymentModal} onDismiss={() => setShowPaymentModal(false)} contentContainerStyle={styles.modal}>
                         <Text style={styles.modalTitle}>PAYMENT DUE</Text>
                         <View style={styles.billRow}>
-                            <Text style={{color:'#aaa'}}>Duration:</Text>
+                            <Text style={{ color: COLORS.textMuted }}>Duration:</Text>
                             <Text style={styles.billVal}>{exitData?.duration_formatted}</Text>
                         </View>
                         <View style={styles.billRow}>
-                            <Text style={{color:'#aaa'}}>Rate:</Text>
+                            <Text style={{ color: COLORS.textMuted }}>Rate:</Text>
                             <Text style={styles.billVal}>₹{exitData?.rate_per_hour}/hr</Text>
                         </View>
                         <View style={styles.totalRow}>
@@ -237,52 +234,50 @@ export default function ParkingScreen({ navigation }) {
                             <Text style={styles.totalVal}>₹{exitData?.amount_due}</Text>
                         </View>
 
-                        <Text style={{color:'#666', marginBottom: 10, textAlign:'center'}}>Select Payment Method:</Text>
+                        <Text style={{ color: COLORS.textMuted, marginBottom: 10, textAlign: 'center' }}>Select Payment Method:</Text>
                         <View style={styles.payBtns}>
-                            <Button mode="contained" onPress={() => confirmPayment('CASH')} style={[styles.payBtn, {backgroundColor: '#4CD964'}]}>
+                            <Button mode="contained" onPress={() => confirmPayment('CASH')} style={[styles.payBtn, { backgroundColor: COLORS.statusGreen }]}>
                                 💵 CASH
                             </Button>
-                            <Button mode="contained" onPress={() => confirmPayment('UPI')} style={[styles.payBtn, {backgroundColor: '#FF9500'}]}>
+                            <Button mode="contained" onPress={() => confirmPayment('UPI')} style={[styles.payBtn, { backgroundColor: COLORS.accentOrange }]}>
                                 📱 UPI
                             </Button>
                         </View>
-                        <Button onPress={() => setShowPaymentModal(false)} style={{marginTop: 10}}>Cancel</Button>
+                        <Button onPress={() => setShowPaymentModal(false)} style={{ marginTop: 10 }}>Cancel</Button>
                     </Modal>
                 </Portal>
-            </View>
+            </ScreenShell>
         </Provider>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: { flexDirection: 'row', alignItems: 'center', padding: 20, paddingTop: 50, backgroundColor: '#1c1c1e' },
-    headerTitle: { color: 'white', fontSize: 20, fontWeight: 'bold' },
-    card: { backgroundColor: '#111', borderColor: '#333', borderWidth: 1 },
-    label: { color: '#666', fontSize: 12, marginBottom: 5, fontWeight: 'bold' },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
+    card: { backgroundColor: COLORS.surface, borderColor: COLORS.border, borderWidth: 1, borderRadius: 16 },
+    label: { color: COLORS.textMuted, fontSize: 12, marginBottom: 5, fontWeight: 'bold' },
+    inputRow: { flexDirection: 'row', alignItems: 'center' },
     typeRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-    typeBtn: { flex: 1, alignItems: 'center', padding: 10, borderWidth: 1, borderColor: '#333', borderRadius: 8, marginHorizontal: 5 },
-    activeType: { backgroundColor: '#00f3ff', borderColor: '#00f3ff' },
+    typeBtn: { flex: 1, alignItems: 'center', padding: 10, borderWidth: 1, borderColor: COLORS.border, borderRadius: 8, marginHorizontal: 5 },
+    activeType: { backgroundColor: COLORS.accent, borderColor: COLORS.accent },
     previewImg: { width: '100%', height: 150, borderRadius: 10, marginTop: 15 },
-    actionBtn: { marginTop: 20, backgroundColor: '#00f3ff', borderRadius: 8, paddingVertical: 5 },
+    actionBtn: { marginTop: 20, backgroundColor: COLORS.accent, borderRadius: 8, paddingVertical: 5 },
     
     // Camera
-    camOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    scanBox: { width: 300, height: 100, borderWidth: 2, borderColor: '#00f3ff', borderRadius: 10 },
-    camText: { color: 'white', marginBottom: 20, fontSize: 18, fontWeight: 'bold' },
-    captureBtn: { width: 70, height: 70, borderRadius: 35, backgroundColor: 'white', position: 'absolute', bottom: 50, justifyContent: 'center', alignItems: 'center' },
-    captureInner: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: 'black' },
+    camOverlay: { flex: 1, backgroundColor: COLORS.scrim, justifyContent: 'center', alignItems: 'center' },
+    scanBox: { width: 300, height: 100, borderWidth: 2, borderColor: COLORS.accent, borderRadius: 10 },
+    camText: { color: COLORS.textPrimary, marginBottom: 20, fontSize: 18, fontWeight: 'bold' },
+    captureBtn: { width: 70, height: 70, borderRadius: 35, backgroundColor: COLORS.textPrimary, position: 'absolute', bottom: 50, justifyContent: 'center', alignItems: 'center' },
+    captureInner: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: COLORS.onAccent },
     closeCam: { position: 'absolute', top: 50, right: 20 },
 
     // Modal
-    modal: { backgroundColor: '#1c1c1e', padding: 20, margin: 20, borderRadius: 15 },
-    modalTitle: { color: 'white', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+    modal: { backgroundColor: COLORS.surface, padding: 20, margin: 20, borderRadius: 15 },
+    modalTitle: { color: COLORS.textPrimary, fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
     billRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    billVal: { color: 'white', fontWeight: 'bold' },
-    totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderTopColor: '#333', marginBottom: 20 },
-    totalLabel: { color: '#00f3ff', fontSize: 18, fontWeight: 'bold' },
-    totalVal: { color: '#00f3ff', fontSize: 24, fontWeight: 'bold' },
+    billVal: { color: COLORS.textPrimary, fontWeight: 'bold' },
+    totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderTopColor: COLORS.border, marginBottom: 20 },
+    totalLabel: { color: COLORS.accent, fontSize: 18, fontWeight: 'bold' },
+    totalVal: { color: COLORS.accent, fontSize: 24, fontWeight: 'bold' },
     payBtns: { flexDirection: 'row', gap: 10 },
     payBtn: { flex: 1 }
 });

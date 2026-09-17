@@ -15,10 +15,23 @@ class StepDetector {
         // State
         this.lastMag = 0;
         this.isPeak = false;
+        this.cycleMax = 0;
+        this.cycleMin = 999;
+        this.weinbergK = 0.40; // Calibrated Weinberg stride constant
         
         // Low Pass Filter
         this.gravity = { x: 0, y: 0, z: 0 };
         this.alpha = 0.8; // Filter factor
+    }
+
+    /**
+     * Set Weinberg calibration constant (k) based on user height
+     * Typically 0.38 - 0.43 for adult walking
+     */
+    setWeinbergK(k) {
+        if (k > 0.2 && k < 0.8) {
+            this.weinbergK = k;
+        }
     }
 
     /**
@@ -47,48 +60,62 @@ class StepDetector {
         const y = accel.y - this.gravity.y;
         const z = accel.z - this.gravity.z;
 
-        // 3. Magnitude Calculation
-        const magnitude = Math.sqrt(x*x + y*y + z*z);
+        // 3. Magnitude Calculation (in m/s^2: 1g ≈ 9.80665 m/s^2)
+        const gMag = Math.sqrt(x*x + y*y + z*z);
+        const accelMps2 = gMag * 9.80665;
+
+        // Track peak and trough for Weinberg stride estimation
+        if (accelMps2 > this.cycleMax) this.cycleMax = accelMps2;
+        if (accelMps2 < this.cycleMin) this.cycleMin = accelMps2;
 
         // 4. Peak Detection Logic (Simple Crossing)
-        // Check if we crossed the threshold
-        if (magnitude > this.threshold) {
-            // We are in a potential step peak
+        if (gMag > this.threshold) {
             if (!this.isPeak) {
-                // Rising edge
                 this.isPeak = true;
             }
         } else {
-            // Falling edge
             if (this.isPeak) {
-                // We just finished a peak - Register Step?
                 this.isPeak = false;
-                this.tryRegisterStep(timestamp, magnitude);
+                this.tryRegisterStep(timestamp, gMag);
             }
         }
 
-        this.lastMag = magnitude;
+        this.lastMag = gMag;
     }
 
     tryRegisterStep(timestamp, magnitude) {
-        // Debounce
         if (timestamp - this.lastStepTime > this.minStepDelay) {
             this.lastStepTime = timestamp;
-            this.emitStep(magnitude);
+
+            // Weinberg Stride Length Formula:
+            // L = k * (a_max - a_min)^(1/4)
+            const accelDelta = Math.max(0.1, this.cycleMax - (this.cycleMin < 900 ? this.cycleMin : 0));
+            const rawStride = this.weinbergK * Math.pow(accelDelta, 0.25);
+            // Clamped between 0.45m (shuffling/indoor) and 1.20m (fast stride)
+            const strideLength = Math.max(0.45, Math.min(1.20, parseFloat(rawStride.toFixed(3))));
+
+            this.emitStep(magnitude, strideLength);
+
+            // Reset cycle min/max for next step
+            this.cycleMax = 0;
+            this.cycleMin = 999;
         }
     }
 
-    emitStep(magnitude) {
+    emitStep(magnitude, strideLength = 0.75) {
         for (const listener of this.listeners) {
             listener({
                 timestamp: this.lastStepTime,
-                force: magnitude
+                force: magnitude,
+                strideLength: strideLength
             });
         }
     }
     
     reset() {
         this.lastStepTime = 0;
+        this.cycleMax = 0;
+        this.cycleMin = 999;
         this.gravity = { x: 0, y: 0, z: 0 };
     }
 }

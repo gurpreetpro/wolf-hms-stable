@@ -50,6 +50,7 @@ import AdminRecoveryConsole from './pages/AdminRecoveryConsole'; // Admin Recove
 import DoctorReviewsPanel from './components/DoctorReviewsPanel'; // Wolf Care Reviews
 import ArticlesManager from './components/ArticlesManager'; // Wolf Care Health Articles
 import HomeCollectionDashboard from './components/HomeCollectionDashboard'; // Wolf Care Home Lab
+const FloorPlanManager = React.lazy(() => import('./components/admin/FloorPlanManager'));
 import ErrorBoundary from './components/ErrorBoundary';
 import PlatformDashboard from './pages/PlatformDashboard'; // Platform Control Plane
 import NotificationToast from './components/NotificationToast'; // Real-time notifications
@@ -420,6 +421,7 @@ function App() {
                     <Route path="/admin/problem-list" element={<ProblemListManager />} />
                     <Route path="/admin/transition-planner" element={<TransitionPlanner />} />
                     <Route path="/admin/ward-pass" element={<WardPassManager />} />
+                    <Route path="/admin/floor-plans" element={<React.Suspense fallback={<div className="p-4 text-center text-muted">Loading Floor Plan Studio...</div>}><FloorPlanManager /></React.Suspense>} />
                   </Route>
                 </Route>
 
@@ -446,6 +448,7 @@ function App() {
                     <Route path="/security/control" element={<GuardCommandCentre />} />
                     <Route path="/security/visitors" element={<VisitorManagement />} />
                     <Route path="/reception/visitors" element={<VisitorManagement />} />
+                    <Route path="/security/floor-plans" element={<React.Suspense fallback={<div className="p-4 text-center text-muted">Loading Floor Plan Studio...</div>}><FloorPlanManager /></React.Suspense>} />
                   </Route>
                 </Route>
 

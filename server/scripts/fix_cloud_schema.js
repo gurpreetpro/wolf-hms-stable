@@ -1,7 +1,7 @@
 const https = require('https');
 
 const data = JSON.stringify({
-    setupKey: 'WolfSetup2024!',
+    setupKey: process.env.SETUP_KEY || '',
     sql: 'ALTER TABLE users ADD COLUMN IF NOT EXISTS security_question VARCHAR(255); ALTER TABLE users ADD COLUMN IF NOT EXISTS security_answer VARCHAR(255);'
 });
 

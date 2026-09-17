@@ -1,7 +1,7 @@
 /**
  * API Response Helpers Unit Tests
  */
-const { success, error, notFound, paginated } = require('../../utils/apiResponse');
+const { success, error, notFound, paginated } = require('../utils/apiResponse');
 
 // Mock response object
 const mockRes = () => {

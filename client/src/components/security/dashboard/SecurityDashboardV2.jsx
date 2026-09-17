@@ -2,7 +2,7 @@ import React, { useReducer, useEffect, useState, useCallback } from 'react';
 import {
     Shield, Building2, Mic, MicOff, Volume2, VolumeX,
     RefreshCw, Radio, Bell, Lock, Camera, Printer, Settings,
-    Activity, Users, MapPin, ChevronDown
+    Activity, Users, MapPin, ChevronDown, Sliders, Upload, Compass
 } from 'lucide-react';
 import AlertBanner from './AlertBanner';
 import GuardCard from './GuardCard';
@@ -17,6 +17,7 @@ import WidgetErrorBoundary from '../../WidgetErrorBoundary';
 import VoiceChannelBar from './VoiceChannelBar';
 import PatrolReportModal from './PatrolReportModal';
 import AlertSettingsModal from './AlertSettingsModal';
+import FloorPlanStudioModal from '../studio/FloorPlanStudioModal';
 import { connectSocket, subscribeToEvent, unsubscribeFromEvent } from '../../../services/socket';
 import api from '../../../utils/axiosInstance';
 import './SecurityDashboard.css';
@@ -121,6 +122,10 @@ const SecurityDashboardV2Inner = () => {
     const [showPatrolReport, setShowPatrolReport] = useState(false);
     const [showAlertSettings, setShowAlertSettings] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [activeFloor, setActiveFloor] = useState(1);
+    const [floorPlans, setFloorPlans] = useState([]);
+    const [currentFloorPlan, setCurrentFloorPlan] = useState(null);
+    const [showStudioModal, setShowStudioModal] = useState(false);
 
     // Use language context for translations
     const { t } = useLanguage();
@@ -150,6 +155,8 @@ const SecurityDashboardV2Inner = () => {
                     heading: g.heading,
                     speed: g.speed,
                     batteryLevel: g.battery_level,
+                    floor_number: g.floor_number || 1,
+                    altitude: g.altitude || 0,
                     shiftStart: g.shift_start,
                     shiftEnd: g.shift_end,
                     lastUpdate: g.last_update
@@ -191,6 +198,25 @@ const SecurityDashboardV2Inner = () => {
         });
         setIsRefreshing(false);
     }, []);
+
+    // Fetch calibrated floor plan maps
+    const fetchFloorPlans = useCallback(async (floorNum = 1) => {
+        try {
+            const res = await api.get(`/api/security/maps/active?floor=${floorNum}`);
+            if (res.data?.success) {
+                setCurrentFloorPlan(res.data.data);
+                if (res.data.floors) {
+                    setFloorPlans(res.data.floors);
+                }
+            }
+        } catch (e) {
+            console.warn('[SecurityDashboard] Failed to fetch active floor map:', e);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchFloorPlans(1);
+    }, [fetchFloorPlans]);
 
     // Socket connection
     useEffect(() => {
@@ -497,18 +523,84 @@ const SecurityDashboardV2Inner = () => {
                 {/* Right: Map (40%) */}
                 <section className="map-section">
                     <div className="map-section-header">
-                        <h2 className="map-section-title">Live Map</h2>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <h2 className="map-section-title mb-0">Live Tactical Map</h2>
+                            <button 
+                                className="btn-upload-blueprint-glow"
+                                onClick={() => setShowStudioModal(true)}
+                                title="Upload hospital floor layout (CAD/SVG/PNG) and align with satellite coordinates"
+                            >
+                                <Upload size={13} />
+                                <span>Upload Floor Plan & Align</span>
+                            </button>
+                        </div>
+                        <div className="floor-selector-strip d-flex align-items-center">
+                            <span className="floor-selector-label">LEVEL:</span>
+                            {[-1, 1, 2, 3, 4].map(fl => (
+                                <button
+                                    key={fl}
+                                    className={`floor-btn ${activeFloor === fl ? 'active' : ''}`}
+                                    onClick={() => {
+                                        setActiveFloor(fl);
+                                        fetchFloorPlans(fl);
+                                    }}
+                                >
+                                    {fl <= 0 ? `B${Math.abs(fl) + 1}` : `L${fl}`}
+                                </button>
+                            ))}
+                            <button
+                                className="floor-btn studio-btn"
+                                title="Open Georeferencing Studio"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    background: 'rgba(0, 240, 255, 0.15)',
+                                    border: '1px solid rgba(0, 240, 255, 0.4)',
+                                    color: '#00f0ff',
+                                    padding: '2px 8px',
+                                    fontSize: '11px',
+                                    borderRadius: '4px',
+                                    marginLeft: '6px'
+                                }}
+                                onClick={() => setShowStudioModal(true)}
+                            >
+                                <Sliders size={12} /> 📐 Studio
+                            </button>
+                        </div>
                     </div>
+                    {(!currentFloorPlan?.blueprint_file || 
+                      currentFloorPlan?.calibration_status === 'coarse_aligned') && (
+                        <div className="blueprint-alert-banner" onClick={() => setShowStudioModal(true)}>
+                            <div className="d-flex align-items-center gap-2">
+                                <Compass size={16} className="text-warning flex-shrink-0" />
+                                <span>
+                                    <strong>Level {activeFloor <= 0 ? `B${Math.abs(activeFloor)+1}` : `L${activeFloor}`}:</strong> No calibrated layout. Upload your hospital floor plan to align walls with GPS coordinates.
+                                </span>
+                            </div>
+                            <button className="btn-studio-action">
+                                <Upload size={13} /> Upload & Align
+                            </button>
+                        </div>
+                    )}
                     <WidgetErrorBoundary name="Live Overwatch Map">
                         <LiveOverwatchMap
                             guards={state.guards}
                             selectedGuard={state.selectedGuard}
-                            onSelectGuard={(g) => dispatch({ type: 'SELECT_GUARD', payload: g })}
+                            onSelectGuard={(g) => {
+                                dispatch({ type: 'SELECT_GUARD', payload: g });
+                                if (g?.floor_number && g.floor_number !== activeFloor) {
+                                    setActiveFloor(g.floor_number);
+                                    fetchFloorPlans(g.floor_number);
+                                }
+                            }}
+                            floorPlan={currentFloorPlan}
                             hospitalLocation={{
                                 latitude: state.hospitalLatitude,
                                 longitude: state.hospitalLongitude,
                                 name: state.hospitalName
                             }}
+                            onOpenStudio={() => setShowStudioModal(true)}
                         />
                     </WidgetErrorBoundary>
                 </section>
@@ -595,6 +687,14 @@ const SecurityDashboardV2Inner = () => {
                     onClose={() => setShowAlertSettings(false)}
                 />
             )}
+
+            {/* Georeferencing Studio Modal */}
+            <FloorPlanStudioModal
+                isOpen={showStudioModal}
+                onClose={() => setShowStudioModal(false)}
+                initialFloor={activeFloor}
+                onSaveSuccess={() => fetchFloorPlans(activeFloor)}
+            />
         </div>
     );
 };

@@ -7,7 +7,7 @@
 const http = require('http');
 
 const API_BASE = 'http://localhost:8080';
-const SETUP_KEY = 'WolfSetup2024!';
+const SETUP_KEY = process.env.SETUP_KEY || '';
 
 function execSQL(sql) {
     return new Promise((resolve, reject) => {

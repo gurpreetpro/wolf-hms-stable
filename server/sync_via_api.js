@@ -7,7 +7,7 @@ const axios = require('axios');
 const fs = require('fs');
 
 const CLOUD_URL = 'https://wolf-tech-server-708086797390.asia-south1.run.app';
-const SETUP_KEY = 'WolfSetup2024!';
+const SETUP_KEY = process.env.SETUP_KEY || '';
 const DUMP_FILE = 'database_dump_clean.sql';
 
 async function execSQL(sql) {

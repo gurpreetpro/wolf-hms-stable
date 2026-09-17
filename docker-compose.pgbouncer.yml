@@ -1,0 +1,56 @@
+version: '3.8'
+
+# ==============================================================================
+# PgBouncer Reference Architecture for Wolf HMS Production
+# Part of Phase 4 Hardening (W3) — Reference Artifact for Operator
+# ==============================================================================
+# PgBouncer sits in front of PostgreSQL (wolf_fitness_db container) in
+# TRANSACTION pooling mode, allowing hundreds of concurrent API worker processes
+# to multiplex across a small pool of Postgres server backend connections.
+# ==============================================================================
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.22.1
+    container_name: wolf_pgbouncer
+    restart: unless-stopped
+    ports:
+      - "6432:6432"
+    environment:
+      # Target PostgreSQL instance (Docker network or host bridge)
+      - DB_USER=${DB_USER:-wolf}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_HOST=${DB_HOST:-wolf_fitness_db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-wolf_hms_prod}
+
+      # Pooling mode: transaction mode allows multiplexing per SQL transaction
+      - POOL_MODE=transaction
+      - DEFAULT_POOL_SIZE=${PGBOUNCER_POOL_SIZE:-25}
+      - MIN_POOL_SIZE=5
+      - RESERVE_POOL_SIZE=5
+      - MAX_CLIENT_CONN=${PGBOUNCER_MAX_CLIENT_CONN:-500}
+      - MAX_DB_CONNECTIONS=50
+
+      # Timeouts & Keepalive
+      - SERVER_IDLE_TIMEOUT=60
+      - CLIENT_IDLE_TIMEOUT=0
+      - QUERY_TIMEOUT=120
+      - IDLE_TRANSACTION_TIMEOUT=60
+
+      # Authentication
+      - AUTH_TYPE=scram-sha-256
+      - ADMIN_USERS=wolf,admin
+      - STATS_USERS=wolf_monitor
+
+    networks:
+      - wolf_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${DB_USER:-wolf} -d ${DB_NAME:-wolf_hms_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  wolf_net:
+    external: true

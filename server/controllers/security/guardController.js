@@ -9,18 +9,20 @@ const pool = require('../../config/db');
 
 // GET /api/security/guards/online — Get online guards with recent locations
 const getOnlineGuards = asyncHandler(async (req, res) => {
-    const hospital_id = req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
     try {
         const result = await pool.query(`
             SELECT
                 u.id as guard_id,
                 u.username,
-                u.photo_url,
+                COALESCE(u.profile_image, '') as photo_url,
                 gl.latitude::float,
                 gl.longitude::float,
                 gl.heading::float,
                 gl.speed::float,
                 gl.battery_level,
+                COALESCE(gl.floor_number, 1) as floor_number,
+                COALESCE(gl.altitude, 0)::float as altitude,
                 gl."timestamp" as last_update,
                 CASE WHEN gl."timestamp" > NOW() - INTERVAL '30 minutes'
                     THEN 'ONLINE' ELSE 'OFFLINE' END as status,
@@ -44,14 +46,14 @@ const getOnlineGuards = asyncHandler(async (req, res) => {
         `, [hospital_id]);
         return res.json({ success: true, data: result.rows });
     } catch (err) {
-        console.warn('[GuardController] getOnlineGuards error:', err.message);
-        return res.json({ success: true, data: [] });
+        console.error('[GuardController] getOnlineGuards error:', err);
+        return res.status(500).json({ success: false, error: err.message, data: [] });
     }
 });
 
 // GET /api/security/patrols/active — Get active patrols (fallback endpoint)
 const getActivePatrols = asyncHandler(async (req, res) => {
-    const hospital_id = req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
 
     try {
         // Try guard_locations first
@@ -98,8 +100,8 @@ const getActivePatrols = asyncHandler(async (req, res) => {
 
         return res.json({ success: true, data: patrols });
     } catch (err) {
-        console.warn('[GuardController] getActivePatrols error:', err.message);
-        return res.json({ success: true, data: [] });
+        console.error('[GuardController] getActivePatrols error:', err);
+        return res.status(500).json({ success: false, error: err.message, data: [] });
     }
 });
 
@@ -114,6 +116,7 @@ const pingGuard = asyncHandler(async (req, res) => {
     // Emit via socket
     if (req.io) {
         req.io.to(`guard_${guardId}`).emit('ping', {
+            guardId: Number(guardId),
             from: req.user?.username || 'Command Centre',
             timestamp: new Date().toISOString()
         });
@@ -124,7 +127,7 @@ const pingGuard = asyncHandler(async (req, res) => {
 
 // POST /api/security/guards/ping-all — Ping all online guards
 const pingAllGuards = asyncHandler(async (req, res) => {
-    const hospital_id = req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
 
     try {
         const result = await pool.query(
@@ -139,6 +142,7 @@ const pingAllGuards = asyncHandler(async (req, res) => {
         if (req.io) {
             result.rows.forEach(r => {
                 req.io.to(`guard_${r.id}`).emit('ping', {
+                    guardId: Number(r.id),
                     from: req.user?.username || 'Command Centre',
                     timestamp: new Date().toISOString()
                 });
@@ -164,6 +168,7 @@ const requestPhoto = asyncHandler(async (req, res) => {
 
     if (req.io) {
         req.io.to(`guard_${guardId}`).emit('request_photo', {
+            guardId: Number(guardId),
             from: req.user?.username || 'Command Centre',
             timestamp: new Date().toISOString()
         });
@@ -177,13 +182,50 @@ const updateLocation = asyncHandler(async (req, res) => {
     const {
         latitude, longitude, accuracy, heading, speed,
         batteryLevel, signalStrength,
-        isOfflineSync, isMapping, sessionId
+        isOfflineSync, isMapping, sessionId,
+        floor_number, floor, altitude
     } = req.body;
     const guard_id = req.user?.id;
-    const hospital_id = req.user?.hospital_id || req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
 
     if (!guard_id) {
         return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const resolvedFloor = parseInt(floor_number || floor || 1, 10) || 1;
+    const resolvedAltitude = parseFloat(altitude || 0) || 0;
+
+    // Validate coordinates
+    if (latitude == null || longitude == null || isNaN(Number(latitude)) || isNaN(Number(longitude))) {
+        return res.status(400).json({ success: false, error: 'Valid latitude and longitude are required' });
+    }
+
+    // Sanitize batteryLevel: handles float fraction (e.g. 0.945 -> 95) or integer (0-100)
+    let battery = null;
+    if (batteryLevel != null && batteryLevel !== '') {
+        const b = Number(batteryLevel);
+        if (!isNaN(b)) {
+            const pct = (b <= 1 && b > 0) ? b * 100 : b;
+            battery = Math.min(100, Math.max(0, Math.round(pct)));
+        }
+    }
+
+    // Sanitize signalStrength: handles negative dBm (e.g. -65 dBm -> 5 bars) or integer (0-5)
+    let signal = null;
+    if (signalStrength != null && signalStrength !== '') {
+        const s = Number(signalStrength);
+        if (!isNaN(s)) {
+            if (s < 0) {
+                // Map cellular/Wi-Fi dBm to 1-5 signal bars
+                if (s >= -65) signal = 5;
+                else if (s >= -75) signal = 4;
+                else if (s >= -85) signal = 3;
+                else if (s >= -95) signal = 2;
+                else signal = 1;
+            } else {
+                signal = Math.min(5, Math.max(0, Math.round(s)));
+            }
+        }
     }
 
     try {
@@ -191,13 +233,14 @@ const updateLocation = asyncHandler(async (req, res) => {
             INSERT INTO guard_locations
             (guard_id, latitude, longitude, accuracy, heading, speed,
              battery_level, signal_strength, is_offline_sync, is_mapping,
-             session_id, hospital_id, "timestamp")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+             session_id, hospital_id, floor_number, altitude, "timestamp")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
         `, [
             guard_id, latitude, longitude, accuracy || null, heading || null, speed || null,
-            batteryLevel ?? null, signalStrength ?? null,
+            battery, signal,
             isOfflineSync ?? false, isMapping ?? false,
-            sessionId ?? null, hospital_id
+            sessionId ?? null, hospital_id,
+            resolvedFloor, resolvedAltitude
         ]);
 
         if (req.io) {
@@ -205,7 +248,10 @@ const updateLocation = asyncHandler(async (req, res) => {
                 guard_id,
                 username: req.user?.username,
                 latitude, longitude, heading, speed,
-                batteryLevel,
+                batteryLevel: battery,
+                signalStrength: signal,
+                floor_number: resolvedFloor,
+                altitude: resolvedAltitude,
                 timestamp: new Date().toISOString(),
                 status: 'ONLINE'
             });
@@ -213,7 +259,7 @@ const updateLocation = asyncHandler(async (req, res) => {
 
         return res.json({ success: true });
     } catch (err) {
-        console.error('[GuardController] updateLocation error:', err.message);
+        console.error('[GuardController] updateLocation error:', err);
         return res.status(500).json({ success: false, error: err.message });
     }
 });
@@ -221,7 +267,7 @@ const updateLocation = asyncHandler(async (req, res) => {
 // POST /api/security/lockdown — Toggle hospital-wide lockdown
 const toggleLockdown = asyncHandler(async (req, res) => {
     const { enabled } = req.body;
-    const hospital_id = req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
 
     try {
         await pool.query(`
@@ -273,7 +319,7 @@ const toggleLockdown = asyncHandler(async (req, res) => {
 // POST /api/security/dispatch — Send dispatch/broadcast message
 const sendDispatch = asyncHandler(async (req, res) => {
     const { message, targetGuardId, priority } = req.body;
-    const hospital_id = req.hospitalId;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
 
     if (!message) {
         return res.status(400).json({ success: false, error: 'message is required' });
@@ -327,25 +373,408 @@ const getGuardMetrics = asyncHandler(async (req, res) => {
     }
 });
 
-// Floor Plans endpoints (used by FloorPlanManager.jsx)
+// Floor Plans endpoints (used by FloorPlanManager.jsx & FloorPlanStudioModal.jsx)
 const saveFloorMap = asyncHandler(async (req, res) => {
-    const { image_url, bounds } = req.body;
-    const result = await pool.query(
-        `UPDATE floor_plans SET is_active = false`
+    const { image_url, bounds, corners, floor_number, building_name, building_id, calibration_status } = req.body;
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const floorNum = parseInt(floor_number || 1, 10);
+
+    // Auto-calculate corners if bounds provided and corners not
+    let finalCorners = corners;
+    if ((!finalCorners || finalCorners.length !== 4) && bounds && bounds.length === 2) {
+        finalCorners = [
+            { lat: bounds[0][0], lng: bounds[0][1] },
+            { lat: bounds[0][0], lng: bounds[1][1] },
+            { lat: bounds[1][0], lng: bounds[0][1] },
+            { lat: bounds[1][0], lng: bounds[1][1] }
+        ];
+    }
+
+    await pool.query(
+        `UPDATE floor_plans SET is_active = false WHERE hospital_id = $1 AND floor_number = $2`,
+        [hospital_id, floorNum]
     );
     const insertResult = await pool.query(
-        `INSERT INTO floor_plans (image_url, bounds, is_active, created_by)
-         VALUES ($1, $2::jsonb, true, $3) RETURNING *`,
-        [image_url, JSON.stringify(bounds || {}), req.user?.id]
+        `INSERT INTO floor_plans (
+            image_url, bounds, corners, is_active, floor_number,
+            building_name, building_id, hospital_id, calibration_status, created_by
+         )
+         VALUES ($1, $2::jsonb, $3::jsonb, true, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [
+            image_url,
+            JSON.stringify(bounds || {}),
+            JSON.stringify(finalCorners || []),
+            floorNum,
+            building_name || 'Main Hospital Complex',
+            building_id || null,
+            hospital_id,
+            calibration_status || (finalCorners && finalCorners.length === 4 ? 'calibrated' : 'uncalibrated'),
+            req.user?.id
+        ]
     );
     return res.json({ success: true, data: insertResult.rows[0] });
 });
 
 const getActiveMap = asyncHandler(async (req, res) => {
-    const result = await pool.query(
-        `SELECT * FROM floor_plans WHERE is_active = true ORDER BY updated_at DESC LIMIT 1`
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { floor, building_id } = req.query;
+
+    let query = `
+        SELECT fp.*, 
+               COALESCE(hb.name, fp.building_name, 'Main Hospital Complex') as building_name,
+               hb.center_latitude as building_lat, 
+               hb.center_longitude as building_lng
+        FROM floor_plans fp
+        LEFT JOIN hospital_buildings hb ON fp.building_id = hb.id
+        WHERE fp.is_active = true AND (fp.hospital_id = $1 OR fp.hospital_id IS NULL)
+    `;
+    const params = [hospital_id];
+
+    if (floor) {
+        params.push(parseInt(floor, 10) || 1);
+        query += ` AND fp.floor_number = $${params.length}`;
+    }
+    if (building_id) {
+        params.push(parseInt(building_id, 10));
+        query += ` AND fp.building_id = $${params.length}`;
+    }
+
+    query += ` ORDER BY fp.floor_number ASC, fp.updated_at DESC LIMIT 20`;
+
+    const result = await pool.query(query, params);
+
+    // Fetch zones for these floor plans
+    const floorPlanIds = result.rows.map(r => r.id);
+    let zonesByFloor = {};
+    if (floorPlanIds.length > 0) {
+        try {
+            const zonesRes = await pool.query(
+                `SELECT * FROM floor_zones WHERE floor_plan_id = ANY($1::int[]) AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY id ASC`,
+                [floorPlanIds, hospital_id]
+            );
+            for (const zone of zonesRes.rows) {
+                if (!zonesByFloor[zone.floor_plan_id]) zonesByFloor[zone.floor_plan_id] = [];
+                zonesByFloor[zone.floor_plan_id].push(zone);
+            }
+        } catch (zErr) {
+            console.warn('[GuardController] Warning fetching zones:', zErr.message);
+        }
+    }
+
+    const enrichedRows = result.rows.map(row => ({
+        ...row,
+        zones: zonesByFloor[row.id] || []
+    }));
+
+    return res.json({ 
+        success: true, 
+        data: floor ? (enrichedRows[0] || null) : (enrichedRows[0] || null),
+        floors: enrichedRows
+    });
+});
+
+// Upload blueprint raster / vector file for georeferencing
+const uploadBlueprint = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { floor_number, building_id, building_name, blueprint_type } = req.body;
+    
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: 'No blueprint file uploaded' });
+    }
+
+    const floorNum = parseInt(floor_number || 1, 10);
+    const hospitalCode = req.hospitalCode || 'default';
+    const fileUrl = `/uploads/${hospitalCode}/blueprints/${req.file.filename}`;
+
+    // Target building check
+    let targetBuildingId = building_id ? parseInt(building_id, 10) : null;
+    if (!targetBuildingId) {
+        const bRes = await pool.query('SELECT id FROM hospital_buildings WHERE hospital_id = $1 LIMIT 1', [hospital_id]);
+        if (bRes.rows.length > 0) {
+            targetBuildingId = bRes.rows[0].id;
+        }
+    }
+
+    // Deactivate previous active map on this floor
+    await pool.query(
+        `UPDATE floor_plans SET is_active = false WHERE hospital_id = $1 AND floor_number = $2`,
+        [hospital_id, floorNum]
     );
-    return res.json({ success: true, data: result.rows[0] || null });
+
+    const insertRes = await pool.query(
+        `INSERT INTO floor_plans (
+            hospital_id, floor_number, building_id, building_name,
+            image_url, blueprint_file, blueprint_type, calibration_status,
+            created_by, is_active, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'uncalibrated', $8, true, NOW())
+        RETURNING *`,
+        [
+            hospital_id,
+            floorNum,
+            targetBuildingId,
+            building_name || 'Main Hospital Complex',
+            fileUrl,
+            req.file.filename,
+            blueprint_type || 'raster',
+            req.user?.id
+        ]
+    );
+
+    return res.json({
+        success: true,
+        message: 'Blueprint uploaded successfully',
+        data: insertRes.rows[0]
+    });
+});
+
+// Calibrate floor plan (visual 4-corner georeference)
+const calibrateFloorPlan = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const {
+        id,
+        floor_number,
+        corners,
+        anchor_latitude,
+        anchor_longitude,
+        rotation_deg,
+        scale_meters_per_pixel,
+        width_px,
+        height_px,
+        calibration_status
+    } = req.body;
+
+    if (!id && !floor_number) {
+        return res.status(400).json({ success: false, message: 'Floor plan ID or floor_number is required' });
+    }
+
+    if (!Array.isArray(corners) || corners.length !== 4) {
+        return res.status(400).json({ success: false, message: 'Exactly 4 georeferenced corners (NW, NE, SW, SE) are required' });
+    }
+
+    // Derive bounding box for backwards compatibility
+    const lats = corners.map(c => typeof c.lat === 'number' ? c.lat : parseFloat(c.lat));
+    const lngs = corners.map(c => typeof c.lng === 'number' ? c.lng : parseFloat(c.lng));
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    const bounds = [[maxLat, minLng], [minLat, maxLng]];
+
+    let updateQuery;
+    let params;
+
+    if (id) {
+        updateQuery = `
+            UPDATE floor_plans
+            SET corners = $1::jsonb,
+                bounds = $2::jsonb,
+                anchor_latitude = $3,
+                anchor_longitude = $4,
+                rotation_deg = $5,
+                scale_meters_per_pixel = $6,
+                width_px = $7,
+                height_px = $8,
+                calibration_status = $9,
+                is_active = true,
+                updated_at = NOW()
+            WHERE id = $10 AND (hospital_id = $11 OR hospital_id IS NULL)
+            RETURNING *
+        `;
+        params = [
+            JSON.stringify(corners),
+            JSON.stringify(bounds),
+            anchor_latitude || null,
+            anchor_longitude || null,
+            rotation_deg || 0,
+            scale_meters_per_pixel || null,
+            width_px || null,
+            height_px || null,
+            calibration_status || 'calibrated',
+            id,
+            hospital_id
+        ];
+    } else {
+        const floorNum = parseInt(floor_number, 10);
+        updateQuery = `
+            UPDATE floor_plans
+            SET corners = $1::jsonb,
+                bounds = $2::jsonb,
+                anchor_latitude = $3,
+                anchor_longitude = $4,
+                rotation_deg = $5,
+                scale_meters_per_pixel = $6,
+                width_px = $7,
+                height_px = $8,
+                calibration_status = $9,
+                is_active = true,
+                updated_at = NOW()
+            WHERE floor_number = $10 AND (hospital_id = $11 OR hospital_id IS NULL)
+            RETURNING *
+        `;
+        params = [
+            JSON.stringify(corners),
+            JSON.stringify(bounds),
+            anchor_latitude || null,
+            anchor_longitude || null,
+            rotation_deg || 0,
+            scale_meters_per_pixel || null,
+            width_px || null,
+            height_px || null,
+            calibration_status || 'calibrated',
+            floorNum,
+            hospital_id
+        ];
+    }
+
+    const result = await pool.query(updateQuery, params);
+    if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Floor plan not found to calibrate' });
+    }
+
+    return res.json({
+        success: true,
+        message: 'Floor plan calibrated successfully',
+        data: result.rows[0]
+    });
+});
+
+// Save corridor walkable graph (nodes and edges for indoor map matching)
+const saveCorridorGraph = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { id } = req.params;
+    const { walkable_graph } = req.body;
+
+    if (!walkable_graph) {
+        return res.status(400).json({ success: false, message: 'walkable_graph payload required' });
+    }
+
+    const result = await pool.query(
+        `UPDATE floor_plans 
+         SET walkable_graph = $1::jsonb, updated_at = NOW() 
+         WHERE id = $2 AND (hospital_id = $3 OR hospital_id IS NULL) 
+         RETURNING id, floor_number, walkable_graph`,
+        [JSON.stringify(walkable_graph), id, hospital_id]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Floor plan not found' });
+    }
+
+    return res.json({
+        success: true,
+        message: 'Corridor graph saved',
+        data: result.rows[0]
+    });
+});
+
+// Floor Zones CRUD
+const getFloorZones = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { id } = req.params;
+
+    const result = await pool.query(
+        `SELECT * FROM floor_zones WHERE floor_plan_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY id ASC`,
+        [id, hospital_id]
+    );
+
+    return res.json({
+        success: true,
+        data: result.rows
+    });
+});
+
+const createFloorZone = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { id } = req.params;
+    const { name, zone_type, risk_level, polygon_coordinates, color, metadata } = req.body;
+
+    if (!name || !polygon_coordinates || !Array.isArray(polygon_coordinates)) {
+        return res.status(400).json({ success: false, message: 'Zone name and polygon_coordinates are required' });
+    }
+
+    const insertRes = await pool.query(
+        `INSERT INTO floor_zones (
+            hospital_id, floor_plan_id, name, zone_type, risk_level, polygon_coordinates, color, metadata
+        ) VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8::jsonb) RETURNING *`,
+        [
+            hospital_id,
+            id,
+            name,
+            zone_type || 'general',
+            risk_level || 'low',
+            JSON.stringify(polygon_coordinates),
+            color || '#00f3ff',
+            JSON.stringify(metadata || {})
+        ]
+    );
+
+    return res.json({
+        success: true,
+        message: 'Zone created',
+        data: insertRes.rows[0]
+    });
+});
+
+const deleteFloorZone = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { zoneId } = req.params;
+
+    const result = await pool.query(
+        `DELETE FROM floor_zones WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) RETURNING id`,
+        [zoneId, hospital_id]
+    );
+
+    if (result.rowCount === 0) {
+        return res.status(404).json({ success: false, message: 'Zone not found' });
+    }
+
+    return res.json({
+        success: true,
+        message: 'Zone deleted'
+    });
+});
+
+// Buildings
+const getHospitalBuildings = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const result = await pool.query(
+        `SELECT * FROM hospital_buildings WHERE hospital_id = $1 OR hospital_id IS NULL ORDER BY name ASC`,
+        [hospital_id]
+    );
+    return res.json({ success: true, data: result.rows });
+});
+
+// Single Floor Plan with zones
+const getFloorPlan = asyncHandler(async (req, res) => {
+    const hospital_id = req.user?.hospital_id || req.hospital_id || req.hospitalId || 1;
+    const { id } = req.params;
+
+    const result = await pool.query(
+        `SELECT fp.*, 
+                COALESCE(hb.name, fp.building_name, 'Main Hospital Complex') as building_name,
+                hb.center_latitude as building_lat, 
+                hb.center_longitude as building_lng
+         FROM floor_plans fp
+         LEFT JOIN hospital_buildings hb ON fp.building_id = hb.id
+         WHERE fp.id = $1 AND (fp.hospital_id = $2 OR fp.hospital_id IS NULL)`,
+        [id, hospital_id]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Floor plan not found' });
+    }
+
+    const zonesRes = await pool.query(
+        `SELECT * FROM floor_zones WHERE floor_plan_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY id ASC`,
+        [id, hospital_id]
+    );
+
+    const floorPlan = {
+        ...result.rows[0],
+        zones: zonesRes.rows
+    };
+
+    return res.json({ success: true, data: floorPlan });
 });
 
 // Geofences
@@ -665,5 +1094,14 @@ module.exports = {
     getGates,
     toggleGate,
     getVoiceToken,
-    getSecurityVisitors
+    getSecurityVisitors,
+    // Phase 4: Indoor Positioning & Studio Additions
+    uploadBlueprint,
+    calibrateFloorPlan,
+    saveCorridorGraph,
+    getFloorZones,
+    createFloorZone,
+    deleteFloorZone,
+    getHospitalBuildings,
+    getFloorPlan
 };

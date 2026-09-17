@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Vibration, TouchableOpacity } from 'react-native';
-import { Text, TextInput, Button, Surface, IconButton, ActivityIndicator } from 'react-native-paper';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Text, TextInput, IconButton } from 'react-native-paper';
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import ScreenShell from '../components/ScreenShell';
 import voiceService from '../services/voiceService';
 import chatService from '../services/chatService';
-import notifee, { AndroidImportance } from '@notifee/react-native';
+import { COLORS } from '../theme';
 
 export default function CommsScreen() {
     const [messages, setMessages] = useState([]);
@@ -27,9 +27,6 @@ export default function CommsScreen() {
             setMessages(prev => [...prev, msg]);
             scrollToBottom();
         });
-
-        // 2. Connect Voice (Stub for now, will auto-connect in real app or via toggle)
-        // initVoice();
         
         return () => {
             voiceService.disconnect();
@@ -48,27 +45,34 @@ export default function CommsScreen() {
     };
 
     const startForegroundService = async () => {
-        // Required for Background Mic
-        await notifee.displayNotification({
-            id: 'wolf-comms',
-            title: 'Wolf Comms Active',
-            body: 'Maintained secure voice channel.',
-            android: {
-                channelId: 'default',
-                asForegroundService: true,
-                ongoing: true,
-                importance: AndroidImportance.LOW,
-            },
-        });
+        try {
+            await notifee.displayNotification({
+                id: 'wolf-comms',
+                title: 'Wolf Comms Active',
+                body: 'Maintained secure voice channel.',
+                android: {
+                    channelId: 'default',
+                    asForegroundService: true,
+                    importance: AndroidImportance.LOW,
+                },
+            });
+        } catch (e) {
+            // Notifee background permission
+        }
     };
 
     const stopForegroundService = async () => {
-        await notifee.stopForegroundService();
+        try {
+            await notifee.stopForegroundService();
+        } catch (e) {
+            // Notifee cleanup
+        }
     };
 
     const handlePTTPressIn = async () => {
-        Vibration.vibrate(50);
+        if (!voiceConnected) return;
         setIsTalking(true);
+        Vibration.vibrate(50);
         await voiceService.startTalking();
     };
 
@@ -80,7 +84,7 @@ export default function CommsScreen() {
 
     const handleSend = () => {
         if (!inputText.trim()) return;
-        chatService.sendMessage('global', inputText, 'Me'); // 'Me' placeholder
+        chatService.sendMessage('global', inputText, 'Me');
         setInputText('');
     };
 
@@ -95,24 +99,26 @@ export default function CommsScreen() {
         ]}>
             <Text style={styles.senderName}>{item.sender_name}</Text>
             <Text style={styles.messageText}>{item.message_text}</Text>
-            <Text style={styles.timestamp}>{new Date(item.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</Text>
+            <Text style={styles.timestamp}>{new Date(item.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
         </View>
     );
 
     return (
-        <View style={styles.container}>
-            <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={StyleSheet.absoluteFill} />
-            
-            {/* Header */}
-            <BlurView intensity={20} style={styles.header}>
-                <Text style={styles.headerTitle}>WOLF COMMS: {voiceConnected ? 'ONLINE' : 'OFFLINE'}</Text>
+        <ScreenShell
+            title="Wolf Comms"
+            badgeText={voiceConnected ? "ONLINE" : "STANDBY"}
+            badgeColor={voiceConnected ? COLORS.statusGreen : COLORS.surfaceElevated}
+            scrollable={false}
+            contentContainerStyle={{ paddingHorizontal: 0, paddingTop: 4 }}
+            rightAction={
                 <IconButton 
                     icon={voiceConnected ? "microphone" : "microphone-off"} 
-                    iconColor={voiceConnected ? "#00f3ff" : "gray"}
-                    onPress={voiceConnected ? () => voiceService.disconnect() && setVoiceConnected(false) : initVoice}
+                    iconColor={voiceConnected ? COLORS.accent : COLORS.textMuted}
+                    size={22}
+                    onPress={voiceConnected ? () => { voiceService.disconnect(); setVoiceConnected(false); } : initVoice}
                 />
-            </BlurView>
-
+            }
+        >
             {/* PTT Button Area */}
             <View style={styles.pttContainer}>
                 <TouchableOpacity
@@ -124,81 +130,146 @@ export default function CommsScreen() {
                         isTalking && styles.pttActive,
                         !voiceConnected && styles.pttDisabled
                     ]}
+                    activeOpacity={0.8}
                 >
-                    <View style={[styles.pttInner, isTalking && {borderColor: 'red'}]}>
-                        <Text style={styles.pttText}>{isTalking ? "TRANSMITTING" : "HOLD TO TALK"}</Text>
+                    <View style={[styles.pttInner, isTalking && { borderColor: COLORS.statusRed }]}>
+                        <Text style={styles.pttText}>{isTalking ? "TRANSMITTING..." : "HOLD TO TALK (PTT)"}</Text>
                     </View>
                 </TouchableOpacity>
+                {!voiceConnected && (
+                    <Text style={styles.connectHint}>Tap 🎙️ icon in top-right to join squad radio</Text>
+                )}
             </View>
 
-            {/* Chat Area */}
-            <KeyboardAvoidingView 
-                behavior={Platform.OS === "ios" ? "padding" : "height"} 
-                style={styles.chatContainer}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} 
-            >
-                <FlatList
-                    ref={flatListRef}
-                    data={messages}
-                    renderItem={renderMessage}
-                    keyExtractor={(item, index) => index.toString()}
-                    style={styles.msgList}
-                    contentContainerStyle={{paddingBottom: 10}}
-                />
-                
-                <View style={styles.inputBar}>
+            {/* Chat Messages Area */}
+            <FlatList
+                ref={flatListRef}
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+                contentContainerStyle={styles.chatList}
+                showsVerticalScrollIndicator={false}
+            />
+
+            {/* Input Bar */}
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                <View style={styles.inputContainer}>
                     <TextInput
-                        mode="outlined"
+                        placeholder="Broadcast message to channel..."
+                        placeholderTextColor={COLORS.textMuted}
                         value={inputText}
                         onChangeText={setInputText}
-                        placeholder="Type a message..."
-                        right={<TextInput.Icon icon="send" onPress={handleSend} />}
-                        style={styles.input}
-                        theme={{ colors: { primary: '#00f3ff', onSurfaceVariant: 'gray' }}}
-                        textColor="white"
+                        style={styles.chatInput}
+                        textColor={COLORS.textPrimary}
+                        mode="flat"
+                        underlineColor="transparent"
+                        activeUnderlineColor="transparent"
+                    />
+                    <IconButton 
+                        icon="send" 
+                        iconColor={COLORS.accent} 
+                        size={22}
+                        onPress={handleSend} 
                     />
                 </View>
             </KeyboardAvoidingView>
-        </View>
+        </ScreenShell>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingTop: 40, paddingBottom: 10, paddingHorizontal: 20, 
-        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        borderBottomWidth: 1, borderColor: 'rgba(255,255,255,0.1)'
+    pttContainer: {
+        alignItems: 'center',
+        paddingVertical: 14,
+        backgroundColor: COLORS.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.border,
     },
-    headerTitle: { color: 'white', fontWeight: 'bold', letterSpacing: 1 },
-    
-    pttContainer: { height: 250, justifyContent: 'center', alignItems: 'center' },
     pttButton: {
-        width: 180, height: 180, borderRadius: 90,
-        backgroundColor: '#333',
-        justifyContent: 'center', alignItems: 'center',
-        elevation: 10, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 10
+        width: 220,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: COLORS.card,
+        borderWidth: 1,
+        borderColor: COLORS.accent,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 4,
     },
-    pttActive: { backgroundColor: '#500000', borderColor: 'red', borderWidth: 2 },
-    pttDisabled: { opacity: 0.5 },
+    pttActive: {
+        backgroundColor: COLORS.dangerDark,
+        borderColor: COLORS.statusRed,
+    },
+    pttDisabled: {
+        borderColor: COLORS.border,
+        opacity: 0.6,
+    },
     pttInner: {
-        width: 160, height: 160, borderRadius: 80,
-        borderWidth: 2, borderColor: '#00f3ff', borderStyle: 'dashed',
-        justifyContent: 'center', alignItems: 'center'
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    pttText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
-
-    chatContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-    msgList: { flex: 1, padding: 10 },
+    pttText: {
+        color: COLORS.textPrimary,
+        fontWeight: 'bold',
+        fontSize: 13,
+        letterSpacing: 0.5,
+    },
+    connectHint: {
+        color: COLORS.textMuted,
+        fontSize: 11,
+        marginTop: 6,
+    },
+    chatList: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+    },
     messageBubble: {
-        padding: 10, borderRadius: 10, marginBottom: 8, maxWidth: '80%',
+        padding: 12,
+        borderRadius: 14,
+        marginBottom: 10,
+        maxWidth: '80%',
     },
-    myMessage: { alignSelf: 'flex-end', backgroundColor: '#005f73' },
-    otherMessage: { alignSelf: 'flex-start', backgroundColor: '#333' },
-    senderName: { fontSize: 10, color: '#00f3ff', marginBottom: 2 },
-    messageText: { color: 'white', fontSize: 14 },
-    timestamp: { alignSelf: 'flex-end', fontSize: 8, color: 'rgba(255,255,255,0.5)', marginTop: 4 },
-
-    inputBar: { padding: 10, backgroundColor: '#1a1a1a' },
-    input: { backgroundColor: '#333' }
+    myMessage: {
+        alignSelf: 'flex-end',
+        backgroundColor: COLORS.surfaceElevated,
+        borderBottomRightRadius: 2,
+    },
+    otherMessage: {
+        alignSelf: 'flex-start',
+        backgroundColor: COLORS.card,
+        borderBottomLeftRadius: 2,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    senderName: {
+        fontSize: 11,
+        color: COLORS.accent,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    messageText: {
+        color: COLORS.textPrimary,
+        fontSize: 14,
+    },
+    timestamp: {
+        fontSize: 9,
+        color: COLORS.textMuted,
+        alignSelf: 'flex-end',
+        marginTop: 4,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.surface,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.border,
+    },
+    chatInput: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        fontSize: 14,
+        height: 44,
+    },
 });

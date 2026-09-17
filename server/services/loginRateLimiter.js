@@ -56,7 +56,7 @@ const requestCounts = new Map();
 // PERIODIC CLEANUP
 // ──────────────────────────────────────────────
 
-setInterval(() => {
+const failureCleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [ip, data] of failureTracker.entries()) {
         // If tier 2 blocked and block expired, remove
@@ -71,8 +71,11 @@ setInterval(() => {
         }
     }
 }, CONFIG.CLEANUP_INTERVAL_MS);
+if (failureCleanupTimer && typeof failureCleanupTimer.unref === 'function') {
+    failureCleanupTimer.unref();
+}
 
-setInterval(() => {
+const requestCleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [ip, timestamps] of requestCounts.entries()) {
         const valid = timestamps.filter(t => now - t < CONFIG.WINDOW_MS);
@@ -83,6 +86,9 @@ setInterval(() => {
         }
     }
 }, CONFIG.REQUEST_CLEANUP_MS);
+if (requestCleanupTimer && typeof requestCleanupTimer.unref === 'function') {
+    requestCleanupTimer.unref();
+}
 
 // ──────────────────────────────────────────────
 // PUBLIC API

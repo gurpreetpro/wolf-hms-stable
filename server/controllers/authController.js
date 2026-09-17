@@ -7,6 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 
 const AuditService = require('../services/AuditService');
 const LoginSecurityService = require('../services/LoginSecurityService');
+const logger = require('../utils/logger');
 
 // Sliding-scale failure tracker (shared service)
 const { recordLoginFailure, clearLoginFailures } = require('../services/loginRateLimiter');
@@ -157,6 +158,20 @@ const login = asyncHandler(async (req, res) => {
 
     // Include hospital_id in JWT for multi-tenancy
     console.log('[Auth] 🔑 Generating JWT...');
+    const isMobileOrGuard = user.role === 'security_guard' ||
+                            req.body.clientType === 'mobile' ||
+                            req.headers['x-client-type'] === 'mobile' ||
+                            (req.headers['user-agent'] && (req.headers['user-agent'].includes('okhttp') || req.headers['user-agent'].includes('Expo')));
+    
+    // Mobile/Security Guard tokens last 30 days so active shifts & patrols never drop mid-shift.
+    // Web sessions use configured JWT_EXPIRES (default 8 hours).
+    const tokenExpiry = isMobileOrGuard ? '30d' : (process.env.JWT_EXPIRES || '8h');
+
+    if (!process.env.JWT_SECRET) {
+        console.error('[CRITICAL] JWT_SECRET is not defined in environment variables!');
+        return res.status(500).json({ message: 'Server misconfiguration: JWT_SECRET missing' });
+    }
+
     const token = jwt.sign(
         {
             id: user.id,
@@ -166,30 +181,38 @@ const login = asyncHandler(async (req, res) => {
             hospital_id: user.hospital_id || 1 // Default to 1 for backward compatibility
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' } // Short lived 15m
+        {
+            expiresIn: tokenExpiry,
+            issuer: process.env.JWT_ISSUER || 'wolf-hms',
+            audience: process.env.JWT_AUDIENCE || 'wolf-hms-api'
+        }
     );
 
-    // [AUTH] Refresh Token Rotation (HttpOnly Cookie)
+    // [AUTH] Refresh Token Rotation (Hash Storage)
+    let rawRefreshToken = null;
     try {
-        const refreshToken = crypto.randomBytes(40).toString('hex');
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+        rawRefreshToken = crypto.randomBytes(40).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        const deviceType = isMobileOrGuard ? 'mobile' : 'web';
 
         await pool.query(
-            `INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)`,
-            [refreshToken, user.id, expiresAt]
+            `INSERT INTO refresh_tokens (token_hash, user_id, device, expires_at) VALUES ($1, $2, $3, $4)`,
+            [tokenHash, user.id, deviceType, expiresAt]
         );
 
         const isProduction = process.env.NODE_ENV === 'production';
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: isProduction ? 'None' : 'Lax', // None required for cross-site (if frontend/backend on diff domains)
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-        });
-        console.log(`[Auth] 🍪 Refresh Token set for ${user.username}`);
+        if (res.cookie) {
+            res.cookie('refreshToken', rawRefreshToken, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? 'None' : 'Lax',
+                maxAge: 30 * 24 * 60 * 60 * 1000
+            });
+        }
+        console.log(`[Auth] 🍪 Refresh Token issued for ${user.username}`);
     } catch (rtErr) {
-        console.error(`[Auth] ⚠️ Failed to set Refresh Token: ${rtErr.message}`);
-        // Non-fatal, user just won't stay logged in
+        console.error(`[Auth] ⚠️ Failed to record Refresh Token: ${rtErr.message}`);
     }
 
     if (!user.is_active) {
@@ -214,6 +237,7 @@ const login = asyncHandler(async (req, res) => {
 
     const responseData = {
         token,
+        refreshToken: rawRefreshToken,
         user: {
             id: user.id,
             username: user.username,
@@ -333,10 +357,19 @@ const demoLogin = asyncHandler(async (req, res) => {
     const result = await pool.query("SELECT * FROM users WHERE username = 'demo_admin'");
     const user = result.rows[0];
 
+    if (!process.env.JWT_SECRET) {
+        console.error('[CRITICAL] JWT_SECRET is not defined in environment variables!');
+        return res.status(500).json({ message: 'Server misconfiguration: JWT_SECRET missing' });
+    }
+
     const token = jwt.sign(
-        { id: user.id, role: user.role, username: user.username },
-        process.env.JWT_SECRET || 'secret_key',
-        { expiresIn: '1d' }
+        { id: user.id, role: user.role, username: user.username, hospital_id: user.hospital_id || 1 },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: '1h',
+            issuer: process.env.JWT_ISSUER || 'wolf-hms',
+            audience: process.env.JWT_AUDIENCE || 'wolf-hms-api'
+        }
     );
 
     res.json({
@@ -713,51 +746,57 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 });
 
-// [AUTH] Refresh Access Token
+// [AUTH] Refresh Access Token (Hardened Rotation with SHA-256 Hashes & Family Revocation)
 const refreshToken = asyncHandler(async (req, res) => {
-    const { refreshToken } = req.cookies;
+    const rawRefreshToken = req.body?.refreshToken || req.cookies?.refreshToken || req.headers['x-refresh-token'];
 
-    if (!refreshToken) {
-        return ResponseHandler.error(res, 'Refresh Token Required', 401);
+    if (!rawRefreshToken) {
+        return res.status(401).json({ success: false, message: 'Refresh token required' });
     }
+
+    const tokenHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
 
     // Find token with User details
     const result = await pool.query(
         `SELECT rt.*, u.username, u.email, u.role, u.hospital_id, u.full_name, u.department, u.is_active 
          FROM refresh_tokens rt
          JOIN users u ON rt.user_id = u.id
-         WHERE rt.token = $1`,
-        [refreshToken]
+         WHERE rt.token_hash = $1`,
+        [tokenHash]
     );
 
     if (result.rows.length === 0) {
         console.warn('[Auth] ⚠️ Invalid Refresh Token Attempt');
-        return ResponseHandler.error(res, 'Invalid Refresh Token', 403);
+        return res.status(401).json({ success: false, message: 'Invalid refresh token' });
     }
 
     const currentToken = result.rows[0];
 
-    // Reuse Detection
-    if (currentToken.is_revoked) {
-        console.warn(`[Auth] 🚨 REUSE DETECTED! User ${currentToken.username} (${currentToken.user_id}) using revoked token.`);
-        // Revoke ALL tokens for this user to force re-login
-        await pool.query('UPDATE refresh_tokens SET is_revoked = true WHERE user_id = $1', [currentToken.user_id]);
-        return ResponseHandler.error(res, 'Security Alert: Token Reused. Please login again.', 403);
+    // Reuse Detection: If token is already revoked, revoke the ENTIRE token family (or user tokens)
+    if (currentToken.revoked_at) {
+        logger.warn(`[Auth] 🚨 REUSE DETECTED! User ${currentToken.username} (${currentToken.user_id}) using revoked token.`);
+        if (currentToken.family_id) {
+            await pool.query('UPDATE refresh_tokens SET revoked_at = NOW() WHERE family_id = $1', [currentToken.family_id]);
+        } else {
+            await pool.query('UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = $1', [currentToken.user_id]);
+        }
+        return res.status(401).json({ success: false, message: 'Token reuse detected. All sessions revoked.' });
     }
 
     // Expiration Check
     if (new Date() > new Date(currentToken.expires_at)) {
-        return ResponseHandler.error(res, 'Refresh Token Expired', 403);
+        return res.status(401).json({ success: false, message: 'Refresh token expired' });
     }
 
     // User Status Check
     if (!currentToken.is_active) {
-        return ResponseHandler.error(res, 'User Account is Inactive', 403);
+        return res.status(401).json({ success: false, message: 'User account is inactive' });
     }
 
-    // Rotation: Issue New Tokens
-    const newRefreshToken = crypto.randomBytes(40).toString('hex');
-    const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    // Rotation: Issue New Token with same family_id
+    const newRawRefreshToken = crypto.randomBytes(40).toString('hex');
+    const newTokenHash = crypto.createHash('sha256').update(newRawRefreshToken).digest('hex');
+    const newExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
     // Transaction: Revoke Old -> Insert New
     const client = await pool.connect();
@@ -766,26 +805,34 @@ const refreshToken = asyncHandler(async (req, res) => {
 
         // Revoke current
         await client.query(
-            'UPDATE refresh_tokens SET is_revoked = true, replaced_by = $1 WHERE id = $2',
-            [newRefreshToken, currentToken.id]
+            'UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1',
+            [currentToken.id]
         );
 
-        // Insert new
+        // Insert new with same family_id
         await client.query(
-            `INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)`,
-            [newRefreshToken, currentToken.user_id, newExpiresAt]
+            `INSERT INTO refresh_tokens (token_hash, user_id, device, family_id, expires_at) VALUES ($1, $2, $3, $4, $5)`,
+            [newTokenHash, currentToken.user_id, currentToken.device || 'web', currentToken.family_id, newExpiresAt]
         );
 
         await client.query('COMMIT');
     } catch (err) {
         await client.query('ROLLBACK');
         console.error(`[Auth] 💥 Rotation Failed: ${err.message}`);
-        return ResponseHandler.error(res, 'Token Rotation Failed', 500);
+        return res.status(500).json({ success: false, message: 'Token rotation failed' });
     } finally {
         client.release();
     }
 
     // Issue New Access Token
+    const isMobileOrGuard = currentToken.role === 'security_guard' || currentToken.device === 'mobile';
+    const tokenExpiry = isMobileOrGuard ? '30d' : (process.env.JWT_EXPIRES || '8h');
+
+    if (!process.env.JWT_SECRET) {
+        console.error('[CRITICAL] JWT_SECRET is not defined in environment variables!');
+        return res.status(500).json({ message: 'Server misconfiguration: JWT_SECRET missing' });
+    }
+
     const newAccessToken = jwt.sign(
         {
             id: currentToken.user_id,
@@ -795,38 +842,50 @@ const refreshToken = asyncHandler(async (req, res) => {
             hospital_id: currentToken.hospital_id || 1
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        {
+            expiresIn: tokenExpiry,
+            issuer: process.env.JWT_ISSUER || 'wolf-hms',
+            audience: process.env.JWT_AUDIENCE || 'wolf-hms-api'
+        }
     );
 
-    // Send New Cookie
+    // Send New Cookie if res.cookie is available
     const isProduction = process.env.NODE_ENV === 'production';
-    res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'None' : 'Lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
+    if (res.cookie) {
+        res.cookie('refreshToken', newRawRefreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax',
+            maxAge: 30 * 24 * 60 * 60 * 1000
+        });
+    }
 
-    ResponseHandler.success(res, { token: newAccessToken });
+    return res.status(200).json({
+        success: true,
+        token: newAccessToken,
+        refreshToken: newRawRefreshToken
+    });
 });
 
-// [AUTH] Logout
+// [AUTH] Logout (Revoke refresh token)
 const logout = asyncHandler(async (req, res) => {
-    const { refreshToken } = req.cookies;
+    const rawRefreshToken = req.body?.refreshToken || req.cookies?.refreshToken || req.headers['x-refresh-token'];
 
-    if (refreshToken) {
-        // Best effort revoke
-        await pool.query('UPDATE refresh_tokens SET is_revoked = true WHERE token = $1', [refreshToken]);
+    if (rawRefreshToken) {
+        const tokenHash = crypto.createHash('sha256').update(rawRefreshToken).digest('hex');
+        await pool.query('UPDATE refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1', [tokenHash]).catch(() => {});
     }
 
     const isProduction = process.env.NODE_ENV === 'production';
-    res.clearCookie('refreshToken', {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'None' : 'Lax'
-    });
+    if (res.clearCookie) {
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'None' : 'Lax'
+        });
+    }
 
-    ResponseHandler.success(res, { message: 'Logged out successfully' });
+    return res.status(200).json({ success: true, message: 'Logged out successfully' });
 });
 
 module.exports = {

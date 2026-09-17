@@ -1,37 +1,33 @@
 ---
 name: database-ops
-description: Guide for performing production database operations on the Wolf HMS VPS via the exec-sql backdoor API
+description: Guide for performing production database operations on the Wolf HMS VPS via server/scripts/admin-cli.js
 ---
 
 # Production Database Operations
 
 ## Access Method
-SSH is currently BROKEN. Use the SQL backdoor API for all production DB operations.
+- **Primary Method**: SSH password authentication (via Node.js `ssh2` or terminal) + `server/scripts/admin-cli.js`.
+- **Legacy Backdoor Status**: `POST /api/health/exec-sql` is **DEPRECATED & NEUTRALIZED (HTTP 410 Gone)** in Phase 2.
 
-## SQL Backdoor Endpoint
-```
-POST http://185.213.27.158/wolf/api/health/exec-sql
-Content-Type: application/json
+## Admin CLI Tool (`server/scripts/admin-cli.js`)
+All administrative database queries, migrations, and user management should be run directly on the host or via SSH using `admin-cli.js`:
 
-{
-  "setupKey": "WolfSetup2024!",
-  "sql": "YOUR SQL QUERY HERE"
-}
+```bash
+# Connect to VPS
+ssh root@185.213.27.158
+cd /var/www/wolf-hms/server
+
+# Execute SQL query with audit logging
+node scripts/admin-cli.js --sql "SELECT id, code, status FROM emergency_logs WHERE status = 'Active';" --token $MIGRATION_CLI_TOKEN
+
+# Apply migration file
+node scripts/admin-cli.js --file "migrations/301_rls_gapfill.sql"
+
+# Dry run (wraps query in EXPLAIN without modifying rows)
+node scripts/admin-cli.js --sql "UPDATE users SET role = 'doctor' WHERE id = 5;" --dry-run
 ```
 
-## Example: Using from Node.js
-```javascript
-const response = await fetch('http://185.213.27.158/wolf/api/health/exec-sql', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    setupKey: 'WolfSetup2024!',
-    sql: 'SELECT id, code, status FROM emergency_logs WHERE status = \'Active\''
-  })
-});
-const result = await response.json();
-console.log(result);
-```
+See `scripts/admin-runbooks/` for specific runbooks (`seed-guard.md`, `apply-migration.md`, `read-diagnostics.md`).
 
 ## Example: Shell Commands via DB Container
 ```sql

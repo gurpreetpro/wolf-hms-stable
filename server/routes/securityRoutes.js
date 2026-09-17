@@ -1,8 +1,24 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { authenticateToken, authorize } = require('../middleware/authMiddleware');
+const { createTenantStorage, preFetchHospitalCode } = require('../middleware/tenantUpload');
 const securityController = require('../controllers/securityController');
 const guardController = require('../controllers/security/guardController');
+
+// Blueprint upload configuration
+const blueprintUpload = multer({
+    storage: createTenantStorage('blueprints'),
+    limits: { fileSize: 30 * 1024 * 1024 }, // 30MB
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error(`Blueprint file type not allowed (${file.mimetype}). PNG, JPEG, WebP, SVG supported.`), false);
+        }
+    }
+});
 
 // ============================================
 // LOGIN SECURITY ENDPOINTS
@@ -62,12 +78,22 @@ router.get('/guards/:id/metrics', authenticateToken, guardController.getGuardMet
 // (Phase 1-2: Floor Plans, Geofences, SOS, Incidents, Missions, Patrols)
 // ============================================
 
+// Hospital Buildings
+router.get('/buildings', authenticateToken, guardController.getHospitalBuildings);
+
 // Command Map (combined dashboard load)
 router.get('/command/map', authenticateToken, guardController.getCommandMap);
 
-// Floor Plans (used by FloorPlanManager.jsx)
-router.post('/maps', authenticateToken, authorize('admin'), guardController.saveFloorMap);
+// Floor Plans & Studio Endpoints (used by FloorPlanManager.jsx & FloorPlanStudioModal.jsx)
 router.get('/maps/active', authenticateToken, guardController.getActiveMap);
+router.post('/maps', authenticateToken, authorize('admin'), guardController.saveFloorMap);
+router.post('/maps/upload', authenticateToken, authorize('admin'), preFetchHospitalCode, blueprintUpload.single('blueprint'), guardController.uploadBlueprint);
+router.post('/maps/calibrate', authenticateToken, authorize('admin'), guardController.calibrateFloorPlan);
+router.get('/maps/:id/zones', authenticateToken, guardController.getFloorZones);
+router.post('/maps/:id/zones', authenticateToken, authorize('admin'), guardController.createFloorZone);
+router.post('/maps/:id/corridors', authenticateToken, authorize('admin'), guardController.saveCorridorGraph);
+router.get('/maps/:id', authenticateToken, guardController.getFloorPlan);
+router.delete('/zones/:zoneId', authenticateToken, authorize('admin'), guardController.deleteFloorZone);
 
 // Geofences
 router.get('/geofences', authenticateToken, guardController.getGeofences);

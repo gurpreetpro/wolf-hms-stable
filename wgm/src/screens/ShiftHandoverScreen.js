@@ -1,11 +1,12 @@
 import React, { useState, useRef, useContext } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Alert, Modal, Image } from 'react-native';
-import { Text, TextInput, Button, Checkbox, ActivityIndicator } from 'react-native-paper';
-import { BlurView } from 'expo-blur';
+import { View, StyleSheet, TouchableOpacity, Alert, Modal, Image } from 'react-native';
+import { Text, TextInput, Button } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SignatureScreen from 'react-native-signature-canvas';
 import { AuthContext } from '../context/AuthContext';
+import ScreenShell from '../components/ScreenShell';
 import api from '../services/api';
+import { COLORS } from '../theme';
 
 export default function ShiftHandoverScreen({ navigation }) {
     const { userData, logout } = useContext(AuthContext);
@@ -19,49 +20,49 @@ export default function ShiftHandoverScreen({ navigation }) {
     const [signature, setSignature] = useState(null);
     const [isSigning, setIsSigning] = useState(false);
     const [loading, setLoading] = useState(false);
-    const ref = useRef();
+    const signatureRef = useRef();
 
-    const handleSignature = (signature) => {
-        setSignature(signature); // Base64 image
+    const handleSignature = (sig) => {
+        setSignature(sig); // Base64 image
         setIsSigning(false);
     };
 
     const handleEmpty = () => {
-        console.log('Empty signature');
+        Alert.alert('Empty Signature', 'Please sign before confirming.');
     };
 
     const handleClear = () => {
-        ref.current.clearSignature();
+        signatureRef.current?.clearSignature();
     };
 
     const handleConfirm = () => {
-        ref.current.readSignature();
+        signatureRef.current?.readSignature();
     };
 
     const submitHandover = async () => {
-        if (!signature || !notes) {
-            Alert.alert('Incomplete', 'Please add notes and sign the logbook.');
+        if (!signature || !notes.trim()) {
+            Alert.alert('Incomplete Handover', 'Please add shift summary notes and sign the logbook.');
             return;
         }
 
         setLoading(true);
         try {
             const res = await api.post('/security/handover', {
-                nextGuardId: null, // For now, just logging out
+                nextGuardId: null,
                 notes,
                 inventory,
-                signatureUrl: signature // Sending Base64 for now (Phase 13 MVP)
+                signatureUrl: signature
             });
 
-            if (res.data.success) {
-                Alert.alert('Shift Ended', 'Logbook signed successfully.', [
-                    { text: 'Clock Out', onPress: () => {
-                        logout(); // Actual Logout
-                    }}
+            if (res.data?.success) {
+                Alert.alert('Shift Ended', 'Logbook signed and shift successfully closed.', [
+                    { text: 'Sign Out', onPress: logout }
                 ]);
+            } else {
+                Alert.alert('Submission Error', 'Failed to log shift handover.');
             }
-        } catch (error) {
-            Alert.alert('Error', 'Failed to submit logbook.');
+        } catch (e) {
+            Alert.alert('Error', 'Failed to submit handover. Check network connection.');
         } finally {
             setLoading(false);
         }
@@ -72,142 +73,223 @@ export default function ShiftHandoverScreen({ navigation }) {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>DIGITAL LOGBOOK</Text>
-                <Text style={styles.subtitle}>SHIFT HANDOVER REPORT</Text>
+        <ScreenShell
+            title="Digital Logbook"
+            subtitle="Shift Handover & Equipment Clearance"
+            badgeText="HANDOVER"
+            badgeColor={COLORS.accentIndigo}
+            showBack={true}
+        >
+            {/* 1. Inventory Check */}
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>EQUIPMENT CHECKLIST</Text>
+                <View style={styles.grid}>
+                    {Object.keys(inventory).map(key => (
+                        <TouchableOpacity 
+                            key={key} 
+                            style={[styles.checkItem, inventory[key] && styles.checked]}
+                            onPress={() => toggleItem(key)}
+                            activeOpacity={0.7}
+                        >
+                            <MaterialCommunityIcons 
+                                name={inventory[key] ? "checkbox-marked" : "checkbox-blank-outline"} 
+                                size={22} 
+                                color={inventory[key] ? COLORS.accent : COLORS.textMuted} 
+                            />
+                            <Text style={styles.checkLabel}>{key.toUpperCase()}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
             </View>
 
-            <ScrollView style={styles.form}>
-                {/* 1. Inventory Check */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>EQUIPMENT CHECKLIST</Text>
-                    <View style={styles.grid}>
-                        {Object.keys(inventory).map(key => (
-                            <TouchableOpacity 
-                                key={key} 
-                                style={[styles.checkItem, inventory[key] && styles.checked]}
-                                onPress={() => toggleItem(key)}
-                            >
-                                <MaterialCommunityIcons 
-                                    name={inventory[key] ? "checkbox-marked" : "checkbox-blank-outline"} 
-                                    size={24} 
-                                    color={inventory[key] ? "#00f3ff" : "gray"} 
-                                />
-                                <Text style={styles.checkLabel}>{key.toUpperCase()}</Text>
-                            </TouchableOpacity>
-                        ))}
+            {/* 2. Notes */}
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>SHIFT SUMMARY NOTES</Text>
+                <TextInput
+                    mode="outlined"
+                    placeholder="Log unusual incidents, key handovers, pending tasks..."
+                    placeholderTextColor={COLORS.textMuted}
+                    value={notes}
+                    onChangeText={setNotes}
+                    multiline
+                    numberOfLines={4}
+                    style={styles.textArea}
+                    textColor={COLORS.textPrimary}
+                    theme={{ colors: { primary: COLORS.accentIndigo } }}
+                />
+            </View>
+
+            {/* 3. Signature */}
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>OFFICER DIGITAL SIGNATURE</Text>
+                {signature ? (
+                    <View style={styles.signaturePreviewContainer}>
+                        <Image source={{ uri: signature }} style={styles.signaturePreview} resizeMode="contain" />
+                        <Button mode="text" onPress={() => setIsSigning(true)} textColor={COLORS.accent}>
+                            Re-sign Logbook
+                        </Button>
                     </View>
-                </View>
+                ) : (
+                    <Button 
+                        mode="outlined" 
+                        icon="draw" 
+                        onPress={() => setIsSigning(true)}
+                        style={styles.signButton}
+                        textColor={COLORS.accent}
+                    >
+                        Tap to Sign Handover
+                    </Button>
+                )}
+            </View>
 
-                {/* 2. Notes */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>SHIFT SUMMARY</Text>
-                    <TextInput
-                        mode="outlined"
-                        placeholder="Report incidents, broken items, or clear status..."
-                        multiline
-                        numberOfLines={4}
-                        value={notes}
-                        onChangeText={setNotes}
-                        style={styles.input}
-                        theme={{ colors: { primary: '#00f3ff', background: '#222', placeholder: 'gray', text: 'white' }}}
-                        textColor="white"
-                    />
-                </View>
-
-                {/* 3. Signature */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>SIGNATURE</Text>
-                    {signature ? (
-                        <TouchableOpacity onPress={() => setIsSigning(true)} style={styles.sigPreview}>
-                             <Image source={{ uri: signature }} style={{ width: '100%', height: 100, resizeMode: 'contain' }} />
-                             <Text style={styles.editSig}>Tap to Edit</Text>
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity onPress={() => setIsSigning(true)} style={styles.sigPlaceholder}>
-                            <MaterialCommunityIcons name="draw" size={40} color="#00f3ff" />
-                            <Text style={styles.sigText}>TAP TO SIGN</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
-
-                <Button 
-                    mode="contained" 
-                    onPress={submitHandover} 
-                    loading={loading}
-                    disabled={loading}
-                    style={styles.submitBtn}
-                    labelStyle={styles.btnLabel}
-                >
-                    CONFIRM & CLOCK OUT
-                </Button>
-            </ScrollView>
+            {/* Submit */}
+            <Button 
+                mode="contained" 
+                onPress={submitHandover} 
+                loading={loading}
+                style={styles.submitBtn}
+                labelStyle={{ fontSize: 16, fontWeight: 'bold' }}
+            >
+                COMPLETE HANDOVER & END SHIFT
+            </Button>
 
             {/* Signature Modal */}
-            <Modal visible={isSigning} animationType="slide">
-                <View style={{flex: 1, backgroundColor: 'black'}}>
-                    <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>PLEASE SIGN BELOW</Text>
-                        <TouchableOpacity onPress={() => setIsSigning(false)}>
-                            <MaterialCommunityIcons name="close" size={30} color="white" />
-                        </TouchableOpacity>
-                    </View>
-                    <SignatureScreen
-                        ref={ref}
-                        onOK={handleSignature}
-                        onEmpty={handleEmpty}
-                        descriptionText="Sign above"
-                        clearText="Clear"
-                        confirmText="Save"
-                        webStyle={`.m-signature-pad--footer {display: none; margin: 0px;}`} 
-                    />
-                    <View style={styles.modalDirectActions}>
-                        <Button mode="outlined" onPress={handleClear} textColor="red" style={{borderColor: 'red', flex: 1, marginRight: 10}}>CLEAR</Button>
-                        <Button mode="contained" onPress={handleConfirm} buttonColor="#00f3ff" textColor="black" style={{flex: 1}}>SAVE</Button>
+            <Modal visible={isSigning} animationType="slide" transparent>
+                <View style={styles.modalContainer}>
+                    <View style={styles.signatureBox}>
+                        <Text style={styles.modalTitle}>Sign with finger below</Text>
+                        <View style={styles.canvasWrapper}>
+                            <SignatureScreen
+                                ref={signatureRef}
+                                onOK={handleSignature}
+                                onEmpty={handleEmpty}
+                                descriptionText="Sign here"
+                                clearText="Clear"
+                                confirmText="Save"
+                                webStyle={`.m-signature-pad--footer {display: none; margin: 0px;}`}
+                                autoClear={true}
+                                imageType="image/png"
+                            />
+                        </View>
+                        <View style={styles.modalActions}>
+                            <Button onPress={() => setIsSigning(false)} textColor={COLORS.textMuted}>
+                                Cancel
+                            </Button>
+                            <Button onPress={handleClear} textColor={COLORS.statusRed}>
+                                Clear
+                            </Button>
+                            <Button mode="contained" onPress={handleConfirm} style={{ backgroundColor: COLORS.accentIndigo }}>
+                                Confirm
+                            </Button>
+                        </View>
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenShell>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0f0c29', padding: 20, paddingTop: 50 },
-    header: { marginBottom: 30 },
-    title: { color: 'white', fontSize: 24, fontWeight: 'bold', letterSpacing: 2 },
-    subtitle: { color: '#00f3ff', fontSize: 12, marginTop: 5, letterSpacing: 1 },
-    
-    section: { marginBottom: 25 },
-    sectionTitle: { color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 'bold', marginBottom: 10 },
-    
-    grid: { flexDirection: 'row', flexWrap: 'wrap' },
-    checkItem: { 
-        width: '48%', flexDirection: 'row', alignItems: 'center', 
-        padding: 15, marginBottom: 10, marginRight: '2%',
-        backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 10,
-        borderWidth: 1, borderColor: 'transparent'
+    section: {
+        marginBottom: 20,
     },
-    checked: { borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)' },
-    checkLabel: { color: 'white', marginLeft: 10, fontWeight: 'bold' },
-
-    input: { backgroundColor: '#1a1a1a' },
-
-    sigPlaceholder: {
-        height: 120, borderStyle: 'dashed', borderWidth: 2, borderColor: '#00f3ff', borderRadius: 10,
-        justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 243, 255, 0.05)'
+    sectionTitle: {
+        color: COLORS.textMuted,
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        letterSpacing: 0.5,
     },
-    sigPreview: {
-        height: 120, borderWidth: 1, borderColor: '#00f3ff', borderRadius: 10,
-        backgroundColor: 'white', justifyContent: 'center', alignItems: 'center'
+    grid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
     },
-    sigText: { color: '#00f3ff', marginTop: 10, fontWeight: 'bold', letterSpacing: 1 },
-    editSig: { position: 'absolute', bottom: 5, right: 5, color: 'gray', fontSize: 10 },
-
-    submitBtn: { backgroundColor: '#00f3ff', borderRadius: 5, marginTop: 20, paddingVertical: 5 },
-    btnLabel: { color: 'black', fontWeight: 'bold', fontSize: 16, letterSpacing: 1 },
-
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', padding: 20 },
-    modalTitle: { color: 'white', fontWeight: 'bold', fontSize: 18 },
-    modalDirectActions: { flexDirection: 'row', padding: 20, backgroundColor: 'black' }
+    checkItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.surface,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 12,
+        width: '48%',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    checked: {
+        borderColor: COLORS.accent,
+        backgroundColor: COLORS.card,
+    },
+    checkLabel: {
+        color: COLORS.textPrimary,
+        marginLeft: 8,
+        fontWeight: '600',
+        fontSize: 12,
+    },
+    textArea: {
+        backgroundColor: COLORS.surface,
+        minHeight: 100,
+    },
+    signButton: {
+        borderColor: COLORS.accent,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        paddingVertical: 8,
+        borderRadius: 12,
+    },
+    signaturePreviewContainer: {
+        alignItems: 'center',
+        backgroundColor: COLORS.surface,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    signaturePreview: {
+        width: '100%',
+        height: 100,
+        backgroundColor: COLORS.background,
+        borderRadius: 8,
+    },
+    submitBtn: {
+        marginTop: 10,
+        backgroundColor: COLORS.accentIndigo,
+        borderRadius: 12,
+        paddingVertical: 6,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.scrim,
+        padding: 20,
+    },
+    signatureBox: {
+        width: '100%',
+        height: 380,
+        backgroundColor: COLORS.surface,
+        borderRadius: 20,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    modalTitle: {
+        color: COLORS.textPrimary,
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    canvasWrapper: {
+        flex: 1,
+        borderRadius: 10,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 14,
+    }
 });

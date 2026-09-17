@@ -1,9 +1,60 @@
 const os = require('os');
+const promClient = require('prom-client');
 const logger = require('./Logger');
+
+// Initialize Prometheus Default Metrics (if not already collected)
+if (!promClient.register.getSingleMetric('process_cpu_user_seconds_total')) {
+    try {
+        promClient.collectDefaultMetrics({ register: promClient.register });
+    } catch (e) {
+        // Ignore if already registered
+    }
+}
+
+// Prometheus Metrics: Counter & Histogram
+let httpRequestsTotal = promClient.register.getSingleMetric('http_requests_total');
+if (!httpRequestsTotal) {
+    httpRequestsTotal = new promClient.Counter({
+        name: 'http_requests_total',
+        help: 'Total number of HTTP requests processed by Wolf HMS',
+        labelNames: ['method', 'route', 'status']
+    });
+}
+
+let httpRequestDurationMs = promClient.register.getSingleMetric('http_request_duration_ms');
+if (!httpRequestDurationMs) {
+    httpRequestDurationMs = new promClient.Histogram({
+        name: 'http_request_duration_ms',
+        help: 'HTTP request duration in milliseconds for Wolf HMS',
+        labelNames: ['method', 'route', 'status'],
+        buckets: [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+    });
+}
+
+let dbSlowQueriesTotal = promClient.register.getSingleMetric('db_slow_queries_total');
+if (!dbSlowQueriesTotal) {
+    dbSlowQueriesTotal = new promClient.Counter({
+        name: 'db_slow_queries_total',
+        help: 'Total number of database queries exceeding the slow threshold',
+        labelNames: ['query_prefix']
+    });
+}
+
+/**
+ * Normalizes HTTP route paths to prevent unbounded Prometheus label cardinality
+ * (e.g. /api/patients/3fa85f64-5717-4562-b3fc-2c963f66afa6 -> /api/patients/:id)
+ */
+function normalizeRoute(path) {
+    if (!path) return '/';
+    const clean = path.split('?')[0];
+    return clean
+        .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':id')
+        .replace(/\/\d+(?=\/|$)/g, '/:id');
+}
 
 /**
  * Metrics Collector Service
- * Collects and tracks system performance metrics
+ * Collects and tracks system performance metrics using prom-client and in-memory analytics.
  */
 class MetricsCollector {
     static metrics = {
@@ -34,7 +85,7 @@ class MetricsCollector {
             this.metrics.requests.error++;
         }
 
-        // Track by endpoint
+        const normRoute = normalizeRoute(path);
         const endpoint = `${method} ${path.split('?')[0]}`;
         if (!this.metrics.requests.byEndpoint[endpoint]) {
             this.metrics.requests.byEndpoint[endpoint] = { count: 0, totalTime: 0, errors: 0 };
@@ -49,10 +100,20 @@ class MetricsCollector {
         this.metrics.responseTimes.push({
             timestamp: Date.now(),
             duration,
-            endpoint
+            endpoint,
+            statusCode
         });
         if (this.metrics.responseTimes.length > this.maxResponseTimes) {
             this.metrics.responseTimes.shift();
+        }
+
+        // Record in Prometheus metrics
+        try {
+            const statusStr = String(statusCode);
+            httpRequestsTotal.inc({ method, route: normRoute, status: statusStr });
+            httpRequestDurationMs.observe({ method, route: normRoute, status: statusStr }, duration);
+        } catch (promErr) {
+            // Guard against metric collection failures
         }
     }
 
@@ -72,8 +133,50 @@ class MetricsCollector {
                 this.metrics.slowQueries.shift();
             }
 
+            try {
+                const queryPrefix = sql.trim().split(/\s+/)[0]?.toUpperCase() || 'UNKNOWN';
+                dbSlowQueriesTotal.inc({ query_prefix: queryPrefix });
+            } catch (promErr) {
+                // Guard against metric collection failures
+            }
+
             logger.warn(`Slow query detected: ${duration}ms`, { sql: sql.substring(0, 100) });
         }
+    }
+
+    /**
+     * Calculate error rate percentage over a sliding time window
+     * @param {number} windowMs - Window duration in milliseconds (default: 15 minutes)
+     * @returns {number} Error rate percentage (0.0 to 100.0)
+     */
+    static getErrorRateWindow(windowMs = 15 * 60 * 1000) {
+        const cutoff = Date.now() - windowMs;
+        const recent = this.metrics.responseTimes.filter(r => r.timestamp >= cutoff);
+        if (recent.length === 0) return 0;
+        const errors = recent.filter(r => r.statusCode >= 400).length;
+        return parseFloat(((errors / recent.length) * 100).toFixed(2));
+    }
+
+    /**
+     * Get Prometheus metrics text output
+     * @returns {Promise<string>}
+     */
+    static async getMetricsText() {
+        return await promClient.register.metrics();
+    }
+
+    /**
+     * Returns the prom-client register
+     */
+    static getRegister() {
+        return promClient.register;
+    }
+
+    /**
+     * Returns the Content-Type header required for Prometheus scraping
+     */
+    static getContentType() {
+        return promClient.register.contentType;
     }
 
     /**
@@ -133,7 +236,6 @@ class MetricsCollector {
             return Math.round(times.reduce((a, b) => a + b.duration, 0) / times.length);
         };
 
-        // Top 10 slowest endpoints
         const endpointStats = Object.entries(this.metrics.requests.byEndpoint)
             .map(([endpoint, stats]) => ({
                 endpoint,
@@ -195,6 +297,11 @@ class MetricsCollector {
             slowQueries: [],
             startTime: Date.now()
         };
+        try {
+            promClient.register.resetMetrics();
+        } catch (e) {
+            // Guard
+        }
     }
 }
 

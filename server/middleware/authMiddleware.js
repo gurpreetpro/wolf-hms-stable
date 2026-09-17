@@ -10,7 +10,27 @@ const protect = (req, res, next) => {
                 console.error("[CRITICAL] JWT_SECRET is not defined in environment variables!");
                 return res.status(500).json({ message: 'Server misconfiguration' });
             }
+
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // [Phase 2 Hardening] Enforce Issuer & Audience with backwards compatibility window
+            const expectedIssuer = process.env.JWT_ISSUER || 'wolf-hms';
+            const expectedAudience = process.env.JWT_AUDIENCE || 'wolf-hms-api';
+
+            if (decoded.iss || decoded.aud) {
+                if (decoded.iss && decoded.iss !== expectedIssuer) {
+                    console.warn(`[AuthMiddleware] ⛔ Invalid token issuer: "${decoded.iss}" (expected "${expectedIssuer}")`);
+                    return res.status(401).json({ message: 'Not authorized, invalid token issuer' });
+                }
+                if (decoded.aud && decoded.aud !== expectedAudience) {
+                    console.warn(`[AuthMiddleware] ⛔ Invalid token audience: "${decoded.aud}" (expected "${expectedAudience}")`);
+                    return res.status(401).json({ message: 'Not authorized, invalid token audience' });
+                }
+            } else {
+                // Compatibility window: Log deprecation warning for tokens generated without claims
+                console.warn(`[AuthMiddleware] ⚠️  [DEPRECATION] Legacy token accepted without iss/aud claims for user ${decoded.id || decoded.username}`);
+            }
+
             // [FIX] STRICT TENANT ISOLATION (Middleware Layer)
             // Verify that the Token's hospital_id matches the requested Domain's hospital_id
             

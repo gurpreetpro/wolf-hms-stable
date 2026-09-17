@@ -2,9 +2,45 @@ import React, { createContext, useState, useEffect, useRef } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { AppState } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import api from '../services/api';
+import api, { setUnauthorizedCallback } from '../services/api';
 
 export const AuthContext = createContext();
+
+// Helper to check if a JWT is expired
+const isTokenExpired = (jwtToken) => {
+  try {
+    if (!jwtToken) return true;
+    const parts = jwtToken.split('.');
+    if (parts.length < 2) return true;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let decodedStr = '';
+    if (typeof atob === 'function') {
+      decodedStr = atob(base64);
+    } else {
+      // Manual base64 decode fallback
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+      let buffer = 0, bits = 0;
+      for (let i = 0; i < base64.length; i++) {
+        const idx = chars.indexOf(base64.charAt(i));
+        if (idx === -1) continue;
+        buffer = (buffer << 6) | idx;
+        bits += 6;
+        if (bits >= 8) {
+          bits -= 8;
+          decodedStr += String.fromCharCode((buffer >> bits) & 0xff);
+        }
+      }
+    }
+    const decoded = JSON.parse(decodedStr);
+    if (decoded.exp && (decoded.exp * 1000) < Date.now()) {
+      return true; // Expired
+    }
+    return false;
+  } catch (e) {
+    return false;
+  }
+};
 
 export const AuthProvider = ({ children }) => {
   const [userToken, setUserToken] = useState(null);
@@ -30,7 +66,8 @@ export const AuthProvider = ({ children }) => {
     try {
         const response = await api.post('/auth/login', {
             id: employeeId,
-            password: password
+            password: password,
+            clientType: 'mobile'
         });
 
         if (response.data.success) {
@@ -70,6 +107,13 @@ export const AuthProvider = ({ children }) => {
         let token = await SecureStore.getItemAsync('userToken');
         let user = await SecureStore.getItemAsync('userData');
         let savedDutyMode = await SecureStore.getItemAsync('dutyMode');
+
+        if (token && isTokenExpired(token)) {
+            console.log("[AuthContext] Stored token expired. Purging stale session.");
+            await logout();
+            return;
+        }
+
         if (token && user) {
             setUserToken(token);
             setUserData(JSON.parse(user));
@@ -93,6 +137,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    setUnauthorizedCallback(() => {
+      console.warn('[AuthContext] Session expired via 401 response. Logging out.');
+      logout();
+    });
     isLoggedIn();
   }, []);
 

@@ -111,7 +111,7 @@ const GuardProfileModal = React.memo(({ show, onHide, guard }) => {
                         <Badge bg={guard.status === 'ONLINE' ? 'success' : 'secondary'} className="me-2">
                             {guard.status}
                         </Badge>
-                        <Badge bg="info" text="dark">Battery: {Math.round(guard.batteryLevel * 100)}%</Badge>
+                        <Badge bg="info" text="dark">Battery: {guard.batteryLevel != null ? (typeof guard.batteryLevel === 'number' && guard.batteryLevel <= 1 ? Math.round(guard.batteryLevel * 100) : guard.batteryLevel) : 'N/A'}%</Badge>
                         <div className="mt-2 small text-info font-monospace">
                             LAST LOCATION: {guard.latitude?.toFixed(4)}, {guard.longitude?.toFixed(4)}
                         </div>

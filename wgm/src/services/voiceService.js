@@ -1,4 +1,3 @@
-import { LiveKitRoom, AudioSession, RoomEvent, Room } from 'livekit-client';
 import api from './api';
 
 /**
@@ -12,6 +11,7 @@ class VoiceService {
         this.isTransmitting = false;
         this.token = null;
         this.url = 'wss://your-livekit-server.io'; // TODO: Get from Config
+        this.status = 'OFFLINE';
     }
 
     /**
@@ -27,21 +27,26 @@ class VoiceService {
             if (!res.data.success) throw new Error('Failed to get voice token');
             this.token = res.data.data.token;
 
-            // 2. Connect to LiveKit
+            // 2. Lazy-load LiveKit (keeps livekit-client out of module-eval path on Hermes)
+            const { Room, RoomEvent, AudioSession } = await import('livekit-client');
+
+            // 3. Connect to LiveKit
             this.room = new Room({ adaptiveStream: true, dynacast: true });
             
             this.room.on(RoomEvent.Connected, () => {
                 console.log('[Voice] Connected to Squad Channel');
                 this.isConnected = true;
+                this.status = 'ONLINE';
             });
 
             this.room.on(RoomEvent.Disconnected, () => {
                 console.log('[Voice] Disconnected');
                 this.isConnected = false;
+                this.status = 'OFFLINE';
             });
 
-            // 3. Audio Session (Important for mobile)
-            // await AudioSession.startAudioSession(); 
+            // 4. Audio Session (Important for mobile)
+            // await AudioSession.startAudioSession();
 
             await this.room.connect(this.url, this.token);
 
@@ -49,8 +54,9 @@ class VoiceService {
             await this.room.localParticipant.setMicrophoneEnabled(false);
 
         } catch (e) {
-            console.error('[Voice] Connection Failed:', e);
-            throw e;
+            this.isConnected = false;
+            this.status = 'OFFLINE';
+            console.warn('[Voice] Connection failed — staying OFFLINE', e);
         }
     }
 

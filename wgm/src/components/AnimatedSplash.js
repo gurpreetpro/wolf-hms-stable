@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, withDelay, runOnJS } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS } from '../theme';
 
 export default function AnimatedSplash({ onFinish }) {
     const opacity = useSharedValue(0);
@@ -29,7 +30,7 @@ export default function AnimatedSplash({ onFinish }) {
 
     return (
         <View style={styles.container}>
-            <LinearGradient colors={['#050a14', '#141e30']} style={StyleSheet.absoluteFill} />
+            <LinearGradient colors={[COLORS.gradientStart, COLORS.gradientEnd]} style={StyleSheet.absoluteFill} />
             <View style={styles.center}>
                  <Animated.Image 
                     source={require('../../assets/wolf_logo.png')} 

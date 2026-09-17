@@ -292,6 +292,48 @@
     margin: 0;
 }
 
+.floor-selector-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 3px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.floor-selector-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+    margin-right: 2px;
+}
+
+.floor-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.floor-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.floor-btn.active {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+}
+
 .map-container {
     flex: 1;
     min-height: 300px;
@@ -478,3 +520,74 @@
         display: block;
     }
 }
+
+/* ============================================
+   BLUEPRINT UPLOAD & GEOREFERENCING STUDIO
+   ============================================ */
+.btn-upload-blueprint-glow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #00f0ff;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15) 0%, rgba(0, 145, 234, 0.25) 100%);
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-upload-blueprint-glow:hover {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.3) 0%, rgba(0, 145, 234, 0.45) 100%);
+    border-color: rgba(0, 240, 255, 0.8);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+    transform: translateY(-1px);
+    color: #ffffff;
+}
+
+.blueprint-alert-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-left: 3px solid #f59e0b;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.blueprint-alert-banner:hover {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border-color: rgba(245, 158, 11, 0.6);
+}
+
+.btn-studio-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f59e0b;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+}
+
+.btn-studio-action:hover {
+    background: #fbbf24;
+}
+

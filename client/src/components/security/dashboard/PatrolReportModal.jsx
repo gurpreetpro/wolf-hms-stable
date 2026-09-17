@@ -209,7 +209,7 @@ const PatrolReportModal = React.memo(({
                                                 ? `${guard.latitude.toFixed(4)}, ${guard.longitude.toFixed(4)}`
                                                 : 'Unknown'}
                                         </td>
-                                        <td>{guard.batteryLevel ? `${Math.round(guard.batteryLevel * 100)}%` : '-'}</td>
+                                        <td>{guard.batteryLevel != null ? `${typeof guard.batteryLevel === 'number' && guard.batteryLevel <= 1 ? Math.round(guard.batteryLevel * 100) : guard.batteryLevel}%` : '-'}</td>
                                         <td>{guard.lastUpdate ? new Date(guard.lastUpdate).toLocaleTimeString('en-IN') : '-'}</td>
                                     </tr>
                                 ))

@@ -9,7 +9,8 @@ import {
     ChevronDown,
     Shield,
     ShieldAlert,
-    Grid3x3
+    Grid3x3,
+    Map
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import api from '../utils/axiosInstance';
@@ -81,6 +82,10 @@ const TopNav = () => {
                                 <Nav.Link as={Link} to="/security" className="dashboard-btn d-flex align-items-center gap-2 ms-2">
                                     <Shield size={18} />
                                     <span>Security</span>
+                                </Nav.Link>
+                                <Nav.Link as={Link} to="/security/floor-plans" className="dashboard-btn d-flex align-items-center gap-2 ms-2">
+                                    <Map size={18} />
+                                    <span>Floor Plans</span>
                                 </Nav.Link>
                             </>
                         )}

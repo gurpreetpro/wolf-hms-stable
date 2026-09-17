@@ -81,11 +81,20 @@ const securityService = {
     /**
      * Record Checkpoint
      */
-    recordCheckpoint: async (patrolId, checkpointName) => {
+    recordCheckpoint: async (patrolId, checkpointName, gpsLat = null, gpsLong = null, nfcTagId = null) => {
         return api.put(`/security/patrols/${patrolId}/checkpoint`, { 
             patrolId, 
-            checkpointName 
+            checkpointName,
+            gpsLat,
+            gpsLong,
+            nfcTagId
         });
+    },
+    /**
+     * Fetch Active Floor Map & Walkable Corridors
+     */
+    getActiveFloorMap: async (floor = 1) => {
+        return api.get(`/security/maps/active?floor=${floor}`);
     }
 };
 

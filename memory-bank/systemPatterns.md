@@ -15,6 +15,9 @@
 | `emergency_events` | `id` | SERIAL | Auto-increment |
 | `emergency_logs` | `id` | SERIAL | Auto-increment |
 | `blood_units` | `id` | INTEGER | Auto-increment |
+| `hospital_buildings` | `id` | SERIAL | Auto-increment, building coordinates & floor count |
+| `floor_plans` | `id` | SERIAL | Auto-increment, corners JSONB, walkable_graph JSONB |
+| `floor_zones` | `id` | SERIAL | Auto-increment, polygon JSONB, risk_level, hospital_id |
 
 ### Multi-Tenancy
 - Every major table has `hospital_id INTEGER` column
@@ -146,6 +149,14 @@ Key non-obvious routes:
 - HTTP: Axios with interceptors for auth headers
 - Real-time: Socket.IO client (`client/src/services/socket.js`)
 - Theme: Light/dark mode via ThemeToggle component
+- Base Map Tiles: ESRI World Dark Gray Canvas (`esri_dark`) for tactical dark UI (zero watermarks, keyless)
+- Georeferencing & Leaflet Distortable Image:
+  - `leaflet-distortableimage` requires `L.Toolbar2.Action` from `leaflet-toolbar`.
+  - Always import `leaflet-toolbar` before `leaflet-distortableimage` in `client/src/utils/leafletDistortable.js`.
+  - Global `window.L = L` is explicitly exposed in `client/src/main.jsx`.
+- Code-Splitting & Route Isolation:
+  - Complex Leaflet GIS modules (e.g., `FloorPlanManager.jsx`, `FloorPlanStudioModal.jsx`) are dynamically loaded using `React.lazy()` and `<React.Suspense>`.
+  - This guarantees Leaflet initialization or plugin evaluation issues never crash root/auth routes (`/login`).
 
 ### Component Directory Structure (21 directories)
 | Directory | Purpose |

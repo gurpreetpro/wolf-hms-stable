@@ -15,47 +15,62 @@ class HeadingEstimator {
     }
 
     /**
-     * Update filter with new sensor data
-     * @param {object} gyro - {x, y, z} in rad/s
-     * @param {object} mag - {x, y, z} in uT
+     * Calibrate or seed heading from GPS or known checkpoint
+     * @param {number} degrees - 0-360
+     */
+    setHeading(degrees) {
+        if (degrees !== null && degrees !== undefined && !isNaN(degrees)) {
+            let h = degrees % 360;
+            if (h < 0) h += 360;
+            this.heading = h;
+        }
+    }
+
+    /**
+     * Update filter with new sensor data (handles gyro-only, mag-only, or fused)
+     * @param {object|null} gyro - {x, y, z} in rad/s
+     * @param {object|null} mag - {x, y, z} in uT
      * @param {number} dt - time delta in seconds (e.g., 0.05 for 20Hz)
      * @returns {number} Fused heading in degrees (0-360)
      */
-    update(gyro, mag, dt) {
-        if (!gyro || !mag) return this.heading;
+    update(gyro, mag, dt = 0.05) {
+        const hasGyro = gyro && (gyro.x !== 0 || gyro.y !== 0 || gyro.z !== 0);
+        const hasMag = mag && (mag.x !== 0 || mag.y !== 0 || mag.z !== 0);
 
-        // 1. Calculate Magnetometer Heading (Basic)
-        // arctan2(y, x) converts simple X/Y values to angle
-        let magHeading = Math.atan2(mag.y, mag.x) * (180 / Math.PI);
-        if (magHeading < 0) magHeading += 360;
+        if (!hasGyro && !hasMag) return this.heading;
 
-        // 2. Integrate Gyroscope (Dead Reckoning orientation)
-        // gyro.z is yaw rate (around vertical axis, assuming phone flat)
-        // In real world, we'd project this based on gravity vector (Attitude), 
-        // but for Phase 1 we assume phone held roughly flat or vertical.
-        const gyroDelta = gyro.z * (180 / Math.PI) * dt; 
+        // 1. Calculate Magnetometer Heading
+        let magHeading = null;
+        if (hasMag) {
+            magHeading = Math.atan2(mag.y, mag.x) * (180 / Math.PI);
+            if (magHeading < 0) magHeading += 360;
+        }
 
-        // 3. Complementary Filter
-        // We need to handle the 360/0 wrap-around for the filter maths to work
-        // Instead of complex quaternion slerp, we just trust Gyro for delta
-        // and gently pull towards Mag
-        
-        // Predict
+        // 2. Case: Mag only (no Gyroscope)
+        if (!hasGyro && hasMag) {
+            this.heading = magHeading;
+            return this.heading;
+        }
+
+        // 3. Case: Gyro only (no Magnetometer)
+        const gyroDelta = (gyro.z || 0) * (180 / Math.PI) * dt;
         let predicted = this.heading + gyroDelta;
-        
-        // Normalize Predicted
         if (predicted < 0) predicted += 360;
         if (predicted >= 360) predicted -= 360;
 
-        // Calculate discrepancy (shortest path)
+        if (!hasMag) {
+            this.heading = predicted;
+            return this.heading;
+        }
+
+        // 4. Complementary Filter (Fused Gyro + Mag)
         let delta = magHeading - predicted;
         if (delta > 180) delta -= 360;
         if (delta < -180) delta += 360;
 
-        // Correct
         this.heading = predicted + (1 - this.alpha) * delta;
 
-        // Final Normalize
+        // Final Normalize (0-360)
         if (this.heading < 0) this.heading += 360;
         if (this.heading >= 360) this.heading -= 360;
 

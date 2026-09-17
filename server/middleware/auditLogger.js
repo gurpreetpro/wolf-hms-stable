@@ -1,11 +1,13 @@
 /**
  * Audit Logging Middleware and Utilities
  * Gold Standard Phase 4 - Comprehensive audit trail
+ * Phase 5 Hardening (W2): Cryptographic hash chaining integration
  */
 const { pool } = require('../db');
+const { computeRecordHash, getLatestHash } = require('../utils/auditChain');
 
 /**
- * Log an audit event to the database
+ * Log an audit event to the database with cryptographic SHA-256 hash chaining
  */
 const logAudit = async ({
     action,
@@ -20,25 +22,44 @@ const logAudit = async ({
     description = null
 }) => {
     try {
+        const timestamp = new Date();
+        const prevHash = await getLatestHash(pool);
+        const recordHash = computeRecordHash({
+            prevHash,
+            userId,
+            action,
+            resourceType: entityType,
+            resourceId: entityId,
+            timestamp
+        });
+
         await pool.query(`
             INSERT INTO audit_logs 
-            (action, entity_type, entity_id, user_id, user_name, user_role, old_value, new_value, ip_address, description)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            (action, entity_type, entity_id, resource_type, resource_id, user_id, user_name, user_role, old_value, new_value, ip_address, description, created_at, prev_hash, record_hash)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
         `, [
             action,
             entityType,
-            entityId,
+            entityId ? String(entityId) : null,
+            entityType,
+            entityId ? String(entityId) : null,
             userId,
             userName,
             userRole,
             oldValue ? JSON.stringify(oldValue) : null,
             newValue ? JSON.stringify(newValue) : null,
             ipAddress,
-            description
+            description,
+            timestamp,
+            prevHash,
+            recordHash
         ]);
+
+        return { prevHash, recordHash };
     } catch (err) {
         console.error('Audit log error:', err);
         // Don't throw - audit logging should never break main functionality
+        return null;
     }
 };
 
@@ -68,7 +89,7 @@ const auditMiddleware = (entityType) => {
                     userId: req.user?.id,
                     userName: req.user?.username,
                     userRole: req.user?.role,
-                    oldValue: null, // Would need to fetch before update
+                    oldValue: null,
                     newValue: req.body,
                     ipAddress: req.ip || req.connection?.remoteAddress,
                     description: `${action} ${entityType} via API`

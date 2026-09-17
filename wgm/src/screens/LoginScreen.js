@@ -7,25 +7,48 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as SecureStore from 'expo-secure-store';
+import { COLORS } from '../theme';
 
 export default function LoginScreen() {
-  const [empId, setEmpId] = useState('101'); 
-  const [password, setPassword] = useState('pass123');
+  const [empId, setEmpId] = useState('');
+  const [password, setPassword] = useState('');
   const { login, isLoading } = useContext(AuthContext);
   const theme = useTheme();
   const [hasBiometrics, setHasBiometrics] = useState(false);
+  const [hasStoredCreds, setHasStoredCreds] = useState(false);
 
   useEffect(() => {
       (async () => {
           const compatible = await LocalAuthentication.hasHardwareAsync();
           const enrolled = await LocalAuthentication.isEnrolledAsync();
           setHasBiometrics(compatible && enrolled);
+          // Only show biometric button if we have stored credentials
+          try {
+              const storedId = await SecureStore.getItemAsync('wg_login_id');
+              const storedPw = await SecureStore.getItemAsync('wg_login_pw');
+              setHasStoredCreds(!!(storedId && storedPw));
+          } catch (e) {
+              setHasStoredCreds(false);
+          }
       })();
   }, []);
 
   const handleLogin = async () => {
+    if (!empId.trim() || !password.trim()) {
+        Alert.alert('Missing Fields', 'Please enter your Guard ID and Passphrase.');
+        return;
+    }
     const result = await login(empId, password);
-    if (!result.success) alert(result.message);
+    if (result.success) {
+        // Save credentials for future biometric login
+        try {
+            await SecureStore.setItemAsync('wg_login_id', empId);
+            await SecureStore.setItemAsync('wg_login_pw', password);
+        } catch (e) { /* non-critical */ }
+    } else {
+        Alert.alert('Login Failed', result.message || 'Invalid credentials.');
+    }
   };
 
   const handleBiometricAuth = async () => {
@@ -35,9 +58,17 @@ export default function LoginScreen() {
               fallbackLabel: 'Use Passcode'
           });
           if (result.success) {
-              // In a real app, we would retrieve stored credentials here.
-              // For demo, we auto-trigger login with default/current inputs
-              handleLogin();
+              // Retrieve stored credentials from SecureStore
+              const storedId = await SecureStore.getItemAsync('wg_login_id');
+              const storedPw = await SecureStore.getItemAsync('wg_login_pw');
+              if (storedId && storedPw) {
+                  const loginResult = await login(storedId, storedPw);
+                  if (!loginResult.success) {
+                      Alert.alert('Login Failed', loginResult.message || 'Stored credentials may be expired. Please login manually.');
+                  }
+              } else {
+                  Alert.alert('No Stored Credentials', 'Please login manually first. Biometric login will work on subsequent sessions.');
+              }
           }
       } catch (e) { Alert.alert('Error', 'Biometric scan failed'); }
   };
@@ -45,17 +76,17 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
        <LinearGradient
-        colors={['#050a14', '#141e30']}
+        colors={[COLORS.gradientStart, COLORS.gradientEnd]}
         style={StyleSheet.absoluteFill}
       />
       
       <View style={styles.content}>
         <View style={styles.header}>
-            <MaterialCommunityIcons name="shield-lock-outline" size={60} color="#00f3ff" style={{marginBottom: 20}} />
-            <Text variant="displaySmall" style={{ color: '#00f3ff', fontWeight: 'bold', textShadowColor: 'rgba(0, 243, 255, 0.5)', textShadowRadius: 10 }}>
+            <MaterialCommunityIcons name="shield-lock-outline" size={60} color={COLORS.accent} style={{marginBottom: 20}} />
+            <Text variant="displaySmall" style={{ color: COLORS.accent, fontWeight: 'bold', textShadowColor: COLORS.accentGlow, textShadowRadius: 10 }}>
                 WOLF GUARD
             </Text>
-            <Text variant="titleMedium" style={{ color: 'rgba(255,255,255,0.7)', letterSpacing: 3, marginTop: 5 }}>
+            <Text variant="titleMedium" style={{ color: COLORS.glassOverlayStrong, letterSpacing: 3, marginTop: 5 }}>
                 CYBER SENTINEL ACCESS
             </Text>
         </View>
@@ -67,9 +98,9 @@ export default function LoginScreen() {
                 onChangeText={setEmpId}
                 mode="outlined"
                 style={styles.input}
-                textColor="white"
-                theme={{ colors: { primary: '#00f3ff', background: 'transparent', outline: 'rgba(255,255,255,0.2)' } }}
-                left={<TextInput.Icon icon="account" color="white" />}
+                textColor={COLORS.textPrimary}
+                theme={{ colors: { primary: COLORS.accent, background: 'transparent', outline: COLORS.border } }}
+                left={<TextInput.Icon icon="account" color={COLORS.textPrimary} />}
             />
             
             <TextInput
@@ -79,9 +110,9 @@ export default function LoginScreen() {
                 secureTextEntry
                 mode="outlined"
                 style={styles.input}
-                textColor="white"
-                theme={{ colors: { primary: '#00f3ff', background: 'transparent', outline: 'rgba(255,255,255,0.2)' } }}
-                left={<TextInput.Icon icon="lock" color="white" />}
+                textColor={COLORS.textPrimary}
+                theme={{ colors: { primary: COLORS.accent, background: 'transparent', outline: COLORS.border } }}
+                left={<TextInput.Icon icon="lock" color={COLORS.textPrimary} />}
             />
 
             <Button 
@@ -91,16 +122,16 @@ export default function LoginScreen() {
                 style={styles.button}
                 contentStyle={{ height: 50 }}
                 labelStyle={{ fontWeight: 'bold', fontSize: 16, letterSpacing: 1 }}
-                buttonColor="#00f3ff"
-                textColor="#000"
+                buttonColor={COLORS.accent}
+                textColor={COLORS.onAccent}
             >
                 AUTHENTICATE
             </Button>
 
-            {hasBiometrics && (
+            {hasBiometrics && hasStoredCreds && (
                 <TouchableOpacity onPress={handleBiometricAuth} style={styles.bioButton}>
-                    <MaterialCommunityIcons name="fingerprint" size={40} color="#00f3ff" />
-                    <Text style={{color: '#00f3ff', marginTop: 5}}>BIO-UNLOCK</Text>
+                    <MaterialCommunityIcons name="fingerprint" size={40} color={COLORS.accent} />
+                    <Text style={{color: COLORS.accent, marginTop: 5}}>BIO-UNLOCK</Text>
                 </TouchableOpacity>
             )}
         </BlurView>
@@ -117,12 +148,12 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', marginBottom: 40 },
   glassForm: {
       padding: 25, borderRadius: 20, overflow: 'hidden',
-      borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
+      borderColor: COLORS.border, borderWidth: 1,
       gap: 15
   },
   input: { backgroundColor: 'transparent' },
   button: { marginTop: 10, borderRadius: 10 },
   bioButton: { alignItems: 'center', marginTop: 20, alignSelf: 'center' },
-  footer: { position: 'absolute', bottom: 30, alignSelf: 'center', color: 'rgba(255,255,255,0.3)' }
+  footer: { position: 'absolute', bottom: 30, alignSelf: 'center', color: COLORS.textDim }
 });
 

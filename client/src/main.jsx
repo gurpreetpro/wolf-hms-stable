@@ -1,5 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import L from 'leaflet'
+if (typeof window !== 'undefined') {
+  window.L = L;
+}
 import axios from 'axios'
 import App from './App.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';

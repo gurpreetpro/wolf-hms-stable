@@ -182,6 +182,13 @@ app.post('/api/health/run-migration', async (req, res) => {
   });
 });
 
+// ==============================================================================
+// ⚠️ SECURITY DEBT NOTICE (Tagged for Phase 2 Remediation)
+// ROUTE: POST /api/health/exec-sql
+// RISK: Remote arbitrary SQL execution backdoor using static shared setupKey.
+// REMEDIATION: To be replaced in Phase 2 with mTLS-gated admin CLI / migration engine.
+// DO NOT REMOVE IN PHASE 1: Production operational dependencies still rely on this.
+// ==============================================================================
 // DEBUG: Execute arbitrary SQL (for schema fixes)
 app.post('/api/health/exec-sql', async (req, res) => {
   const { setupKey, sql } = req.body;
@@ -1365,6 +1372,7 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/overwatch', overwatchRoutes);
 app.use('/api/backup', cloudBackupRoutes);
 app.use('/api/security', securityRoutes);
+app.use('/api/locations', require('./routes/locationRoutes'));
 app.use('/api/hospitals', hospitalRoutes);
 app.use('/api/roster', rosterRoutes);
 app.use('/api/sessions', sessionRoutes);
@@ -1405,12 +1413,14 @@ if (homeLabRoutes) {
     app.use('/api/home-lab', homeLabRoutes);
     console.log('[WOLF-CARE] 🔗 Mounted /api/home-lab');
 }
+
+// [NEW] Medicine Orders (Wolf Care App)
 try {
-    const locationRoutes = require('./routes/locationRoutes');
-    app.use('/api/locations', locationRoutes);
-    console.log('[WOLF-CARE] 🔗 Mounted /api/locations (trail + online staff)');
-} catch (locErr) {
-    console.error('[WOLF-CARE] ❌ locationRoutes load error:', locErr.message);
+    const medicineOrderRoutes = require('./routes/medicineOrderRoutes');
+    app.use('/api/medicine-orders', medicineOrderRoutes);
+    console.log('[WOLF-CARE] 🔗 Mounted /api/medicine-orders');
+} catch (err) {
+    console.error('[WOLF-CARE] ❌ Failed to load medicineOrderRoutes:', err.message);
 }
 
 // [PMJAY] HBP 2.0 Rate Lookup and Claims Management Routes
@@ -1443,6 +1453,9 @@ app.use('/api/admissions', auditMiddleware);
 app.use('/api/lab', auditMiddleware);
 app.use('/api/pharmacy', auditMiddleware);
 
+const platformRoutes = require('./routes/platformRoutes');
+app.use('/api/platform', platformRoutes);
+
 console.log('✅ All routes loaded synchronously');
 
 // Serve static files from public directory (React app)
@@ -1451,14 +1464,6 @@ console.log('✅ All routes loaded synchronously');
 const jwt = require('jsonwebtoken'); // Added for Socket.IO Auth
 app.use(express.static(path.join(__dirname, 'public')));
 
-// SPA fallback - serve index.html for any non-API route
-app.get('*', (req, res) => {
-  // Don't serve index.html for API routes
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'Not Found', path: req.path });
-  }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 // Error handler (Production-safe)
 app.use((err, req, res, next) => {
@@ -1471,25 +1476,12 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 8080;
-
-// AUTO-MIGRATION: Ensure password_hash exists
-(async () => {
-  try {
-    const { pool } = require('./config/db');
-    console.log('🔄 [AUTO-MIGRATION] Checking schema...');
-    await pool.query('ALTER TABLE patients ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)');
-    console.log('✅ [AUTO-MIGRATION] password_hash column ensured.');
-  } catch (err) {
-    console.error('⚠️ [AUTO-MIGRATION] Failed:', err.message);
-  }
-
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server listening on port ${PORT}`);
-    
-    // Run async initialization (migrations, etc.) in background
-    initializeServices();
-  });
-})();
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${PORT}`);
+  
+  // Run async initialization (migrations, etc.) in background
+  initializeServices();
+});
 
 // Async initialization for services (not routes)
 async function initializeServices() {
@@ -1574,13 +1566,21 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    console.log(`Socket connected: ${socket.id} | User: ${socket.user.username} | Hospital: ${socket.user.hospital_id}`);
+    const userId = socket.user?.id;
+    const hospitalId = socket.user?.hospital_id;
+    console.log(`Socket connected: ${socket.id} | User: ${socket.user?.username} (ID: ${userId}) | Hospital: ${hospitalId}`);
     
     // Join Hospital-Specific Room
-    const hospitalId = socket.user.hospital_id;
     if (hospitalId) {
         socket.join(`hospital_${hospitalId}`);
         console.log(`Socket ${socket.id} joined room: hospital_${hospitalId}`);
+    }
+
+    // Join Guard & User Personal Rooms for Targeted Commands (Ping, Photo, Dispatch)
+    if (userId) {
+        socket.join(`guard_${userId}`);
+        socket.join(`user_${userId}`);
+        console.log(`Socket ${socket.id} joined rooms: guard_${userId}, user_${userId}`);
     }
 
     socket.on('disconnect', () => {
@@ -1592,10 +1592,11 @@ io.on('connection', (socket) => {
 // React SPA Handling - Serve index.html for all non-API routes
 // This allows React Router to handle client-side routing (e.g., /login, /dashboard)
 // PLACED AT THE END to ensure it doesn't intercept API routes
+
 app.get('*', (req, res) => {
   // Don't intercept API routes
   if (req.path.startsWith('/api/') || req.path.startsWith('/socket.io/')) {
-     return res.status(404).json({ error: 'Endpoint not found' });
+     return res.status(404).json({ error: 'Endpoint not found', path: req.path });
   }
   
   // Serve the React app - MUST exist in public/index.html

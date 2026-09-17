@@ -6,12 +6,13 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-const SETUP_KEY = 'WolfSetup2024!';
+const { getSecrets } = require('../config/secrets');
 
 const fullSchemaSync = async (req, res) => {
     const { setupKey } = req.body;
+    const configuredKey = getSecrets().SETUP_KEY || process.env.SETUP_KEY;
     
-    if (setupKey !== SETUP_KEY) {
+    if (!configuredKey || setupKey !== configuredKey) {
         return res.status(403).json({ error: 'Invalid setup key' });
     }
     

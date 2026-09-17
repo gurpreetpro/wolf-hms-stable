@@ -10,9 +10,14 @@ const router = express.Router();
 const { pool } = require('../db');
 const fs = require('fs');
 const path = require('path');
+const { getSecrets } = require('../config/secrets');
 
-// Admin secret for migration access
-const ADMIN_SECRET = process.env.ADMIN_MIGRATE_SECRET || 'wolf-migrate-2026';
+// Admin secret for migration access (fail-fast via secrets vault)
+const secrets = getSecrets();
+const ADMIN_SECRET = secrets.ADMIN_MIGRATE_SECRET;
+if (!ADMIN_SECRET) {
+    throw new Error('[adminMigrationRoutes] Missing required environment secret: ADMIN_MIGRATE_SECRET');
+}
 
 // Middleware to verify admin secret
 const verifyAdminSecret = (req, res, next) => {
