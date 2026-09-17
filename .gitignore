@@ -91,3 +91,7 @@ redocly.yaml
 
 query.sql
 server/COMPLETE_MIGRATION_SCRIPT.sql
+
+server/audit_logging_schema.sql
+server/complete_dump.sql
+server/database.sql
