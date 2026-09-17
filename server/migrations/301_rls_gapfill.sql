@@ -17,7 +17,7 @@ BEGIN;
 
 -- Table: access_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'access_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'access_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE access_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE access_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_access_logs ON access_logs;
@@ -33,7 +33,7 @@ END $$;
 
 -- Table: ai_billing_predictions
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ai_billing_predictions') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'ai_billing_predictions' AND column_name = 'hospital_id') THEN
         ALTER TABLE ai_billing_predictions ENABLE ROW LEVEL SECURITY;
         ALTER TABLE ai_billing_predictions FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_ai_billing_predictions ON ai_billing_predictions;
@@ -49,7 +49,7 @@ END $$;
 
 -- Table: anaesthesia_charts
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'anaesthesia_charts') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'anaesthesia_charts' AND column_name = 'hospital_id') THEN
         ALTER TABLE anaesthesia_charts ENABLE ROW LEVEL SECURITY;
         ALTER TABLE anaesthesia_charts FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_anaesthesia_charts ON anaesthesia_charts;
@@ -65,7 +65,7 @@ END $$;
 
 -- Table: app_build_history
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'app_build_history') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'app_build_history' AND column_name = 'hospital_id') THEN
         ALTER TABLE app_build_history ENABLE ROW LEVEL SECURITY;
         ALTER TABLE app_build_history FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_app_build_history ON app_build_history;
@@ -81,7 +81,7 @@ END $$;
 
 -- Table: article_bookmarks
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'article_bookmarks') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'article_bookmarks' AND column_name = 'hospital_id') THEN
         ALTER TABLE article_bookmarks ENABLE ROW LEVEL SECURITY;
         ALTER TABLE article_bookmarks FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_article_bookmarks ON article_bookmarks;
@@ -97,7 +97,7 @@ END $$;
 
 -- Table: billing_kpis
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'billing_kpis') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'billing_kpis' AND column_name = 'hospital_id') THEN
         ALTER TABLE billing_kpis ENABLE ROW LEVEL SECURITY;
         ALTER TABLE billing_kpis FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_billing_kpis ON billing_kpis;
@@ -113,7 +113,7 @@ END $$;
 
 -- Table: blood_donation_campaigns
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'blood_donation_campaigns') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'blood_donation_campaigns' AND column_name = 'hospital_id') THEN
         ALTER TABLE blood_donation_campaigns ENABLE ROW LEVEL SECURITY;
         ALTER TABLE blood_donation_campaigns FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_blood_donation_campaigns ON blood_donation_campaigns;
@@ -129,7 +129,7 @@ END $$;
 
 -- Table: blood_storage_equipment
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'blood_storage_equipment') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'blood_storage_equipment' AND column_name = 'hospital_id') THEN
         ALTER TABLE blood_storage_equipment ENABLE ROW LEVEL SECURITY;
         ALTER TABLE blood_storage_equipment FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_blood_storage_equipment ON blood_storage_equipment;
@@ -145,7 +145,7 @@ END $$;
 
 -- Table: blood_temperature_log
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'blood_temperature_log') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'blood_temperature_log' AND column_name = 'hospital_id') THEN
         ALTER TABLE blood_temperature_log ENABLE ROW LEVEL SECURITY;
         ALTER TABLE blood_temperature_log FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_blood_temperature_log ON blood_temperature_log;
@@ -161,7 +161,7 @@ END $$;
 
 -- Table: chemo_cycles
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'chemo_cycles') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'chemo_cycles' AND column_name = 'hospital_id') THEN
         ALTER TABLE chemo_cycles ENABLE ROW LEVEL SECURITY;
         ALTER TABLE chemo_cycles FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_chemo_cycles ON chemo_cycles;
@@ -177,7 +177,7 @@ END $$;
 
 -- Table: chemo_sessions
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'chemo_sessions') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'chemo_sessions' AND column_name = 'hospital_id') THEN
         ALTER TABLE chemo_sessions ENABLE ROW LEVEL SECURITY;
         ALTER TABLE chemo_sessions FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_chemo_sessions ON chemo_sessions;
@@ -193,7 +193,7 @@ END $$;
 
 -- Table: claim_denials
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'claim_denials') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'claim_denials' AND column_name = 'hospital_id') THEN
         ALTER TABLE claim_denials ENABLE ROW LEVEL SECURITY;
         ALTER TABLE claim_denials FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_claim_denials ON claim_denials;
@@ -209,7 +209,7 @@ END $$;
 
 -- Table: clinical_history
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'clinical_history') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'clinical_history' AND column_name = 'hospital_id') THEN
         ALTER TABLE clinical_history ENABLE ROW LEVEL SECURITY;
         ALTER TABLE clinical_history FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_clinical_history ON clinical_history;
@@ -225,7 +225,7 @@ END $$;
 
 -- Table: clinical_tasks
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'clinical_tasks') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'clinical_tasks' AND column_name = 'hospital_id') THEN
         ALTER TABLE clinical_tasks ENABLE ROW LEVEL SECURITY;
         ALTER TABLE clinical_tasks FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_clinical_tasks ON clinical_tasks;
@@ -241,7 +241,7 @@ END $$;
 
 -- Table: clinical_vitals
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'clinical_vitals') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'clinical_vitals' AND column_name = 'hospital_id') THEN
         ALTER TABLE clinical_vitals ENABLE ROW LEVEL SECURITY;
         ALTER TABLE clinical_vitals FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_clinical_vitals ON clinical_vitals;
@@ -257,7 +257,7 @@ END $$;
 
 -- Table: collections_worklist
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'collections_worklist') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'collections_worklist' AND column_name = 'hospital_id') THEN
         ALTER TABLE collections_worklist ENABLE ROW LEVEL SECURITY;
         ALTER TABLE collections_worklist FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_collections_worklist ON collections_worklist;
@@ -273,7 +273,7 @@ END $$;
 
 -- Table: consumable_usage
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'consumable_usage') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'consumable_usage' AND column_name = 'hospital_id') THEN
         ALTER TABLE consumable_usage ENABLE ROW LEVEL SECURITY;
         ALTER TABLE consumable_usage FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_consumable_usage ON consumable_usage;
@@ -289,7 +289,7 @@ END $$;
 
 -- Table: cssd_trays
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'cssd_trays') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'cssd_trays' AND column_name = 'hospital_id') THEN
         ALTER TABLE cssd_trays ENABLE ROW LEVEL SECURITY;
         ALTER TABLE cssd_trays FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_cssd_trays ON cssd_trays;
@@ -305,7 +305,7 @@ END $$;
 
 -- Table: data_anonymization_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'data_anonymization_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'data_anonymization_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE data_anonymization_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE data_anonymization_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_data_anonymization_logs ON data_anonymization_logs;
@@ -321,7 +321,7 @@ END $$;
 
 -- Table: dispense_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'dispense_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'dispense_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE dispense_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE dispense_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_dispense_logs ON dispense_logs;
@@ -337,7 +337,7 @@ END $$;
 
 -- Table: doctor_slots
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'doctor_slots') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'doctor_slots' AND column_name = 'hospital_id') THEN
         ALTER TABLE doctor_slots ENABLE ROW LEVEL SECURITY;
         ALTER TABLE doctor_slots FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_doctor_slots ON doctor_slots;
@@ -353,7 +353,7 @@ END $$;
 
 -- Table: drug_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'drug_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'drug_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE drug_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE drug_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_drug_logs ON drug_logs;
@@ -369,7 +369,7 @@ END $$;
 
 -- Table: eligibility_checks
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'eligibility_checks') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'eligibility_checks' AND column_name = 'hospital_id') THEN
         ALTER TABLE eligibility_checks ENABLE ROW LEVEL SECURITY;
         ALTER TABLE eligibility_checks FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_eligibility_checks ON eligibility_checks;
@@ -385,7 +385,7 @@ END $$;
 
 -- Table: emergency_events
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'emergency_events') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'emergency_events' AND column_name = 'hospital_id') THEN
         ALTER TABLE emergency_events ENABLE ROW LEVEL SECURITY;
         ALTER TABLE emergency_events FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_emergency_events ON emergency_events;
@@ -401,7 +401,7 @@ END $$;
 
 -- Table: emergency_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'emergency_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'emergency_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE emergency_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE emergency_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_emergency_logs ON emergency_logs;
@@ -417,7 +417,7 @@ END $$;
 
 -- Table: emergency_status
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'emergency_status') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'emergency_status' AND column_name = 'hospital_id') THEN
         ALTER TABLE emergency_status ENABLE ROW LEVEL SECURITY;
         ALTER TABLE emergency_status FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_emergency_status ON emergency_status;
@@ -433,7 +433,7 @@ END $$;
 
 -- Table: equipment_billing
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'equipment_billing') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'equipment_billing' AND column_name = 'hospital_id') THEN
         ALTER TABLE equipment_billing ENABLE ROW LEVEL SECURITY;
         ALTER TABLE equipment_billing FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_equipment_billing ON equipment_billing;
@@ -449,7 +449,7 @@ END $$;
 
 -- Table: equipment_inventory
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'equipment_inventory') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'equipment_inventory' AND column_name = 'hospital_id') THEN
         ALTER TABLE equipment_inventory ENABLE ROW LEVEL SECURITY;
         ALTER TABLE equipment_inventory FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_equipment_inventory ON equipment_inventory;
@@ -465,7 +465,7 @@ END $$;
 
 -- Table: equipment_requests
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'equipment_requests') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'equipment_requests' AND column_name = 'hospital_id') THEN
         ALTER TABLE equipment_requests ENABLE ROW LEVEL SECURITY;
         ALTER TABLE equipment_requests FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_equipment_requests ON equipment_requests;
@@ -481,7 +481,7 @@ END $$;
 
 -- Table: floor_plans
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'floor_plans') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'floor_plans' AND column_name = 'hospital_id') THEN
         ALTER TABLE floor_plans ENABLE ROW LEVEL SECURITY;
         ALTER TABLE floor_plans FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_floor_plans ON floor_plans;
@@ -497,7 +497,7 @@ END $$;
 
 -- Table: floor_zones
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'floor_zones') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'floor_zones' AND column_name = 'hospital_id') THEN
         ALTER TABLE floor_zones ENABLE ROW LEVEL SECURITY;
         ALTER TABLE floor_zones FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_floor_zones ON floor_zones;
@@ -513,7 +513,7 @@ END $$;
 
 -- Table: guard_locations
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'guard_locations') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'guard_locations' AND column_name = 'hospital_id') THEN
         ALTER TABLE guard_locations ENABLE ROW LEVEL SECURITY;
         ALTER TABLE guard_locations FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_guard_locations ON guard_locations;
@@ -529,7 +529,7 @@ END $$;
 
 -- Table: guard_shifts
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'guard_shifts') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'guard_shifts' AND column_name = 'hospital_id') THEN
         ALTER TABLE guard_shifts ENABLE ROW LEVEL SECURITY;
         ALTER TABLE guard_shifts FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_guard_shifts ON guard_shifts;
@@ -545,7 +545,7 @@ END $$;
 
 -- Table: housekeeping_tasks
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'housekeeping_tasks') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'housekeeping_tasks' AND column_name = 'hospital_id') THEN
         ALTER TABLE housekeeping_tasks ENABLE ROW LEVEL SECURITY;
         ALTER TABLE housekeeping_tasks FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_housekeeping_tasks ON housekeeping_tasks;
@@ -561,7 +561,7 @@ END $$;
 
 -- Table: instrument_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'instrument_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'instrument_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE instrument_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE instrument_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_instrument_logs ON instrument_logs;
@@ -577,7 +577,7 @@ END $$;
 
 -- Table: instrument_stats
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'instrument_stats') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'instrument_stats' AND column_name = 'hospital_id') THEN
         ALTER TABLE instrument_stats ENABLE ROW LEVEL SECURITY;
         ALTER TABLE instrument_stats FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_instrument_stats ON instrument_stats;
@@ -593,7 +593,7 @@ END $$;
 
 -- Table: insurance_preauth
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'insurance_preauth') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'insurance_preauth' AND column_name = 'hospital_id') THEN
         ALTER TABLE insurance_preauth ENABLE ROW LEVEL SECURITY;
         ALTER TABLE insurance_preauth FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_insurance_preauth ON insurance_preauth;
@@ -609,7 +609,7 @@ END $$;
 
 -- Table: insurance_providers
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'insurance_providers') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'insurance_providers' AND column_name = 'hospital_id') THEN
         ALTER TABLE insurance_providers ENABLE ROW LEVEL SECURITY;
         ALTER TABLE insurance_providers FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_insurance_providers ON insurance_providers;
@@ -625,7 +625,7 @@ END $$;
 
 -- Table: invoice_payments
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'invoice_payments') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'invoice_payments' AND column_name = 'hospital_id') THEN
         ALTER TABLE invoice_payments ENABLE ROW LEVEL SECURITY;
         ALTER TABLE invoice_payments FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_invoice_payments ON invoice_payments;
@@ -641,7 +641,7 @@ END $$;
 
 -- Table: lab_critical_values
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_critical_values') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_critical_values' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_critical_values ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_critical_values FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_critical_values ON lab_critical_values;
@@ -657,7 +657,7 @@ END $$;
 
 -- Table: lab_instruments
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_instruments') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_instruments' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_instruments ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_instruments FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_instruments ON lab_instruments;
@@ -673,7 +673,7 @@ END $$;
 
 -- Table: lab_parameter_mappings
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_parameter_mappings') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_parameter_mappings' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_parameter_mappings ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_parameter_mappings FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_parameter_mappings ON lab_parameter_mappings;
@@ -689,7 +689,7 @@ END $$;
 
 -- Table: lab_parameters
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_parameters') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_parameters' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_parameters ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_parameters FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_parameters ON lab_parameters;
@@ -705,7 +705,7 @@ END $$;
 
 -- Table: lab_payments
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_payments') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_payments' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_payments ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_payments FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_payments ON lab_payments;
@@ -721,7 +721,7 @@ END $$;
 
 -- Table: lab_public_reports
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_public_reports') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_public_reports' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_public_reports ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_public_reports FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_public_reports ON lab_public_reports;
@@ -737,7 +737,7 @@ END $$;
 
 -- Table: lab_request_tests
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_request_tests') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_request_tests' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_request_tests ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_request_tests FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_request_tests ON lab_request_tests;
@@ -753,7 +753,7 @@ END $$;
 
 -- Table: lab_revenue_log
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_revenue_log') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_revenue_log' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_revenue_log ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_revenue_log FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_revenue_log ON lab_revenue_log;
@@ -769,7 +769,7 @@ END $$;
 
 -- Table: lab_tat_log
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_tat_log') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'lab_tat_log' AND column_name = 'hospital_id') THEN
         ALTER TABLE lab_tat_log ENABLE ROW LEVEL SECURITY;
         ALTER TABLE lab_tat_log FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_lab_tat_log ON lab_tat_log;
@@ -785,7 +785,7 @@ END $$;
 
 -- Table: master_identities
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'master_identities') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'master_identities' AND column_name = 'hospital_id') THEN
         ALTER TABLE master_identities ENABLE ROW LEVEL SECURITY;
         ALTER TABLE master_identities FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_master_identities ON master_identities;
@@ -801,7 +801,7 @@ END $$;
 
 -- Table: medication_administration
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'medication_administration') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'medication_administration' AND column_name = 'hospital_id') THEN
         ALTER TABLE medication_administration ENABLE ROW LEVEL SECURITY;
         ALTER TABLE medication_administration FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_medication_administration ON medication_administration;
@@ -817,7 +817,7 @@ END $$;
 
 -- Table: nurse_care_tasks
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'nurse_care_tasks') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'nurse_care_tasks' AND column_name = 'hospital_id') THEN
         ALTER TABLE nurse_care_tasks ENABLE ROW LEVEL SECURITY;
         ALTER TABLE nurse_care_tasks FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_nurse_care_tasks ON nurse_care_tasks;
@@ -833,7 +833,7 @@ END $$;
 
 -- Table: oncology_staging
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'oncology_staging') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'oncology_staging' AND column_name = 'hospital_id') THEN
         ALTER TABLE oncology_staging ENABLE ROW LEVEL SECURITY;
         ALTER TABLE oncology_staging FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_oncology_staging ON oncology_staging;
@@ -849,7 +849,7 @@ END $$;
 
 -- Table: ot_schedules
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ot_schedules') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'ot_schedules' AND column_name = 'hospital_id') THEN
         ALTER TABLE ot_schedules ENABLE ROW LEVEL SECURITY;
         ALTER TABLE ot_schedules FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_ot_schedules ON ot_schedules;
@@ -865,7 +865,7 @@ END $$;
 
 -- Table: pac_assessments
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pac_assessments') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pac_assessments' AND column_name = 'hospital_id') THEN
         ALTER TABLE pac_assessments ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pac_assessments FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pac_assessments ON pac_assessments;
@@ -881,7 +881,7 @@ END $$;
 
 -- Table: package_extras
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'package_extras') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'package_extras' AND column_name = 'hospital_id') THEN
         ALTER TABLE package_extras ENABLE ROW LEVEL SECURITY;
         ALTER TABLE package_extras FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_package_extras ON package_extras;
@@ -897,7 +897,7 @@ END $$;
 
 -- Table: package_items
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'package_items') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'package_items' AND column_name = 'hospital_id') THEN
         ALTER TABLE package_items ENABLE ROW LEVEL SECURITY;
         ALTER TABLE package_items FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_package_items ON package_items;
@@ -913,7 +913,7 @@ END $$;
 
 -- Table: pacu_records
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pacu_records') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pacu_records' AND column_name = 'hospital_id') THEN
         ALTER TABLE pacu_records ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pacu_records FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pacu_records ON pacu_records;
@@ -929,7 +929,7 @@ END $$;
 
 -- Table: pain_assessments
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pain_assessments') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pain_assessments' AND column_name = 'hospital_id') THEN
         ALTER TABLE pain_assessments ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pain_assessments FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pain_assessments ON pain_assessments;
@@ -945,7 +945,7 @@ END $$;
 
 -- Table: patient_documents
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'patient_documents') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'patient_documents' AND column_name = 'hospital_id') THEN
         ALTER TABLE patient_documents ENABLE ROW LEVEL SECURITY;
         ALTER TABLE patient_documents FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_patient_documents ON patient_documents;
@@ -961,7 +961,7 @@ END $$;
 
 -- Table: patient_history
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'patient_history') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'patient_history' AND column_name = 'hospital_id') THEN
         ALTER TABLE patient_history ENABLE ROW LEVEL SECURITY;
         ALTER TABLE patient_history FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_patient_history ON patient_history;
@@ -977,7 +977,7 @@ END $$;
 
 -- Table: patient_insurance
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'patient_insurance') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'patient_insurance' AND column_name = 'hospital_id') THEN
         ALTER TABLE patient_insurance ENABLE ROW LEVEL SECURITY;
         ALTER TABLE patient_insurance FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_patient_insurance ON patient_insurance;
@@ -993,7 +993,7 @@ END $$;
 
 -- Table: patient_packages
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'patient_packages') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'patient_packages' AND column_name = 'hospital_id') THEN
         ALTER TABLE patient_packages ENABLE ROW LEVEL SECURITY;
         ALTER TABLE patient_packages FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_patient_packages ON patient_packages;
@@ -1009,7 +1009,7 @@ END $$;
 
 -- Table: payer_profiles
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'payer_profiles') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'payer_profiles' AND column_name = 'hospital_id') THEN
         ALTER TABLE payer_profiles ENABLE ROW LEVEL SECURITY;
         ALTER TABLE payer_profiles FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_payer_profiles ON payer_profiles;
@@ -1025,7 +1025,7 @@ END $$;
 
 -- Table: pharmacy_order_items
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pharmacy_order_items') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pharmacy_order_items' AND column_name = 'hospital_id') THEN
         ALTER TABLE pharmacy_order_items ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pharmacy_order_items FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pharmacy_order_items ON pharmacy_order_items;
@@ -1041,7 +1041,7 @@ END $$;
 
 -- Table: pharmacy_orders
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pharmacy_orders') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pharmacy_orders' AND column_name = 'hospital_id') THEN
         ALTER TABLE pharmacy_orders ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pharmacy_orders FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pharmacy_orders ON pharmacy_orders;
@@ -1057,7 +1057,7 @@ END $$;
 
 -- Table: pharmacy_price_requests
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pharmacy_price_requests') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pharmacy_price_requests' AND column_name = 'hospital_id') THEN
         ALTER TABLE pharmacy_price_requests ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pharmacy_price_requests FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pharmacy_price_requests ON pharmacy_price_requests;
@@ -1073,7 +1073,7 @@ END $$;
 
 -- Table: platform_audit_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'platform_audit_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'platform_audit_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE platform_audit_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE platform_audit_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_platform_audit_logs ON platform_audit_logs;
@@ -1089,7 +1089,7 @@ END $$;
 
 -- Table: pmjay_beneficiaries
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pmjay_beneficiaries') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pmjay_beneficiaries' AND column_name = 'hospital_id') THEN
         ALTER TABLE pmjay_beneficiaries ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pmjay_beneficiaries FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pmjay_beneficiaries ON pmjay_beneficiaries;
@@ -1105,7 +1105,7 @@ END $$;
 
 -- Table: pmjay_packages
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pmjay_packages') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pmjay_packages' AND column_name = 'hospital_id') THEN
         ALTER TABLE pmjay_packages ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pmjay_packages FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pmjay_packages ON pmjay_packages;
@@ -1121,7 +1121,7 @@ END $$;
 
 -- Table: pos_activity_log
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_activity_log') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_activity_log' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_activity_log ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_activity_log FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_activity_log ON pos_activity_log;
@@ -1137,7 +1137,7 @@ END $$;
 
 -- Table: pos_credentials
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_credentials') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_credentials' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_credentials ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_credentials FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_credentials ON pos_credentials;
@@ -1153,7 +1153,7 @@ END $$;
 
 -- Table: pos_devices
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_devices') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_devices' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_devices ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_devices FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_devices ON pos_devices;
@@ -1169,7 +1169,7 @@ END $$;
 
 -- Table: pos_providers
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_providers') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_providers' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_providers ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_providers FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_providers ON pos_providers;
@@ -1185,7 +1185,7 @@ END $$;
 
 -- Table: pos_refunds
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_refunds') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_refunds' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_refunds ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_refunds FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_refunds ON pos_refunds;
@@ -1201,7 +1201,7 @@ END $$;
 
 -- Table: pos_settlements
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'pos_settlements') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pos_settlements' AND column_name = 'hospital_id') THEN
         ALTER TABLE pos_settlements ENABLE ROW LEVEL SECURITY;
         ALTER TABLE pos_settlements FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_pos_settlements ON pos_settlements;
@@ -1217,7 +1217,7 @@ END $$;
 
 -- Table: preauth_requests
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'preauth_requests') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'preauth_requests' AND column_name = 'hospital_id') THEN
         ALTER TABLE preauth_requests ENABLE ROW LEVEL SECURITY;
         ALTER TABLE preauth_requests FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_preauth_requests ON preauth_requests;
@@ -1233,7 +1233,7 @@ END $$;
 
 -- Table: purchase_order_items
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'purchase_order_items') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'purchase_order_items' AND column_name = 'hospital_id') THEN
         ALTER TABLE purchase_order_items ENABLE ROW LEVEL SECURITY;
         ALTER TABLE purchase_order_items FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_purchase_order_items ON purchase_order_items;
@@ -1249,7 +1249,7 @@ END $$;
 
 -- Table: review_helpful
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'review_helpful') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'review_helpful' AND column_name = 'hospital_id') THEN
         ALTER TABLE review_helpful ENABLE ROW LEVEL SECURITY;
         ALTER TABLE review_helpful FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_review_helpful ON review_helpful;
@@ -1265,7 +1265,7 @@ END $$;
 
 -- Table: safety_counts
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'safety_counts') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'safety_counts' AND column_name = 'hospital_id') THEN
         ALTER TABLE safety_counts ENABLE ROW LEVEL SECURITY;
         ALTER TABLE safety_counts FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_safety_counts ON safety_counts;
@@ -1281,7 +1281,7 @@ END $$;
 
 -- Table: security_geofences
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'security_geofences') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'security_geofences' AND column_name = 'hospital_id') THEN
         ALTER TABLE security_geofences ENABLE ROW LEVEL SECURITY;
         ALTER TABLE security_geofences FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_security_geofences ON security_geofences;
@@ -1297,7 +1297,7 @@ END $$;
 
 -- Table: security_patrols
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'security_patrols') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'security_patrols' AND column_name = 'hospital_id') THEN
         ALTER TABLE security_patrols ENABLE ROW LEVEL SECURITY;
         ALTER TABLE security_patrols FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_security_patrols ON security_patrols;
@@ -1313,7 +1313,7 @@ END $$;
 
 -- Table: security_visitors
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'security_visitors') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'security_visitors' AND column_name = 'hospital_id') THEN
         ALTER TABLE security_visitors ENABLE ROW LEVEL SECURITY;
         ALTER TABLE security_visitors FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_security_visitors ON security_visitors;
@@ -1329,7 +1329,7 @@ END $$;
 
 -- Table: sensor_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sensor_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sensor_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE sensor_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE sensor_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_sensor_logs ON sensor_logs;
@@ -1345,7 +1345,7 @@ END $$;
 
 -- Table: shift_handovers
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'shift_handovers') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'shift_handovers' AND column_name = 'hospital_id') THEN
         ALTER TABLE shift_handovers ENABLE ROW LEVEL SECURITY;
         ALTER TABLE shift_handovers FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_shift_handovers ON shift_handovers;
@@ -1361,7 +1361,7 @@ END $$;
 
 -- Table: sterilization_cycles
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sterilization_cycles') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'sterilization_cycles' AND column_name = 'hospital_id') THEN
         ALTER TABLE sterilization_cycles ENABLE ROW LEVEL SECURITY;
         ALTER TABLE sterilization_cycles FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_sterilization_cycles ON sterilization_cycles;
@@ -1377,7 +1377,7 @@ END $$;
 
 -- Table: system_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'system_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'system_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE system_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE system_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_system_logs ON system_logs;
@@ -1393,7 +1393,7 @@ END $$;
 
 -- Table: system_settings
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'system_settings') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'system_settings' AND column_name = 'hospital_id') THEN
         ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
         ALTER TABLE system_settings FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_system_settings ON system_settings;
@@ -1409,7 +1409,7 @@ END $$;
 
 -- Table: tpa_activity_log
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tpa_activity_log') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'tpa_activity_log' AND column_name = 'hospital_id') THEN
         ALTER TABLE tpa_activity_log ENABLE ROW LEVEL SECURITY;
         ALTER TABLE tpa_activity_log FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_tpa_activity_log ON tpa_activity_log;
@@ -1425,7 +1425,7 @@ END $$;
 
 -- Table: tpa_credentials
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tpa_credentials') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'tpa_credentials' AND column_name = 'hospital_id') THEN
         ALTER TABLE tpa_credentials ENABLE ROW LEVEL SECURITY;
         ALTER TABLE tpa_credentials FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_tpa_credentials ON tpa_credentials;
@@ -1441,7 +1441,7 @@ END $$;
 
 -- Table: tpa_providers
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'tpa_providers') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'tpa_providers' AND column_name = 'hospital_id') THEN
         ALTER TABLE tpa_providers ENABLE ROW LEVEL SECURITY;
         ALTER TABLE tpa_providers FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_tpa_providers ON tpa_providers;
@@ -1457,7 +1457,7 @@ END $$;
 
 -- Table: vital_logs
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'vital_logs') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'vital_logs' AND column_name = 'hospital_id') THEN
         ALTER TABLE vital_logs ENABLE ROW LEVEL SECURITY;
         ALTER TABLE vital_logs FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_vital_logs ON vital_logs;
@@ -1473,7 +1473,7 @@ END $$;
 
 -- Table: vitals
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'vitals') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'vitals' AND column_name = 'hospital_id') THEN
         ALTER TABLE vitals ENABLE ROW LEVEL SECURITY;
         ALTER TABLE vitals FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_vitals ON vitals;
@@ -1489,7 +1489,7 @@ END $$;
 
 -- Table: ward_charges
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ward_charges') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'ward_charges' AND column_name = 'hospital_id') THEN
         ALTER TABLE ward_charges ENABLE ROW LEVEL SECURITY;
         ALTER TABLE ward_charges FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_ward_charges ON ward_charges;
@@ -1505,7 +1505,7 @@ END $$;
 
 -- Table: ward_requests
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ward_requests') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'ward_requests' AND column_name = 'hospital_id') THEN
         ALTER TABLE ward_requests ENABLE ROW LEVEL SECURITY;
         ALTER TABLE ward_requests FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_ward_requests ON ward_requests;
@@ -1521,7 +1521,7 @@ END $$;
 
 -- Table: webhook_deliveries
 DO $$ BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '' AND column_name = 'hospital_id') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'webhook_deliveries') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'webhook_deliveries' AND column_name = 'hospital_id') THEN
         ALTER TABLE webhook_deliveries ENABLE ROW LEVEL SECURITY;
         ALTER TABLE webhook_deliveries FORCE ROW LEVEL SECURITY;
         DROP POLICY IF EXISTS tenant_isolation_webhook_deliveries ON webhook_deliveries;
