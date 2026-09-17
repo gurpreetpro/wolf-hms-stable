@@ -1,0 +1,890 @@
+openapi: 3.1.0
+info:
+  title: Wolf HMS API Contract
+  version: 3.0.0
+  description: |
+    Production API specification for Wolf Hospital Management System (HMS),
+    covering clinical, administrative, tactical security, emergency response,
+    and telemetry contracts.
+servers:
+  - url: http://185.213.27.158/wolf
+    description: Production VPS Cloud Environment
+  - url: http://localhost:8080
+    description: Local Development Server
+
+paths:
+  # ==========================================
+  # Authentication & Identity
+  # ==========================================
+  /api/auth/login:
+    post:
+      summary: Authenticate User
+      description: Issues JWT access token (8h web, 30d mobile) and rotating refresh token.
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: admin_user
+                password:
+                  type: string
+                  example: password123
+                clientType:
+                  type: string
+                  enum: [web, mobile]
+                  default: web
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+        '401':
+          description: Invalid credentials
+
+  /api/auth/token/refresh:
+    post:
+      summary: Refresh Access Token
+      description: Rotates refresh token and issues a new access token. Reuse triggers family revocation.
+      tags: [Authentication]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Refreshed token pair
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+        '401':
+          description: Invalid or revoked refresh token
+
+  /api/auth/logout:
+    post:
+      summary: Revoke Session
+      description: Revokes the specified refresh token.
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Successfully logged out
+
+  /api/auth/me:
+    get:
+      summary: Current User Profile
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile and permissions
+
+  /api/auth/sso/login:
+    get:
+      summary: Initiate Enterprise SSO / OIDC Login
+      description: Generates OIDC authorization URL with PKCE (RFC 7636) and state/nonce cookies. Returns 404 if SSO is unconfigured.
+      tags: [Authentication]
+      security: []
+      parameters:
+        - name: format
+          in: query
+          description: Return JSON response containing the authorization URL instead of 302 redirect
+          required: false
+          schema:
+            type: string
+            enum: [json]
+      responses:
+        '200':
+          description: Authorization URL payload (when JSON format requested)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  url:
+                    type: string
+                  state:
+                    type: string
+        '302':
+          description: Redirect to Identity Provider authorization endpoint
+        '404':
+          description: SSO is disabled / unconfigured on this instance
+
+  /api/auth/sso/callback:
+    get:
+      summary: OIDC Authentication Callback
+      description: Validates state/nonce, exchanges authorization code for tokens, matches user by email (no auto-provisioning), and issues Wolf HMS tokens.
+      tags: [Authentication]
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful SSO login; returns JWT access token and rotating refresh token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+        '400':
+          description: State mismatch, nonce mismatch, or expired code
+        '403':
+          description: User email not provisioned or account inactive
+        '404':
+          description: SSO is disabled / unconfigured
+
+  # ==========================================
+  # Emergency Response System
+  # ==========================================
+  /api/emergency/trigger:
+    post:
+      summary: Trigger Hospital Emergency Code
+      description: Broadcasts emergency alert via Socket.IO and registers logs.
+      tags: [Emergency]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  example: Blue
+                type:
+                  type: string
+                  example: CODE_BLUE
+                emergencyType:
+                  type: string
+                  example: CODE_BLUE
+                location:
+                  type: string
+                  example: ICU Bed 4
+                patientId:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Alert triggered successfully
+
+  /api/emergency/status:
+    get:
+      summary: Active Emergency Status
+      tags: [Emergency]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of active emergencies
+
+  /api/emergency/resolve:
+    post:
+      summary: Resolve Active Emergency
+      tags: [Emergency]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                resolution_notes:
+                  type: string
+      responses:
+        '200':
+          description: Emergency marked resolved
+
+  /api/emergency/dispatch:
+    post:
+      summary: Dispatch Emergency Team
+      tags: [Emergency]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Team dispatched
+
+  # ==========================================
+  # Tactical Security & Wolf Guard
+  # ==========================================
+  /api/security/location:
+    post:
+      summary: Ingest Guard Telemetry
+      description: Records live GPS coordinates, altitude, heading, and battery level.
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [latitude, longitude]
+              properties:
+                latitude:
+                  type: number
+                  example: 30.8044
+                longitude:
+                  type: number
+                  example: 75.4724
+                floor_number:
+                  type: integer
+                  default: 1
+                battery_level:
+                  type: number
+                  example: 85
+      responses:
+        '200':
+          description: Telemetry stored
+        '400':
+          description: Missing latitude or longitude
+
+  /api/security/sos:
+    post:
+      summary: Trigger Guard Panic SOS
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Panic SOS recorded and broadcasted
+
+  /api/security/patrols/start:
+    post:
+      summary: Start Guard Patrol Shift
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Patrol shift started
+
+  /api/security/patrols/{id}/end:
+    put:
+      summary: Conclude Guard Patrol Shift
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Patrol shift ended
+
+  /api/security/patrols/{id}/checkpoint:
+    post:
+      summary: Record Patrol Checkpoint Scan
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                checkpoint_name:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+      responses:
+        '200':
+          description: Checkpoint recorded
+
+  # ==========================================
+  # Clinical & Operational Endpoints
+  # ==========================================
+  /api/opd/queue:
+    get:
+      summary: OPD Patient Queue
+      tags: [Clinical]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of patients waiting in OPD
+
+  /api/admissions/active:
+    get:
+      summary: Active Inpatient Admissions
+      tags: [Clinical]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of currently admitted patients
+
+  /api/lab/orders:
+    get:
+      summary: Pending Laboratory Orders
+      tags: [Laboratory]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Lab test orders worklist
+
+  /api/lab/tests:
+    get:
+      summary: Master Lab Test Catalog
+      tags: [Laboratory]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Catalog of lab parameters and tests
+
+  /api/finance/invoices:
+    get:
+      summary: Hospital Invoices
+      tags: [Finance]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of invoices and payment receipts
+
+  # ==========================================
+  # System & Health Routes
+  # ==========================================
+  /api/health:
+    get:
+      summary: Core Health Check
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+
+  /api/health/live:
+    get:
+      summary: Orchestrator Liveness Probe
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Pod is alive
+
+  /api/health/ready:
+    get:
+      summary: Readiness Probe
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Database and dependencies ready
+
+  /api/db-check:
+    get:
+      summary: Database Connectivity Diagnostics
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Diagnostic metrics
+
+  /api/docs:
+    get:
+      summary: Interactive Redoc API Documentation UI
+      tags: [System]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Redoc standalone HTML
+
+  /api/docs/openapi.yaml:
+    get:
+      summary: Download OpenAPI 3.1 YAML Contract
+      tags: [System]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: YAML specification file
+
+  /api/debug/ping:
+    get:
+      summary: Deployment Verification Ping
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Pong response
+
+  /api/hospitals/branding/{code}:
+    get:
+      summary: Public Hospital Profile and Branding
+      tags: [System]
+      security: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Visual identity branding tokens
+
+  /api/notifications/video-call:
+    post:
+      summary: Send Jitsi Teleconsultation Signal
+      tags: [System]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [jitsiRoom, jitsiUrl]
+              properties:
+                patientId:
+                  type: string
+                patientPhone:
+                  type: string
+                appointmentId:
+                  type: integer
+                jitsiRoom:
+                  type: string
+                jitsiUrl:
+                  type: string
+                doctorName:
+                  type: string
+      responses:
+        '200':
+          description: Video signal dispatched
+
+  /api/location/resolve-tenant:
+    get:
+      summary: Edge Tenant Resolver Helper
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Resolved tenant ID
+
+  /api/geofence/check-battery:
+    get:
+      summary: Fleet Battery Status Query
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Guard battery levels
+
+  /api/geofence/nearby:
+    get:
+      summary: Active Nearby Geofences
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Perimeter zones
+
+  # ==========================================
+  # Tactical Dispatch Aliases
+  # ==========================================
+  /api/dispatch/emergencies:
+    get:
+      summary: Dispatch Emergency Worklist
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Active dispatch emergencies
+
+  /api/dispatch/active:
+    get:
+      summary: Active Emergencies Alias
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Active dispatch emergencies
+
+  /api/dispatch/active-incidents:
+    get:
+      summary: Active Security Incidents
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Unresolved incidents
+
+  /api/dispatch/nearby:
+    get:
+      summary: Available Guards Nearby
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Guard locations
+
+  /api/dispatch/recent-alerts:
+    get:
+      summary: Recent Emergency Alerts
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Alert feed
+
+  /api/dispatch/emergency-logs/export:
+    get:
+      summary: Export Emergency Audit Logs
+      tags: [Dispatch]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Exported logs
+
+  /api/super-admin/emergency-analytics:
+    get:
+      summary: Emergency Response KPI Analytics
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Metrics by code and status
+
+  /api/security/compat/firebase-sync:
+    post:
+      summary: Firebase Compatibility Sync Shim
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Local sync response
+
+  /api/security/compat/staff-activity:
+    get:
+      summary: Staff Activity Telemetry Summary
+      tags: [Security]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Recent staff activity
+
+  # ==========================================
+  # Gated Setup & Administration
+  # ==========================================
+  /api/setup/reset-and-seed:
+    post:
+      summary: Reset & Seed Database (Testing Only)
+      tags: [Setup]
+      security:
+        - SetupKeyAuth: []
+      responses:
+        '200':
+          description: Database reset and seeded
+        '403':
+          description: Missing or invalid SETUP_KEY
+
+  /api/setup/schema-sync:
+    post:
+      summary: Synchronize Database Schema
+      tags: [Setup]
+      security:
+        - SetupKeyAuth: []
+      responses:
+        '200':
+          description: Schema tables synchronized
+        '403':
+          description: Missing or invalid SETUP_KEY
+
+  /api/debug/env:
+    get:
+      summary: Server Runtime Environment Inspection
+      tags: [Setup]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Non-secret environment parameters
+        '401':
+          description: Unauthorized
+
+  /api/debug/fs:
+    get:
+      summary: Cloud Filesystem Mount Inspection
+      tags: [Setup]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: CloudSQL socket directory entries
+        '401':
+          description: Unauthorized
+
+  /api/debug/users:
+    get:
+      summary: Administrator User Audit List
+      tags: [Setup]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User accounts summary
+
+  /api/debug/sentry-trigger:
+    get:
+      summary: Sentry Error Pipeline Verification Trigger
+      description: Triggers a synthetic exception to verify Sentry event capture. Strictly gated to super_admin and disabled in production.
+      tags: [Setup]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Test trigger processed (non-error test verification)
+        '500':
+          description: Synthetic test error thrown and recorded in Sentry
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (disabled in production or missing super_admin role)
+
+  /api/test/sync-beds:
+    get:
+      summary: Reconcile Orphaned Bed Occupancy
+      tags: [Setup]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Synchronized bed counts
+
+  # ==========================================
+  # Audit Trail & Compliance
+  # ==========================================
+  /api/admin/audit/export:
+    get:
+      summary: Export HIPAA Cryptographic Audit Trail
+      description: Streams CSV audit logs with SHA-256 hash chaining columns. Strictly restricted to super_admin.
+      tags: [Audit]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          description: Start timestamp (ISO string or YYYY-MM-DD)
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: End timestamp (ISO string or YYYY-MM-DD)
+          schema:
+            type: string
+        - name: format
+          in: query
+          description: Output format (csv or json)
+          schema:
+            type: string
+            enum: [csv, json]
+            default: csv
+        - name: verify
+          in: query
+          description: Run cryptographic chain verification on retrieved rows
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Exported audit trail CSV or JSON
+          headers:
+            X-Audit-Chain-Valid:
+              schema:
+                type: string
+              description: 'Cryptographic chain verification status ("true" or "false")'
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Unauthorized (requires super_admin role)
+
+  # ==========================================
+  # Observability & Health
+  # ==========================================
+  /api/metrics:
+    get:
+      summary: Prometheus Metrics Scrape Endpoint
+      description: Returns Prometheus formatted operational and runtime telemetry metrics. Gated by super_admin, platform_owner, or admin roles.
+      tags: [Observability]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Prometheus text format metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/health/obs:
+    get:
+      summary: Aggregate Observability Runtime Status
+      description: Returns real-time JSON telemetry covering uptime, request totals, 15m error rate window, active WebSockets, and database pool status.
+      tags: [Observability]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Real-time operational telemetry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  uptimeSeconds:
+                    type: integer
+                  requests:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      success:
+                        type: integer
+                      error:
+                        type: integer
+                  errorRateWindow:
+                    type: number
+                  activeSockets:
+                    type: integer
+                  dbPool:
+                    type: object
+                    properties:
+                      totalCount:
+                        type: integer
+                      idleCount:
+                        type: integer
+                      waitingCount:
+                        type: integer
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Standard Wolf HMS JWT Bearer Token (Authorization: Bearer <token>)'
+    SetupKeyAuth:
+      type: apiKey
+      in: header
+      name: x-setup-key
+      description: 'Master deployment authorization key for administrative reset and schema sync'

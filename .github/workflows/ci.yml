@@ -1,0 +1,64 @@
+name: CI Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Note: Automated GitHub Actions triggering activates once GitHub token rotation occurs.
+# This workflow establishes the automated quality and regression gate for all future phases.
+
+jobs:
+  backend:
+    name: Backend Tests (Jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: server
+        run: npm ci
+      - name: Run backend tests
+        working-directory: server
+        run: npm test
+
+  frontend:
+    name: Frontend Tests (Vitest) & Build Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        working-directory: client
+        run: npm ci
+      - name: Run frontend tests
+        working-directory: client
+        run: npm test
+      - name: Build production bundle
+        working-directory: client
+        run: npm run build
+
+  mobile-syntax-check:
+    name: Mobile Apps Syntax Check (node --check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify WGM core scripts syntax
+        run: |
+          node --check wgm/App.js
+          node --check wgm/src/screens/PatrolScreen.js
+          node --check wgm/src/screens/DutySelectionScreen.js
+          node --check wgm/src/screens/QRScannerScreen.js
+          node --check wgm/src/services/locationService.js
+          node --check wgm/src/services/socketService.js

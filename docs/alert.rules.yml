@@ -1,0 +1,94 @@
+# alert.rules.yml — Prometheus Alerting Rules for Wolf HMS
+# Part of Wolf HMS Phase 6 Hardening (W4)
+
+groups:
+  - name: wolf_hms_alerts
+    rules:
+      # 1. High 5xx Error Rate (> 2% over 5m window)
+      - alert: WolfHmsHigh5xxErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m]))
+          ) * 100 > 2
+        for: 2m
+        labels:
+          severity: critical
+          tier: backend
+        annotations:
+          summary: "Wolf HMS High 5xx API Error Rate (> 2%)"
+          description: "HTTP 5xx server error rate is {{ $value | printf \"%.2f\" }}% over the last 5 minutes (threshold > 2%)."
+
+      # 2. P95 Request Latency Spike (> 1s over 5m window)
+      - alert: WolfHmsHighP95Latency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket[5m])) by (le)) > 1000
+        for: 3m
+        labels:
+          severity: warning
+          tier: latency
+        annotations:
+          summary: "Wolf HMS API P95 Latency Spike (> 1,000ms)"
+          description: "95th percentile latency across API requests is {{ $value | printf \"%.1f\" }}ms over the last 5 minutes."
+
+      # 3. Real-time WebSocket Disconnect Spike
+      - alert: WolfHmsSocketDisconnectSpike
+        expr: |
+          sum(rate(socket_io_disconnections_total[5m])) > 50
+        for: 1m
+        labels:
+          severity: warning
+          tier: realtime
+        annotations:
+          summary: "Abnormal surge in WebSocket disconnects"
+          description: "More than 50 Socket.IO disconnect events per second detected over 5 minutes. Check network routing or Redis adapter health."
+
+      # 4. Row-Level Security (RLS) Cross-Tenant Violation Spike
+      - alert: WolfHmsRlsCrossTenantBlockSurge
+        expr: |
+          increase(rls_cross_tenant_blocks_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          tier: security
+        annotations:
+          summary: "Cross-Tenant Isolation Breach Attempt"
+          description: "Multiple attempts ({{ $value }}) to access cross-tenant hospital data were blocked by tenantResolver/RLS layer."
+
+      # 5. Refresh Token Reuse Hijack Attempt
+      - alert: WolfHmsTokenReuseDetected
+        expr: |
+          increase(auth_token_reuse_events_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          tier: security
+        annotations:
+          summary: "Revoked Refresh Token Reuse Detected"
+          description: "An attempt to exchange an already-revoked refresh token was detected and the token family was purged."
+
+      # 6. Database Connection Pool Exhaustion
+      - alert: WolfHmsDbPoolExhaustion
+        expr: |
+          pg_pool_waiting_count > 5
+        for: 2m
+        labels:
+          severity: critical
+          tier: database
+        annotations:
+          summary: "PostgreSQL Connection Pool Exhaustion"
+          description: "More than 5 database queries are waiting for available connections in the pool."
+
+      # 7. Host Disk Space Exhaustion (> 85% full)
+      - alert: WolfHmsDiskSpaceLow
+        expr: |
+          (node_filesystem_size_bytes{mountpoint="/"} - node_filesystem_free_bytes{mountpoint="/"})
+          / node_filesystem_size_bytes{mountpoint="/"} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          tier: infrastructure
+        annotations:
+          summary: "Host Disk Space Low (> 85% utilization)"
+          description: "Root partition filesystem utilization is at {{ $value | printf \"%.1f\" }}%."

@@ -1,0 +1,12 @@
+apis:
+  main:
+    root: docs/openapi.yaml
+
+extends:
+  - recommended
+
+rules:
+  operation-4xx-response: off
+  operation-operationId: off
+  info-license: off
+  no-server-example.com: off
