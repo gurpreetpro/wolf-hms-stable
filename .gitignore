@@ -84,3 +84,7 @@ VPS_CREDENTIALS.md
 
 # Temporary tokens
 token.txt
+path/
+scratch/
+scratch_*.png
+redocly.yaml
