@@ -376,7 +376,36 @@
 - [x] `token.txt` (expired JWT) added to `.gitignore`
 - [x] `activeContext.md` and `progress.md` updated
 
+### VPS Hardening Migration Deployment (2026-09-17)
+
+- [x] **301_rls_gapfill.sql** — ran but created 0 policies (outer `BEGIN;`/`COMMIT;` rollback)
+- [x] **301v2_rls_gapfill.sql** — v1 had empty `table_name=''` guards (0 policies); fixed in 7fbb403 → 13 new policies (1297ms)
+- [x] **301v3_rls_gapfill.sql** — 151 remaining gap tables → ✅ applied (1567ms), zero skipped
+- [x] **302_refresh_tokens.sql** — ✅ applied (138ms)
+- [x] **303v2_second_tenant_seed.sql** — ✅ applied (66ms): 4 users + 2 patients for hospital_id=2
+- [x] **304_audit_integrity.sql** — ✅ applied: prev_hash + record_hash columns on audit_logs
+- **RLS policy count on prod: 172** — 100% coverage of all hospital_id tables (gap query returns 0)
+- **wolf DB role is SUPERUSER** — bypasses all RLS; write-isolation cannot be tested until role-split
+
+### Deploy Session Final Verification (2026-09-17)
+
+- [x] **Security Probe**: 5/5 PASS (exec-sql→404, debug/env→404, JWT iss/aud verified, CORS blocked, OPD queue→200)
+- [x] **Smoke Load Test**: 50 VUs × 30s, 1739 requests, 0 failures, p95=237ms (<300ms), error rate=0.00% (<1%)
+
+### Phase 7 Candidates (Future)
+
+- [ ] **wolf_app role-split**: Create non-superuser `wolf_app` DB role for application connections; `wolf` superuser retained for migrations/admin only. Required for real RLS write-isolation enforcement. (`SELECT rolname, rolsuper FROM pg_roles WHERE rolname='wolf'` confirmed `rolsuper = true` on 2026-09-17)
+- [ ] Re-run RLS isolation proof (write-hijack test 4e) after role-split to verify `ERROR: violates row-level security policy`
+
 ### Security Notes
 
 - **`coolify.pem` is still in git history** (committed in `703fe3a`). The key is already non-functional (rejected by VPS, replaced with password auth). Decision: do NOT purge from history now (would rewrite all hashes). Purge after `git push` is restored, if needed.
 - **Credential rotation**: VPS password (`nBRAR619`) was set via Hostinger panel reset. DB password (`password`) and SQL backdoor key are unchanged from initial setup. Consider rotating after `git push` is restored.
+
+## 2026-09-17 — Deploy Session Complete
+- VPS deployed at commit 6349ff1; PM2 wolf-hms-api online
+- Migrations applied: 302 ✅ 303v2 ✅ 304 ✅ 301v2 (13 tables) + 301v3 (151 tables) = 172 policies total, zero gaps
+- Fixed: blank response, unbounded retry storms, broken token exchange/history modes, ! line in .gitignore
+- wolf DB role = SUPERUSER: RLS policies exist but enforcement deferred to Phase 7 wolf_app non-superuser role
+- Pending: post-deploy-security.ps1 + k6 smoke (Step 5); GitHub push of d569718
+
