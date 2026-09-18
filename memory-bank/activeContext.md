@@ -10,7 +10,38 @@
 
 - Single-hospital profile demo (`hospital_id = 1`) on VPS `185.213.27.158`
 
-0. **Ecosystem Hardening Program — Phase 7: Defense-in-Depth Enforcement, Resilience & Performance (✅ COMPLETE IN CODE)**
+-1. **URGENT: System-Wide Connectivity Restoration (WGM T1 PAUSED)**
+   - Symptom: "failed to load data" on many prod dashboards + dead buttons. Verified example: `/icu` — "Could not fetch active ICU admissions" + ICU telemetry 404s.
+   - **Phase 1 audit COMPLETE & VERIFIED by me** (commit `084f3c7`): `scripts/audit/route-matrix.js` scanned 543 unique frontend calls vs `server-cloud.js` mounts → **340 matched / 203 broken across 57 families**.
+   - Triage (`scripts/audit/triage-families.json`): **A)** 31 families mounted only in dev `server.js` (incl. `/api/icu`, `/api/maternity`, `2fa`, `alerts`, `govt-schemes`) or sub-paths missing in prod router; **B)** 13 route files never mounted anywhere (anaesthesia, pos, preauth, orthopedic…); **C)** 13 families with NO backend at all (ambulance, waste, laundry…) → UI disable, do not build.
+   - `auditMiddleware` audited: fail-open, NOT the cause.
+   - **Kickoff for Gemini Flash**: `CONNECTIVITY_FIX_FLASH_KICKOFF.md` (P2-1 mounts → P2-2 sub-route ports → P2-3 wire bucket B → P2-4 UI disable bucket C → P2-5 verification gate: matrix ≤30 broken, 193 tests green, client build green).
+   - Then: I verify → Opus deploys → live crawler + PM2 logs + user click-through.
+
+0. **WGM Track T1: Tactical Enterprise Completion + Crash Root-Cause + Telemetry (✅ COMPLETE IN CODE & TESTS)**
+   - **T1-A: Tabs Hardening & Screen Consolidation (F4/F5 completion)**:
+     - Consolidated navigation in `wgm/App.js` into 5 tactical tab sections: Home (Command), Patrol, Dispatch, People, Profile.
+     - Grouped all 14 screens into logical stacks (`HomeStackScreen`, `PatrolStackScreen`, `DispatchStackScreen`, `PeopleStackScreen`, `ProfileStackScreen`) preserving direct root-level backwards compatibility.
+     - Enhanced `wgm/src/components/ScreenShell.js` with shift-aware header integration, duty mode badges, and station subtitles.
+     - Authored comprehensive manual QA test matrix in `wgm/QA_UI_CHECKLIST.md`.
+     - Authored Jest snapshot tests in `wgm/src/__tests__/navigation.test.js`: **8/8 tests passed**, snapshot written and verified.
+   - **T1-B: Patrol-Start Crash Root Cause (logcat MANDATORY first)**:
+     - Authored `wgm/docs/LOGCAT_CAPTURE.md` detailing exact ADB logcat reproduction commands (`adb logcat -s WolfGuard:D *:E -c`).
+     - Authored `wgm/docs/PATROL_LOGCAT_RESULT.md` capturing and documenting `java.lang.SecurityException: Need android.permission.ACCESS_FINE_LOCATION or android.permission.ACCESS_COARSE_LOCATION to call LocationManager.requestLocationUpdates`.
+     - Added runtime permission gating inside `wgm/src/screens/PatrolScreen.js` (`handleStartPatrol`), requesting foreground permissions before invoking location updates.
+     - Hardened `wgm/src/services/locationService.js` `init()` with try/catch, Sentry capture, and fallback to `Location.getLastKnownPositionAsync`.
+   - **T1-C: Real-Time Telemetry Convergence**:
+     - Updated `wgm/src/services/locationService.js` to import `expo-battery` and append `batteryLevel` (integer %) exclusively during active patrols (`setPatrolActive(true)`).
+     - Connected `socketService.connect()` on login (`LoginScreen.js`) and on cached boot (`AuthContext.js`); wired `socketService.disconnect()` on logout.
+     - Added socket event listeners for `ping_guard` (auto-emits `guard_ping_response` with location and battery), `request_photo` (launches tactical camera modal), and `sos_ack` (triggers haptics and toast).
+     - Enhanced server `server/services/socketHandler.js` with 90s silence timeout watcher marking inactive guards `OFFLINE`.
+     - Authored `wgm/scripts/test-telemetry-e2e.js` and verified: pong received in **2ms** (<3000ms SLA), silence timeout watcher cleanly flips guard status to OFFLINE.
+   - **T1-D: Tactical Visual Layer**:
+     - Replaced emojis with `TacticalIcon` in `wgm/src/screens/DispatchScreen.js` and `wgm/src/screens/PatrolScreen.js`.
+     - Designed and implemented the Home Command 2x2 grid hero in `PatrolScreen.js` featuring bold linear gradients for SOS, Patrol, Checkpoint, and Visitors with tactical badges and haptics.
+     - Reskinned `wgm/src/screens/DutySelectionScreen.js` in cyber terminal aesthetic (`> WG-TERM-01 // NODE: ONLINE`, monospace status tags, cyber brackets).
+     - Audited and verified **zero raw hex** tokens across `wgm/src/` outside `wgm/src/theme/index.js`.
+
    - **W1 — wolf_app Non-Superuser Role Split**:
      - Authored migration `server/migrations/305_wolf_app_role.sql` creating non-superuser role `wolf_app` with LOGIN, public schema DML permissions, sequence usage, and default privileges. Zero hardcoded secrets via `${ENV:WOLF_APP_DB_PASSWORD}` interpolation.
      - Created `server/config/bootRoles.js` resolving `wolf_app` when `APP_DB_ROLE=wolf_app` and `WOLF_APP_DB_PASSWORD` are set, falling back cleanly to `DB_USER` (`postgres`) for local development.
