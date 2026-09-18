@@ -1,0 +1,1313 @@
+{
+  "generatedAt": "2026-09-18T15:33:30.998Z",
+  "mounts": 90,
+  "backendRoutes": 827,
+  "frontendCalls": 543,
+  "matched": 340,
+  "broken": [
+    {
+      "method": "POST",
+      "url": "/api/2fa/login-verify",
+      "file": "client\\src\\components\\settings\\TOTPVerify.jsx",
+      "line": 69
+    },
+    {
+      "method": "POST",
+      "url": "/api/2fa/setup",
+      "file": "client\\src\\components\\settings\\SetupTOTP.jsx",
+      "line": 24
+    },
+    {
+      "method": "POST",
+      "url": "/api/2fa/verify",
+      "file": "client\\src\\components\\settings\\SetupTOTP.jsx",
+      "line": 46
+    },
+    {
+      "method": "GET",
+      "url": "/api/abdm/fhir/bundle/{}",
+      "file": "client\\src\\pages\\AdminSettings.jsx",
+      "line": 341
+    },
+    {
+      "method": "GET",
+      "url": "/api/abdm/stats",
+      "file": "client\\src\\pages\\AdminSettings.jsx",
+      "line": 319
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/archive/restore",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 155
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/archive/run",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 145
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/archive/setup",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 135
+    },
+    {
+      "method": "GET",
+      "url": "/api/admin/archive/stats",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 126
+    },
+    {
+      "method": "GET",
+      "url": "/api/admin/features",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 66
+    },
+    {
+      "method": "PUT",
+      "url": "/api/admin/features",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 76
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/features/apply-tier",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 103
+    },
+    {
+      "method": "GET",
+      "url": "/api/admin/features/check/{}",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 113
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/features/disable",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 94
+    },
+    {
+      "method": "POST",
+      "url": "/api/admin/features/enable",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 85
+    },
+    {
+      "method": "GET",
+      "url": "/api/admissions",
+      "file": "client\\src\\pages\\clinical\\ICUDashboard.jsx",
+      "line": 70
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai-billing/icd10/suggest",
+      "file": "client\\src\\components\\ICD10Coder.jsx",
+      "line": 41
+    },
+    {
+      "method": "GET",
+      "url": "/api/ai-billing/icd10/validate/{}",
+      "file": "client\\src\\components\\ICD10Coder.jsx",
+      "line": 77
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/care-plan",
+      "file": "client\\src\\components\\NursePatientProfile.jsx",
+      "line": 225
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/check-interactions",
+      "file": "client\\src\\components\\DrugInteractionAlert.jsx",
+      "line": 37
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/diagnose",
+      "file": "client\\src\\components\\AIClinicalAssistant.jsx",
+      "line": 38
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/drug-check",
+      "file": "client\\src\\components\\AIAssistant.jsx",
+      "line": 111
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/generate-note",
+      "file": "client\\src\\components\\AINoteGenerator.jsx",
+      "line": 32
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/lab-analysis",
+      "file": "client\\src\\components\\FloatingAIButton.jsx",
+      "line": 98
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/medication-check",
+      "file": "client\\src\\services\\aiService.js",
+      "line": 78
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/prescribe",
+      "file": "client\\src\\components\\AIClinicalAssistant.jsx",
+      "line": 64
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/scribe",
+      "file": "client\\src\\components\\AIAssistant.jsx",
+      "line": 150
+    },
+    {
+      "method": "POST",
+      "url": "/api/ai/symptoms",
+      "file": "client\\src\\components\\AIAssistant.jsx",
+      "line": 94
+    },
+    {
+      "method": "PATCH",
+      "url": "/api/alerts/{}/acknowledge",
+      "file": "client\\src\\components\\ClinicalAlertBadge.jsx",
+      "line": 31
+    },
+    {
+      "method": "POST",
+      "url": "/api/alerts/duress",
+      "file": "client\\src\\components\\TopNav.jsx",
+      "line": 51
+    },
+    {
+      "method": "GET",
+      "url": "/api/alerts/patient/{}",
+      "file": "client\\src\\components\\ClinicalAlertBadge.jsx",
+      "line": 12
+    },
+    {
+      "method": "POST",
+      "url": "/api/ambulance/dispatch",
+      "file": "client\\src\\pages\\AmbulanceDashboard.jsx",
+      "line": 178
+    },
+    {
+      "method": "GET",
+      "url": "/api/ambulance/trips",
+      "file": "client\\src\\pages\\AmbulanceDashboard.jsx",
+      "line": 18
+    },
+    {
+      "method": "GET",
+      "url": "/api/ambulance/vehicles",
+      "file": "client\\src\\pages\\AmbulanceDashboard.jsx",
+      "line": 17
+    },
+    {
+      "method": "GET",
+      "url": "/api/anaesthesia/{}",
+      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
+      "line": 22
+    },
+    {
+      "method": "POST",
+      "url": "/api/anaesthesia/count",
+      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
+      "line": 63
+    },
+    {
+      "method": "POST",
+      "url": "/api/anaesthesia/drugs",
+      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
+      "line": 50
+    },
+    {
+      "method": "POST",
+      "url": "/api/anaesthesia/vitals",
+      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
+      "line": 34
+    },
+    {
+      "method": "GET",
+      "url": "/api/assets",
+      "file": "client\\src\\pages\\AssetDashboard.jsx",
+      "line": 14
+    },
+    {
+      "method": "POST",
+      "url": "/api/assets",
+      "file": "client\\src\\pages\\AssetDashboard.jsx",
+      "line": 119
+    },
+    {
+      "method": "GET",
+      "url": "/api/auth/2fa/generate",
+      "file": "client\\src\\components\\admin\\AdminSecurityStudio.jsx",
+      "line": 13
+    },
+    {
+      "method": "POST",
+      "url": "/api/auth/2fa/verify",
+      "file": "client\\src\\components\\admin\\AdminSecurityStudio.jsx",
+      "line": 23
+    },
+    {
+      "method": "GET",
+      "url": "/api/auth/update-security",
+      "file": "client\\src\\components\\settings\\SecuritySettings.jsx",
+      "line": 71
+    },
+    {
+      "method": "PUT",
+      "url": "/api/auth/users/{}/approve",
+      "file": "client\\src\\services\\authService.js",
+      "line": 46
+    },
+    {
+      "method": "PUT",
+      "url": "/api/auth/users/{}/reject",
+      "file": "client\\src\\services\\authService.js",
+      "line": 52
+    },
+    {
+      "method": "POST",
+      "url": "/api/billing/add-item",
+      "file": "client\\src\\components\\billing\\BillingLeakageTracker.jsx",
+      "line": 93
+    },
+    {
+      "method": "POST",
+      "url": "/api/blood-bank/crossmatch",
+      "file": "client\\src\\components\\PreTransfusionTestPanel.jsx",
+      "line": 77
+    },
+    {
+      "method": "POST",
+      "url": "/api/blood-bank/emergency-release",
+      "file": "client\\src\\components\\EmergencyBloodRelease.jsx",
+      "line": 97
+    },
+    {
+      "method": "POST",
+      "url": "/api/blood-bank/reserve",
+      "file": "client\\src\\components\\SurgicalBloodOrderModal.jsx",
+      "line": 129
+    },
+    {
+      "method": "POST",
+      "url": "/api/blood-bank/transfusion/complete",
+      "file": "client\\src\\components\\WardBloodTransfusionsPanel.jsx",
+      "line": 111
+    },
+    {
+      "method": "POST",
+      "url": "/api/blood-bank/transfusion/start",
+      "file": "client\\src\\components\\WardBloodTransfusionsPanel.jsx",
+      "line": 84
+    },
+    {
+      "method": "POST",
+      "url": "/api/branding",
+      "file": "client\\src\\pages\\AdminSettings.jsx",
+      "line": 256
+    },
+    {
+      "method": "GET",
+      "url": "/api/charges",
+      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
+      "line": 59
+    },
+    {
+      "method": "POST",
+      "url": "/api/charges/{}/cancel",
+      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
+      "line": 173
+    },
+    {
+      "method": "POST",
+      "url": "/api/charges/invoice",
+      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
+      "line": 144
+    },
+    {
+      "method": "GET",
+      "url": "/api/charges/summary",
+      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
+      "line": 60
+    },
+    {
+      "method": "GET",
+      "url": "/api/clinical-pathways",
+      "file": "client\\src\\pages\\ClinicalPathwaysDashboard.jsx",
+      "line": 13
+    },
+    {
+      "method": "POST",
+      "url": "/api/clinical/problems",
+      "file": "client\\src\\components\\ProblemListPanel.jsx",
+      "line": 63
+    },
+    {
+      "method": "GET",
+      "url": "/api/clinical/problems/{}",
+      "file": "client\\src\\components\\ProblemListPanel.jsx",
+      "line": 46
+    },
+    {
+      "method": "PATCH",
+      "url": "/api/clinical/problems/{}",
+      "file": "client\\src\\components\\ProblemListPanel.jsx",
+      "line": 87
+    },
+    {
+      "method": "DELETE",
+      "url": "/api/clinical/problems/{}",
+      "file": "client\\src\\components\\ProblemListPanel.jsx",
+      "line": 106
+    },
+    {
+      "method": "PUT",
+      "url": "/api/clinical/problems/{}/resolve",
+      "file": "client\\src\\services\\clinicalService.js",
+      "line": 38
+    },
+    {
+      "method": "PUT",
+      "url": "/api/clinical/task/complete",
+      "file": "client\\src\\components\\NursePatientProfile.jsx",
+      "line": 318
+    },
+    {
+      "method": "PUT",
+      "url": "/api/clinical/tasks/{}",
+      "file": "client\\src\\components\\CareTaskBoard.jsx",
+      "line": 85
+    },
+    {
+      "method": "POST",
+      "url": "/api/clinical/tasks/hold",
+      "file": "client\\src\\components\\nursing\\eMAR.jsx",
+      "line": 106
+    },
+    {
+      "method": "GET",
+      "url": "/api/communications",
+      "file": "client\\src\\pages\\CommsDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "POST",
+      "url": "/api/communications/announce",
+      "file": "client\\src\\pages\\CommsDashboard.jsx",
+      "line": 110
+    },
+    {
+      "method": "GET",
+      "url": "/api/dental/lab-orders",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 182
+    },
+    {
+      "method": "POST",
+      "url": "/api/dental/lab-orders",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 355
+    },
+    {
+      "method": "GET",
+      "url": "/api/dental/procedures",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 170
+    },
+    {
+      "method": "POST",
+      "url": "/api/dental/procedures",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 320
+    },
+    {
+      "method": "GET",
+      "url": "/api/dental/visits",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 159
+    },
+    {
+      "method": "POST",
+      "url": "/api/dental/visits",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 266
+    },
+    {
+      "method": "GET",
+      "url": "/api/dicom/wado/{}",
+      "file": "client\\src\\components\\radiology\\OHIFViewer.jsx",
+      "line": 32
+    },
+    {
+      "method": "POST",
+      "url": "/api/dietary",
+      "file": "client\\src\\components\\DietaryRequestModal.jsx",
+      "line": 40
+    },
+    {
+      "method": "GET",
+      "url": "/api/dietary",
+      "file": "client\\src\\pages\\DietaryDashboard.jsx",
+      "line": 18
+    },
+    {
+      "method": "POST",
+      "url": "/api/equipment/requests/{}/{}",
+      "file": "client\\src\\pages\\PriceApprovals.jsx",
+      "line": 116
+    },
+    {
+      "method": "POST",
+      "url": "/api/finance/invoices",
+      "file": "client\\src\\services\\financeService.js",
+      "line": 21
+    },
+    {
+      "method": "GET",
+      "url": "/api/finance/invoices/{}",
+      "file": "client\\src\\services\\financeService.js",
+      "line": 16
+    },
+    {
+      "method": "POST",
+      "url": "/api/finance/invoices/{}/payments",
+      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
+      "line": 315
+    },
+    {
+      "method": "POST",
+      "url": "/api/finance/payments",
+      "file": "client\\src\\services\\financeService.js",
+      "line": 45
+    },
+    {
+      "method": "POST",
+      "url": "/api/finance/periods/{}/{}",
+      "file": "client\\src\\components\\billing\\BillingSettingsTab.jsx",
+      "line": 214
+    },
+    {
+      "method": "POST",
+      "url": "/api/finance/refunds",
+      "file": "client\\src\\services\\financeService.js",
+      "line": 51
+    },
+    {
+      "method": "POST",
+      "url": "/api/govt-schemes/{}/calculate-claim",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 42
+    },
+    {
+      "method": "POST",
+      "url": "/api/govt-schemes/{}/compare-rates",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 50
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/{}/modifiers",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 31
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/{}/packages",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 11
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/{}/packages/{}",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 16
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/{}/specialties",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 26
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/{}/stats",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 36
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/beneficiaries/patient/{}",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 80
+    },
+    {
+      "method": "POST",
+      "url": "/api/govt-schemes/beneficiaries/register",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 65
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/beneficiaries/search",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 75
+    },
+    {
+      "method": "POST",
+      "url": "/api/govt-schemes/beneficiaries/verify",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 70
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/empanelment",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 86
+    },
+    {
+      "method": "POST",
+      "url": "/api/govt-schemes/empanelment",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 91
+    },
+    {
+      "method": "GET",
+      "url": "/api/govt-schemes/ward-entitlement/{}",
+      "file": "client\\src\\services\\govtSchemeService.js",
+      "line": 59
+    },
+    {
+      "method": "POST",
+      "url": "/api/icu/fluid-io",
+      "file": "client\\src\\pages\\clinical\\ICUDashboard.jsx",
+      "line": 161
+    },
+    {
+      "method": "GET",
+      "url": "/api/icu/fluid-io/{}",
+      "file": "client\\src\\pages\\clinical\\ICUDashboard.jsx",
+      "line": 103
+    },
+    {
+      "method": "POST",
+      "url": "/api/icu/ventilator-logs",
+      "file": "client\\src\\pages\\clinical\\ICUDashboard.jsx",
+      "line": 136
+    },
+    {
+      "method": "GET",
+      "url": "/api/icu/ventilator-logs/{}",
+      "file": "client\\src\\pages\\clinical\\ICUDashboard.jsx",
+      "line": 97
+    },
+    {
+      "method": "POST",
+      "url": "/api/infection-control/report",
+      "file": "client\\src\\pages\\InfectionControlDashboard.jsx",
+      "line": 59
+    },
+    {
+      "method": "GET",
+      "url": "/api/intraop/chart/{}",
+      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
+      "line": 56
+    },
+    {
+      "method": "PUT",
+      "url": "/api/intraop/end/{}",
+      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
+      "line": 95
+    },
+    {
+      "method": "POST",
+      "url": "/api/intraop/log",
+      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
+      "line": 65
+    },
+    {
+      "method": "POST",
+      "url": "/api/intraop/start",
+      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
+      "line": 36
+    },
+    {
+      "method": "GET",
+      "url": "/api/lab/completed",
+      "file": "client\\src\\components\\billing\\BillingLeakageTracker.jsx",
+      "line": 35
+    },
+    {
+      "method": "PUT",
+      "url": "/api/lab/critical-alerts/{}/acknowledge",
+      "file": "client\\src\\services\\labService.js",
+      "line": 93
+    },
+    {
+      "method": "POST",
+      "url": "/api/lab/request/{}/{}",
+      "file": "client\\src\\pages\\PriceApprovals.jsx",
+      "line": 86
+    },
+    {
+      "method": "GET",
+      "url": "/api/lab/test-requests",
+      "file": "client\\src\\pages\\Dashboard.jsx",
+      "line": 84
+    },
+    {
+      "method": "POST",
+      "url": "/api/lab/tests/{}/result",
+      "file": "client\\src\\services\\labService.js",
+      "line": 54
+    },
+    {
+      "method": "GET",
+      "url": "/api/laundry/orders",
+      "file": "client\\src\\pages\\LaundryDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "POST",
+      "url": "/api/laundry/orders",
+      "file": "client\\src\\pages\\LaundryDashboard.jsx",
+      "line": 168
+    },
+    {
+      "method": "POST",
+      "url": "/api/license/activate",
+      "file": "client\\src\\pages\\Activation.jsx",
+      "line": 31
+    },
+    {
+      "method": "POST",
+      "url": "/api/license/generate",
+      "file": "client\\src\\pages\\Activation.jsx",
+      "line": 41
+    },
+    {
+      "method": "GET",
+      "url": "/api/license/status",
+      "file": "client\\src\\pages\\Activation.jsx",
+      "line": 19
+    },
+    {
+      "method": "POST",
+      "url": "/api/migration/commit/{}",
+      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
+      "line": 91
+    },
+    {
+      "method": "POST",
+      "url": "/api/migration/upload",
+      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
+      "line": 39
+    },
+    {
+      "method": "POST",
+      "url": "/api/migration/validations/{}",
+      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
+      "line": 74
+    },
+    {
+      "method": "POST",
+      "url": "/api/mortuary/declare",
+      "file": "client\\src\\pages\\MortuaryDashboard.jsx",
+      "line": 42
+    },
+    {
+      "method": "POST",
+      "url": "/api/mortuary/init",
+      "file": "client\\src\\pages\\MortuaryDashboard.jsx",
+      "line": 28
+    },
+    {
+      "method": "POST",
+      "url": "/api/mortuary/release",
+      "file": "client\\src\\pages\\MortuaryDashboard.jsx",
+      "line": 59
+    },
+    {
+      "method": "GET",
+      "url": "/api/mortuary/status",
+      "file": "client\\src\\pages\\MortuaryDashboard.jsx",
+      "line": 23
+    },
+    {
+      "method": "POST",
+      "url": "/api/neonatal/admit",
+      "file": "client\\src\\pages\\NeonatalDashboard.jsx",
+      "line": 36
+    },
+    {
+      "method": "GET",
+      "url": "/api/neonatal/babies",
+      "file": "client\\src\\pages\\NeonatalDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "POST",
+      "url": "/api/nurse/fall-risk",
+      "file": "client\\src\\components\\FallRiskAssessmentTab.jsx",
+      "line": 67
+    },
+    {
+      "method": "GET",
+      "url": "/api/nurse/fall-risk/{}",
+      "file": "client\\src\\components\\FallRiskAssessmentTab.jsx",
+      "line": 39
+    },
+    {
+      "method": "GET",
+      "url": "/api/nurse/ward-overview{}",
+      "file": "client\\src\\services\\nurseService.js",
+      "line": 11
+    },
+    {
+      "method": "GET",
+      "url": "/api/ophthalmology/biometry",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 157
+    },
+    {
+      "method": "POST",
+      "url": "/api/ophthalmology/biometry",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 253
+    },
+    {
+      "method": "GET",
+      "url": "/api/ophthalmology/procedures",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 145
+    },
+    {
+      "method": "POST",
+      "url": "/api/ophthalmology/procedures",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 236
+    },
+    {
+      "method": "GET",
+      "url": "/api/ophthalmology/visits",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 134
+    },
+    {
+      "method": "POST",
+      "url": "/api/ophthalmology/visits",
+      "file": "client\\src\\pages\\clinical\\OphthalmologyDashboard.jsx",
+      "line": 216
+    },
+    {
+      "method": "GET",
+      "url": "/api/order-sets",
+      "file": "client\\src\\components\\OrderSetSelector.jsx",
+      "line": 18
+    },
+    {
+      "method": "POST",
+      "url": "/api/order-sets/apply",
+      "file": "client\\src\\components\\OrderSetSelector.jsx",
+      "line": 52
+    },
+    {
+      "method": "GET",
+      "url": "/api/orthopedic/implants",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 149
+    },
+    {
+      "method": "POST",
+      "url": "/api/orthopedic/implants",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 210
+    },
+    {
+      "method": "GET",
+      "url": "/api/orthopedic/physio-orders",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 158
+    },
+    {
+      "method": "GET",
+      "url": "/api/orthopedic/procedures",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 141
+    },
+    {
+      "method": "POST",
+      "url": "/api/orthopedic/procedures",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 198
+    },
+    {
+      "method": "GET",
+      "url": "/api/orthopedic/visits",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 132
+    },
+    {
+      "method": "POST",
+      "url": "/api/orthopedic/visits",
+      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
+      "line": 185
+    },
+    {
+      "method": "POST",
+      "url": "/api/ot/checklist",
+      "file": "client\\src\\components\\WHOChecklistModal.jsx",
+      "line": 77
+    },
+    {
+      "method": "GET",
+      "url": "/api/pac/assessment/{}",
+      "file": "client\\src\\components\\pac\\PACAssessmentForm.jsx",
+      "line": 20
+    },
+    {
+      "method": "GET",
+      "url": "/api/pac/pending",
+      "file": "client\\src\\pages\\PACDashboard.jsx",
+      "line": 16
+    },
+    {
+      "method": "POST",
+      "url": "/api/pac/save",
+      "file": "client\\src\\components\\pac\\PACAssessmentForm.jsx",
+      "line": 41
+    },
+    {
+      "method": "POST",
+      "url": "/api/pacu/admit",
+      "file": "client\\src\\pages\\PACUDashboard.jsx",
+      "line": 33
+    },
+    {
+      "method": "GET",
+      "url": "/api/pacu/dashboard",
+      "file": "client\\src\\pages\\PACUDashboard.jsx",
+      "line": 22
+    },
+    {
+      "method": "POST",
+      "url": "/api/pacu/discharge",
+      "file": "client\\src\\pages\\PACUDashboard.jsx",
+      "line": 60
+    },
+    {
+      "method": "POST",
+      "url": "/api/pacu/score",
+      "file": "client\\src\\pages\\PACUDashboard.jsx",
+      "line": 46
+    },
+    {
+      "method": "GET",
+      "url": "/api/patients",
+      "file": "client\\src\\pages\\clinical\\DentalDashboard.jsx",
+      "line": 148
+    },
+    {
+      "method": "POST",
+      "url": "/api/payments/link",
+      "file": "client\\src\\components\\PaymentModal.jsx",
+      "line": 113
+    },
+    {
+      "method": "POST",
+      "url": "/api/payments/orders",
+      "file": "client\\src\\components\\PaymentModal.jsx",
+      "line": 31
+    },
+    {
+      "method": "POST",
+      "url": "/api/payments/verify",
+      "file": "client\\src\\components\\PaymentModal.jsx",
+      "line": 71
+    },
+    {
+      "method": "GET",
+      "url": "/api/pharmacy/dispenses/unbilled",
+      "file": "client\\src\\components\\billing\\BillingLeakageTracker.jsx",
+      "line": 41
+    },
+    {
+      "method": "POST",
+      "url": "/api/pharmacy/price-request/{}/{}",
+      "file": "client\\src\\pages\\PriceApprovals.jsx",
+      "line": 71
+    },
+    {
+      "method": "POST",
+      "url": "/api/pharmacy/request-price-change",
+      "file": "client\\src\\pages\\PharmacyDashboard.jsx",
+      "line": 220
+    },
+    {
+      "method": "GET",
+      "url": "/api/platform/hospitals/{}/logs",
+      "file": "client\\src\\components\\admin\\AuditLogViewer.jsx",
+      "line": 21
+    },
+    {
+      "method": "GET",
+      "url": "/api/pos/devices",
+      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
+      "line": 86
+    },
+    {
+      "method": "POST",
+      "url": "/api/pos/devices",
+      "file": "client\\src\\components\\POSDashboard.jsx",
+      "line": 90
+    },
+    {
+      "method": "POST",
+      "url": "/api/pos/devices/{}/test",
+      "file": "client\\src\\components\\POSDashboard.jsx",
+      "line": 75
+    },
+    {
+      "method": "GET",
+      "url": "/api/pos/emi-offers",
+      "file": "client\\src\\components\\pos\\EMISelectionModal.jsx",
+      "line": 34
+    },
+    {
+      "method": "POST",
+      "url": "/api/pos/payment/{}/cancel",
+      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
+      "line": 197
+    },
+    {
+      "method": "GET",
+      "url": "/api/pos/payment/{}/status",
+      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
+      "line": 157
+    },
+    {
+      "method": "POST",
+      "url": "/api/pos/payment/initiate",
+      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
+      "line": 116
+    },
+    {
+      "method": "GET",
+      "url": "/api/pos/providers",
+      "file": "client\\src\\components\\POSDashboard.jsx",
+      "line": 40
+    },
+    {
+      "method": "GET",
+      "url": "/api/pos/reports/daily-summary",
+      "file": "client\\src\\components\\POSDashboard.jsx",
+      "line": 42
+    },
+    {
+      "method": "POST",
+      "url": "/api/pre-op/assessment",
+      "file": "client\\src\\pages\\OTDashboard.jsx",
+      "line": 168
+    },
+    {
+      "method": "GET",
+      "url": "/api/preauth/patient/{}/insurance",
+      "file": "client\\src\\components\\EligibilityVerification.jsx",
+      "line": 27
+    },
+    {
+      "method": "POST",
+      "url": "/api/preauth/patient/insurance",
+      "file": "client\\src\\components\\EligibilityVerification.jsx",
+      "line": 184
+    },
+    {
+      "method": "GET",
+      "url": "/api/preauth/providers",
+      "file": "client\\src\\components\\EligibilityVerification.jsx",
+      "line": 28
+    },
+    {
+      "method": "POST",
+      "url": "/api/preauth/request",
+      "file": "client\\src\\components\\InsuranceVerificationModal.jsx",
+      "line": 158
+    },
+    {
+      "method": "PUT",
+      "url": "/api/preauth/request/{}/status",
+      "file": "client\\src\\components\\PreauthDashboard.jsx",
+      "line": 69
+    },
+    {
+      "method": "GET",
+      "url": "/api/preauth/requests${filterStatus ",
+      "file": "client\\src\\components\\PreauthDashboard.jsx",
+      "line": 31
+    },
+    {
+      "method": "GET",
+      "url": "/api/preauth/stats",
+      "file": "client\\src\\components\\PreauthDashboard.jsx",
+      "line": 32
+    },
+    {
+      "method": "POST",
+      "url": "/api/preauth/verify-eligibility",
+      "file": "client\\src\\components\\EligibilityVerification.jsx",
+      "line": 49
+    },
+    {
+      "method": "POST",
+      "url": "/api/prior-auth/submit",
+      "file": "client\\src\\pages\\PriorAuthDashboard.jsx",
+      "line": 46
+    },
+    {
+      "method": "GET",
+      "url": "/api/quality/checklist",
+      "file": "client\\src\\pages\\QualityDashboard.jsx",
+      "line": 35
+    },
+    {
+      "method": "GET",
+      "url": "/api/quality/metrics",
+      "file": "client\\src\\pages\\QualityDashboard.jsx",
+      "line": 34
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/guard/{}/metrics",
+      "file": "client\\src\\components\\security\\cockpit\\GuardProfileModal.jsx",
+      "line": 29
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/handover/{}",
+      "file": "client\\src\\components\\security\\cockpit\\GuardProfileModal.jsx",
+      "line": 15
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/sessions/{}/revoke",
+      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
+      "line": 51
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/users/{}/revoke-all",
+      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
+      "line": 62
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/users/{}/unlock",
+      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
+      "line": 56
+    },
+    {
+      "method": "GET",
+      "url": "/api/security/validate-password",
+      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
+      "line": 268
+    },
+    {
+      "method": "POST",
+      "url": "/api/security/visitors/check-in",
+      "file": "client\\src\\components\\VisitorPassModal.jsx",
+      "line": 22
+    },
+    {
+      "method": "GET",
+      "url": "/api/settings/profile",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 27
+    },
+    {
+      "method": "POST",
+      "url": "/api/settings/profile",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 32
+    },
+    {
+      "method": "POST",
+      "url": "/api/settings/services",
+      "file": "client\\src\\services\\adminService.js",
+      "line": 42
+    },
+    {
+      "method": "GET",
+      "url": "/api/staff/roster",
+      "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
+      "line": 17
+    },
+    {
+      "method": "GET",
+      "url": "/api/staff/shifts",
+      "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
+      "line": 16
+    },
+    {
+      "method": "POST",
+      "url": "/api/staff/shifts",
+      "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
+      "line": 145
+    },
+    {
+      "method": "GET",
+      "url": "/api/support/tickets/{}/remote-access",
+      "file": "client\\src\\components\\support\\RemoteSupportModal.jsx",
+      "line": 29
+    },
+    {
+      "method": "GET",
+      "url": "/api/test/migrate-login-security",
+      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
+      "line": 69
+    },
+    {
+      "method": "GET",
+      "url": "/api/transitions/discharge/{}",
+      "file": "client\\src\\components\\DischargeChecklist.jsx",
+      "line": 25
+    },
+    {
+      "method": "PATCH",
+      "url": "/api/transitions/discharge/{}",
+      "file": "client\\src\\components\\DischargeChecklist.jsx",
+      "line": 59
+    },
+    {
+      "method": "POST",
+      "url": "/api/transitions/handoff",
+      "file": "client\\src\\components\\SBARHandoffPanel.jsx",
+      "line": 45
+    },
+    {
+      "method": "GET",
+      "url": "/api/transitions/handoffs",
+      "file": "client\\src\\components\\SBARHandoffPanel.jsx",
+      "line": 25
+    },
+    {
+      "method": "POST",
+      "url": "/api/upload/logo",
+      "file": "client\\src\\components\\admin\\HospitalProfileSettings.jsx",
+      "line": 67
+    },
+    {
+      "method": "GET",
+      "url": "/api/waste/daily-log",
+      "file": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 43
+    },
+    {
+      "method": "POST",
+      "url": "/api/waste/log",
+      "file": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 85
+    },
+    {
+      "method": "GET",
+      "url": "/api/waste/stats",
+      "file": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 44
+    }
+  ],
+  "mountIssues": [
+    {
+      "mount": "/api/",
+      "reason": "unresolved expr: generalLimiter"
+    },
+    {
+      "mount": "/api/",
+      "reason": "unresolved expr: resolveHospital"
+    },
+    {
+      "mount": "/api",
+      "reason": "unresolved expr: setupRoutes"
+    },
+    {
+      "mount": "/api/patients",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/admissions",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/prescriptions",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/lab",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/pharmacy",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/radiology",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/clinical",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/appointments",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/opd",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/billing",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/finance",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/insurance",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/pmjay/claims",
+      "reason": "unresolved expr: auditMiddleware"
+    },
+    {
+      "mount": "/api/reviews",
+      "reason": "unresolved expr: reviewRoutes"
+    },
+    {
+      "mount": "/api/family",
+      "reason": "unresolved expr: familyRoutes"
+    },
+    {
+      "mount": "/api/articles",
+      "reason": "unresolved expr: articlesRoutes"
+    },
+    {
+      "mount": "/api/home-lab",
+      "reason": "unresolved expr: homeLabRoutes"
+    },
+    {
+      "mount": "/api/",
+      "reason": "unresolved expr: gatewayMiddleware"
+    }
+  ]
+}
