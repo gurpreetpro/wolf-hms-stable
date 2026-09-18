@@ -4,13 +4,40 @@
 
 ## Last Updated
 
-2026-09-17
+2026-09-18
 
 ## Current Target
 
 - Single-hospital profile demo (`hospital_id = 1`) on VPS `185.213.27.158`
 
-0. **Ecosystem Hardening Program — Phase 6: Observability: Metrics, Logging, Alerting & Error Visibility (✅ COMPLETE IN CODE)**
+0. **Ecosystem Hardening Program — Phase 7: Defense-in-Depth Enforcement, Resilience & Performance (✅ COMPLETE IN CODE)**
+   - **W1 — wolf_app Non-Superuser Role Split**:
+     - Authored migration `server/migrations/305_wolf_app_role.sql` creating non-superuser role `wolf_app` with LOGIN, public schema DML permissions, sequence usage, and default privileges. Zero hardcoded secrets via `${ENV:WOLF_APP_DB_PASSWORD}` interpolation.
+     - Created `server/config/bootRoles.js` resolving `wolf_app` when `APP_DB_ROLE=wolf_app` and `WOLF_APP_DB_PASSWORD` are set, falling back cleanly to `DB_USER` (`postgres`) for local development.
+     - Gated boot-time auto-migrations and schema DDL behind `BOOT_DDL=true` in `server/server-cloud.js` and `server/server.js`, preventing non-superuser runtime failures on startup.
+     - Enhanced `server/scripts/admin-cli.js` with deterministic `${ENV:VAR_NAME}` token replacement and fail-closed validation.
+     - Authored unit tests in `server/tests/unit/adminCliEnv.test.js` (7 tests passing) and `server/tests/unit/bootRoles.test.js` (5 tests passing).
+     - Authored contract test `server/tests/contract/rlsEnforced.test.js` (4 tests passing) verifying transaction-scoped tenant isolation and role separation.
+     - Authored operator cutover runbook `scripts/probes/wolf-app-cutover.md` detailing migration execution, PM2 environment reconfiguration, live RLS isolation verification, and rollback procedure.
+   - **W2 — Automated Backup Schedule & Restore Proof**:
+     - Authored `server/scripts/backup-scheduler.js` providing opt-in backup scheduling (`BACKUP_ENABLED=true`) via `node-cron` (default `02:15` daily) with fallback `setInterval` runner.
+     - Implemented retention pruning algorithm retaining `BACKUP_RETENTION_DAILY` (default 14) and `BACKUP_RETENTION_WEEKLY` (default 4) snapshots.
+     - Implemented automated weekly integrity verification pass (`BACKUP_VERIFY_WEEKLY=true`) executing `verifyBackupFile` and logging failures with `[BACKUP-ALERT]`.
+     - Authored operator drill runbook `scripts/probes/restore-drill-auto.md` detailing non-destructive restoration into isolated container scratch schema `scratch_restore`.
+     - Authored unit tests in `server/tests/unit/backupSchedule.test.js` (5 tests passing).
+   - **W3 — Performance & Slow-Query Telemetry**:
+     - Extended `server/services/MetricsCollector.js` with Prometheus histogram `db_query_duration_ms` (`query_prefix`, `status`), counter `db_slow_queries_total`, configurable threshold `SLOW_QUERY_MS` (default 500ms), and 15-minute rolling window tracking.
+     - Implemented in-memory bounded ring buffer tracking the top 5 slowest HTTP endpoints (`getTopSlowEndpoints`).
+     - Instrumented query execution in `server/config/dbPools.js` measuring query duration across `primaryPool`, `replicaPool`, and smart router without breaking existing callers.
+     - Enriched `GET /api/health/obs` with `slowQueriesLast15m`, `poolWaitingCount`, and `topSlowEndpoints`.
+     - Authored contract tests in `server/tests/contract/slowQueryTelemetry.test.js` (4 tests passing) and updated `server/tests/contract/obsStatus.test.js` (5 tests passing).
+     - Authored operational performance guide `docs/PERF_GUIDE.md` documenting k6 smoke baseline figures (p95 ~237ms @ 50 VU, 0% error rate) and post-deploy telemetry verification.
+   - **W4 — Documentation, OpenAPI & Verification**:
+     - Updated `SECURITY_DEBT.md` Item 5 with Phase 7 role-split status and cutover runbook.
+     - Updated `docs/openapi.yaml` with enriched `/api/health/obs` schema; validated with `@redocly/cli lint` (0 errors).
+     - Total backend test harness: **193 passing tests** (39 passed suites, 3 skipped, 0 failures, 3.5s runtime).
+     - Frontend test harness: **16 passing tests**; clean build.
+     - Zero VPS mutations; all deliverables local code, tests, and operator runbooks.
    - **W1 — Request Metrics & Prometheus Exposition**:
      - Refactored `server/services/MetricsCollector.js` onto `prom-client` with `http_requests_total` Counter (`method`, `route`, `status`), `http_request_duration_ms` Histogram with fine-grained latency buckets, and `db_slow_queries_total` Counter (>1000ms).
      - Protected Prometheus label memory against high-cardinality explosions with path normalizer (`:id` replacing UUIDs and numeric IDs).
@@ -391,3 +418,8 @@
 - 2026-09-08: SSH recovered (password auth via Hostinger reset), guardController.js deployed to VPS, WGM APK built (3 iterations: WebView, cleartext, bio-lock fixes), agent infrastructure overhauled (5 rules, 2 new skills, secrets scrubbed)
 - 2026-09-07: Wolf Guard backend production-ready (multi-agent: Antigravity + Kimi K3 + DeepSeek V4 Flash)
 - 2026-08-16: Emergency alert system debugging (trigger, banner, responder dispatch)
+
+## 2026-09-17 WGM Track T1 Kickoff
+- WGM_TRACK_T1_FLASH_KICKOFF.md authored (T1-A tabs, T1-B logcat, T1-C telemetry, T1-D visual).
+- Next: Flash execution; ties into patrol crash logcat evidence requirement.
+
