@@ -4,13 +4,17 @@ const settingsController = require('../controllers/settingsController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 // Hospital Profile - requires authentication for hospital_id context
-// Frontend calls /api/settings/hospital-profile
+// Frontend calls /api/settings/hospital-profile and /api/settings/profile
 router.get('/hospital-profile', authenticateToken, settingsController.getSettings);
 router.post('/hospital-profile', authenticateToken, settingsController.updateSettings);
 router.put('/hospital-profile', authenticateToken, settingsController.updateSettings);
+router.get('/profile', authenticateToken, settingsController.getSettings);
+router.post('/profile', authenticateToken, settingsController.updateSettings);
+router.put('/profile', authenticateToken, settingsController.updateSettings);
 
 // Rate Card
 router.get('/services', authenticateToken, settingsController.getServices);
+router.post('/services', authenticateToken, settingsController.updateServicePrice);
 router.put('/services/price', authenticateToken, settingsController.updateServicePrice);
 
 // Payment Settings (Multi-Tenant)

@@ -32,14 +32,17 @@ router.get('/audit-log', authenticateToken, authorize('admin'), securityControll
 
 // Active Session Management
 router.get('/sessions', authenticateToken, authorize('admin'), securityController.getActiveSessions);
-router.post('/sessions/:id/revoke', authenticateToken, authorize('admin'), securityController.revokeSession);
+router.all('/sessions/:id/revoke', authenticateToken, authorize('admin'), securityController.revokeSession);
 
 // Account Management
-router.post('/users/:id/unlock', authenticateToken, authorize('admin'), securityController.unlockAccount);
-router.post('/users/:id/revoke-all', authenticateToken, authorize('admin'), securityController.revokeAllUserSessions);
+router.all('/users/:id/unlock', authenticateToken, authorize('admin'), securityController.unlockAccount);
+router.all('/users/:id/revoke-all', authenticateToken, authorize('admin'), securityController.revokeAllUserSessions);
 
 // Password Validation
-router.post('/validate-password', authenticateToken, securityController.validatePassword);
+router.all('/validate-password', authenticateToken, securityController.validatePassword);
+
+// Visitor Check-In
+router.post('/visitors/check-in', authenticateToken, guardController.checkInVisitor);
 
 // ============================================
 // GUARD TRACKING & COMMAND CENTRE ENDPOINTS
@@ -72,6 +75,10 @@ router.post('/dispatch', authenticateToken, authorize('admin'), guardController.
 
 // Guard Performance Metrics
 router.get('/guards/:id/metrics', authenticateToken, guardController.getGuardMetrics);
+router.get('/guard/:id/metrics', authenticateToken, guardController.getGuardMetrics);
+
+// Guard Shift Handover History
+router.get('/handover/:id', authenticateToken, guardController.getHandoverHistory);
 
 // ============================================
 // NEW WOLF GUARD PRODUCTION ENDPOINTS

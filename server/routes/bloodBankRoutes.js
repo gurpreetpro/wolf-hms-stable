@@ -56,15 +56,70 @@ router.post('/testing/tti', authorize('admin', 'blood_bank_tech', 'lab_tech'), b
 // PHASE 2: CROSS-MATCHING
 // ============================================
 router.post('/cross-match', authorize('admin', 'blood_bank_tech'), bloodBankController.performCrossMatch);
+router.post('/crossmatch', authorize('admin', 'blood_bank_tech'), bloodBankController.performCrossMatch);
 router.get('/cross-match/:request_id', bloodBankController.getCrossMatches);
+router.get('/crossmatch/:request_id', bloodBankController.getCrossMatches);
 
 // ============================================
 // PHASE 2: TRANSFUSION
 // ============================================
 router.get('/transfusions/active', bloodBankController.getActiveTransfusions);
 router.post('/transfusions/start', authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.startTransfusion);
+router.post('/transfusion/start', authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.startTransfusion);
 router.put('/transfusions/:id/vitals', authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.updateTransfusionVitals);
 router.put('/transfusions/:id/complete', authorize('admin', 'blood_bank_tech', 'nurse'), bloodBankController.completeTransfusion);
+router.post('/transfusion/complete', authorize('admin', 'blood_bank_tech', 'nurse'), (req, res, next) => {
+    if (req.body.request_id && !req.params.id) {
+        req.params.id = req.body.request_id;
+    }
+    return bloodBankController.completeTransfusion(req, res, next);
+});
+
+// Surgical Blood Reserve
+router.post('/reserve', authorize('admin', 'blood_bank_tech', 'doctor', 'nurse'), async (req, res, next) => {
+    try {
+        const { patient_id, surgery_id, blood_group, components, notes } = req.body;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        if (surgery_id) {
+            req.body.blood_group_required = blood_group;
+            req.body.prbc_units_required = components?.prbc || 1;
+            return bloodBankController.createSurgeryBloodRequirement(req, res, next);
+        }
+        const db = require('../db');
+        const result = await db.pool.query(
+            `INSERT INTO blood_requests (patient_id, department, blood_group_required, component_type_id, units_required, priority, indication, cross_match_required, status, requested_by, hospital_id)
+             VALUES ($1, 'Surgery', $2, 1, 1, 'Urgent', COALESCE($3, 'Surgical Reserve'), true, 'Pending', $4, $5) RETURNING *`,
+            [patient_id, blood_group, notes, req.user?.id, hospitalId]
+        );
+        res.status(201).json({ success: true, message: 'Blood reserved successfully', request: result.rows[0] });
+    } catch (err) {
+        console.error('[BloodBank Reserve Error]:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Emergency MTP Release
+router.post('/emergency-release', authorize('admin', 'blood_bank_tech', 'doctor', 'nurse'), async (req, res) => {
+    try {
+        const { patient_id, blood_group, mtp_package, indication, attending_physician } = req.body;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        const db = require('../db');
+        const result = await db.pool.query(
+            `INSERT INTO blood_requests (patient_id, department, blood_group_required, component_type_id, units_required, priority, indication, status, requested_by, hospital_id)
+             VALUES ($1, 'Emergency/MTP', $2, 1, 4, 'Emergency', COALESCE($3, 'Massive Transfusion Protocol Activated'), 'Approved', $4, $5) RETURNING *`,
+            [patient_id, blood_group || 'O-', `MTP Tier ${mtp_package || 1}: ${indication || 'Trauma'} (Dr. ${attending_physician || 'On-Duty'})`, req.user?.id, hospitalId]
+        );
+        res.status(201).json({
+            success: true,
+            message: 'MTP Emergency protocol activated. Units dispatched.',
+            release: result.rows[0],
+            countdown_seconds: 300
+        });
+    } catch (err) {
+        console.error('[Emergency Blood Release Error]:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // ============================================
 // PHASE 2: REACTIONS

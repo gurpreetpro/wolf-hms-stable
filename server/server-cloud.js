@@ -243,6 +243,8 @@ const ophthalmologyRoutes = require('./routes/ophthalmologyRoutes');
 const supportRoutes = require('./routes/supportRoutes');
 const transitionRoutes = require('./routes/transitionRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const scaleRoutes = require('./routes/scaleRoutes');
+const problemListRoutes = require('./routes/problemListRoutes');
 
 // Wolf Care 2.0 - Self-Hosted Patient App Routes
 const patientAuthRoutes = require('./routes/patientAuthRoutes'); // OTP Auth
@@ -297,18 +299,23 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/patients/app', patientRoutes);
 app.use('/api/opd', opdRoutes);
+app.use('/api/admission', admissionRoutes);
 app.use('/api/admissions', admissionRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/lab', labRoutes);
 app.use('/api/pharmacy', pharmacyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/ward', wardRoutes);
+app.use('/api/wards', wardRoutes);
+app.use('/api/appointment', appointmentRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/clinical', clinicalRoutes);
+app.use('/api/clinical', problemListRoutes);
 app.use('/api/admin/data-steward', adminDataStewardRoutes);
 app.use('/api/admin/recovery', adminRecoveryRoutes); // Admin Recovery Console
 app.use('/api/admin/audit', auditExportRoutes); // Phase 5 Super-Admin HIPAA Audit Export
+app.use('/api/admin', scaleRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/migrations', require('./routes/migrationRoutes'));
 app.use('/api/nurse', nurseRoutes);

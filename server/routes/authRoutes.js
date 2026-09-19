@@ -261,7 +261,7 @@ router.post('/logout', logout);
 router.post('/demo-login', demoLogin);
 // router.get('/profile', protect, getProfile); // Added get profile route
 router.post('/setup-security', protect, setupSecurityProfile); // User setting up their own questions
-router.post('/update-security', protect, updateSecurityQuestions); // User updating questions from settings
+router.all('/update-security', protect, updateSecurityQuestions); // User updating questions from settings
 router.put('/profile', protect, sanitize, updateProfile); // User updating own profile
 router.get('/users', protect, getUsers);
 router.post('/register', protect, sanitize, register); // Admin internal create
@@ -273,5 +273,13 @@ router.delete('/users/:id', protect, deleteUser);
 // Admin Approval Routes
 router.get('/users/pending', protect, getPendingUsers);
 router.put('/users/:id/approval', protect, updateApprovalStatus);
+router.put('/users/:id/approve', protect, (req, res, next) => {
+    req.body.status = 'APPROVED';
+    return updateApprovalStatus(req, res, next);
+});
+router.put('/users/:id/reject', protect, (req, res, next) => {
+    req.body.status = 'REJECTED';
+    return updateApprovalStatus(req, res, next);
+});
 
 module.exports = router;

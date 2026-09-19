@@ -73,12 +73,15 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // Existing Routes
 router.post('/order', protect, authorize('doctor', 'admin'), orderTest);
 router.get('/queue', protect, authorize('lab_tech', 'admin'), getLabQueue);
+router.get('/test-requests', protect, getLabQueue);
 router.post('/upload-result', protect, authorize('lab_tech', 'admin'), uploadResult);
+router.post('/tests/:id/result', protect, authorize('lab_tech', 'admin', 'doctor'), uploadResult);
 router.post('/request/:id/results', protect, authorize('lab_tech', 'admin', 'doctor'), uploadResult);
 router.get('/stats', protect, authorize('lab_tech', 'admin'), getLabStats);
 router.get('/tests', protect, getLabTests); // Available to all authenticated users
 router.get('/patient/:patient_id', protect, getLabResultsByPatient);
 router.get('/history', protect, authorize('lab_tech', 'admin'), getLabHistory);
+router.get('/completed', protect, getLabHistory);
 router.post('/parse-result', protect, authorize('lab_tech', 'admin'), upload.single('file'), parseLabReport);
 
 // Lab Packages
@@ -89,6 +92,11 @@ router.post('/change-request', protect, authorize('lab_tech', 'admin'), requestL
 router.get('/requests', protect, authorize('admin'), getLabRequests);
 router.post('/request/:id/approve', protect, authorize('admin'), approveLabChange);
 router.post('/request/:id/deny', protect, authorize('admin'), denyLabChange);
+router.post('/request/:id/:action', protect, authorize('admin'), (req, res, next) => {
+    if (req.params.action === 'approve') return approveLabChange(req, res, next);
+    if (req.params.action === 'deny') return denyLabChange(req, res, next);
+    next();
+});
 
 // =============================================
 // PHASE 1 UPGRADES - December 2025
@@ -107,6 +115,7 @@ router.get('/reference-ranges', protect, getReferenceRanges);
 
 // Critical Alerts
 router.get('/critical-alerts', protect, authorize('lab_tech', 'admin', 'doctor'), getCriticalAlerts);
+router.put('/critical-alerts/:id/acknowledge', protect, authorize('lab_tech', 'admin', 'doctor'), acknowledgeCriticalAlert);
 
 // =============================================
 // PHASE 2 UPGRADES - December 2025

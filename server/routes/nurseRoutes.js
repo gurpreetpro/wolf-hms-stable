@@ -51,6 +51,11 @@ router.put('/iv-line/:id/remove', removeIVLine);
 
 // Ward Overview
 router.get('/ward-overview', getWardOverview);
+router.get('/ward-overview/:id?', getWardOverview);
+
+// Fall Risk Assessments
+router.post('/fall-risk', saveFallRisk);
+router.get('/fall-risk/:admission_id', getFallRisk);
 
 // Shift Handover Report — Phase 1 Enterprise
 router.get('/shift-handover', getShiftHandover);

@@ -26,21 +26,31 @@ router.post('/parse-prescription', (req, res) => {
 // Triage & Symptoms
 router.post('/triage', aiController.analyzeComplaint);
 router.post('/analyze-symptoms', aiController.analyzeSymptoms);
+router.post('/symptoms', aiController.analyzeSymptoms);
 
 // Diagnosis & Prescription
 router.post('/suggest-diagnosis', aiController.suggestDiagnosis);
+router.post('/diagnose', aiController.suggestDiagnosis);
 router.post('/suggest-prescription', aiController.suggestPrescription);
+router.post('/prescribe', aiController.suggestPrescription);
 
 // Drug Safety
 router.post('/drug-interactions', aiController.checkDrugInteractions);
+router.post('/drug-check', aiController.checkDrugInteractions);
+router.post('/medication-check', aiController.checkDrugInteractions);
+router.post('/check-interactions', aiController.checkDrugInteractions);
 
 // Lab Analysis
 router.post('/analyze-labs', aiController.analyzeLabResults);
+router.post('/lab-analysis', aiController.analyzeLabResults);
 
 // Documentation
 router.post('/generate-summary', aiController.generateSummary);
 router.post('/generate-care-plan', aiController.generateCarePlan);
+router.post('/care-plan', aiController.generateCarePlan);
 router.post('/generate-soap', aiController.generateSOAPFromTranscript);
+router.post('/generate-note', aiController.generateSOAPFromTranscript);
+router.post('/scribe', aiController.generateSOAPFromTranscript);
 
 // Chat
 router.post('/chat', aiController.chatWithHealthAgent);

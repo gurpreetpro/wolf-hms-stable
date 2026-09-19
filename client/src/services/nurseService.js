@@ -7,8 +7,9 @@ import api from '../utils/axiosInstance';
 const nurseService = {
   // Ward Overview
   getWardOverview: async (wardId) => {
-    const params = wardId ? `?ward_id=${wardId}` : '';
-    const response = await api.get(`/api/nurse/ward-overview${params}`);
+    const response = await api.get('/api/nurse/ward-overview', {
+      params: wardId ? { ward_id: wardId } : {}
+    });
     return response.data;
   },
 

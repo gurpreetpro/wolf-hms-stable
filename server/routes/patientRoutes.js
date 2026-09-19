@@ -5,6 +5,9 @@ const { protect } = require('../middleware/authMiddleware');
 const db = require('../db');
 const whatsappService = require('../services/whatsappService');
 
+// Search and list patients
+router.get('/', protect, searchPatients);
+
 // ====== PATIENT APP ENDPOINTS (Public - No Auth Required) ======
 // IMPORTANT: These must come BEFORE the /:id wildcard route!
 

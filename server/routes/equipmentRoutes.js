@@ -33,6 +33,11 @@ router.post('/types/:id/request-delete', protect, requestDeleteEquipment);
 router.get('/requests/pending', protect, authorize('admin'), getPendingRequests);
 router.post('/requests/:id/approve', protect, authorize('admin'), approveRequest);
 router.post('/requests/:id/deny', protect, authorize('admin'), denyRequest);
+router.post('/requests/:id/:action', protect, authorize('admin'), (req, res, next) => {
+    if (req.params.action === 'approve') return approveRequest(req, res, next);
+    if (req.params.action === 'deny') return denyRequest(req, res, next);
+    next();
+});
 
 // Equipment assignments (nurse or doctor)
 router.post('/assign', protect, assignEquipment);

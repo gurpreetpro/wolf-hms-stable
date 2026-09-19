@@ -5,6 +5,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const { validate, sanitize } = require('../middleware/validationMiddleware');
 
 router.get('/available-beds', protect, authorize('receptionist', 'admin', 'doctor', 'ward_incharge'), getAvailableBeds);
+router.get('/', protect, authorize('doctor', 'admin', 'nurse', 'ward_incharge'), getAdmittedPatients);
 router.get('/active', protect, authorize('doctor', 'admin', 'nurse', 'ward_incharge'), getAdmittedPatients);
 router.get('/bed-history/:admission_id', protect, getBedHistory);
 router.post('/admit', protect, authorize('receptionist', 'admin', 'doctor', 'ward_incharge'), sanitize, validate('admission'), admitPatient);

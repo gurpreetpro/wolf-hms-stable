@@ -191,4 +191,51 @@ router.get('/cross-hospital/history/:abha_id', verifyToken, authorizeRole('admin
     });
 }));
 
+/**
+ * GET /api/abdm/stats
+ * ABDM & FHIR Connectivity Stats
+ */
+router.get('/stats', verifyToken, asyncHandler(async (req, res) => {
+    const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+    const abhaCount = await pool.query('SELECT COUNT(*) as count FROM cross_hospital_links WHERE hospital_id = $1', [hospitalId]).catch(() => ({ rows: [{ count: 0 }] }));
+    const consentCount = await pool.query('SELECT COUNT(*) as count FROM abdm_consents WHERE hospital_id = $1', [hospitalId]).catch(() => ({ rows: [{ count: 0 }] }));
+    res.json({
+        success: true,
+        data: {
+            abha_linked: parseInt(abhaCount.rows[0]?.count || 0),
+            consent_requests: parseInt(consentCount.rows[0]?.count || 0),
+            active_consents: parseInt(consentCount.rows[0]?.count || 0),
+            status: 'Connected',
+            gateway: 'ABDM Production Gateway (Sandboxed)'
+        }
+    });
+}));
+
+/**
+ * GET /api/abdm/fhir/bundle/:id
+ * Export patient data as FHIR R4 JSON Bundle
+ */
+router.get('/fhir/bundle/:id', verifyToken, asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+    const fhirService = require('../services/fhirService');
+    const patientRes = await pool.query('SELECT * FROM patients WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
+    if (patientRes.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Patient not found' });
+    }
+    const patientResource = fhirService.toFhirPatient(patientRes.rows[0]);
+    const bundle = {
+        resourceType: 'Bundle',
+        type: 'collection',
+        timestamp: new Date().toISOString(),
+        entry: [
+            {
+                fullUrl: `Patient/${id}`,
+                resource: patientResource
+            }
+        ]
+    };
+    res.json(bundle);
+}));
+
 module.exports = router;

@@ -1,8 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
+const { addToInvoice } = require('../services/billingService');
+const { protect } = require('../middleware/authMiddleware');
 
 console.log('📦 Loading BILLING routes...');
+
+// Add item to patient bill
+router.post('/add-item', protect, async (req, res) => {
+    try {
+        const { item_id, item_type, patient_id, admission_id, amount, description } = req.body;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        const userId = req.user?.id || 1;
+        const desc = description || `${item_type || 'Charge'} Item #${item_id || ''}`.trim();
+        const result = await addToInvoice(patient_id, admission_id || null, desc, 1, parseFloat(amount) || 0, userId, hospitalId);
+        res.json({ success: true, data: result, message: 'Added to patient bill!' });
+    } catch (err) {
+        console.error('Add billing item error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // Get Pending Billing Items
 router.get('/pending', async (req, res) => {

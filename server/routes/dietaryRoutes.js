@@ -15,9 +15,8 @@ router.use(protect);
 router.get('/dashboard', dietaryController.getDashboard);
 
 // Orders (existing + enhanced)
-router.route('/')
-    .post(dietaryController.createOrder)
-    .get(dietaryController.getOrders);
+router.post('/', dietaryController.createOrder);
+router.get('/', dietaryController.getOrders);
 router.put('/:id', dietaryController.updateStatus);
 
 // Meal Plans

@@ -26,7 +26,8 @@ const {
     getControlledSubstanceLog,
     getSmartAlerts,
     approvePurchaseOrder,
-    rejectPurchaseOrder
+    rejectPurchaseOrder,
+    getUnbilledDispenses
 } = require('../controllers/pharmacyController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const { cache } = require('../middleware/cacheMiddleware');
@@ -52,9 +53,15 @@ router.post('/process-prescription', protect, authorize('pharmacist', 'admin'), 
 
 // Price Management Routes
 router.post('/price-request', protect, authorize('pharmacist', 'admin'), requestPriceChange);
+router.post('/request-price-change', protect, authorize('pharmacist', 'admin'), requestPriceChange);
 router.get('/price-requests', protect, authorize('admin'), getPriceRequests);
 router.post('/price-request/:id/approve', protect, authorize('admin'), approvePriceChange);
 router.post('/price-request/:id/deny', protect, authorize('admin'), denyPriceChange);
+router.post('/price-request/:id/:action', protect, authorize('admin'), (req, res, next) => {
+    if (req.params.action === 'approve') return approvePriceChange(req, res, next);
+    if (req.params.action === 'deny' || req.params.action === 'reject') return denyPriceChange(req, res, next);
+    return res.status(400).json({ message: 'Invalid action' });
+});
 
 router.get('/heatmap', protect, authorize('admin', 'pharmacist', 'doctor'), getExpiryHeatmap);
 router.get('/forecast', protect, authorize('admin', 'pharmacist', 'doctor'), getDemandForecast);
@@ -76,6 +83,7 @@ router.get('/reports/smart-alerts', protect, authorize('admin', 'pharmacist'), g
 
 // Refunds (Phase 8)
 router.get('/dispenses/recent', protect, authorize('admin', 'pharmacist'), getRecentDispenses);
+router.get('/dispenses/unbilled', protect, authorize('admin', 'pharmacist', 'billing'), getUnbilledDispenses);
 router.post('/refund', protect, authorize('admin', 'pharmacist'), processRefund);
 router.get('/refunds', protect, authorize('admin', 'pharmacist'), getRefundHistory);
 

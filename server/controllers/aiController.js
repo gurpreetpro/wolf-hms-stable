@@ -236,7 +236,10 @@ JSON ONLY:
 
 // SAFETY: Check Drug Interactions
 const checkDrugInteractions = asyncHandler(async (req, res) => {
-    const { medications } = req.body;
+    let { medications, currentDrugs, newDrug } = req.body;
+    if (!medications && (currentDrugs || newDrug)) {
+        medications = [...(Array.isArray(currentDrugs) ? currentDrugs : []), ...(newDrug ? [newDrug] : [])];
+    }
     if (!medications || !Array.isArray(medications) || medications.length < 2) {
          if (medications && medications.length === 1) {
              return ResponseHandler.success(res, { interactions: [], hasInteractions: false, note: "Need at least 2 drugs." });
@@ -405,14 +408,17 @@ const chatWithHealthAgent = asyncHandler(async (req, res) => {
 });
 
 const generateSOAPFromTranscript = asyncHandler(async (req, res) => {
-    const { transcript, patientInfo } = req.body;
+    let { transcript, patientInfo, diagnosis, vitals, medications, custom_instructions, patient } = req.body;
+    if (!transcript && (diagnosis || vitals || patient || custom_instructions)) {
+        transcript = `Patient: ${JSON.stringify(patient || patientInfo || {})}, Diagnosis: ${diagnosis || ''}, Vitals: ${JSON.stringify(vitals || {})}, Medications: ${JSON.stringify(medications || [])}, Instructions: ${custom_instructions || ''}`;
+    }
     if (!transcript) return ResponseHandler.error(res, 'Transcript required', 400);
 
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         const prompt = `
         Act as a medical scribe. Convert this transcript into a structured SOAP Note.
-        Patient Info: ${JSON.stringify(patientInfo || {})}
+        Patient Info: ${JSON.stringify(patientInfo || patient || {})}
         TRANSCRIPT:
         "${transcript}"
         
@@ -426,7 +432,9 @@ const generateSOAPFromTranscript = asyncHandler(async (req, res) => {
 
         const result = await model.generateContent(prompt);
         const cleanJson = result.response.text().trim().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        ResponseHandler.success(res, JSON.parse(cleanJson));
+        const parsed = JSON.parse(cleanJson);
+        const formattedNote = `SUBJECTIVE:\n${parsed.subjective || ''}\n\nOBJECTIVE:\n${parsed.objective || ''}\n\nASSESSMENT:\n${parsed.assessment || ''}\n\nPLAN:\n${parsed.plan || ''}`;
+        ResponseHandler.success(res, { ...parsed, note: formattedNote, content: formattedNote });
     } catch (error) {
         console.error('Scribe Error:', error);
         ResponseHandler.error(res, 'Scribe failed: ' + error.message, 500);

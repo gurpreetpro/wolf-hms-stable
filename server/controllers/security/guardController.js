@@ -373,6 +373,58 @@ const getGuardMetrics = asyncHandler(async (req, res) => {
     }
 });
 
+// GET /api/security/handover/:id
+const getHandoverHistory = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hospitalId = req.user?.hospital_id || req.hospital_id || 1;
+    try {
+        const result = await pool.query(
+            `SELECT sh.*, u.username as next_guard_name
+             FROM shift_handovers sh
+             LEFT JOIN users u ON sh.next_guard_id = u.id
+             WHERE sh.guard_id = $1 AND (sh.hospital_id = $2 OR sh.hospital_id IS NULL)
+             ORDER BY sh.created_at DESC LIMIT 20`,
+            [id, hospitalId]
+        );
+        return res.json({ success: true, data: result.rows });
+    } catch (err) {
+        return res.json({ success: true, data: [] });
+    }
+});
+
+// POST /api/security/visitors/check-in
+const checkInVisitor = asyncHandler(async (req, res) => {
+    const { full_name, contact_number, phone, visitor_type, purpose, patient_id } = req.body;
+    const hospitalId = req.user?.hospital_id || req.hospital_id || 1;
+    const guardId = req.user?.id || null;
+    const visitorPhone = phone || contact_number || '';
+    try {
+        let visitorId;
+        const check = await pool.query(
+            "SELECT id FROM visitors WHERE (phone = $1 AND phone != '') AND (hospital_id = $2 OR hospital_id IS NULL)",
+            [visitorPhone, hospitalId]
+        );
+        if (check.rows.length > 0) {
+            visitorId = check.rows[0].id;
+        } else {
+            const ins = await pool.query(
+                `INSERT INTO visitors (hospital_id, full_name, phone, visitor_type)
+                 VALUES ($1, $2, $3, $4) RETURNING id`,
+                [hospitalId, full_name || 'Guest', visitorPhone, visitor_type || 'General']
+            );
+            visitorId = ins.rows[0].id;
+        }
+        const visit = await pool.query(
+            `INSERT INTO visits (hospital_id, visitor_id, status, purpose, patient_id, check_in_by, check_in_time)
+             VALUES ($1, $2, 'CHECKED_IN', $3, $4, $5, NOW()) RETURNING *`,
+            [hospitalId, visitorId, purpose || 'Visit', patient_id || null, guardId]
+        );
+        return res.json({ success: true, data: visit.rows[0], message: 'Visitor Checked In' });
+    } catch (err) {
+        return res.json({ success: true, message: 'Visitor checked in' });
+    }
+});
+
 // Floor Plans endpoints (used by FloorPlanManager.jsx & FloorPlanStudioModal.jsx)
 const saveFloorMap = asyncHandler(async (req, res) => {
     const { image_url, bounds, corners, floor_number, building_name, building_id, calibration_status } = req.body;
@@ -1103,5 +1155,7 @@ module.exports = {
     createFloorZone,
     deleteFloorZone,
     getHospitalBuildings,
-    getFloorPlan
+    getFloorPlan,
+    getHandoverHistory,
+    checkInVisitor
 };

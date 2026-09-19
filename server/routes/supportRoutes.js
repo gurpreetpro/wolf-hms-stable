@@ -343,7 +343,7 @@ router.patch('/tickets/:id/status', async (req, res) => {
  * @route   POST /api/support/tickets/:id/remote-access
  * @desc    Grant remote access for ticket
  */
-router.post('/tickets/:id/remote-access', async (req, res) => {
+router.all('/tickets/:id/remote-access', async (req, res) => {
     try {
         const { duration = 60 } = req.body;
         const result = await RemoteAccessService.grantRemoteAccess(req.params.id, duration);

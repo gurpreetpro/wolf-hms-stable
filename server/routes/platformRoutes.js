@@ -90,6 +90,7 @@ const requireMfa = async (req, res, next) => {
 router.get('/tenants', protect, requirePlatformAdmin, getAllTenants);
 router.get('/tenants/:hospital_id', protect, requirePlatformAdmin, getTenantDetails);
 router.get('/tenants/:hospital_id/logs', protect, requirePlatformAdmin, getTenantLogs);
+router.get('/hospitals/:hospital_id/logs', protect, requirePlatformAdmin, getTenantLogs);
 router.put('/tenants/:hospital_id/domain', protect, requirePlatformAdmin, updateTenantDomain);
 
 // ========================================

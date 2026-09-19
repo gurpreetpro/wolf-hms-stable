@@ -185,7 +185,8 @@ const getPrescriptionQueue = asyncHandler(async (req, res) => {
 
 // Request Price Change - Multi-Tenant
 const requestPriceChange = asyncHandler(async (req, res) => { 
-    const { inventory_id, new_price, notes } = req.body; 
+    const inventory_id = req.body.inventory_id || req.body.item_id; 
+    const { new_price, notes } = req.body; 
     const requested_by = req.user.id; 
     const hospitalId = getHospitalId(req); 
 
@@ -200,7 +201,7 @@ const requestPriceChange = asyncHandler(async (req, res) => {
 // Get Price Requests - Multi-Tenant
 const getPriceRequests = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT pcr.*, i.name as item_name, u.username as requested_by_name FROM price_change_requests pcr JOIN inventory_items i ON pcr.item_id = i.id JOIN users u ON pcr.requested_by = u.id WHERE pcr.status = 'Pending' AND (pcr.hospital_id = $1 OR pcr.hospital_id IS NULL) ORDER BY pcr.created_at DESC`, [hospitalId]); 
+    const result = await pool.query(`SELECT pcr.*, i.name as item_name, u.username as requested_by_name FROM price_change_requests pcr JOIN inventory_items i ON (pcr.inventory_id = i.id OR pcr.item_id = i.id) JOIN users u ON pcr.requested_by = u.id WHERE pcr.status = 'Pending' AND (pcr.hospital_id = $1 OR pcr.hospital_id IS NULL) ORDER BY pcr.created_at DESC`, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -466,4 +467,22 @@ const getRefundHistory = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, result.rows);
 });
 
-module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, deleteInventoryItem, getSuppliers, createPurchaseOrder, approvePurchaseOrder, rejectPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts };
+// Get Unbilled Dispenses - Multi-Tenant (Billing Leakage Tracker)
+const getUnbilledDispenses = asyncHandler(async (req, res) => {
+    const hospitalId = getHospitalId(req);
+    try {
+        const result = await pool.query(`
+            SELECT c.*, c.item_name as name, c.amount as price, p.name as patient_name, false as billed
+            FROM charges c
+            LEFT JOIN patients p ON c.patient_id = p.id
+            WHERE c.department = 'pharmacy' AND c.status = 'Pending' AND (c.hospital_id = $1 OR c.hospital_id IS NULL)
+            ORDER BY c.created_at DESC LIMIT 100
+        `, [hospitalId]);
+        ResponseHandler.success(res, result.rows);
+    } catch (e) {
+        ResponseHandler.success(res, []);
+    }
+});
+
+module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, deleteInventoryItem, getSuppliers, createPurchaseOrder, approvePurchaseOrder, rejectPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts, getUnbilledDispenses };
+

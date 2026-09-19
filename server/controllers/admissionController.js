@@ -402,7 +402,7 @@ const getAdmittedPatients = asyncHandler(async (req, res) => {
 
     const result = await pool.query(`
         SELECT 
-            a.id as admission_id, a.patient_id, a.ward, a.bed_number,
+            a.id, a.id as admission_id, a.patient_id, a.ward, a.bed_number,
             a.status, a.admission_date as admitted_at, a.current_diet, a.last_round_at,
             p.name as patient_name, p.gender, p.dob, p.phone,
             gsb.scheme_code as govt_scheme_code,

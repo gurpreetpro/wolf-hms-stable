@@ -10,22 +10,17 @@ const dentalController = require('../controllers/dentalController');
 
 router.use(protect);
 
-router.route('/visits')
-  .post(authorize('admin', 'dentist', 'oral_surgeon', 'doctor'), dentalController.createDentalVisit)
-  .get(dentalController.getDentalVisits);
-
+router.post('/visits', authorize('admin', 'dentist', 'oral_surgeon', 'doctor'), dentalController.createDentalVisit);
+router.get('/visits', dentalController.getDentalVisits);
 router.get('/visits/:id', dentalController.getDentalVisitsById);
 
-router.route('/procedures')
-  .post(authorize('admin', 'dentist', 'oral_surgeon'), dentalController.logDentalProcedure)
-  .get(dentalController.getProcedures);
+router.post('/procedures', authorize('admin', 'dentist', 'oral_surgeon'), dentalController.logDentalProcedure);
+router.get('/procedures', dentalController.getProcedures);
 
-router.route('/inventory')
-  .get(dentalController.getInventory)
-  .post(authorize('admin', 'dentist'), dentalController.addInventoryItem);
+router.get('/inventory', dentalController.getInventory);
+router.post('/inventory', authorize('admin', 'dentist'), dentalController.addInventoryItem);
 
-router.route('/lab-orders')
-  .post(authorize('admin', 'dentist', 'oral_surgeon', 'doctor'), dentalController.createLabOrder)
-  .get(dentalController.getLabOrders);
+router.post('/lab-orders', authorize('admin', 'dentist', 'oral_surgeon', 'doctor'), dentalController.createLabOrder);
+router.get('/lab-orders', dentalController.getLabOrders);
 
 module.exports = router;
