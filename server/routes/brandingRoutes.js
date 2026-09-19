@@ -55,6 +55,15 @@ router.put('/', authorize('admin'), async (req, res) => {
         res.status(500).json({ message: 'Failed to update branding' });
     }
 });
+router.post('/', authorize('admin'), async (req, res) => {
+    try {
+        const branding = await themingService.updateBranding(req.hospital_id, req.body);
+        res.json({ message: 'Branding updated', branding });
+    } catch (error) {
+        console.error('[Branding] Update error:', error);
+        res.status(500).json({ message: 'Failed to update branding' });
+    }
+});
 
 // === i18n Routes ===
 

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-09-19T03:51:13.048Z",
-  "mounts": 112,
-  "backendRoutes": 1041,
+  "generatedAt": "2026-09-19T04:00:07.093Z",
+  "mounts": 126,
+  "backendRoutes": 1140,
   "frontendCalls": 542,
-  "matched": 465,
+  "matched": 517,
   "broken": [
     {
       "method": "POST",
@@ -25,30 +25,6 @@
     },
     {
       "method": "GET",
-      "url": "/api/anaesthesia/{}",
-      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
-      "line": 22
-    },
-    {
-      "method": "POST",
-      "url": "/api/anaesthesia/count",
-      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
-      "line": 63
-    },
-    {
-      "method": "POST",
-      "url": "/api/anaesthesia/drugs",
-      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
-      "line": 50
-    },
-    {
-      "method": "POST",
-      "url": "/api/anaesthesia/vitals",
-      "file": "client\\src\\pages\\AnaesthesiaConsole.jsx",
-      "line": 34
-    },
-    {
-      "method": "GET",
       "url": "/api/assets",
       "file": "client\\src\\pages\\AssetDashboard.jsx",
       "line": 14
@@ -58,36 +34,6 @@
       "url": "/api/assets",
       "file": "client\\src\\pages\\AssetDashboard.jsx",
       "line": 119
-    },
-    {
-      "method": "POST",
-      "url": "/api/branding",
-      "file": "client\\src\\pages\\AdminSettings.jsx",
-      "line": 256
-    },
-    {
-      "method": "GET",
-      "url": "/api/charges",
-      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
-      "line": 59
-    },
-    {
-      "method": "POST",
-      "url": "/api/charges/{}/cancel",
-      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
-      "line": 173
-    },
-    {
-      "method": "POST",
-      "url": "/api/charges/invoice",
-      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
-      "line": 144
-    },
-    {
-      "method": "GET",
-      "url": "/api/charges/summary",
-      "file": "client\\src\\components\\billing\\BillingQueueTab.jsx",
-      "line": 60
     },
     {
       "method": "GET",
@@ -108,40 +54,10 @@
       "line": 110
     },
     {
-      "method": "GET",
-      "url": "/api/dicom/wado/{}",
-      "file": "client\\src\\components\\radiology\\OHIFViewer.jsx",
-      "line": 32
-    },
-    {
       "method": "POST",
       "url": "/api/infection-control/report",
       "file": "client\\src\\pages\\InfectionControlDashboard.jsx",
       "line": 59
-    },
-    {
-      "method": "GET",
-      "url": "/api/intraop/chart/{}",
-      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
-      "line": 56
-    },
-    {
-      "method": "PUT",
-      "url": "/api/intraop/end/{}",
-      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
-      "line": 95
-    },
-    {
-      "method": "POST",
-      "url": "/api/intraop/log",
-      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
-      "line": 65
-    },
-    {
-      "method": "POST",
-      "url": "/api/intraop/start",
-      "file": "client\\src\\pages\\AnesthesiaConsole.jsx",
-      "line": 36
     },
     {
       "method": "GET",
@@ -154,42 +70,6 @@
       "url": "/api/laundry/orders",
       "file": "client\\src\\pages\\LaundryDashboard.jsx",
       "line": 168
-    },
-    {
-      "method": "POST",
-      "url": "/api/license/activate",
-      "file": "client\\src\\pages\\Activation.jsx",
-      "line": 31
-    },
-    {
-      "method": "POST",
-      "url": "/api/license/generate",
-      "file": "client\\src\\pages\\Activation.jsx",
-      "line": 41
-    },
-    {
-      "method": "GET",
-      "url": "/api/license/status",
-      "file": "client\\src\\pages\\Activation.jsx",
-      "line": 19
-    },
-    {
-      "method": "POST",
-      "url": "/api/migration/commit/{}",
-      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
-      "line": 91
-    },
-    {
-      "method": "POST",
-      "url": "/api/migration/upload",
-      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
-      "line": 39
-    },
-    {
-      "method": "POST",
-      "url": "/api/migration/validations/{}",
-      "file": "client\\src\\components\\WolfMigrator\\MigratorWizard.jsx",
-      "line": 74
     },
     {
       "method": "POST",
@@ -216,196 +96,10 @@
       "line": 52
     },
     {
-      "method": "GET",
-      "url": "/api/orthopedic/implants",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 149
-    },
-    {
-      "method": "POST",
-      "url": "/api/orthopedic/implants",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 210
-    },
-    {
-      "method": "GET",
-      "url": "/api/orthopedic/physio-orders",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 158
-    },
-    {
-      "method": "GET",
-      "url": "/api/orthopedic/procedures",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 141
-    },
-    {
-      "method": "POST",
-      "url": "/api/orthopedic/procedures",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 198
-    },
-    {
-      "method": "GET",
-      "url": "/api/orthopedic/visits",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 132
-    },
-    {
-      "method": "POST",
-      "url": "/api/orthopedic/visits",
-      "file": "client\\src\\pages\\clinical\\OrthopedicDashboard.jsx",
-      "line": 185
-    },
-    {
-      "method": "GET",
-      "url": "/api/pac/assessment/{}",
-      "file": "client\\src\\components\\pac\\PACAssessmentForm.jsx",
-      "line": 20
-    },
-    {
-      "method": "GET",
-      "url": "/api/pac/pending",
-      "file": "client\\src\\pages\\PACDashboard.jsx",
-      "line": 16
-    },
-    {
-      "method": "POST",
-      "url": "/api/pac/save",
-      "file": "client\\src\\components\\pac\\PACAssessmentForm.jsx",
-      "line": 41
-    },
-    {
-      "method": "POST",
-      "url": "/api/pacu/admit",
-      "file": "client\\src\\pages\\PACUDashboard.jsx",
-      "line": 33
-    },
-    {
-      "method": "GET",
-      "url": "/api/pacu/dashboard",
-      "file": "client\\src\\pages\\PACUDashboard.jsx",
-      "line": 22
-    },
-    {
-      "method": "POST",
-      "url": "/api/pacu/discharge",
-      "file": "client\\src\\pages\\PACUDashboard.jsx",
-      "line": 60
-    },
-    {
-      "method": "POST",
-      "url": "/api/pacu/score",
-      "file": "client\\src\\pages\\PACUDashboard.jsx",
-      "line": 46
-    },
-    {
-      "method": "GET",
-      "url": "/api/pos/devices",
-      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
-      "line": 86
-    },
-    {
-      "method": "POST",
-      "url": "/api/pos/devices",
-      "file": "client\\src\\components\\POSDashboard.jsx",
-      "line": 90
-    },
-    {
-      "method": "POST",
-      "url": "/api/pos/devices/{}/test",
-      "file": "client\\src\\components\\POSDashboard.jsx",
-      "line": 75
-    },
-    {
-      "method": "GET",
-      "url": "/api/pos/emi-offers",
-      "file": "client\\src\\components\\pos\\EMISelectionModal.jsx",
-      "line": 34
-    },
-    {
-      "method": "POST",
-      "url": "/api/pos/payment/{}/cancel",
-      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
-      "line": 197
-    },
-    {
-      "method": "GET",
-      "url": "/api/pos/payment/{}/status",
-      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
-      "line": 157
-    },
-    {
-      "method": "POST",
-      "url": "/api/pos/payment/initiate",
-      "file": "client\\src\\components\\billing\\PaymentConfirmationModal.jsx",
-      "line": 116
-    },
-    {
-      "method": "GET",
-      "url": "/api/pos/providers",
-      "file": "client\\src\\components\\POSDashboard.jsx",
-      "line": 40
-    },
-    {
-      "method": "GET",
-      "url": "/api/pos/reports/daily-summary",
-      "file": "client\\src\\components\\POSDashboard.jsx",
-      "line": 42
-    },
-    {
       "method": "POST",
       "url": "/api/pre-op/assessment",
       "file": "client\\src\\pages\\OTDashboard.jsx",
       "line": 168
-    },
-    {
-      "method": "GET",
-      "url": "/api/preauth/patient/{}/insurance",
-      "file": "client\\src\\components\\EligibilityVerification.jsx",
-      "line": 27
-    },
-    {
-      "method": "POST",
-      "url": "/api/preauth/patient/insurance",
-      "file": "client\\src\\components\\EligibilityVerification.jsx",
-      "line": 184
-    },
-    {
-      "method": "GET",
-      "url": "/api/preauth/providers",
-      "file": "client\\src\\components\\EligibilityVerification.jsx",
-      "line": 28
-    },
-    {
-      "method": "POST",
-      "url": "/api/preauth/request",
-      "file": "client\\src\\components\\InsuranceVerificationModal.jsx",
-      "line": 158
-    },
-    {
-      "method": "PUT",
-      "url": "/api/preauth/request/{}/status",
-      "file": "client\\src\\components\\PreauthDashboard.jsx",
-      "line": 69
-    },
-    {
-      "method": "GET",
-      "url": "/api/preauth/requests${filterStatus ",
-      "file": "client\\src\\components\\PreauthDashboard.jsx",
-      "line": 31
-    },
-    {
-      "method": "GET",
-      "url": "/api/preauth/stats",
-      "file": "client\\src\\components\\PreauthDashboard.jsx",
-      "line": 32
-    },
-    {
-      "method": "POST",
-      "url": "/api/preauth/verify-eligibility",
-      "file": "client\\src\\components\\EligibilityVerification.jsx",
-      "line": 49
     },
     {
       "method": "POST",
@@ -442,12 +136,6 @@
       "url": "/api/staff/shifts",
       "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
       "line": 145
-    },
-    {
-      "method": "GET",
-      "url": "/api/test/migrate-login-security",
-      "file": "client\\src\\pages\\admin\\SecurityDashboard.jsx",
-      "line": 69
     },
     {
       "method": "GET",

@@ -28,7 +28,9 @@ const PreauthDashboard = () => {
     const loadData = async () => {
         try {
             const [requestsRes, statsRes] = await Promise.all([
-                api.get(`/api/preauth/requests${filterStatus ? `?status=${filterStatus}` : ''}`),
+                api.get('/api/preauth/requests', {
+                    params: filterStatus ? { status: filterStatus } : {}
+                }),
                 api.get('/api/preauth/stats')
             ]);
             setRequests(requestsRes.data);

@@ -246,6 +246,21 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const scaleRoutes = require('./routes/scaleRoutes');
 const problemListRoutes = require('./routes/problemListRoutes');
 
+// Bucket B Route Imports
+const anaesthesiaRoutes = require('./routes/anaesthesiaRoutes');
+const brandingRoutes = require('./routes/brandingRoutes');
+const chargesRoutes = require('./routes/chargesRoutes');
+const dicomMockRoutes = require('./routes/dicomMockRoutes');
+const intraOpRoutes = require('./routes/intraOpRoutes');
+const licenseRoutes = require('./routes/licenseRoutes');
+const migrationRoutes = require('./routes/migration_routes');
+const orthopedicRoutes = require('./routes/orthopedicRoutes');
+const pacRoutes = require('./routes/pacRoutes');
+const pacuRoutes = require('./routes/pacuRoutes');
+const posRoutes = require('./routes/posRoutes');
+const preauthRoutes = require('./routes/preauthRoutes');
+const testRoutes = require('./routes/testRoutes');
+
 // Wolf Care 2.0 - Self-Hosted Patient App Routes
 const patientAuthRoutes = require('./routes/patientAuthRoutes'); // OTP Auth
 const telehealthRoutes = require('./routes/telehealthRoutes'); // Video Calls
@@ -380,6 +395,22 @@ app.use('/api/ophthalmology', tenantResolver, ophthalmologyRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/transitions', transitionRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// Bucket B Mounts (Unmounted route modules wired to production entry)
+app.use('/api/anaesthesia', tenantResolver, anaesthesiaRoutes);
+app.use('/api/branding', brandingRoutes);
+app.use('/api/charges', chargesRoutes);
+app.use('/api/dicom', dicomMockRoutes);
+app.use('/api/intraop', intraOpRoutes);
+app.use('/api/license', licenseRoutes);
+app.use('/api/migration', migrationRoutes);
+app.use('/api/orthopedic', orthopedicRoutes);
+app.use('/api/orthopedics', orthopedicRoutes);
+app.use('/api/pac', pacRoutes);
+app.use('/api/pacu', pacuRoutes);
+app.use('/api/pos', posRoutes);
+app.use('/api/preauth', preauthRoutes);
+app.use('/api/test', testRoutes);
 
 // Wolf Care 2.0 - Patient App Routes (Self-Hosted, No Firebase)
 console.log('Mounting /api/patient-auth inside server-cloud.js');

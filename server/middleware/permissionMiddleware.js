@@ -16,6 +16,17 @@ const checkRole = (requiredRole) => {
     };
 };
 
+const requireRole = (roles) => {
+    const roleList = Array.isArray(roles) ? roles : [roles];
+    return (req, res, next) => {
+        if (req.user && (roleList.includes(req.user.role) || req.user.role === 'admin' || req.user.role === 'super_admin' || req.user.role === 'superadmin')) {
+            next();
+        } else {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+    };
+};
+
 /**
  * Check if user has granular permission (Phase 8: Security)
  */
@@ -147,6 +158,7 @@ const clearPermissionCache = () => {
 module.exports = {
     checkStaticPermission,
     checkRole,
+    requireRole,
     checkPermission,
     canCreate,
     canRead,
