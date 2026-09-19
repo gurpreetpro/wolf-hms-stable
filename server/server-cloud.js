@@ -146,6 +146,8 @@ app.use('/api/', generalLimiter);
 
 // CRITICAL: Tenant Resolution BEFORE all routes (fixes login 500 error)
 const { resolveHospital } = require('./middleware/tenantResolver');
+const tenantResolver = resolveHospital;
+const { authenticateToken } = require('./middleware/authMiddleware');
 app.use('/api/', resolveHospital);
 
 // Attach io to request
@@ -224,6 +226,23 @@ const otRoutes = require('./routes/otRoutes');
 const treatmentPackageRoutes = require('./routes/treatmentPackageRoutes');
 const adminDataStewardRoutes = require('./routes/adminDataStewardRoutes');
 const adminRecoveryRoutes = require('./routes/adminRecoveryRoutes'); // Admin Recovery Console (DPDP Act)
+
+// Bucket A1 Route Imports (Restoring dev parity in production entry)
+const icuRoutes = require('./routes/icuRoutes');
+const maternityRoutes = require('./routes/maternityRoutes');
+const auth2faRoutes = require('./routes/auth2faRoutes');
+const totpRoutes = require('./routes/totpRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const abdmRoutes = require('./routes/abdmRoutes');
+const aiBillingRoutes = require('./routes/aiBillingRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const dentalRoutes = require('./routes/dentalRoutes');
+const govtSchemeRoutes = require('./routes/govtSchemeRoutes');
+const mortuaryRoutes = require('./routes/mortuaryRoutes');
+const ophthalmologyRoutes = require('./routes/ophthalmologyRoutes');
+const supportRoutes = require('./routes/supportRoutes');
+const transitionRoutes = require('./routes/transitionRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Wolf Care 2.0 - Self-Hosted Patient App Routes
 const patientAuthRoutes = require('./routes/patientAuthRoutes'); // OTP Auth
@@ -329,6 +348,32 @@ app.use('/api/billing', billingRoutes);
 app.use('/api/ot', otRoutes);
 app.use('/api/packages', treatmentPackageRoutes);
 
+// Bucket A1 Mounts (Restoring dev parity in production entry)
+// Critical Care & Obstetric Routes (Protected under tenantResolver & authenticateToken)
+app.use('/api/icu', tenantResolver, authenticateToken, icuRoutes);
+app.use('/api/maternity', tenantResolver, authenticateToken, maternityRoutes);
+
+// Two-Factor Authentication (Dual mount: /api/auth and /api/2fa)
+app.use('/api/auth', auth2faRoutes);
+app.use('/api/2fa', auth2faRoutes);
+app.use('/api/2fa', totpRoutes);
+
+// Payment Gateways (Both singular /api/payment and plural /api/payments)
+app.use('/api/payment', paymentRoutes);
+app.use('/api/payments', paymentRoutes);
+
+// Additional Clinical, Health Schemes & Support Services
+app.use('/api/abdm', abdmRoutes);
+app.use('/api/ai-billing', aiBillingRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/dental', tenantResolver, dentalRoutes);
+app.use('/api/govt-schemes', govtSchemeRoutes);
+app.use('/api/mortuary', mortuaryRoutes);
+app.use('/api/ophthalmology', tenantResolver, ophthalmologyRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/transitions', transitionRoutes);
+app.use('/api/upload', uploadRoutes);
+
 // Wolf Care 2.0 - Patient App Routes (Self-Hosted, No Firebase)
 console.log('Mounting /api/patient-auth inside server-cloud.js');
 app.use('/api/patient-auth', patientAuthRoutes); // OTP Auth for Wolf Care app
@@ -431,14 +476,19 @@ async function initializeServices() {
       await pool.query('SELECT NOW()');
       console.log('✅ Database connected successfully');
       
-      // Run migrations
-      try {
-        console.log('🔄 Checking for database migrations...');
-        const MigrationService = require('./services/MigrationService');
-        await MigrationService.run();
-        console.log('✅ Migrations checked/applied.');
-      } catch (migrationErr) {
-        console.error('⚠️ Migration error (continuing):', migrationErr.message);
+      // Run migrations (Gated behind BOOT_DDL=true for least-privilege runtime security)
+      const { isBootDdlEnabled } = require('./config/bootRoles');
+      if (isBootDdlEnabled()) {
+        try {
+          console.log('🔄 [BOOT_DDL] Checking for database migrations...');
+          const MigrationService = require('./services/MigrationService');
+          await MigrationService.run();
+          console.log('✅ [BOOT_DDL] Migrations checked/applied.');
+        } catch (migrationErr) {
+          console.error('⚠️ [BOOT_DDL] Migration error (continuing):', migrationErr.message);
+        }
+      } else {
+        console.log('🔒 Boot DDL auto-migrations disabled (BOOT_DDL!=true). Runtime pool active.');
       }
     } catch (dbErr) {
       console.error('⚠️ Database connection failed:', dbErr.message);
