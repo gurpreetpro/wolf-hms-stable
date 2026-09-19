@@ -23,7 +23,12 @@
        - Server tests: **193 baseline tests green** (39 passed suites, 3 skipped, 0 failures).
        - Client build: Vite production build passed in 8.44s; synced to `server/public/`.
        - Local git: Clean commits per P2 step (`90a4806`, `96ee749`, `49304b3`, `b2888eb`).
-   - Next: Conductor verifies independently → Claude Opus deploys to VPS `185.213.27.158` → live crawler & click-through.
+   - **Conductor independent verification (9/19) — PASSED, pushed to origin/main (`b21c00f`)**:
+      - Matrix re-run: 126 mounts / 1140 routes indexed / **517 matched, 20 broken** (all 20 = Bucket C, justified). ✅
+      - Server tests: 39 suites / **193 passed**, 0 failures. ✅ Client build: 9.6s green. ✅
+      - Auth parity confirmed: `/api/icu`+`/api/maternity` have `tenantResolver, authenticateToken` (Flash report verbatim omitted middleware but actual code is correct); dental/ophthalmology match dev parity (tenant only); mortuary/alerts/abdm/ai-billing self-protect inside routers — same as dev.
+      - Caveats: (a) uncommitted pre-existing Phase 7 + WGM T1 files remain in working tree (`server.js` BOOT_DDL gating, `dbPools.js` wolf_app role separation, `MetricsCollector`, `wgm/*`) — NOT part of Flash commits, left untouched; (b) ~21 "unresolved expr" mount warnings are parser artifacts — cosmetic; (c) remaining 20 broken are all Bucket C UI-guarded.
+   - Next: Claude Opus deploys to VPS `185.213.27.158` (PM2 restart, dist already synced to `server/public/`) → live endpoint crawler → security probes (unauth 401 on /api/icu) → k6 smoke → user click-through ICU + worst dashboards.
 
 0. **WGM Track T1: Tactical Enterprise Completion + Crash Root-Cause + Telemetry (✅ COMPLETE IN CODE & TESTS)**
    - **T1-A: Tabs Hardening & Screen Consolidation (F4/F5 completion)**:
