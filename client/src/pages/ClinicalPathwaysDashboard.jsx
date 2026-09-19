@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab, ProgressBar, Alert } from 'react-bootstrap';
 import { GitBranch, CheckCircle, Clock, AlertTriangle, Plus, FileText } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
@@ -35,6 +35,10 @@ export default function ClinicalPathwaysDashboard() {
 
   return (
     <Container fluid className="p-4">
+      <Alert variant="info" className="d-flex align-items-center mb-3">
+        <GitBranch size={18} className="me-2" />
+        Clinical pathways module is not enabled on this server — displaying demo care protocols.
+      </Alert>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><GitBranch className="me-2 text-primary" />Clinical Pathways</h2>

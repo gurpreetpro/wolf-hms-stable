@@ -41,13 +41,18 @@ export default function NeonatalDashboard() {
 
   return (
     <Container fluid className="p-4">
+      <Alert variant="info" className="d-flex align-items-center mb-3">
+        <Baby size={18} className="me-2" />
+        Neonatal ICU management module is not enabled on this server — displaying demo census data.
+      </Alert>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Baby className="me-2 text-info" />Neonatal ICU (NICU)</h2>
           <p className="text-muted">Level III NICU — Monitoring & Care</p>
         </div>
-        <Button variant="info" onClick={() => setShowAdmit(true)}>
+        <Button variant="info" disabled title="Module not enabled on this server">
           <Plus size={16} className="me-1" /> Admit Neonate
+          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
         </Button>
       </div>
 
@@ -198,7 +203,7 @@ export default function NeonatalDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdmit(false)}>Cancel</Button>
-          <Button variant="info" onClick={handleAdmit}>Admit to NICU</Button>
+          <Button variant="info" disabled title="Module not enabled on this server">Admit to NICU (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

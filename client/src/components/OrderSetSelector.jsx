@@ -69,9 +69,10 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
 
     return (
         <>
-            <Button variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center" onClick={fetchOrderSets}>
+            <Button variant="outline-primary" disabled title="Module not enabled on this server" className="w-100 d-flex align-items-center justify-content-center">
                 <Package size={18} className="me-2" />
                 Select Order Set
+                <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
             </Button>
 
             <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
@@ -79,6 +80,7 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
                     <Modal.Title>Order Sets / Clinical Pathways</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <div className="alert alert-info py-2 mb-3">Order sets and clinical pathway ordering are not enabled on this server.</div>
                     {loading ? <Spinner animation="border" className="d-block mx-auto" /> : (
                         <div className="d-flex" style={{ minHeight: '400px' }}>
                             {/* Left: List of Sets */}

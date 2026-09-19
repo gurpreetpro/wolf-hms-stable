@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab, Alert } from 'react-bootstrap';
 import { Users, Calendar, Clock, Plus, CheckCircle, Search } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
@@ -45,13 +45,18 @@ export default function StaffSchedulingDashboard() {
 
   return (
     <Container fluid className="p-4">
+      <Alert variant="info" className="d-flex align-items-center mb-3">
+        <Calendar size={18} className="me-2" />
+        Staff shift scheduling module is not enabled on this server — displaying demo schedule.
+      </Alert>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Calendar className="me-2 text-primary" />Staff Scheduling</h2>
           <p className="text-muted">Shift Management & Roster Planning</p>
         </div>
-        <Button variant="primary" onClick={() => setShowAdd(true)}>
+        <Button variant="primary" disabled title="Module not enabled on this server">
           <Plus size={16} className="me-1" /> Add Shift
+          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
         </Button>
       </div>
 
@@ -141,10 +146,7 @@ export default function StaffSchedulingDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
-          <Button variant="primary" onClick={async () => {
-            try { await api.post('/api/staff/shifts', newShift); } catch { /* fallback */ }
-            setShowAdd(false); alert('✅ Shift assigned!');
-          }}>Assign Shift</Button>
+          <Button variant="primary" disabled title="Module not enabled on this server">Assign Shift (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

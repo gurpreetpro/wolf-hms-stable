@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Tabs, Tab, Alert } from 'react-bootstrap';
 import { MessageSquare, Bell, Send, Plus, Users, AlertTriangle } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
@@ -34,13 +34,18 @@ export default function CommsDashboard() {
 
   return (
     <Container fluid className="p-4">
+      <Alert variant="info" className="d-flex align-items-center mb-3">
+        <MessageSquare size={18} className="me-2" />
+        Internal communications module is not enabled on this server — displaying demo notices.
+      </Alert>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><MessageSquare className="me-2 text-primary" />Communication Hub</h2>
           <p className="text-muted">Internal Announcements & Messaging</p>
         </div>
-        <Button variant="primary" onClick={() => setShowNew(true)}>
+        <Button variant="primary" disabled title="Module not enabled on this server">
           <Plus size={16} className="me-1" /> New Announcement
+          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
         </Button>
       </div>
 
@@ -106,10 +111,7 @@ export default function CommsDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="primary" onClick={async () => {
-            try { await api.post('/api/communications/announce', newMsg); } catch { /* fallback */ }
-            setShowNew(false); alert('📢 Announcement posted!');
-          }}><Send size={14} className="me-1" /> Post</Button>
+          <Button variant="primary" disabled title="Module not enabled on this server"><Send size={14} className="me-1" /> Post (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

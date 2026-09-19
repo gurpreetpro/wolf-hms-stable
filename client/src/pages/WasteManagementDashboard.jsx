@@ -118,6 +118,10 @@ const WasteManagementDashboard = () => {
 
     return (
         <Container fluid className="py-3">
+            <Alert variant="info" className="d-flex align-items-center mb-3">
+                <Trash2 size={18} className="me-2" />
+                Biomedical waste management module is not enabled on this server — displaying demo compliance data.
+            </Alert>
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
@@ -125,8 +129,8 @@ const WasteManagementDashboard = () => {
                     <small className="text-muted">CPCB BMW Rules 2016 Compliance — Color Coded Waste Tracking</small>
                 </div>
                 <div className="d-flex gap-2">
-                    <Button variant="warning" size="sm" onClick={() => setShowLogModal(true)}>
-                        <Package size={14} className="me-1" /> Log Waste
+                    <Button variant="warning" size="sm" disabled title="Module not enabled on this server">
+                        <Package size={14} className="me-1" /> Log Waste <Badge bg="secondary" className="ms-1">Module not enabled</Badge>
                     </Button>
                     <Button variant="outline-primary" size="sm" onClick={fetchWasteData}>
                         <BarChart2 size={14} className="me-1" /> Refresh
@@ -323,7 +327,7 @@ const WasteManagementDashboard = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowLogModal(false)}>Cancel</Button>
-                        <Button variant="warning" type="submit"><Trash2 size={14} className="me-1" /> Record</Button>
+                        <Button variant="warning" type="submit" disabled title="Module not enabled on this server"><Trash2 size={14} className="me-1" /> Record (Disabled)</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>

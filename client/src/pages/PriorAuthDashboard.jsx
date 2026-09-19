@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Form, Button, Modal, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Form, Button, Modal, ProgressBar, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 const PriorAuthDashboard = () => {
@@ -55,9 +55,14 @@ const PriorAuthDashboard = () => {
 
     return (
         <Container className="py-4">
+            <Alert variant="info" className="mb-3">
+                Insurance prior authorization module is not enabled on this server — displaying demo authorizations.
+            </Alert>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold">📋 Prior Authorization Management</h3>
-                <Button variant="primary" onClick={() => setShowNewAuth(true)}>➕ New PA Request</Button>
+                <Button variant="primary" disabled title="Module not enabled on this server">
+                    ➕ New PA Request <Badge bg="secondary" className="ms-1">Module not enabled</Badge>
+                </Button>
             </div>
 
             {/* KPI Cards */}
@@ -236,7 +241,7 @@ const PriorAuthDashboard = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowNewAuth(false)}>Cancel</Button>
-                    <Button variant="primary" onClick={handleSubmitAuth}>📤 Submit PA Request</Button>
+                    <Button variant="primary" disabled title="Module not enabled on this server">📤 Submit PA Request (Disabled)</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

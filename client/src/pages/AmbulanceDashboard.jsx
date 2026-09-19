@@ -48,13 +48,18 @@ export default function AmbulanceDashboard() {
 
   return (
     <Container fluid className="p-4">
+      <Alert variant="info" className="d-flex align-items-center mb-3">
+        <Truck size={18} className="me-2" />
+        Ambulance fleet dispatch module is not enabled on this server — displaying demo fleet data.
+      </Alert>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Truck className="me-2 text-danger" />Ambulance Fleet</h2>
           <p className="text-muted">Fleet Management & Emergency Dispatch</p>
         </div>
-        <Button variant="danger" onClick={() => setShowDispatch(true)}>
+        <Button variant="danger" disabled title="Module not enabled on this server">
           <Plus size={16} className="me-1" /> Dispatch Ambulance
+          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
         </Button>
       </div>
 
@@ -174,11 +179,7 @@ export default function AmbulanceDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDispatch(false)}>Cancel</Button>
-          <Button variant="danger" onClick={async () => {
-            try { await api.post('/api/ambulance/dispatch', dispatch); } catch { /* fallback */ }
-            setShowDispatch(false);
-            alert('🚑 Ambulance Dispatched!');
-          }}>Dispatch Now</Button>
+          <Button variant="danger" disabled title="Module not enabled on this server">Dispatch Now (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

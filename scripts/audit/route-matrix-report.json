@@ -1,16 +1,10 @@
 {
-  "generatedAt": "2026-09-19T04:00:07.093Z",
+  "generatedAt": "2026-09-19T04:07:51.314Z",
   "mounts": 126,
   "backendRoutes": 1140,
-  "frontendCalls": 542,
+  "frontendCalls": 537,
   "matched": 517,
   "broken": [
-    {
-      "method": "POST",
-      "url": "/api/ambulance/dispatch",
-      "file": "client\\src\\pages\\AmbulanceDashboard.jsx",
-      "line": 178
-    },
     {
       "method": "GET",
       "url": "/api/ambulance/trips",
@@ -30,12 +24,6 @@
       "line": 14
     },
     {
-      "method": "POST",
-      "url": "/api/assets",
-      "file": "client\\src\\pages\\AssetDashboard.jsx",
-      "line": 119
-    },
-    {
       "method": "GET",
       "url": "/api/clinical-pathways",
       "file": "client\\src\\pages\\ClinicalPathwaysDashboard.jsx",
@@ -49,12 +37,6 @@
     },
     {
       "method": "POST",
-      "url": "/api/communications/announce",
-      "file": "client\\src\\pages\\CommsDashboard.jsx",
-      "line": 110
-    },
-    {
-      "method": "POST",
       "url": "/api/infection-control/report",
       "file": "client\\src\\pages\\InfectionControlDashboard.jsx",
       "line": 59
@@ -64,12 +46,6 @@
       "url": "/api/laundry/orders",
       "file": "client\\src\\pages\\LaundryDashboard.jsx",
       "line": 15
-    },
-    {
-      "method": "POST",
-      "url": "/api/laundry/orders",
-      "file": "client\\src\\pages\\LaundryDashboard.jsx",
-      "line": 168
     },
     {
       "method": "POST",
@@ -99,7 +75,7 @@
       "method": "POST",
       "url": "/api/pre-op/assessment",
       "file": "client\\src\\pages\\OTDashboard.jsx",
-      "line": 168
+      "line": 171
     },
     {
       "method": "POST",
@@ -130,12 +106,6 @@
       "url": "/api/staff/shifts",
       "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
       "line": 16
-    },
-    {
-      "method": "POST",
-      "url": "/api/staff/shifts",
-      "file": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
-      "line": 145
     },
     {
       "method": "GET",

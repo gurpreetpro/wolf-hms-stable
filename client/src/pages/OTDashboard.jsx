@@ -154,10 +154,13 @@ const OTDashboard = () => {
                 </Tab>
 
                 {/* Pre-Op Assessment Tab */}
-                <Tab eventKey="pre-op" title={<span><Clipboard size={14} className="me-1" />Pre-Op Assessment</span>}>
+                <Tab eventKey="pre-op" title={<span><Clipboard size={14} className="me-1" />Pre-Op Assessment <Badge bg="secondary" className="ms-1">Module not enabled</Badge></span>}>
                     <Card className="shadow-sm border-0">
                         <Card.Header className="bg-white fw-bold">Pre-Operative Assessment Checklist</Card.Header>
                         <Card.Body>
+                            <Alert variant="info" className="mb-3">
+                                Pre-Operative assessment module is not enabled on this server.
+                            </Alert>
                             <Row>
                                 <Col md={6}>
                                     <Form onSubmit={async (e) => {
@@ -209,7 +212,7 @@ const OTDashboard = () => {
                                         <h6 className="fw-bold mb-3 mt-3">Allergies</h6>
                                         <Form.Control as="textarea" name="allergies" rows={2} placeholder="Known drug/latex allergies..." className="mb-3" />
 
-                                        <Button type="submit" variant="primary"><CheckCircle size={14} className="me-1" /> Save Pre-Op Assessment</Button>
+                                        <Button type="submit" variant="primary" disabled title="Module not enabled on this server"><CheckCircle size={14} className="me-1" /> Save Pre-Op Assessment (Disabled)</Button>
                                     </Form>
                                 </Col>
                                 <Col md={6}>
