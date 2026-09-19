@@ -9,13 +9,13 @@
 
 ### Process Management
 - **PM2** running process `wolf-hms-api` on port `5002`
-- Entry script: `server-cloud.js`
-- Restart: `pm2 restart wolf-hms-api`
+- Entry script: `server-cloud.js` (CORRECTED 2026-09-19 — previously PM2 was stale, running `server.js`; now `pm2 save`d as server-cloud.js)
+- Restart: `pm2 restart wolf-hms-api` (allow ~10s boot; poll `/api/health`)
 - Logs: `pm2 logs wolf-hms-api`
 
 ### Reverse Proxy
-- **Nginx** routes `http://185.213.27.158/wolf/` → `localhost:5002`
-- All API calls from frontend prefixed with `/wolf/api/`
+- **Nginx**: `root /var/www/wolf-hms/client/dist` (static root for HTML/assets — NOT server/public/), `/wolf/assets/` aliases to `client/dist/assets/`, `/wolf/api/` → `localhost:5002`, SPA fallback `try_files ... /index.html`
+- **Frontend deploy = copy `client/dist/*` (or `server/public/*`, same bytes) → `/var/www/wolf-hms/client/dist/`**
 - WebSocket upgrade supported for Socket.IO
 
 ### Database

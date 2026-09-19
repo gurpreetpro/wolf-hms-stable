@@ -28,7 +28,12 @@
       - Server tests: 39 suites / **193 passed**, 0 failures. ✅ Client build: 9.6s green. ✅
       - Auth parity confirmed: `/api/icu`+`/api/maternity` have `tenantResolver, authenticateToken` (Flash report verbatim omitted middleware but actual code is correct); dental/ophthalmology match dev parity (tenant only); mortuary/alerts/abdm/ai-billing self-protect inside routers — same as dev.
       - Caveats: (a) uncommitted pre-existing Phase 7 + WGM T1 files remain in working tree (`server.js` BOOT_DDL gating, `dbPools.js` wolf_app role separation, `MetricsCollector`, `wgm/*`) — NOT part of Flash commits, left untouched; (b) ~21 "unresolved expr" mount warnings are parser artifacts — cosmetic; (c) remaining 20 broken are all Bucket C UI-guarded.
-   - Next: Claude Opus deploys to VPS `185.213.27.158` (PM2 restart, dist already synced to `server/public/`) → live endpoint crawler → security probes (unauth 401 on /api/icu) → k6 smoke → user click-through ICU + worst dashboards.
+   - **DEPLOYED TO PROD (9/19, commit `ca7db49`) — VERIFIED EXTERNALLY BY CONDUCTOR.** Opus executed `DEPLOY_OPUS_KICKOFF.md`; three surprises discovered & fixed:
+     1. **PM2 was running `server.js` (stale entry), not `server-cloud.js`** — the documented prod entry. This explains the whole outage: all Phase 2 fixes targeted server-cloud.js. Switched PM2 entry via `pm2 delete` + `pm2 start server-cloud.js` + `pm2 save`. First attempt false-rolled-back (6s probe too early; boot needs ~10s readiness poll on `/api/health`).
+     2. **nginx serves HTML from `/var/www/wolf-hms/client/dist` (its own static root), NOT `server/public/`** — only `/wolf/api/` proxies to PM2. Old bundle `aHU7xcqN` replaced with `BloG960q`.
+     3. `server/config/bootRoles.js` was untracked (needed by server-cloud.js boot) → committed as `ca7db49`, uploaded; boot log now clean with `🔒 Boot DDL disabled (BOOT_DDL!=true)`.
+   - Final state: health 200, unauth 401 on /api/charges/icu, all 8 regression endpoints 200, all 10 Bucket B mounts live (5 return **500 due to missing prod schema** — expected, no migrations run: `pending_charges.hospital_id`, anaesthesia `hospital_id`, preauth `patient_number`, pac `start_time`, `pacu_beds` table → Bucket B schema follow-up item).
+   - Next: USER click-through (`/icu` dashboard first, then worst dashboards, then a Bucket C "Module not enabled" page). Remaining deferred: `pingAllGuards` (`gl.last_update`→`gl."timestamp"`), Bucket B schema approval, Phase 7 `wolf_app` cutover (migration 305), WGM T1 patrol-crash logcat.
 
 0. **WGM Track T1: Tactical Enterprise Completion + Crash Root-Cause + Telemetry (✅ COMPLETE IN CODE & TESTS)**
    - **T1-A: Tabs Hardening & Screen Consolidation (F4/F5 completion)**:
