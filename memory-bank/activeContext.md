@@ -10,13 +10,20 @@
 
 - Single-hospital profile demo (`hospital_id = 1`) on VPS `185.213.27.158`
 
--1. **URGENT: System-Wide Connectivity Restoration (WGM T1 PAUSED)**
+-1. **URGENT: System-Wide Connectivity Restoration (Phase 2 Flash Implementation ✅ COMPLETE)**
    - Symptom: "failed to load data" on many prod dashboards + dead buttons. Verified example: `/icu` — "Could not fetch active ICU admissions" + ICU telemetry 404s.
-   - **Phase 1 audit COMPLETE & VERIFIED by me** (commit `084f3c7`): `scripts/audit/route-matrix.js` scanned 543 unique frontend calls vs `server-cloud.js` mounts → **340 matched / 203 broken across 57 families**.
-   - Triage (`scripts/audit/triage-families.json`): **A)** 31 families mounted only in dev `server.js` (incl. `/api/icu`, `/api/maternity`, `2fa`, `alerts`, `govt-schemes`) or sub-paths missing in prod router; **B)** 13 route files never mounted anywhere (anaesthesia, pos, preauth, orthopedic…); **C)** 13 families with NO backend at all (ambulance, waste, laundry…) → UI disable, do not build.
-   - `auditMiddleware` audited: fail-open, NOT the cause.
-   - **Kickoff for Gemini Flash**: `CONNECTIVITY_FIX_FLASH_KICKOFF.md` (P2-1 mounts → P2-2 sub-route ports → P2-3 wire bucket B → P2-4 UI disable bucket C → P2-5 verification gate: matrix ≤30 broken, 193 tests green, client build green).
-   - Then: I verify → Opus deploys → live crawler + PM2 logs + user click-through.
+   - **Phase 1 audit COMPLETE & VERIFIED** (commit `084f3c7`): 543 unique calls scanned vs `server-cloud.js` mounts → **340 matched / 203 broken across 57 families**.
+   - **Phase 2 Implementation Complete**:
+     - **P2-1 (Bucket A1 Mounts — commit `90a4806`)**: Mounted `icu`, `maternity`, `2fa`, `payments`, `abdm`, `ai-billing`, `alerts`, `dental`, `govt-schemes`, `mortuary`, `ophthalmology`, `support`, `transitions`, `upload`.
+     - **P2-2 (Bucket A2 Sub-Route Porting — commit `96ee749`)**: Reconciled sub-routes & aliases across 25 route/controller modules (`admissionRoutes`, `aiRoutes`, `billingRoutes`, `bloodBankRoutes`, `clinicalRoutes`, `dentalRoutes`, `dietaryRoutes`, `equipmentRoutes`, `financeRoutes`, `labRoutes`, `nurseRoutes`, `otRoutes`, `patientRoutes`, `problemListRoutes`, `pharmacyRoutes`, `platformRoutes`, `securityRoutes`, `settingsRoutes`, `supportRoutes`, `abdmRoutes`, `authRoutes`, etc.). Broken dropped from 157 to 77.
+     - **P2-3 (Bucket B Wiring — commit `49304b3`)**: Wired 13 Bucket B route modules (`anaesthesia`, `branding`, `charges`, `dicom`, `intraop`, `license`, `migration`, `orthopedic`/`orthopedics`, `pac`, `pacu`, `pos`, `preauth`, `test`). Added `POST /api/branding`, `GET /api/test/migrate-login-security`, fixed `PreauthDashboard.jsx` query params, fixed `OverwatchService.js` Prometheus registry isolation, and added `requireRole` in `permissionMiddleware.js`.
+     - **P2-4 (Bucket C UI Disable — commit `b2888eb`)**: Handled 13 unimplemented families (`ambulance`, `assets`, `clinical-pathways`, `communications`, `infection-control`, `laundry`, `neonatal`, `order-sets`, `pre-op`, `prior-auth`, `quality`, `staff`, `waste`) with disabled trigger buttons, "Module not enabled" tooltips/badges, neutral alert banners, and disabled modal submits.
+     - **P2-5 (Verification Gate — ALL PASSED)**:
+       - Route Matrix: Broken dropped from 203 to **20** (Matched OK: 517). Target $\le 30$ achieved!
+       - Server tests: **193 baseline tests green** (39 passed suites, 3 skipped, 0 failures).
+       - Client build: Vite production build passed in 8.44s; synced to `server/public/`.
+       - Local git: Clean commits per P2 step (`90a4806`, `96ee749`, `49304b3`, `b2888eb`).
+   - Next: Conductor verifies independently → Claude Opus deploys to VPS `185.213.27.158` → live crawler & click-through.
 
 0. **WGM Track T1: Tactical Enterprise Completion + Crash Root-Cause + Telemetry (✅ COMPLETE IN CODE & TESTS)**
    - **T1-A: Tabs Hardening & Screen Consolidation (F4/F5 completion)**:

@@ -1,5 +1,81 @@
 ## ✅ Completed & Verified
 
+### System-Wide Connectivity Restoration — Phase 2: Flash Implementation (2026-09-19)
+- [x] **P2-1: Bucket A1 Mounts (commit `90a4806`)**:
+  - [x] Mounted 14 dev routers in `server/server-cloud.js`: `icu`, `maternity`, `2fa`, `payments`, `abdm`, `ai-billing`, `alerts`, `dental`, `govt-schemes`, `mortuary`, `ophthalmology`, `support`, `transitions`, `upload`.
+- [x] **P2-2: Bucket A2 Sub-Route Porting & Aliases (commit `96ee749`)**:
+  - [x] Reconciled sub-routes across 25 route/controller modules: `admissionRoutes`, `aiRoutes`, `billingRoutes`, `bloodBankRoutes`, `clinicalRoutes`, `dentalRoutes`, `dietaryRoutes`, `equipmentRoutes`, `financeRoutes`, `labRoutes`, `nurseRoutes`, `otRoutes`, `patientRoutes`, `problemListRoutes`, `pharmacyRoutes`, `platformRoutes`, `securityRoutes`, `settingsRoutes`, `supportRoutes`, `abdmRoutes`, `authRoutes`, etc.
+  - [x] Reduced broken routes from 157 to 77.
+- [x] **P2-3: Bucket B Wiring (commit `49304b3`)**:
+  - [x] Mounted 13 unmounted routers: `anaesthesia`, `branding`, `charges`, `dicom`, `intraop`, `license`, `migration`, `orthopedic`/`orthopedics`, `pac`, `pacu`, `pos`, `preauth`, `test`.
+  - [x] Added `POST /api/branding` and `GET /api/test/migrate-login-security`.
+  - [x] Fixed `PreauthDashboard.jsx` query parameter serialization.
+  - [x] Resolved Prometheus registry conflict in `OverwatchService.js`.
+  - [x] Added `requireRole` middleware helper in `permissionMiddleware.js`.
+- [x] **P2-4: Bucket C UI Disable (commit `b2888eb`)**:
+  - [x] Handled 13 unimplemented families with disabled triggers, "Module not enabled" badges/tooltips, informational banners, and modal guards: `ambulance`, `assets`, `clinical-pathways`, `communications`, `infection-control`, `laundry`, `neonatal`, `order-sets`, `pre-op`, `prior-auth`, `quality`, `staff`, `waste`.
+  - [x] Rebuilt client bundle and copied `client/dist/` to `server/public/`.
+- [x] **P2-5: Verification Gate (All Passed)**:
+  - [x] `node scripts/audit/route-matrix.js`: broken = 20 (target $\le 30$).
+  - [x] `npm test` in `server/`: 193 passing tests (39 suites passed, 3 skipped, 0 failures).
+  - [x] `npm run build` in `client/`: production build successful in 8.44s.
+  - [x] Clean local git commit history.
+
+### WGM Track T1: Tactical Enterprise Completion + Crash Root-Cause + Telemetry (2026-09-18)
+
+- [x] **T1-A: Tabs Hardening & Screen Consolidation (F4/F5 completion)**:
+  - [x] Consolidated navigation in `wgm/App.js` into 5 tactical tab sections: Home (Command), Patrol, Dispatch, People, Profile.
+  - [x] Grouped all 14 screens into logical stacks (`HomeStackScreen`, `PatrolStackScreen`, `DispatchStackScreen`, `PeopleStackScreen`, `ProfileStackScreen`) preserving direct root-level backwards compatibility.
+  - [x] Enhanced `wgm/src/components/ScreenShell.js` with shift-aware header integration, duty mode badges, and station subtitles.
+  - [x] Authored comprehensive manual QA test matrix in `wgm/QA_UI_CHECKLIST.md`.
+  - [x] Authored Jest snapshot tests in `wgm/src/__tests__/navigation.test.js`: **8/8 tests passed**, snapshot written and verified.
+- [x] **T1-B: Patrol-Start Crash Root Cause (logcat MANDATORY first)**:
+  - [x] Authored `wgm/docs/LOGCAT_CAPTURE.md` detailing exact ADB logcat reproduction commands (`adb logcat -s WolfGuard:D *:E -c`).
+  - [x] Authored `wgm/docs/PATROL_LOGCAT_RESULT.md` capturing and documenting `java.lang.SecurityException: Need android.permission.ACCESS_FINE_LOCATION or android.permission.ACCESS_COARSE_LOCATION to call LocationManager.requestLocationUpdates`.
+  - [x] Added runtime permission gating inside `wgm/src/screens/PatrolScreen.js` (`handleStartPatrol`), requesting foreground permissions before invoking location updates.
+  - [x] Hardened `wgm/src/services/locationService.js` `init()` with try/catch, Sentry capture, and fallback to `Location.getLastKnownPositionAsync`.
+- [x] **T1-C: Real-Time Telemetry Convergence**:
+  - [x] Updated `wgm/src/services/locationService.js` to import `expo-battery` and append `batteryLevel` (integer %) exclusively during active patrols (`setPatrolActive(true)`).
+  - [x] Connected `socketService.connect()` on login (`LoginScreen.js`) and on cached boot (`AuthContext.js`); wired `socketService.disconnect()` on logout.
+  - [x] Added socket event listeners for `ping_guard` (auto-emits `guard_ping_response` with location and battery), `request_photo` (launches tactical camera modal), and `sos_ack` (triggers haptics and toast).
+  - [x] Enhanced server `server/services/socketHandler.js` with 90s silence timeout watcher marking inactive guards `OFFLINE`.
+  - [x] Authored `wgm/scripts/test-telemetry-e2e.js` and verified: pong received in **2ms** (<3000ms SLA), silence timeout watcher cleanly flips guard status to OFFLINE.
+- [x] **T1-D: Tactical Visual Layer**:
+  - [x] Replaced emojis with `TacticalIcon` in `wgm/src/screens/DispatchScreen.js` and `wgm/src/screens/PatrolScreen.js`.
+  - [x] Designed and implemented the Home Command 2x2 grid hero in `PatrolScreen.js` featuring bold linear gradients for SOS, Patrol, Checkpoint, and Visitors with tactical badges and haptics.
+  - [x] Reskinned `wgm/src/screens/DutySelectionScreen.js` in cyber terminal aesthetic (`> WG-TERM-01 // NODE: ONLINE`, monospace status tags, cyber brackets).
+  - [x] Audited and verified **zero raw hex** tokens across `wgm/src/` outside `wgm/src/theme/index.js`.
+
+### Ecosystem Hardening Program — Phase 7: Defense-in-Depth Enforcement, Resilience & Performance (2026-09-18)
+
+- [x] **W1 — wolf_app Non-Superuser Role Split**:
+  - [x] Authored migration `server/migrations/305_wolf_app_role.sql` creating non-superuser role `wolf_app` with LOGIN, public schema DML permissions, sequence usage, and default privileges. Zero hardcoded secrets via `${ENV:WOLF_APP_DB_PASSWORD}` interpolation.
+  - [x] Created `server/config/bootRoles.js` resolving `wolf_app` when `APP_DB_ROLE=wolf_app` and `WOLF_APP_DB_PASSWORD` are set, falling back cleanly to `DB_USER` (`postgres`) for local development.
+  - [x] Gated boot-time auto-migrations and schema DDL behind `BOOT_DDL=true` in `server/server-cloud.js` and `server/server.js`, preventing non-superuser runtime failures on startup.
+  - [x] Enhanced `server/scripts/admin-cli.js` with deterministic `${ENV:VAR_NAME}` token replacement and fail-closed validation.
+  - [x] Authored unit tests in `server/tests/unit/adminCliEnv.test.js` (7 tests passing) and `server/tests/unit/bootRoles.test.js` (5 tests passing).
+  - [x] Authored contract test `server/tests/contract/rlsEnforced.test.js` (4 tests passing) verifying transaction-scoped tenant isolation and role separation.
+  - [x] Authored operator cutover runbook `scripts/probes/wolf-app-cutover.md` detailing migration execution, PM2 environment reconfiguration, live RLS isolation verification, and rollback procedure.
+- [x] **W2 — Automated Backup Schedule & Restore Proof**:
+  - [x] Authored `server/scripts/backup-scheduler.js` providing opt-in backup scheduling (`BACKUP_ENABLED=true`) via `node-cron` (default `02:15` daily) with fallback `setInterval` runner.
+  - [x] Implemented retention pruning algorithm retaining `BACKUP_RETENTION_DAILY` (default 14) and `BACKUP_RETENTION_WEEKLY` (default 4) snapshots.
+  - [x] Implemented automated weekly integrity verification pass (`BACKUP_VERIFY_WEEKLY=true`) executing `verifyBackupFile` and logging failures with `[BACKUP-ALERT]`.
+  - [x] Authored operator drill runbook `scripts/probes/restore-drill-auto.md` detailing non-destructive restoration into isolated container scratch schema `scratch_restore`.
+  - [x] Authored unit tests in `server/tests/unit/backupSchedule.test.js` (5 tests passing).
+- [x] **W3 — Performance & Slow-Query Telemetry**:
+  - [x] Extended `server/services/MetricsCollector.js` with Prometheus histogram `db_query_duration_ms` (`query_prefix`, `status`), counter `db_slow_queries_total`, configurable threshold `SLOW_QUERY_MS` (default 500ms), and 15-minute rolling window tracking.
+  - [x] Implemented in-memory bounded ring buffer tracking the top 5 slowest HTTP endpoints (`getTopSlowEndpoints`).
+  - [x] Instrumented query execution in `server/config/dbPools.js` measuring query duration across `primaryPool`, `replicaPool`, and smart router without breaking existing callers.
+  - [x] Enriched `GET /api/health/obs` with `slowQueriesLast15m`, `poolWaitingCount`, and `topSlowEndpoints`.
+  - [x] Authored contract tests in `server/tests/contract/slowQueryTelemetry.test.js` (4 tests passing) and updated `server/tests/contract/obsStatus.test.js` (5 tests passing).
+  - [x] Authored operational performance guide `docs/PERF_GUIDE.md` documenting k6 smoke baseline figures (p95 ~237ms @ 50 VU, 0% error rate) and post-deploy telemetry verification.
+- [x] **W4 — Documentation, OpenAPI & Full Verification**:
+  - [x] Updated `SECURITY_DEBT.md` Item 5 with Phase 7 role-split status and cutover runbook.
+  - [x] Updated `docs/openapi.yaml` with enriched `/api/health/obs` schema; validated with `@redocly/cli lint` (0 errors).
+  - [x] Total backend test harness results: **193 passing tests** (39 passed suites, exactly **3 skipped suites**, 0 failures).
+  - [x] Total frontend test harness results: **16 passing tests**, clean production build.
+  - [x] Zero VPS mutations; all deliverables local code, tests, and operator runbooks.
+
 ### Ecosystem Hardening Program — Phase 6: Observability: Metrics, Logging, Alerting & Error Visibility (2026-09-17)
 
 - [x] **W1 — Request Metrics & Prometheus Export**:
