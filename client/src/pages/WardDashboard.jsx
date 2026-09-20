@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Form, Modal, ProgressBar, Collapse, Alert, InputGroup, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Button, Form, Modal, ProgressBar, Collapse, Alert, InputGroup, Tabs, Tab, Spinner } from 'react-bootstrap';
 import { CheckSquare, Clock, AlertTriangle, Heart, Thermometer, Activity, Pill, Bed, Zap, Shield, Flame, Lock, User, ChevronDown, ChevronUp, Plus, X, Search, ClipboardList, UserCheck, LayoutGrid, List, LogOut } from 'lucide-react';
 import api from '../utils/axiosInstance';
 import CareTaskBoard from '../components/CareTaskBoard';
@@ -174,7 +174,10 @@ const WardDashboard = () => {
             // Assuming backend returns assignments for the requested date.
             // We need to filter client side or backend for "current" shift to be precise,
             // but for now let's just take all beds assigned to this nurse for today.
-            const allBeds = res.data.reduce((acc, curr) => [...acc, ...curr.bed_ids], []);
+            // Accept both legacy array-of-rows and the canonical envelope { data: { bed_ids: [...] } }
+            const payload = res.data?.data ?? res.data;
+            const rows = Array.isArray(payload) ? payload : [payload].filter(Boolean);
+            const allBeds = rows.reduce((acc, curr) => [...acc, ...(curr?.bed_ids || [])], []);
             setAssignedBeds([...new Set(allBeds)]); // Unique IDs
         } catch (err) {
             console.error('Failed to fetch my assignments:', err);
