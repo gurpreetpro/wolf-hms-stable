@@ -6,6 +6,22 @@
 
 2026-09-18
 
+## Session 2026-09-20 — Ward Dashboard Crash Fixed & Deployed
+
+**Root cause:** `client/src/pages/WardDashboard.jsx` used `<Spinner>` (loading state) but never imported it from `react-bootstrap` → `ReferenceError: Spinner is not defined` on render → `ErrorBoundary` "Something went wrong". Not an API issue — all 4 endpoints (`/nurse/ward-overview`, `/ward-access/stats`, `/roster/my-assignments`, `/emergency/status`) return 200 on prod with admin token.
+
+**Fixes (commit `102794c`, pushed):**
+1. Added `Spinner` to react-bootstrap import — THE crash fix
+2. `fetchMyAssignments` hardened: prod returns canonical envelope `{success, data: {bed_ids: []}}`; code did `res.data.reduce(...)` → silent TypeError. Now handles both shapes.
+
+**Deployed:** fresh `client/dist` → bundle `index-DCz1YP6T.js` uploaded via ssh2 SFTP (`scratch/deploy_ward_fix.js`) to nginx root `/var/www/wolf-hms/client/dist/` + mirrored `server/public/assets/`. Verified `/wolf/` serves new bundle, `/ward` 200. Frontend-only deploy, no PM2 restart.
+
+**Follow-ups:**
+- Stale ACTIVE emergency id 31 (Code BLUE, Ward A, 2026-08-16) still Active in prod → banner+siren on every ward dashboard load. Resolve via `POST /api/emergency/resolve {id: 31}` — needs user approval.
+- `WardManagement.jsx` (Ward Incharge, `/ward-management`) verified clean — no missing imports.
+- Latent bug class: used-but-not-imported components crash only in browser; Vite build passes. WardDashboard had this since bundle `index-wjbAGQ0l`.
+
+
 ## Current Target
 
 - Single-hospital profile demo (`hospital_id = 1`) on VPS `185.213.27.158`
