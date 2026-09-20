@@ -6,6 +6,19 @@
 
 2026-09-18
 
+## Session 2026-09-20 — WARD-TILE: Admin Dashboard Ward Tiles Updated
+
+- **Goal:** Admin dashboard tile grid offers both dashboards distinctly (`/ward` for Nurse Station, `/ward-management` for Ward Incharge) and removes duplicate "Ward Config" tile.
+- **Changes in `client/src/pages/Dashboard.jsx`:**
+  1. Relabeled "Wards" tile (`/ward`) to "Nurse Station (Ward Board)" with description "Vitals • Meds • Emergency • Care Tasks".
+  2. Added "Ward Management (Incharge)" tile (`/ward-management`) with description "Ward Setup • Beds • Roster • Consumables".
+  3. Removed duplicate "Ward Config" tile (`/admin/wards`).
+- **Verification:**
+  - `cd client && npm run build`: Built successfully in 11.76s.
+  - New bundle hash: `index-6sfNt8ER.js`
+  - `npm test`: All 16 tests passing across 3 test suites (`Dashboard.test.jsx` passed).
+- **Status:** Local changes ready for Conductor commit, deploy, and prod verification.
+
 ## Session 2026-09-20 — Ward Dashboard Crash Fixed & Deployed
 
 **Root cause:** `client/src/pages/WardDashboard.jsx` used `<Spinner>` (loading state) but never imported it from `react-bootstrap` → `ReferenceError: Spinner is not defined` on render → `ErrorBoundary` "Something went wrong". Not an API issue — all 4 endpoints (`/nurse/ward-overview`, `/ward-access/stats`, `/roster/my-assignments`, `/emergency/status`) return 200 on prod with admin token.

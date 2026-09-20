@@ -1,5 +1,11 @@
 ## ✅ Completed & Verified
 
+### WARD-TILE: Admin Dashboard Ward Tiles Fix (2026-09-20)
+- [x] Relabeled "Wards" tile to "Nurse Station (Ward Board)" (`/ward`)
+- [x] Added "Ward Management (Incharge)" tile (`/ward-management`)
+- [x] Removed duplicate "Ward Config" tile (`/admin/wards`)
+- [x] Built client (`npm run build` green, bundle `index-6sfNt8ER.js`) and verified all client tests pass (16/16)
+
 ### System-Wide Connectivity Restoration — Phase 2: Flash Implementation (2026-09-19)
 - [x] **P2-1: Bucket A1 Mounts (commit `90a4806`)**:
   - [x] Mounted 14 dev routers in `server/server-cloud.js`: `icu`, `maternity`, `2fa`, `payments`, `abdm`, `ai-billing`, `alerts`, `dental`, `govt-schemes`, `mortuary`, `ophthalmology`, `support`, `transitions`, `upload`.

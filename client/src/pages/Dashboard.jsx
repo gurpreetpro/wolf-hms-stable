@@ -209,16 +209,26 @@ const Dashboard = () => {
         },
         {
             icon: Bed,
-            label: 'Wards',
-            desc: 'Bed Management & IPD',
+            label: 'Nurse Station (Ward Board)',
+            desc: 'Vitals • Meds • Emergency • Care Tasks',
             path: '/ward',
             color: '#10b981',
             bg: '#ecfdf5',
             category: 'clinical',
-            tags: ['ward', 'ipd', 'beds', 'admission', 'inpatient', 'nursing'],
+            tags: ['ward', 'nurse station', 'ipd', 'admission', 'inpatient', 'nursing', 'vitals'],
             stat: `${stats.bedOccupancy}/${stats.totalBeds}`,
             statLabel: 'Occupancy',
             statColor: stats.bedOccupancy > 45 ? 'text-danger' : 'text-success'
+        },
+        {
+            icon: Building2,
+            label: 'Ward Management (Incharge)',
+            desc: 'Ward Setup • Beds • Roster • Consumables',
+            path: '/ward-management',
+            color: '#0891b2',
+            bg: '#ecfeff',
+            category: 'clinical',
+            tags: ['ward management', 'ward incharge', 'beds', 'roster', 'equipment', 'consumables']
         },
         {
             icon: FileText,
@@ -591,16 +601,6 @@ const Dashboard = () => {
             bg: '#f5f3ff',
             category: 'admin',
             tags: ['roster', 'shifts', 'scheduling', 'duty roster', 'attendance']
-        },
-        {
-            icon: Building2,
-            label: 'Ward Config',
-            desc: 'Ward Setup & Bed Layout',
-            path: '/admin/wards',
-            color: '#84cc16',
-            bg: '#f7fee7',
-            category: 'admin',
-            tags: ['ward config', 'bed configuration', 'wards', 'rooms', 'bed types']
         },
         {
             icon: IndianRupee,
