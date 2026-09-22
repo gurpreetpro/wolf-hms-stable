@@ -140,8 +140,36 @@ const teleportToTenant = asyncHandler(async (req, res) => {
             is_teleport: true // Audit flag
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { 
+            expiresIn: '15m',
+            issuer: process.env.JWT_ISSUER || 'wolf-hms',
+            audience: process.env.JWT_AUDIENCE || 'wolf-hms-api'
+        }
     );
+
+    // Audit the teleport properly
+    try {
+        await pool.query(
+            `INSERT INTO audit_logs (user_id, user_name, action, entity_type, entity_id, details, ip_address, hospital_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [
+                req.user?.id || null,
+                req.user?.username || req.user?.email || 'platform_admin',
+                'platform_teleport',
+                'hospital',
+                String(target_hospital_id),
+                JSON.stringify({
+                    target_hospital_id,
+                    target_subdomain: user.subdomain,
+                    admin_email: req.user?.email || req.user?.username || 'unknown'
+                }),
+                req.ip || req.connection?.remoteAddress || null,
+                target_hospital_id
+            ]
+        );
+    } catch (auditErr) {
+        console.error('[Platform Audit Error] Failed to insert audit log for teleport:', auditErr.message);
+    }
 
     console.log(`[Platform Audit] Teleport to ${user.subdomain} (ID: ${target_hospital_id}) by platform admin`);
 
@@ -158,7 +186,8 @@ const getPlatformHealth = asyncHandler(async (req, res) => {
         total_hospitals: 0,
         total_users: 0,
         total_patients: 0,
-        active_requests_rpm: Math.floor(Math.random() * 1000) + 500, // Mock for now
+        active_requests_rpm: null,
+        active_requests_rpm_simulated: true,
         system_load_avg: require('os').loadavg(), // Real OS load
         db_connections: pool.totalCount || 0,
         server_uptime: process.uptime(),

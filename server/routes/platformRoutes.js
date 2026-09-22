@@ -108,7 +108,7 @@ router.post('/deploy', protect, requirePlatformAdmin, requireMfa, (req, res, nex
 }, deployTenant);
 
 router.put('/status', protect, requirePlatformAdmin, requireMfa, (req, res, next) => {
-    console.log(`[SECURITY AUDIT] STATUS CHANGE by ${req.user.email}: Hospital ${req.body.hospital_id} -> ${req.body.status}`);
+    console.log(`[SECURITY AUDIT] STATUS CHANGE by ${req.user.email}: Hospital ${req.body.hospital_id} -> ${req.body.is_active}`);
     next();
 }, updateTenantStatus);
 

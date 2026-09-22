@@ -9,15 +9,29 @@
  * consider moving to environment variables or a secure vault.
  */
 
-const PLATFORM_CONFIG = {
-    // Platform Owners - These emails have unrestricted access
-    ADMIN_EMAILS: [
+const getEffectiveAdminEmails = () => {
+    const envEmails = process.env.PLATFORM_ADMIN_EMAILS;
+    if (typeof envEmails === 'string' && envEmails.trim().length > 0) {
+        const parsed = envEmails
+            .split(',')
+            .map(email => email.trim().toLowerCase())
+            .filter(Boolean);
+        if (parsed.length > 0) {
+            return parsed;
+        }
+    }
+    return [
         'gurpreetpro@gmail.com',  // Primary Platform Owner
         'gurpreetpc@gmail.com',    // Backup Platform Owner
         'developer@wolfhms.com',   // Developer Account
         'admin@admin.com',         // Legacy
         'admin@wolfhms.com'        // Default Super Admin (Seeded)
-    ],
+    ];
+};
+
+const PLATFORM_CONFIG = {
+    // Platform Owners - These emails have unrestricted access
+    ADMIN_EMAILS: getEffectiveAdminEmails(),
 
     // Recovery Contact (for emergency lockout recovery)
     RECOVERY_PHONE: '+91-7009688863',
@@ -77,8 +91,8 @@ const validateConfig = () => {
 
 // Check if email is a platform admin
 const isPlatformAdmin = (email) => {
-    if (!email) return false;
-    return PLATFORM_CONFIG.ADMIN_EMAILS.includes(email.toLowerCase());
+    if (!email || typeof email !== 'string') return false;
+    return PLATFORM_CONFIG.ADMIN_EMAILS.includes(email.trim().toLowerCase());
 };
 
 // Check if email is in allowed list for platform access
