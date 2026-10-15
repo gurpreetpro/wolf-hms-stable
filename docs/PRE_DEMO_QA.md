@@ -16,6 +16,9 @@ npm --prefix client install -D @playwright/test
 # local API + Postgres must be running: server/.env points at localhost:5432 / hospital_db
 # Playwright browsers: the CDN download is blocked on this network, so the suites use the
 # installed Microsoft Edge via `channel: msedge` (no download needed).
+# The realtime suite needs the dev server to reach the backend socket — client/.env is
+# gitignored, so add this line locally:
+#   VITE_SOCKET_URL=http://127.0.0.1:8080
 ```
 
 ## 1. Reset the hospital to the golden snapshot (≈ 3 seconds)
