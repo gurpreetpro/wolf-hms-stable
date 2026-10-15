@@ -39,9 +39,10 @@ export const connectSocket = (token, hospitalId) => {
     
     socket.on('connect', () => {
         console.log('[Socket] Connected to Wolf HMS:', socket.id);
-        // Join hospital-specific room
+        // Join hospital-specific room (both conventions for compatibility)
         socket.emit('join', `hospital_${hospitalId}`);
-        console.log(`[Socket] Joined hospital room: hospital_${hospitalId}`);
+        socket.emit('join', `hosp_${hospitalId}`);
+        console.log(`[Socket] Joined hospital rooms: hospital_${hospitalId}, hosp_${hospitalId}`);
     });
     
     socket.on('disconnect', (reason) => {

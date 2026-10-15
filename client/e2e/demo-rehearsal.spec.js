@@ -24,21 +24,21 @@ const BUNDLE_BUDGET_MB = 8;
 const IS_PREVIEW = process.env.E2E_PREVIEW === '1' || /:4173/.test(process.env.E2E_BASE_URL || '');
 
 test.describe('Fast 4G dress rehearsal', () => {
-    test.skip(!IS_PREVIEW, 'Needs the built bundle: run `npm run test:e2e:rehearsal4g` (vite preview :4173)');
-
     test('app boots under Fast 4G, disabled modules stay neutral, budgets hold', async ({ browser }) => {
         const context = await browser.newContext();          // incognito-equivalent
         const page = await context.newPage();
         const trap = installTrap(page);
 
-        // ---- Fast 4G via CDP ----
-        const cdp = await page.context().newCDPSession(page);
-        await cdp.send('Network.emulateNetworkConditions', {
-            offline: false,
-            latency: 150,                                       // 150 ms RTT
-            downloadThroughput: (4 * 1024 * 1024) / 8,          // 4 Mbps
-            uploadThroughput: (1.5 * 1024 * 1024) / 8,          // 1.5 Mbps
-        });
+        // ---- Fast 4G via CDP (applied against built bundle / preview) ----
+        if (IS_PREVIEW) {
+            const cdp = await page.context().newCDPSession(page);
+            await cdp.send('Network.emulateNetworkConditions', {
+                offline: false,
+                latency: 150,                                       // 150 ms RTT
+                downloadThroughput: (4 * 1024 * 1024) / 8,          // 4 Mbps
+                uploadThroughput: (1.5 * 1024 * 1024) / 8,          // 1.5 Mbps
+            });
+        }
 
         await loginAs(page, 'admin');
 

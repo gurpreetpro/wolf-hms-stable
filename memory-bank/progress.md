@@ -17,10 +17,9 @@
       404 exempt)
 - [x] **P4 rehearsal:** `demo-rehearsal.spec.js` passing under CDP Fast 4G on the built bundle
       (bundle 7.31 MB < 8 MB budget, FCP 3.6 s, TTI 21 ms, Bucket C neutral states verified)
-- [ ] **P4 socket sync (RED):** `socket-sync.spec.js` — the `emergency_broadcast` push does not reach
-      the second tab within the 300 ms budget; the ward banner only appears from
-      `GET /api/emergency/status`. Hypothesis: room-name mismatch `hosp_<id>` (server) vs
-      `hospital_<id>` (client) + websocket instability when connecting straight to :8080 in dev.
+- [x] **P4 socket sync (GREEN):** `socket-sync.spec.js` — aligned room names (`hosp_${id}` and `hospital_${id}`),
+      attached `req.io = io` in `server-cloud.js`/`server.js`, routed `/socket.io` through Vite dev proxy.
+      Broadcast and clear events verified arriving within ~250ms and ~100ms (< 300ms budget). E2E suite 7/7 green.
 - [x] **P5 packaging:** root `qa:route-manifest|qa:500-hunter|qa:500-hunter:demo|qa:pre-demo`,
       `.github/workflows/pre-demo-qa.yml`, `docs/PRE_DEMO_QA.md`
 - [ ] **Residual 500s (documented, not green):** 134 critical (full sweep) / 43 (demo profile) —

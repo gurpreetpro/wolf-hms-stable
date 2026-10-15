@@ -28062,7 +28062,7 @@ const Row = /* @__PURE__ */ reactExports.forwardRef(({
   });
 });
 Row.displayName = "Row";
-const Spinner$1 = /* @__PURE__ */ reactExports.forwardRef(({
+const Spinner = /* @__PURE__ */ reactExports.forwardRef(({
   bsPrefix,
   variant,
   animation = "border",
@@ -28080,7 +28080,7 @@ const Spinner$1 = /* @__PURE__ */ reactExports.forwardRef(({
     className: classNames(className, bsSpinnerPrefix, size2 && `${bsSpinnerPrefix}-${size2}`, variant && `text-${variant}`)
   });
 });
-Spinner$1.displayName = "Spinner";
+Spinner.displayName = "Spinner";
 const _excluded$t = ["active", "eventKey", "mountOnEnter", "transition", "unmountOnExit", "role", "onEnter", "onEntering", "onEntered", "onExit", "onExiting", "onExited"], _excluded2$b = ["activeKey", "getControlledId", "getControllerId"], _excluded3$1 = ["as"];
 function _objectWithoutPropertiesLoose$l(r2, e3) {
   if (null == r2) return {};
@@ -32799,7 +32799,7 @@ const ChatAssistant = ({ show, onHide: onHide2, hideTrigger = false }) => {
               }
             ) }, idx)),
             loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-start mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white p-3 rounded shadow-sm text-muted fst-italic small", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "grow", size: "sm", className: "me-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "grow", size: "sm", className: "me-2" }),
               " Thinking..."
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: messagesEndRef })
@@ -33228,7 +33228,7 @@ const PaymentSettings = () => {
     }, 1e3);
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center p-5", style: { color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "light" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center p-5", style: { color: "white" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "light" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { color: "white" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "mb-4", children: "💳 Payment Configuration" }),
@@ -33354,7 +33354,7 @@ const PaymentSettings = () => {
         disabled: saving,
         style: { background: "linear-gradient(135deg, #10b981, #059669)", border: "none" },
         children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
           "Saving..."
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18, className: "me-2" }),
@@ -33446,7 +33446,7 @@ const IdSeriesSettings = () => {
     return `${prefix2}-${yearShort}-${seq}`;
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: message2.type, dismissible: true, onClose: () => setMessage(null), className: "mb-4", children: message2.text }),
@@ -33621,7 +33621,7 @@ const IdSeriesSettings = () => {
         "Reset"
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "lg", onClick: handleSave, disabled: saving, children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
         "Saving..."
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18, className: "me-2" }),
@@ -33729,7 +33729,7 @@ const HospitalProfileSettings = () => {
     setProfile((prev2) => ({ ...prev2, [field]: value2 }));
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center align-items-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: message2.type, dismissible: true, onClose: () => setMessage(null), className: "mb-4", children: message2.text }),
@@ -34062,7 +34062,7 @@ const HospitalProfileSettings = () => {
                   if (file) handleLogoUpload(file);
                 },
                 children: uploading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
                   "Uploading..."
                 ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Image$1, { size: 32, className: "text-muted mb-2" }),
@@ -34166,7 +34166,7 @@ const HospitalProfileSettings = () => {
         onClick: handleSave,
         disabled: saving || !profile.name,
         children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
           "Saving..."
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18, className: "me-2" }),
@@ -34951,7 +34951,7 @@ const ActivityFeed = () => {
     return () => clearInterval(interval);
   }, []);
   if (loading && logs.length === 0) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm h-100", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { className: "bg-white border-0 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h6", { className: "fw-bold mb-0 d-flex align-items-center gap-2", children: [
@@ -59310,16 +59310,26 @@ const Dashboard = () => {
     },
     {
       icon: Bed,
-      label: "Wards",
-      desc: "Bed Management & IPD",
+      label: "Nurse Station (Ward Board)",
+      desc: "Vitals • Meds • Emergency • Care Tasks",
       path: "/ward",
       color: "#10b981",
       bg: "#ecfdf5",
       category: "clinical",
-      tags: ["ward", "ipd", "beds", "admission", "inpatient", "nursing"],
+      tags: ["ward", "nurse station", "ipd", "admission", "inpatient", "nursing", "vitals"],
       stat: `${stats.bedOccupancy}/${stats.totalBeds}`,
       statLabel: "Occupancy",
       statColor: stats.bedOccupancy > 45 ? "text-danger" : "text-success"
+    },
+    {
+      icon: Building2,
+      label: "Ward Management (Incharge)",
+      desc: "Ward Setup • Beds • Roster • Consumables",
+      path: "/ward-management",
+      color: "#0891b2",
+      bg: "#ecfeff",
+      category: "clinical",
+      tags: ["ward management", "ward incharge", "beds", "roster", "equipment", "consumables"]
     },
     {
       icon: FileText,
@@ -59690,16 +59700,6 @@ const Dashboard = () => {
       tags: ["roster", "shifts", "scheduling", "duty roster", "attendance"]
     },
     {
-      icon: Building2,
-      label: "Ward Config",
-      desc: "Ward Setup & Bed Layout",
-      path: "/admin/wards",
-      color: "#84cc16",
-      bg: "#f7fee7",
-      category: "admin",
-      tags: ["ward config", "bed configuration", "wards", "rooms", "bed types"]
-    },
-    {
       icon: IndianRupee,
       label: "Price Approvals",
       desc: "Pharmacy Price Changes",
@@ -59769,7 +59769,7 @@ const Dashboard = () => {
     return matchesCat && matchesSearch;
   });
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center mb-0", children: [
@@ -63376,14 +63376,18 @@ const getSocketUrl = () => {
 const SOCKET_URL$1 = getSocketUrl();
 let socket$2 = null;
 const io = (url2 = SOCKET_URL$1, options = {}) => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const targetUrl = url2 && url2 !== "/" ? url2 : SOCKET_URL$1;
+  const authOptions = token ? { auth: { token }, extraHeaders: { Authorization: `Bearer ${token}` } } : {};
   if (!socket$2) {
-    console.log("[Socket.IO] Connecting to:", SOCKET_URL$1);
-    socket$2 = lookup(SOCKET_URL$1, {
+    console.log("[Socket.IO] Connecting to:", targetUrl);
+    socket$2 = lookup(targetUrl, {
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1e3,
       timeout: 2e4,
+      ...authOptions,
       ...options
     });
     socket$2.on("connect", () => {
@@ -63513,7 +63517,7 @@ const AdmissionModal = ({ show, onHide: onHide2, patient, onAdmit }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Bed Number" }),
           loadingBeds ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex align-items-center gap-2 py-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-muted", children: "Loading available beds..." })
           ] }) : availableBeds.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
             Form$1.Select,
@@ -63869,7 +63873,7 @@ const AIAssistant = ({ patientInfo, currentMedications = [], onSuggestion }) => 
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Pill, { size: 16, className: "me-1" }),
                   "Drug Safety"
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", onClick: handleDrugCheck, disabled: checkingDrugs || currentMedications.length < 2, children: checkingDrugs ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Check Interactions" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", onClick: handleDrugCheck, disabled: checkingDrugs || currentMedications.length < 2, children: checkingDrugs ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Check Interactions" })
               ] }),
               (drugCheckResult == null ? void 0 : drugCheckResult.hasInteractions) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "warning", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
@@ -63898,7 +63902,7 @@ const AIAssistant = ({ patientInfo, currentMedications = [], onSuggestion }) => 
                   onChange: (e3) => setSymptoms(e3.target.value)
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-success", onClick: handleSymptomAnalysis, disabled: analyzing, children: analyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Analyze" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-success", onClick: handleSymptomAnalysis, disabled: analyzing, children: analyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Analyze" })
             ] }),
             analysisResult && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-light p-3 rounded", children: (_a = analysisResult.differentialDiagnoses) == null ? void 0 : _a.map((dx, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: dx.condition }),
@@ -63951,7 +63955,7 @@ const AIAssistant = ({ patientInfo, currentMedications = [], onSuggestion }) => 
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { className: "w-100 mb-3", onClick: handleScribe, disabled: !transcript || scribeLoading, children: [
-              scribeLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 18, className: "me-2" }),
+              scribeLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 18, className: "me-2" }),
               "Generate SOAP Note"
             ] }),
             scribeResult && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border rounded p-3 bg-light", children: [
@@ -65632,7 +65636,7 @@ const AceDischargeSummary = ({
           onClick: handleDischarge,
           disabled: discharging,
           children: discharging ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm", className: "me-2" }),
             "Processing..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { size: 16, className: "me-2" }),
@@ -66048,7 +66052,7 @@ const DischargeSummary = ({
           onClick: handleDischarge,
           disabled: discharging,
           children: discharging ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm", className: "me-2" }),
             "Processing..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(UserCheck, { size: 16, className: "me-2" }),
@@ -66116,7 +66120,7 @@ const BedHistoryTimeline = ({ admissionId, onClose }) => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm", className: "me-2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm", className: "me-2" }),
       "Loading bed history..."
     ] });
   }
@@ -66882,7 +66886,7 @@ const CarePlanManager = ({ admissionId, patientId }) => {
         }
       )
     ] }),
-    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex flex-column gap-3", children: plans.length > 0 ? plans.map((plan) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border shadow-sm", children: [
+    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex flex-column gap-3", children: plans.length > 0 ? plans.map((plan) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-light d-flex justify-content-between align-items-center py-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: plan.template_name }),
@@ -66992,7 +66996,7 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Order Sets / Clinical Pathways" }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-info py-2 mb-3", children: "Order sets and clinical pathway ordering are not enabled on this server." }),
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", className: "d-block mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex", style: { minHeight: "400px" }, children: [
+        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", className: "d-block mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex", style: { minHeight: "400px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-40 border-end pe-3", style: { minWidth: "250px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "text-muted mb-3", children: "Available Sets" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(ListGroup$1, { variant: "flush", children: orderSets.map((set) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -69119,7 +69123,7 @@ const IPDBloodRequestModal = ({ show, onHide: onHide2, patient, admissionId, onS
     }
   };
   const getStockBadge = () => {
-    if (fetchingStock) return /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" });
+    if (fetchingStock) return /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" });
     if (!(stockInfo == null ? void 0 : stockInfo.inventory)) return null;
     const stock = stockInfo.inventory.find((i) => i.blood_group === form.blood_group);
     const units = (stock == null ? void 0 : stock.units) || 0;
@@ -69280,7 +69284,7 @@ const IPDBloodRequestModal = ({ show, onHide: onHide2, patient, admissionId, onS
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: onHide2, disabled: loading, children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", disabled: loading || !form.blood_group, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
           " Submitting..."
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 16, className: "me-1" }),
@@ -70155,7 +70159,7 @@ ${(summary.aiSummary.followups || []).map((f2) => `• ${f2}`).join("\n")}
     ),
     expanded && /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
       loading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted mb-0", children: "Analyzing patient data..." })
       ] }),
       error && !loading && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "warning", className: "d-flex align-items-center gap-2 mb-0", children: [
@@ -70986,7 +70990,7 @@ const FloatingAIButton = ({ patientContext = null, isOpen, onClose }) => {
                   className: "w-100 mt-3",
                   onClick: handleSymptomAnalysis,
                   disabled: loading || !symptoms.trim(),
-                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 16, className: "me-2" }),
                     "Analyze Symptoms"
                   ] })
@@ -71090,7 +71094,7 @@ const FloatingAIButton = ({ patientContext = null, isOpen, onClose }) => {
                   className: "w-100 mt-3",
                   onClick: handleDrugCheck,
                   disabled: loading || !medications.trim(),
-                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 16, className: "me-2" }),
                     "Check Interactions"
                   ] })
@@ -71146,7 +71150,7 @@ const FloatingAIButton = ({ patientContext = null, isOpen, onClose }) => {
                   className: "w-100 mt-3 text-white",
                   onClick: handleLabAnalysis,
                   disabled: loading || !labResults.trim(),
-                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                  children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Beaker, { size: 16, className: "me-2" }),
                     "Analyze Labs"
                   ] })
@@ -71240,7 +71244,7 @@ const DrugInteractionAlert = ({ medications = [], onInteractionFound }) => {
     return null;
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 mb-3", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "light", className: "d-flex align-items-center gap-2 py-2", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Checking for drug interactions..." })
   ] }) : interactions.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
     Alert$2,
@@ -71808,7 +71812,7 @@ const AIClinicalAssistant = ({
             onClick: handleDiagnosisSuggest,
             disabled: loading.diagnosis || !symptoms,
             children: [
-              loading.diagnosis ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 14, className: "me-1" }),
+              loading.diagnosis ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 14, className: "me-1" }),
               "Suggest Diagnoses"
             ]
           }
@@ -71821,7 +71825,7 @@ const AIClinicalAssistant = ({
             onClick: handlePrescriptionSuggest,
             disabled: loading.prescription || !diagnosis,
             children: [
-              loading.prescription ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pill, { size: 14, className: "me-1" }),
+              loading.prescription ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Pill, { size: 14, className: "me-1" }),
               "Suggest Medications"
             ]
           }
@@ -71936,7 +71940,7 @@ const DoctorAnalytics = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 text-muted", children: "Loading analytics..." })
     ] }) });
   }
@@ -72350,7 +72354,7 @@ const WebRTCVideoRoom = ({
         className: "d-flex flex-column align-items-center justify-content-center",
         style: { height: "500px", background: "#0f172a", color: "white" },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "light" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "light" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3", children: callStatus })
         ]
       }
@@ -74649,7 +74653,7 @@ const PMJAYVerificationModal = ({
                     variant: "success",
                     onClick: handleSearch,
                     disabled: loading || !searchValue,
-                    children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 20 })
+                    children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 20 })
                   }
                 )
               ] })
@@ -74831,7 +74835,7 @@ const PMJAYVerificationModal = ({
               onClick: handleSendOTP,
               disabled: loading,
               className: "px-4",
-              children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Send OTP & Verify"
+              children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Send OTP & Verify"
             }
           ),
           step === "otp" && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -74841,7 +74845,7 @@ const PMJAYVerificationModal = ({
               onClick: handleVerifyOTP,
               disabled: loading || otp.join("").length !== 6,
               className: "px-4",
-              children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Verify OTP"
+              children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Verify OTP"
             }
           ),
           step === "confirmed" && /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -75158,7 +75162,7 @@ const PMJAYPackageSelector = ({
               )
             ] }),
             loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "success" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "success" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-muted", children: "Loading packages..." })
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(ListGroup$1, { variant: "flush", children: [
               packages.map((pkg) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -75689,7 +75693,7 @@ const GovtSchemePanel = ({ patient, admissionId }) => {
           onKeyDown: (e3) => e3.key === "Enter" && handleSearch()
         }
       ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: `outline-${(schemeInfo == null ? void 0 : schemeInfo.color) || "primary"}`, className: "w-100", onClick: handleSearch, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: `outline-${(schemeInfo == null ? void 0 : schemeInfo.color) || "primary"}`, className: "w-100", onClick: handleSearch, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 14 }),
         " Search"
       ] }) }) })
@@ -75869,7 +75873,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
       "ABHA - Ayushman Bharat Health Account"
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", children: "Checking ABHA status..." })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       patient && /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "mb-4 border-0 bg-light", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "align-items-center", children: [
@@ -75916,7 +75920,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
                 variant: "outline-primary",
                 onClick: handleVerify,
                 disabled: verifying || abhaNumber.length < 17,
-                children: verifying ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                children: verifying ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "me-1" }),
                   "Verify"
                 ] })
@@ -75982,7 +75986,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
           onClick: handleLink,
           disabled: linking,
           children: linking ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
             "Linking..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Link, { size: 16, className: "me-2" }),
@@ -76039,7 +76043,7 @@ const ConsentManager = ({ patientId, abhaNumber }) => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ms-2", children: "Loading consents..." })
     ] });
   }
@@ -76263,7 +76267,7 @@ const NewConsentModal = ({ show, onHide: onHide2, patientId, abhaNumber, onCreat
             type: "submit",
             disabled: loading || formData.hi_types.length === 0,
             children: [
-              loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 14, className: "me-1" }),
+              loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 14, className: "me-1" }),
               "Send Request"
             ]
           }
@@ -77665,7 +77669,7 @@ const CareTaskBoard = ({ ward = null, refreshInterval = 6e4 }) => {
                   onClick: () => handleCompleteTask(task.id),
                   disabled: completing === task.id,
                   className: "ms-2",
-                  children: completing === task.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 16 })
+                  children: completing === task.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 16 })
                 }
               )
             }
@@ -77689,7 +77693,7 @@ const CareTaskBoard = ({ ward = null, refreshInterval = 6e4 }) => {
   ] });
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mt-2", children: "Loading care tasks..." })
     ] });
   }
@@ -82401,7 +82405,7 @@ const VoiceCommandButton = (props) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "spinner-grow text-danger mb-3", role: "status", style: { width: "3rem", height: "3rem" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "visually-hidden", children: "Listening..." }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { children: "Listening..." })
       ] }) : processing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", className: "mb-3" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", className: "mb-3" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { children: "Processing..." })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 40, className: "text-success mb-3" }),
@@ -82676,7 +82680,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
           ] }) })
         ] }),
         loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Generating report..." })
         ] }) : reportData ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-4 border-0 shadow-sm", children: [
@@ -83023,7 +83027,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowSbarModal(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: handleSaveSbar, disabled: savingSbar, children: savingSbar ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Save ISBAR Note" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: handleSaveSbar, disabled: savingSbar, children: savingSbar ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Save ISBAR Note" })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showHistoryModal, onHide: () => setShowHistoryModal(false), size: "lg", scrollable: true, children: [
@@ -83036,7 +83040,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
           historyPatient == null ? void 0 : historyPatient.bed_number
         ] })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: loadingHistory ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) }) : historyNotes.length > 0 ? historyNotes.map((note, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3 border-start border-4", style: { borderColor: idx === 0 ? "#0d6efd" : "#dee2e6" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: loadingHistory ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) }) : historyNotes.length > 0 ? historyNotes.map((note, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3 border-start border-4", style: { borderColor: idx === 0 ? "#0d6efd" : "#dee2e6" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-light py-2 d-flex justify-content-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: idx === 0 ? "primary" : "secondary", className: "me-2", children: [
@@ -83783,7 +83787,7 @@ const DoctorOrdersPanel = ({ wardFilter = "All", onOrderComplete }) => {
   const unacknowledgedCount = filteredOrders.filter((o) => !o.acknowledged_at).length;
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm border-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mt-2 mb-0", children: "Loading doctor orders..." })
     ] }) });
   }
@@ -84035,7 +84039,7 @@ const PatientAlertsPanel = ({ admissions = [], wardFilter = "All" }) => {
   const counts = getAlertCounts();
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mt-2 mb-0", children: "Scanning for alerts..." })
     ] }) });
   }
@@ -84225,13 +84229,16 @@ const WardDashboard = () => {
     }
   };
   const fetchMyAssignments = async () => {
+    var _a;
     try {
       const token = localStorage.getItem("token");
       const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
       const res = await api.get(`/api/roster/my-assignments?date=${today}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const allBeds = res.data.reduce((acc, curr) => [...acc, ...curr.bed_ids], []);
+      const payload = ((_a = res.data) == null ? void 0 : _a.data) ?? res.data;
+      const rows = Array.isArray(payload) ? payload : [payload].filter(Boolean);
+      const allBeds = rows.reduce((acc, curr) => [...acc, ...(curr == null ? void 0 : curr.bed_ids) || []], []);
       setAssignedBeds([...new Set(allBeds)]);
     } catch (err) {
       console.error("Failed to fetch my assignments:", err);
@@ -84286,13 +84293,17 @@ const WardDashboard = () => {
     fetchActiveEmergency();
     const token = localStorage.getItem("token");
     const socketPath = window.location.pathname.includes("/wolf") ? "/wolf/socket.io" : "/socket.io";
-    const socket2 = io("/", {
+    const socket2 = lookup("/", {
       path: socketPath,
       auth: { token },
       transports: ["websocket", "polling"]
     });
     socket2.on("connect", () => {
       console.log("✅ Ward Dashboard Connected to Socket");
+      window.__wardSocketConnected = true;
+      window.__wardSocket = socket2;
+      socket2.emit("join", "hospital_1");
+      socket2.emit("join", "hosp_1");
     });
     socket2.on("clinical_update", (data) => {
       console.log("🔔 Clinical Update Received:", data);
@@ -85428,7 +85439,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
       "Insurance Verification"
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", children: "Loading providers..." })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       patient && /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "mb-4 border-0 bg-light", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "align-items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { children: [
@@ -85505,7 +85516,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
           onClick: handleVerify,
           disabled: verifying || !formData.provider_id || !formData.policy_number,
           children: verifying ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
             "Verifying..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "me-2" }),
@@ -85575,7 +85586,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
           onClick: handleLinkInsurance,
           disabled: linking,
           children: linking ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
             "Linking..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-2" }),
@@ -85839,7 +85850,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
           }
         ) })
       ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", onClick: generateQR, disabled: loading, children: [
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(QrCode, { size: 16, className: "me-2" }),
+        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(QrCode, { size: 16, className: "me-2" }),
         "Generate QR Code"
       ] }) }),
       paymentMethod === "link" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-4", children: paymentLink ? /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
@@ -85885,7 +85896,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
           )
         ] })
       ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", onClick: createPaymentLink, disabled: loading, children: [
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16, className: "me-2" }),
+        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16, className: "me-2" }),
         "Create Payment Link"
       ] }) })
     ] }) }),
@@ -85898,7 +85909,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
           onClick: initRazorpayPayment,
           disabled: loading,
           children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
             "Processing..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(CreditCard, { size: 16, className: "me-2" }),
@@ -86515,7 +86526,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
                     onClick: handleAiTriage,
                     disabled: aiTriageLoading || !formData.complaint,
                     children: aiTriageLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
                       " Analyzing..."
                     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 14, className: "me-1" }),
@@ -86807,7 +86818,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
                     disabled: aiOcrLoading || !ocrFile,
                     className: "w-100",
                     children: aiOcrLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
                       " Extracting..."
                     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(ScanLine, { size: 16, className: "me-1" }),
@@ -94312,7 +94323,7 @@ const PatientProfileModal = ({ show, onHide: onHide2, patientId, visitId }) => {
         "Patient Profile"
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { className: "p-0", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "Loading patient data..." })
       ] }) : error ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", className: "m-3", children: error }) : patient ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-0 px-3 pt-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "profile", title: "👤 Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4", children: [
@@ -94675,7 +94686,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
               onClick: handleVerify,
               disabled: loading || !formData.provider_id || !formData.policy_number,
               children: [
-                loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "me-2" }),
+                loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "me-2" }),
                 "Verify Eligibility"
               ]
             }
@@ -94806,7 +94817,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
             onClick: handleRequestPreAuth,
             disabled: loading || !preauthForm.procedure_name || !preauthForm.estimated_amount,
             children: [
-              loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16, className: "me-2" }),
+              loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border", className: "me-2" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16, className: "me-2" }),
               "Submit Pre-Auth Request"
             ]
           }
@@ -95127,7 +95138,7 @@ const ABHAScanner = ({ show, onHide: onHide2, onAutoFill }) => {
               onClick: handleVerify,
               disabled: verifying || abhaNumber.replace(/\D/g, "").length < 14,
               children: verifying ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
                 " Verifying"
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16, className: "me-1" }),
@@ -95471,7 +95482,7 @@ const RapidTriageRegistration = ({ show, onHide: onHide2, onTriageRegistered }) 
             disabled: submitting,
             size: "lg",
             children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
               "Creating Provisional ID…"
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, className: "me-1" }),
@@ -96511,7 +96522,7 @@ const LabBarcodeDisplay = ({ barcode, patientName, testName, onPrint }) => {
   };
   if (!barcode) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "secondary", className: "d-inline-flex align-items-center gap-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }),
       " Generating..."
     ] });
   }
@@ -97865,7 +97876,7 @@ const LabEntryForm = ({ selectedRequest, onSave }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
       loadingParams && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm", className: "me-2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm", className: "me-2" }),
         "Loading test parameters..."
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "mb-3", children: (dbTestParams.length > 0 ? dbTestParams : getTestDefinition(selectedRequest == null ? void 0 : selectedRequest.test_name)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
@@ -97929,7 +97940,7 @@ const TATAnalyticsChart = () => {
   }, []);
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm border-0 p-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: "Loading Analytics..." })
     ] });
   }
@@ -98075,7 +98086,7 @@ const CriticalAlertWidget = ({ onAlertCount }) => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm border-0 border-start border-danger border-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "danger", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "danger", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "small text-muted mt-2", children: "Loading alerts..." })
     ] }) });
   }
@@ -98269,7 +98280,7 @@ const ReagentInventory = () => {
   const expiringCount = reagents.filter((r2) => r2.expiry_status === "expired" || r2.expiry_status === "expiring_soon").length;
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm border-0 p-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: "Loading Inventory..." })
     ] });
   }
@@ -98480,7 +98491,7 @@ const ReagentInventory = () => {
         forecastData == null ? void 0 : forecastData.name
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: forecastLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "info" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "info" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-muted", children: "Calculating inventory consumption statistics..." })
       ] }) : forecastData ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-4 text-center", children: [
@@ -98675,7 +98686,7 @@ const QCDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm border-0 p-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: "Loading QC Dashboard..." })
     ] });
   }
@@ -98961,7 +98972,7 @@ const LabRevenueChart = () => {
   }, []);
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm border-0 p-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: "Loading Revenue Analytics..." })
     ] });
   }
@@ -99490,7 +99501,7 @@ const InstrumentManager = () => {
               ] }) })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", className: "w-100", onClick: testConnection, disabled: testing, children: testing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
               "Testing Connection..."
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Wifi, { size: 16, className: "me-2" }),
@@ -99522,7 +99533,7 @@ const InstrumentManager = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAddModal(false), className: "me-2", children: "Cancel" }),
           wizardStep === 2 && (testResult == null ? void 0 : testResult.success) && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setWizardStep(3), children: "Next" }),
           wizardStep === 3 && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: saveInstrument, disabled: saving, children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
             "Saving..."
           ] }) : "Add Instrument" })
         ] })
@@ -99543,7 +99554,7 @@ const InstrumentManager = () => {
           className: "p-3 text-success font-monospace",
           style: { height: "400px", overflowY: "auto", fontSize: "12px", lineHeight: "1.5" },
           children: telemetryLoading && telemetryLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5 text-muted", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "info", size: "sm" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "info", size: "sm" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2", children: "Establishing analyzer connection listener stream..." })
           ] }) : telemetryLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-muted py-5 text-center", children: [
             "[SYSTEM] Waiting for socket communication line data packets from analyzer...",
@@ -99651,7 +99662,7 @@ const InstrumentManager = () => {
           ] }) })
         ] }),
         calibrationsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-2 text-muted", children: "Retrieving calibration records..." })
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, className: "align-middle mb-0 text-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -99897,7 +99908,7 @@ const LabTestParamsAdmin = () => {
   });
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading test parameters..." })
     ] });
   }
@@ -100377,7 +100388,7 @@ const LabPackageBuilder = () => {
   }, {});
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", children: "Loading packages..." })
     ] });
   }
@@ -100523,7 +100534,7 @@ const LabPackageBuilder = () => {
           " Cancel"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "success", onClick: handleSave, disabled: saving, children: [
-          saving ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 16, className: "me-1" }),
+          saving ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 16, className: "me-1" }),
           editingPackage ? "Update Package" : "Create Package"
         ] })
       ] })
@@ -100734,7 +100745,7 @@ Do you want to override this warning and upload the results anyway?`
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading laboratory data..." })
     ] });
   }
@@ -101699,7 +101710,7 @@ const PharmacyIPDOrdersPanel = ({ onOrderComplete }) => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm border-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mt-2 mb-0", children: "Loading IPD medication orders..." })
     ] }) });
   }
@@ -101966,7 +101977,7 @@ const PharmacyDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading pharmacy data..." })
     ] });
   }
@@ -102489,7 +102500,7 @@ const PharmacyDashboard = () => {
             onClick: handlePriceRequest,
             disabled: requestingPrice,
             children: [
-              requestingPrice ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+              requestingPrice ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
               "Submit Request"
             ]
           }
@@ -104111,7 +104122,7 @@ const AdvancePaymentModal = ({ show, onHide: onHide2, patientId, patientName, on
                   onChange: (e3) => handleSearch(e3.target.value)
                 }
               ),
-              searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) })
+              searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) })
             ] }),
             searchResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "position-absolute w-100 bg-white border rounded shadow-sm mt-1", style: { zIndex: 1e3 }, children: searchResults.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
@@ -104508,7 +104519,7 @@ const RefundModal = ({ show, onHide: onHide2, invoice, onSuccess }) => {
                   onChange: (e3) => handleSearch(e3.target.value)
                 }
               ),
-              searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) })
+              searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) })
             ] }),
             invoiceResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "position-absolute w-100 bg-white border rounded shadow-sm mt-1", style: { zIndex: 1e3 }, children: invoiceResults.map((inv) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
@@ -104891,7 +104902,7 @@ const NewInvoiceModal = ({ show, onHide: onHide2, onSuccess }) => {
                     onChange: (e3) => handleSearch(e3.target.value)
                   }
                 ),
-                searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) })
+                searching && /* @__PURE__ */ jsxRuntimeExports.jsx(InputGroup$1.Text, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) })
               ] }),
               searchResults.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "position-absolute w-100 bg-white border rounded shadow-sm mt-1", style: { zIndex: 1e3 }, children: searchResults.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
@@ -105099,7 +105110,7 @@ const NewInvoiceModal = ({ show, onHide: onHide2, onSuccess }) => {
           onClick: handleSubmit,
           disabled: !selectedPatient || lineItems.length === 0 || submitting,
           children: [
-            submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+            submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
             "Generate Invoice"
           ]
         }
@@ -105254,7 +105265,7 @@ const PaymentSettingsTab = ({ onClose }) => {
   ];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-lg", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading payment settings..." })
     ] }) });
   }
@@ -105594,7 +105605,7 @@ const PaymentSettingsTab = ({ onClose }) => {
             className: "d-flex align-items-center gap-2 px-4",
             style: { background: "linear-gradient(135deg, #10b981, #059669)", border: "none" },
             children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }),
               "Saving..."
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
@@ -106048,7 +106059,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-4 border-info", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { className: "bg-info bg-opacity-10 py-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "📋 What are the charges for?" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "py-2", children: loadingItems ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }),
           " Loading charges..."
         ] }) : invoiceItems.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "table table-sm mb-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -106261,8 +106272,8 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
                     onClick: handleSendToTerminal,
                     style: { height: "46px", marginTop: "24px" },
                     children: [
-                      posStatus === "sending" && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
-                      posStatus === "waiting" && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+                      posStatus === "sending" && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
+                      posStatus === "waiting" && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
                       posStatus === "idle" && "📤 Send to Terminal",
                       posStatus === "sending" && "Sending...",
                       posStatus === "waiting" && `Waiting... (${posTimeElapsed}s)`,
@@ -106389,7 +106400,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
           className: "px-4 fw-bold",
           style: { background: "linear-gradient(135deg, #10b981, #059669)", border: "none" },
           children: [
-            submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18, className: "me-1" }),
+            submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18, className: "me-1" }),
             "Confirm Payment"
           ]
         }
@@ -106474,7 +106485,7 @@ const LabPaymentsTab = () => {
   ];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "Loading pending lab payments..." })
     ] });
   }
@@ -106605,7 +106616,7 @@ const LabPaymentsTab = () => {
             onClick: handleCollectPayment,
             disabled: processing || !paymentMethod,
             children: processing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
               " Processing..."
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 16, className: "me-1" }),
@@ -106714,7 +106725,7 @@ const BillingLeakageTracker = () => {
   const totalItems = leakages.unbilledLabs.length + leakages.unbilledMeds.length + leakages.unbilledServices.length;
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm border-0", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "text-center py-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "sm" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "sm" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mt-2 mb-0", children: "Scanning for unbilled items..." })
     ] }) });
   }
@@ -107023,7 +107034,7 @@ const BillingQueueTab = ({ onInvoiceCreated }) => {
   );
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-center align-items-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ms-3", children: "Loading billing queue..." })
     ] });
   }
@@ -107119,7 +107130,7 @@ const BillingQueueTab = ({ onInvoiceCreated }) => {
             disabled: selectedCharges.length === 0 || creatingInvoice,
             onClick: handleCreateInvoice,
             children: [
-              creatingInvoice ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16, className: "me-1" }),
+              creatingInvoice ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 16, className: "me-1" }),
               "Create Invoice (",
               selectedCharges.length,
               ")"
@@ -107345,7 +107356,7 @@ const AgedTrialBalance = () => {
     }
   };
   if (loading && !data) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   const activeInvoices = data ? ((_a = data[activeBucket]) == null ? void 0 : _a.invoices) || [] : [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -107451,7 +107462,7 @@ const DailyRevenueReport = () => {
     setDateRange({ ...dateRange, [e3.target.name]: e3.target.value });
   };
   if (loading && !data) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm mb-4 bg-light", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex flex-wrap gap-3 align-items-end", children: [
@@ -107481,7 +107492,7 @@ const DailyRevenueReport = () => {
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", onClick: fetchReport, disabled: loading, className: "mb-1", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", onClick: fetchReport, disabled: loading, className: "mb-1", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Funnel, { size: 14, className: "me-1" }),
         " Apply"
       ] }) })
@@ -107618,7 +107629,7 @@ const AdvancedReportsDashboard = () => {
     return colors[index % colors.length];
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
@@ -107969,7 +107980,7 @@ const BillingDashboard = () => {
     };
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-4", children: [
     successMessage && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "success", className: "mb-3", onClose: () => setSuccessMessage(""), dismissible: true, children: [
@@ -108529,7 +108540,7 @@ Recommended Action: ${aging.action}`;
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "text-muted mb-2", children: "Billing Summary" }),
         loadingItems ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }),
           " Loading items..."
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, size: "sm", className: "mb-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -109359,7 +109370,7 @@ const WardManagement = () => {
     return assignment ? assignment.nurse_name : null;
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center min-vh-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center min-vh-100", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
@@ -110304,7 +110315,8 @@ const connectSocket = (token, hospitalId) => {
   socket.on("connect", () => {
     console.log("[Socket] Connected to Wolf HMS:", socket.id);
     socket.emit("join", `hospital_${hospitalId}`);
-    console.log(`[Socket] Joined hospital room: hospital_${hospitalId}`);
+    socket.emit("join", `hosp_${hospitalId}`);
+    console.log(`[Socket] Joined hospital rooms: hospital_${hospitalId}, hosp_${hospitalId}`);
   });
   socket.on("disconnect", (reason) => {
     console.log("[Socket] Disconnected:", reason);
@@ -110575,7 +110587,7 @@ const RadiologyDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading radiology data..." })
     ] });
   }
@@ -110941,7 +110953,7 @@ In production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewe
                   className: "w-100",
                   onClick: handleRunAI,
                   disabled: analyzing || aiAnalysis,
-                  children: analyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }) : aiAnalysis ? "AI Analysis Complete" : "⚡ Run AI Analysis"
+                  children: analyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }) : aiAnalysis ? "AI Analysis Complete" : "⚡ Run AI Analysis"
                 }
               ),
               aiAnalysis && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-start p-2 bg-light rounded small border", children: [
@@ -111732,7 +111744,7 @@ const ClaimsDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", children: "Loading claims..." })
     ] });
   }
@@ -112031,7 +112043,7 @@ const PreauthDashboard = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: message2.type, dismissible: true, onClose: () => setMessage({ type: "", text: "" }), children: message2.text }),
@@ -112369,7 +112381,7 @@ const CreatePreauthModal = ({ show, onHide: onHide2, onSuccess }) => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: onHide2, children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
           " Create Request"
         ] }) })
@@ -112432,7 +112444,7 @@ const AutomationDashboard = () => {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: config2[priority] || "secondary", children: priority });
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: message2.type, dismissible: true, onClose: () => setMessage({ type: "", text: "" }), children: message2.text }),
@@ -112737,7 +112749,7 @@ const POSDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3", children: "Loading POS Dashboard..." })
     ] });
   }
@@ -112837,7 +112849,7 @@ const POSDashboard = () => {
                     className: "me-1",
                     onClick: () => testConnection(device.id),
                     disabled: testingDevice === device.id,
-                    children: testingDevice === device.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    children: testingDevice === device.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
                       " Test"
                     ] })
@@ -113132,7 +113144,7 @@ const TPAManagement = () => {
   const getTestBadge = (code) => {
     const result = testResults[code];
     if (!result) return null;
-    if (result === "testing") return /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" });
+    if (result === "testing") return /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" });
     if (result === "success") return /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "success", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 12 }),
       " Connected"
@@ -113143,7 +113155,7 @@ const TPAManagement = () => {
     ] });
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "container-fluid py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
@@ -113548,7 +113560,7 @@ const ICD10Coder = ({ onCodesSelected, initialCodes = [] }) => {
               onChange: (e3) => setDiagnosisText(e3.target.value)
             }
           ),
-          loading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "input-group-text", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) })
+          loading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "input-group-text", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) })
         ] })
       ] }),
       error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", className: "py-2 small", dismissible: true, onClose: () => setError(null), children: error }),
@@ -113599,7 +113611,7 @@ const ICD10Coder = ({ onCodesSelected, initialCodes = [] }) => {
               variant: "outline-primary",
               onClick: validateAndAddManual,
               disabled: !manualCode || validatingManual,
-              children: validatingManual ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 })
+              children: validatingManual ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 })
             }
           ) })
         ] })
@@ -113727,7 +113739,7 @@ const BillingOptimizer = ({ invoiceData, claimData, onOptimized }) => {
           onClick: runFullAnalysis,
           disabled: loading,
           children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
             " Analyzing..."
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: "me-1" }),
@@ -113743,7 +113755,7 @@ const BillingOptimizer = ({ invoiceData, claimData, onOptimized }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Includes denial prediction, approval estimation, and pricing optimization" })
       ] }),
       loading && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "Running AI analysis..." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { animated: true, now: 100, className: "mt-3" })
       ] }),
@@ -114121,7 +114133,7 @@ const PatientLedger = ({ show, onHide: onHide2, patient, onPayInvoice }) => {
                 size: "sm",
                 disabled: processingPay || !quickPayAmount,
                 onClick: handleQuickPay,
-                children: processingPay ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Pay Now"
+                children: processingPay ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Pay Now"
               }
             )
           ] })
@@ -114130,7 +114142,7 @@ const PatientLedger = ({ show, onHide: onHide2, patient, onPayInvoice }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold text-muted mb-3", children: "Transaction History" }),
         error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", children: error }),
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) }) : ledger.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5 text-muted", children: [
+        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) }) : ledger.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5 text-muted", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Receipt, { size: 48, className: "mb-3 opacity-50" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No financial history found for this patient." })
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, className: "align-middle", children: [
@@ -114215,7 +114227,7 @@ const ARAgingChart$1 = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) }) });
   }
   const totalAmount = ((_a = data == null ? void 0 : data.totals) == null ? void 0 : _a.amount) || 1;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm h-100", children: [
@@ -114287,7 +114299,7 @@ const BillingKPIs = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) }) });
   }
   const getStatusIcon = (status) => {
     switch (status) {
@@ -114366,7 +114378,7 @@ const DenialStats$1 = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "d-flex justify-content-center py-4", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm h-100", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-white border-0 d-flex justify-content-between align-items-center", children: [
@@ -114554,7 +114566,7 @@ const FinanceDashboard = () => {
   ];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading finance data..." })
     ] });
   }
@@ -114887,7 +114899,7 @@ const FinanceDashboard = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowPaymentModal(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: handlePaymentSubmit, disabled: paymentLoading, children: paymentLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: handlePaymentSubmit, disabled: paymentLoading, children: paymentLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(IndianRupee, { size: 16, className: "me-1" }),
           " Record Payment"
         ] }) })
@@ -115236,7 +115248,7 @@ const DataGovernance = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Users$1, { size: 16, className: "me-1" }),
           " Find Duplicates"
         ] }),
-        loading && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm", className: "ms-2 mt-2" })
+        loading && /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm", className: "ms-2 mt-2" })
       ] }),
       scanResults && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h6", { className: "text-muted mb-3", children: [
@@ -115534,7 +115546,7 @@ const FeatureFlagsPanel = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "Loading features..." })
     ] });
   }
@@ -115566,7 +115578,7 @@ const FeatureFlagsPanel = () => {
             onClick: handleSave,
             disabled: !hasChanges || saving,
             children: [
-              saving ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 16, className: "me-1" }),
+              saving ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 16, className: "me-1" }),
               "Save Changes"
             ]
           }
@@ -116636,7 +116648,7 @@ const AIDemoPage = () => {
               disabled: checkingDrugs || medications.length < 2,
               className: "w-100",
               children: checkingDrugs ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
                 "Checking..."
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { size: 16, className: "me-2" }),
@@ -116701,7 +116713,7 @@ const AIDemoPage = () => {
               disabled: analyzingLabs,
               className: "w-100",
               children: analyzingLabs ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
                 "Analyzing..."
               ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Beaker, { size: 16, className: "me-2" }),
@@ -116784,7 +116796,7 @@ const AIDemoPage = () => {
             disabled: analyzeSymptoms || !symptoms.trim(),
             style: { background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)", border: "none" },
             children: analyzeSymptoms ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
               "Analyzing with AI..."
             ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Brain, { size: 16, className: "me-2" }),
@@ -117602,7 +117614,7 @@ const PriceApprovals = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold mb-4", children: "Approvals Management" }),
@@ -117651,7 +117663,7 @@ const PriceApprovals = () => {
                     onClick: () => handleAction(req.id, "approve"),
                     disabled: !!processingId,
                     children: [
-                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
                       "Approve"
                     ]
                   }
@@ -117732,7 +117744,7 @@ const PriceApprovals = () => {
                     onClick: () => handleLabAction(req.id, "approve"),
                     disabled: !!processingId,
                     children: [
-                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
                       "Approve"
                     ]
                   }
@@ -117814,7 +117826,7 @@ const PriceApprovals = () => {
                     onClick: () => handleWardAction(req.id, "approve"),
                     disabled: !!processingId,
                     children: [
-                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
                       "Approve"
                     ]
                   }
@@ -117883,7 +117895,7 @@ const PriceApprovals = () => {
                     onClick: () => handleEquipmentAction(req.id, "approve"),
                     disabled: !!processingId,
                     children: [
-                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
+                      processingId === req.id ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "me-1" }),
                       "Approve"
                     ]
                   }
@@ -117989,7 +118001,7 @@ const EquipmentApprovals = () => {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Container, { className: "d-flex justify-content-center align-items-center", style: { minHeight: "60vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
@@ -118261,7 +118273,7 @@ const AppointmentsPage = () => {
   ];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading appointments..." })
     ] });
   }
@@ -118562,7 +118574,7 @@ const PublicReportView = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary", size: "lg" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary", size: "lg" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3", children: "Loading Report..." })
     ] });
   }
@@ -119045,7 +119057,7 @@ const SurgicalBloodOrderModal = ({ show, onHide: onHide2, surgery, patient, onSu
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: onHide2, disabled: loading, children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", disabled: loading || !form.blood_group || !form.surgery_type, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
           " Reserving..."
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 16, className: "me-1" }),
@@ -119170,7 +119182,7 @@ const OTDashboard = () => {
     ] }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultActiveKey: "schedule", className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "schedule", title: "📅 OT Schedule", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { style: { height: "65vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "schedule", title: "📅 OT Schedule", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { style: { height: "65vh" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         Calendar$1,
         {
           localizer,
@@ -119728,7 +119740,7 @@ const PACDashboard = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "me-2 text-primary" }),
       "Pre-Anesthesia Checkup (PAC)"
     ] }),
-    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm", children: [
+    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { as: "h5", children: "Scheduled Surgeries Assessment Queue" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -119850,7 +119862,7 @@ const CSSDDashboard = () => {
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultActiveKey: "inventory", className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "inventory", title: "Inventory & Actions", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "inventory", title: "Inventory & Actions", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Select" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Set Name" }),
@@ -120397,7 +120409,7 @@ function BloodBankDashboard() {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-5 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "danger" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "danger" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3", children: "Loading Blood Bank..." })
     ] });
   }
@@ -121232,7 +121244,7 @@ const HousekeepingDashboard = () => {
         ] })
       ] }) })
     ] }) }) }),
-    loading && tasks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+    loading && tasks.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
       tasks.map((task) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, lg: 4, className: "mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "h-100 shadow-sm border-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: `d-flex justify-content-between align-items-center bg-${getPriorityColor(task.priority)}-subtle`, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: task.type }),
@@ -121401,7 +121413,7 @@ const DietaryDashboard = () => {
       ] }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(FilterBar, {}),
-    loading && orders.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) }) : orders.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "text-center py-5", children: [
+    loading && orders.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) }) : orders.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "text-center py-5", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Utensils, { size: 48, className: "mb-3 opacity-50" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "No active orders found." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Current filters matched 0 records." })
@@ -134968,7 +134980,7 @@ const AdminRecoveryConsole = () => {
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "outline-primary", children: "Search" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "p-0", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, className: "mb-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "p-0", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-5", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { hover: true, responsive: true, className: "mb-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "UHID" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Name" }),
@@ -135152,7 +135164,7 @@ const AdminRecoveryConsole = () => {
                 }
               )
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: entrySubmitting || !invoiceForm.patient_id, children: entrySubmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Create Invoice" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: entrySubmitting || !invoiceForm.patient_id, children: entrySubmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Create Invoice" })
           ] }) })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm h-100", children: [
@@ -135251,7 +135263,7 @@ const AdminRecoveryConsole = () => {
                 }
               )
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: entrySubmitting || !paymentForm.patient_id, children: entrySubmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Record Payment" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: entrySubmitting || !paymentForm.patient_id, children: entrySubmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Record Payment" })
           ] }) })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm", children: [
@@ -135434,7 +135446,7 @@ const AdminRecoveryConsole = () => {
             variant: modalMode === "delete" ? "danger" : modalMode === "restore" ? "success" : "primary",
             onClick: handleSubmit,
             disabled: processing,
-            children: processing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            children: processing ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               modalMode === "add" && "Create Patient",
               modalMode === "edit" && "Save Changes",
               modalMode === "delete" && "Confirm Delete",
@@ -137548,7 +137560,7 @@ const QualityDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading Quality Metrics..." })
     ] });
   }
@@ -137563,7 +137575,8 @@ const QualityDashboard = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "fw-bold mb-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { size: 24, className: "me-2 text-primary" }),
-          " Quality & NABH Compliance"
+          " Quality & NABH Compliance",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Hospital quality indicators and accreditation tracking" })
       ] }),
@@ -137720,7 +137733,7 @@ const WasteManagementDashboard = () => {
   const getCategoryInfo = (code) => WASTE_CATEGORIES.find((c2) => c2.code === code) || WASTE_CATEGORIES[4];
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "warning" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "warning" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading Waste Management Data..." })
     ] });
   }
@@ -139708,7 +139721,7 @@ const ICUDashboard = () => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { className: "p-0", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-muted mt-2", children: "Loading fluid charting ledger..." })
       ] }) : fluidLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5 text-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 36, className: "mb-2 opacity-50 text-secondary" }),
@@ -139828,7 +139841,7 @@ const ICUDashboard = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowIOModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Save Hourly Entry" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Save Hourly Entry" })
         ] })
       ] })
     ] }),
@@ -139890,7 +139903,7 @@ const ICUDashboard = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowVentModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Save Ventilator Telemetry" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Save Ventilator Telemetry" })
         ] })
       ] })
     ] })
@@ -140231,7 +140244,7 @@ const DentalDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-5 text-center bg-light min-vh-100", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading dental module..." })
     ] });
   }
@@ -140775,7 +140788,7 @@ const DentalDashboard = () => {
                   type: "submit",
                   disabled: submitting || !visitForm.chief_complaint,
                   style: { backgroundColor: "var(--mint-500)", borderColor: "var(--mint-500)" },
-                  children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Create Visit"
+                  children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Create Visit"
                 }
               )
             ] })
@@ -140854,7 +140867,7 @@ const DentalDashboard = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowProcModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting || !selectedProcCode, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Log Procedure" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting || !selectedProcCode, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Log Procedure" })
         ] })
       ] })
     ] }),
@@ -140947,7 +140960,7 @@ const DentalDashboard = () => {
               type: "submit",
               disabled: submitting,
               style: { backgroundColor: "var(--mint-500)", borderColor: "var(--mint-500)" },
-              children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Create Lab Order"
+              children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Create Lab Order"
             }
           )
         ] })
@@ -141196,7 +141209,7 @@ const OphthalmologyDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-5 text-center bg-light min-vh-100", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading ophthalmology module..." })
     ] });
   }
@@ -141504,7 +141517,7 @@ const OphthalmologyDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowVisitModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#6366f1", borderColor: "#6366f1" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Create Visit" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#6366f1", borderColor: "#6366f1" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Create Visit" })
         ] })
       ] })
     ] }),
@@ -141558,7 +141571,7 @@ const OphthalmologyDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowProcModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Log Procedure" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Log Procedure" })
         ] })
       ] })
     ] }),
@@ -141641,7 +141654,7 @@ const OphthalmologyDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowBiometryModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#6366f1", borderColor: "#6366f1" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Save Biometry" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#6366f1", borderColor: "#6366f1" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Save Biometry" })
         ] })
       ] })
     ] })
@@ -141909,7 +141922,7 @@ const OrthopedicDashboard = () => {
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-5 text-center bg-light min-vh-100", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading orthopedic module..." })
     ] });
   }
@@ -142195,7 +142208,7 @@ const OrthopedicDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowVisitModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#f97316", borderColor: "#f97316" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Create Visit" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#f97316", borderColor: "#f97316" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Create Visit" })
         ] })
       ] })
     ] }),
@@ -142250,7 +142263,7 @@ const OrthopedicDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowProcModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Log Procedure" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: submitting, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Log Procedure" })
         ] })
       ] })
     ] }),
@@ -142306,7 +142319,7 @@ const OrthopedicDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { className: "bg-light", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowImplantModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#f97316", borderColor: "#f97316" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", size: "sm" }) : "Add Implant" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", disabled: submitting, style: { backgroundColor: "#f97316", borderColor: "#f97316" }, children: submitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Add Implant" })
         ] })
       ] })
     ] })
@@ -142436,7 +142449,7 @@ const FHIRExplorer = () => {
               style: { maxWidth: "300px" }
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: fetchResource, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", animation: "border" }) : "▶ Execute" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: fetchResource, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", animation: "border" }) : "▶ Execute" })
         ] }) }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { defaultActiveKey: "json", className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "json", title: "📄 JSON Response", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "shadow-sm border-0", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { style: { maxHeight: "500px", overflow: "auto" }, children: rawJson ? /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: { fontFamily: "monospace", fontSize: "0.8rem", whiteSpace: "pre-wrap", margin: 0 }, children: rawJson }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center text-muted py-5", children: [
@@ -144222,7 +144235,7 @@ const ERPSyncDashboard = () => {
           disabled: loading,
           style: { backgroundColor: "#13c2c2", borderColor: "#13c2c2", color: "#fff" },
           children: [
-            loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }) : "🔄 ",
+            loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }) : "🔄 ",
             "Force Manual Sync"
           ]
         }
@@ -144933,7 +144946,7 @@ const RouteReplay = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small text-muted mb-1", children: "To" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "date", value: dateTo, onChange: (e3) => setDateTo(e3.target.value), size: "sm" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, className: "d-flex align-items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", onClick: fetchTrail, disabled: loading || !staffId, className: "w-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "Load Trail" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, className: "d-flex align-items-end", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", onClick: fetchTrail, disabled: loading || !staffId, className: "w-100", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "Load Trail" }) })
       ] }),
       error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-warning py-2 small", children: error }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 400, borderRadius: 12, overflow: "hidden", border: "1px solid #dee2e6" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -145235,7 +145248,7 @@ const StaffLocationDashboard = () => {
           )
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { height: 448, overflowY: "auto" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center p-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
           "Loading..."
         ] }) : error ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center p-4 text-muted", children: error }) : filteredStaff.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center p-4 text-muted", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { size: 32, className: "mb-2 opacity-50" }),
@@ -151200,7 +151213,7 @@ const TreatmentPackageManager = () => {
       ] }) }) })
     ] }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "primary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "primary" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "Loading packages..." })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "catalog", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
@@ -151460,7 +151473,7 @@ const TreatmentPackageManager = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowCreateModal(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: handleCreatePackage, disabled: saving || !formData.code || !formData.name || !formData.base_price, children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
           "Saving..."
         ] }) : "✅ Create Package" })
       ] })
@@ -151506,7 +151519,7 @@ const TreatmentPackageManager = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAssignModal(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: handleAssignPackage, disabled: saving || !assignData.patient_id || !assignData.package_id, children: saving ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-1" }),
           "Assigning..."
         ] }) : "Assign Package" })
       ] })
@@ -152609,7 +152622,7 @@ const EnterpriseAIDashboard = () => {
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", className: "w-100", onClick: loadOpsData, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "🔄 Refresh All Ops Data" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", className: "w-100", onClick: loadOpsData, disabled: loading, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "🔄 Refresh All Ops Data" })
     ] });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-4", style: { background: "#f0f2f5", minHeight: "100vh" }, children: [
@@ -152633,7 +152646,7 @@ const EnterpriseAIDashboard = () => {
       ] })
     ] }),
     loading && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "position-fixed bottom-0 end-0 m-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "dark", className: "px-3 py-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm", className: "me-2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm", className: "me-2" }),
       " Processing AI request..."
     ] }) })
   ] });
@@ -152723,7 +152736,7 @@ const SecurityDashboard = () => {
   };
   if (loading && !stats) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4 text-center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { animation: "border", variant: "info" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", variant: "info" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", children: "Loading Security Dashboard..." })
     ] });
   }
@@ -152734,7 +152747,7 @@ const SecurityDashboard = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Enterprise Login Security • Phase 9B" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { xs: "auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-light", size: "sm", onClick: fetchAll, disabled: loading, children: [
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner$1, { size: "sm" }) : "🔄",
+        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { size: "sm" }) : "🔄",
         " Refresh"
       ] }) })
     ] }),
@@ -153738,7 +153751,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-DImIPDkk.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-TKPw_bxC.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),

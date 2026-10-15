@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, Badge, Button, Form, Modal, ProgressBar, Col
 import { CheckSquare, Clock, AlertTriangle, Heart, Thermometer, Activity, Pill, Bed, Zap, Shield, Flame, Lock, User, ChevronDown, ChevronUp, Plus, X, Search, ClipboardList, UserCheck, LayoutGrid, List, LogOut } from 'lucide-react';
 import api from '../utils/axiosInstance';
 import CareTaskBoard from '../components/CareTaskBoard';
-import { io } from '../utils/socket-stub';
+import { io } from 'socket.io-client';
 import NursePatientProfile from '../components/NursePatientProfile';
 import FloatingAIButton from '../components/FloatingAIButton';
 import EmergencyProtocolGuide from '../components/EmergencyProtocolGuide';
@@ -237,6 +237,10 @@ const WardDashboard = () => {
 
         socket.on('connect', () => {
             console.log('✅ Ward Dashboard Connected to Socket');
+            window.__wardSocketConnected = true;
+            window.__wardSocket = socket;
+            socket.emit('join', 'hospital_1');
+            socket.emit('join', 'hosp_1');
         });
 
         socket.on('clinical_update', (data) => {

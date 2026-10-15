@@ -33,6 +33,7 @@ test.describe('Multi-tab realtime sync', () => {
         await pageA.goto('/');
         await pageB.goto('/ward');
         await expect(pageB.locator('body')).toBeVisible();
+        await pageB.waitForFunction(() => window.__wardSocketConnected === true, null, { timeout: 10_000 });
 
         // Arm a DOM observer BEFORE triggering so latency excludes test polling
         await pageB.evaluate(() => {

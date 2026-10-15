@@ -39,14 +39,19 @@ let socket = null;
  * This function matches the pattern expected by dashboard components
  */
 export const io = (url = SOCKET_URL, options = {}) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const targetUrl = url && url !== '/' ? url : (import.meta.env.VITE_SOCKET_URL || SOCKET_URL);
+    const authOptions = token ? { auth: { token }, extraHeaders: { Authorization: `Bearer ${token}` } } : {};
+
     if (!socket) {
-        console.log('[Socket.IO] Connecting to:', SOCKET_URL);
-        socket = socketIO(SOCKET_URL, {
+        console.log('[Socket.IO] Connecting to:', targetUrl);
+        socket = socketIO(targetUrl, {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             timeout: 20000,
+            ...authOptions,
             ...options
         });
 

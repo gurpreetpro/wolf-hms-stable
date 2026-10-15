@@ -44,10 +44,11 @@ not hope. Production (`185.213.27.158`) was never touched — all work is local
 * 500-hunter residual: **134 critical 5xx** (full sweep) / **43** (demo profile) — root cause is
   local schema drift (reduced dump: no `medicine_orders`, `telehealth_sessions`, `geofences`,
   `hospital_buildings`, …), triaged in `plans/500-hunter-known-issues.md`. Reproduce: `npm run qa:500-hunter`.
-* `client/e2e/socket-sync.spec.js` fails: the ward banner is driven by `GET /api/emergency/status`
-  on load, but the `emergency_broadcast` push does **not** land in a second tab within the 300 ms
-  budget. Evidence + hypothesis (room-name mismatch `hosp_<id>` server-side vs `hospital_<id>`
-  client-side, plus unstable direct-to-8080 websocket transport in dev) recorded in the report.
+* `client/e2e/socket-sync.spec.js` [FIXED]: Socket.IO room mismatch resolved by joining both `hosp_${id}`
+  and `hospital_${id}` rooms and attaching `req.io = io` in `server-cloud.js`/`server.js`. Vite proxy
+  configured for `/socket.io` with WebSocket support. Test passes with latency well under 300ms budget.
+* `/admin/quality` Bucket C neutral badge [FIXED]: Added `<Badge bg="secondary">Module not enabled</Badge>`
+  to `QualityDashboard.jsx`. Rebuilt `client/dist` and synced to `server/public/`. Rehearsal report passes 0 uncaught errors.
 * `/api/ipd/*` mixes UUID and INTEGER admission ids (`invalid input syntax for type uuid: "16"`).
 
 ### Local conventions learned the hard way

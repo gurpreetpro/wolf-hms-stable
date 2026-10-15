@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-10-15T13:22:43.140Z",
+  "budgetMs": 300,
+  "emergencyId": "c3c1030e-cdbc-42e1-9fd6-cc24da689c48",
+  "broadcast": {
+    "measuredMs": 142,
+    "verdict": "PASS"
+  },
+  "resolve": {
+    "measuredMs": 73,
+    "verdict": "PASS"
+  },
+  "note": "Latency = trigger/resolve request start -> DOM mutation observed in the second browser context (same host clock)."
+}

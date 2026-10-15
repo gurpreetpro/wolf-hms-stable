@@ -87,6 +87,7 @@ const triggerCodeBlue = asyncHandler(async (req, res) => {
     if (req.io) {
         req.io.emit('emergency_broadcast', payload);
         req.io.to(`hosp_${hospitalId}`).emit('emergency_broadcast', payload);
+        req.io.to(`hospital_${hospitalId}`).emit('emergency_broadcast', payload);
     }
 
     ResponseHandler.success(res, payload, alertMsg);
@@ -195,6 +196,11 @@ const resolveEmergency = asyncHandler(async (req, res) => {
             resolved_at: new Date()
         });
         req.io.to(`hosp_${hospitalId}`).emit('emergency_resolved', {
+            id: targetId,
+            resolved_by: resolvedByName,
+            resolved_at: new Date()
+        });
+        req.io.to(`hospital_${hospitalId}`).emit('emergency_resolved', {
             id: targetId,
             resolved_by: resolvedByName,
             resolved_at: new Date()

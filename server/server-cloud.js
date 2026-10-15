@@ -47,6 +47,12 @@ const io = new Server(server, {
 const { attachAdapter } = require('./services/socketCluster');
 attachAdapter(io, process.env.REDIS_URL);
 
+// Attach io to request
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Basic middleware
 app.use(helmet({ 
     contentSecurityPolicy: false, 
@@ -122,7 +128,7 @@ app.use(cookieParser());
 // Rate limiting
 let limiterConfig = {
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: process.env.NODE_ENV === 'production' ? 500 : (Number(process.env.RATE_LIMIT_MAX) || 50000),
   message: { error: 'Too many requests' }
 };
 
@@ -593,11 +599,12 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     console.log(`Socket connected: ${socket.id} | User: ${socket.user.username} | Hospital: ${socket.user.hospital_id}`);
     
-    // Join Hospital-Specific Room
-    const hospitalId = socket.user.hospital_id;
+    // Join Hospital-Specific Room (both naming conventions for compatibility)
+    const hospitalId = socket.user?.hospital_id || 1;
     if (hospitalId) {
         socket.join(`hospital_${hospitalId}`);
-        console.log(`Socket ${socket.id} joined room: hospital_${hospitalId}`);
+        socket.join(`hosp_${hospitalId}`);
+        console.log(`Socket ${socket.id} joined rooms: hospital_${hospitalId}, hosp_${hospitalId}`);
     }
 
     socket.on('disconnect', () => {
