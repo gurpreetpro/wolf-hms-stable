@@ -7,7 +7,10 @@
     "start": "node server-cloud.js",
     "dev": "nodemon server.js",
     "migrate": "node apply_cloud_migrations.js",
-    "test": "jest"
+    "test": "jest",
+    "demo:seed": "node scripts/seed-demo-hospital.js",
+    "demo:backup": "node scripts/backup-demo-snapshot.js",
+    "demo:restore": "node scripts/restore-demo-snapshot.js"
   },
   "engines": {
     "node": ">=20.0.0"

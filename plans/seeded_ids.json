@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-10-15T11:36:26.092Z",
+  "hospitalId": 1,
+  "database": "hospital_db",
+  "demoLogins": {
+    "admin": {
+      "username": "admin",
+      "password": "password123",
+      "role": "admin"
+    },
+    "doctor": {
+      "username": "doctor_demo",
+      "password": "password123",
+      "role": "doctor"
+    },
+    "nurse": {
+      "username": "nurse_demo",
+      "password": "password123",
+      "role": "nurse"
+    }
+  },
+  "patients": {
+    "opdTriage": "a0000000-0000-4000-8000-000000000001",
+    "aiSafety": "b0000000-0000-4000-8000-000000000001",
+    "icu": "d0000000-0000-4000-8000-000000000001",
+    "billing": "e0000000-0000-4000-8000-000000000002"
+  },
+  "patientId": "a0000000-0000-4000-8000-000000000001",
+  "admissionId": 15,
+  "invoiceId": 107,
+  "paidInvoiceId": 106,
+  "labOrderId": 10,
+  "radiologyOrderId": 1,
+  "doctorId": 127,
+  "nurseId": 128,
+  "icuWardId": 6
+}
