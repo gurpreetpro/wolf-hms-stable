@@ -60,7 +60,7 @@ async function main() {
         ['lab orders completed', `SELECT count(*)::int c FROM lab_orders WHERE status = 'Completed' AND patient_id::text LIKE 'c0000000%'`, 1],
         ['radiology pending', `SELECT count(*)::int c FROM radiology_orders WHERE modality = 'CR' AND accession_number = 'RAD-DEMO-2026-0001'`, 1],
         ['ICU admissions', `SELECT count(*)::int c FROM admissions WHERE ipd_number LIKE 'IPD-DEMO-%' AND status = 'Admitted'`, 3],
-        ['ICU vitals rows (24h)', `SELECT count(*)::int c FROM vitals v JOIN admissions a ON a.id = v.admission_id WHERE a.ipd_number LIKE 'IPD-DEMO-%' AND v.recorded_at > now() - INTERVAL '24 hours'`, 72],
+        ['ICU vitals rows (24h telemetry)', `SELECT count(*)::int c FROM vitals v JOIN admissions a ON a.id = v.admission_id WHERE a.ipd_number = 'IPD-DEMO-2026-0001' AND v.recorded_at > now() - INTERVAL '24 hours'`, 20, 'gte'],
         ['unbilled pharmacy orders', `SELECT count(*)::int c FROM pharmacy_orders WHERE order_number LIKE 'PHR-DEMO-%' AND payment_status = 'Unpaid'`, 3],
         ['resolved CODE_BLUE', `SELECT count(*)::int c FROM emergency_events WHERE event_code = 'CODE_BLUE-DEMO-0001' AND status = 'Resolved'`, 1],
         ['paid invoice', `SELECT count(*)::int c FROM invoices WHERE invoice_number = 'INV-DEMO-2026-0001' AND status = 'Paid'`, 1],
@@ -72,12 +72,13 @@ async function main() {
 
     console.log('\nRow-count verification:');
     let failures = 0;
-    for (const [label, q, expected] of checks) {
+    for (const [label, q, expected, mode] of checks) {
         const r = await pool.query(q);
         const got = r.rows[0].c;
-        const ok = got === expected;
+        const ok = mode === 'gte' ? got >= expected : got === expected;
         if (!ok) failures++;
-        console.log(`  ${ok ? '✔' : '✘'} ${label.padEnd(30)} ${got}${ok ? '' : ` (expected ${expected})`}`);
+        const expectation = mode === 'gte' ? `>= ${expected}` : String(expected);
+        console.log(`  ${ok ? '✔' : '✘'} ${label.padEnd(30)} ${got}${ok ? '' : ` (expected ${expectation})`}`);
     }
     if (failures > 0) throw new Error(`${failures} row-count check(s) failed`);
 

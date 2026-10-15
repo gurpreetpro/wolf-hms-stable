@@ -1,0 +1,654 @@
+{
+  "generatedAt": "2026-10-15T12:44:33.106Z",
+  "baseUrl": "http://127.0.0.1:8080",
+  "routesScanned": 237,
+  "counts": {
+    "ok": 179,
+    "nonCrash": 18,
+    "authBlocked": 0,
+    "critical": 40,
+    "rateLimited": 0
+  },
+  "critical_500_count": 40,
+  "signatures": {
+    "UNKNOWN": 35,
+    "SCHEMA_GAP": 4,
+    "UUID_MISMATCH": 1
+  },
+  "buckets": {
+    "A": 234,
+    "B": 3
+  },
+  "criticalRoutes": [
+    {
+      "url": "/api/auth/update-security",
+      "status": 500,
+      "family": "authRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/billing/ar-aging",
+      "status": 500,
+      "family": "billingRoutes",
+      "bucket": "A",
+      "signature": "SCHEMA_GAP",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"column \\\"paid_amount\\\" does not exist\"}"
+    },
+    {
+      "url": "/api/billing/kpis",
+      "status": 500,
+      "family": "billingRoutes",
+      "bucket": "A",
+      "signature": "SCHEMA_GAP",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"column \\\"paid_amount\\\" does not exist\"}"
+    },
+    {
+      "url": "/api/clinical/history/1",
+      "status": 500,
+      "family": "clinicalRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/finance/ledger/1",
+      "status": 500,
+      "family": "financeRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/ipd/admission-status",
+      "status": 500,
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "signature": "UUID_MISMATCH",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to check admission status: invalid input syntax for type uuid: \\\"16\\\"\"}"
+    },
+    {
+      "url": "/api/ipd/current-charges",
+      "status": 500,
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to get charges\"}"
+    },
+    {
+      "url": "/api/ipd/diet-plan",
+      "status": 500,
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to get diet plan\"}"
+    },
+    {
+      "url": "/api/ipd/discharge-progress",
+      "status": 500,
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to get discharge progress\"}"
+    },
+    {
+      "url": "/api/ipd/vitals",
+      "status": 500,
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to get vitals\"}"
+    },
+    {
+      "url": "/api/lab/public/report/10",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/lab/qc/results/10",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/lab/result/10/versions",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/lab/test/10/parameters",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"message\":\"Server error\"}"
+    },
+    {
+      "url": "/api/lab/trends/10",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/lab/trends/10/10",
+      "status": 500,
+      "family": "labRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/medicine-orders/1",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch order\"}"
+    },
+    {
+      "url": "/api/medicine-orders/1/refund-status",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch refund status\"}"
+    },
+    {
+      "url": "/api/medicine-orders/delivery-settings",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch settings\"}"
+    },
+    {
+      "url": "/api/medicine-orders/my-orders",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch orders\"}"
+    },
+    {
+      "url": "/api/medicine-orders/pharmacy/queue",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch queue\"}"
+    },
+    {
+      "url": "/api/medicine-orders/pharmacy/refund-queue",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch refund queue\"}"
+    },
+    {
+      "url": "/api/medicine-orders/pharmacy/runners",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch runners\"}"
+    },
+    {
+      "url": "/api/medicine-orders/pharmacy/verification-queue",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch queue\"}"
+    },
+    {
+      "url": "/api/medicine-orders/staff/jobs",
+      "status": 500,
+      "family": "medicineOrderRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to fetch jobs\"}"
+    },
+    {
+      "url": "/api/patients/app/doctor-slots/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/app/lab-report/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/app/lab-report/a0000000-0000-4000-8000-000000000001/html",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "Error generating report"
+    },
+    {
+      "url": "/api/patients/app/lab-results/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/app/pharmacy-orders",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/patients/app/pharmacy-orders/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/app/prescriptions/a0000000-0000-4000-8000-000000000001/pdf",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "SCHEMA_GAP",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"column u.license_number does not exist\"}"
+    },
+    {
+      "url": "/api/patients/doctor-slots/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/lab-report/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/lab-report/a0000000-0000-4000-8000-000000000001/html",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "Error generating report"
+    },
+    {
+      "url": "/api/patients/lab-results/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/pharmacy-orders",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    },
+    {
+      "url": "/api/patients/pharmacy-orders/a0000000-0000-4000-8000-000000000001",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "url": "/api/patients/prescriptions/a0000000-0000-4000-8000-000000000001/pdf",
+      "status": 500,
+      "family": "patientRoutes",
+      "bucket": "A",
+      "signature": "SCHEMA_GAP",
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"column u.license_number does not exist\"}"
+    },
+    {
+      "url": "/api/pharmacy/price-requests",
+      "status": 500,
+      "family": "pharmacyRoutes",
+      "bucket": "A",
+      "signature": "UNKNOWN",
+      "error": null,
+      "bodySnippet": "{\"error\":\"Internal Server Error\"}"
+    }
+  ],
+  "nonCritical": [
+    {
+      "url": "/api/auth/profile",
+      "status": 404,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 8
+    },
+    {
+      "url": "/api/hospitals/resolve/1",
+      "status": 404,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 3
+    },
+    {
+      "url": "/api/lab/package/10/full",
+      "status": 404,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 8
+    },
+    {
+      "url": "/api/lab/reagents/10/forecast",
+      "status": 404,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 8
+    },
+    {
+      "url": "/api/patients/app/billing-history",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "url": "/api/patients/app/check-patient",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "url": "/api/patients/app/lab-orders",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 4
+    },
+    {
+      "url": "/api/patients/app/medications",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 5
+    },
+    {
+      "url": "/api/patients/app/my-appointments",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 4
+    },
+    {
+      "url": "/api/patients/app/prescriptions",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 5
+    },
+    {
+      "url": "/api/patients/app/profile",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 7
+    },
+    {
+      "url": "/api/patients/billing-history",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "url": "/api/patients/check-patient",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 5
+    },
+    {
+      "url": "/api/patients/lab-orders",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "url": "/api/patients/medications",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 7
+    },
+    {
+      "url": "/api/patients/my-appointments",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 3
+    },
+    {
+      "url": "/api/patients/prescriptions",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 7
+    },
+    {
+      "url": "/api/patients/profile",
+      "status": 400,
+      "verdict": "NON_CRASH",
+      "signature": null,
+      "error": null,
+      "ms": 39
+    }
+  ],
+  "slowest": [
+    {
+      "method": "GET",
+      "path": "/api/charges",
+      "url": "/api/charges",
+      "family": "chargesRoutes",
+      "bucket": "B",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 213,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/lab/qc/materials",
+      "url": "/api/lab/qc/materials",
+      "family": "labRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 158,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/care-plan/{}",
+      "url": "/api/nurse/care-plan/1",
+      "family": "nurseRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 154,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/patients/lab-results/{}",
+      "url": "/api/patients/lab-results/a0000000-0000-4000-8000-000000000001",
+      "family": "patientRoutes",
+      "bucket": "A",
+      "status": 500,
+      "verdict": "CRITICAL",
+      "signature": "UNKNOWN",
+      "ms": 150,
+      "error": null,
+      "bodySnippet": "{\"success\":false,\"error\":\"invalid input syntax for type integer: \\\"a0000000-0000-4000-8000-000000000001\\\"\"}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ipd/diet-plan",
+      "url": "/api/ipd/diet-plan",
+      "family": "ipdPatientRoutes",
+      "bucket": "A",
+      "status": 500,
+      "verdict": "CRITICAL",
+      "signature": "UNKNOWN",
+      "ms": 149,
+      "error": null,
+      "bodySnippet": "{\"error\":\"Failed to get diet plan\"}"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/shift-handover",
+      "url": "/api/nurse/shift-handover",
+      "family": "nurseRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 106,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/charges/summary",
+      "url": "/api/charges/summary",
+      "family": "chargesRoutes",
+      "bucket": "B",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 67,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/ward-overview",
+      "url": "/api/nurse/ward-overview",
+      "family": "nurseRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 64,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/lab/analytics/revenue",
+      "url": "/api/lab/analytics/revenue",
+      "family": "labRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 45,
+      "error": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/pharmacy/purchase-orders",
+      "url": "/api/pharmacy/purchase-orders",
+      "family": "pharmacyRoutes",
+      "bucket": "A",
+      "status": 200,
+      "verdict": "OK",
+      "signature": null,
+      "ms": 45,
+      "error": null
+    }
+  ]
+}

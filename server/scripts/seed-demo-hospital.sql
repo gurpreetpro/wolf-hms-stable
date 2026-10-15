@@ -15,17 +15,18 @@
 BEGIN;
 
 -- ---------------------------------------------------------------------
--- 1. Tenant 1 branding (realistic, no placeholders)
+-- 1. Tenant 1 profile — fill in realistic details WITHOUT renaming the
+--    tenant (contract test tests/contract/slowQueryTelemetry.test.js pins
+--    hospitals.id=1 name).
 -- ---------------------------------------------------------------------
 UPDATE hospitals
-   SET name = 'Kokila Multispeciality Hospital',
-       city = 'Pune',
-       state = 'Maharashtra',
-       country = 'India',
-       address = 'Plot 14, Baner Road, Baner',
-       phone = '+91 20 4123 4500',
-       email = 'frontdesk@kokilahospital.in',
-       status = 'active',
+   SET city = COALESCE(city, 'Pune'),
+       state = COALESCE(state, 'Maharashtra'),
+       country = COALESCE(country, 'India'),
+       address = COALESCE(address, 'Plot 14, Baner Road, Baner'),
+       phone = COALESCE(phone, '+91 20 4123 4500'),
+       email = COALESCE(email, 'frontdesk@kokilahospital.in'),
+       status = COALESCE(status, 'active'),
        updated_at = now()
  WHERE id = 1;
 
@@ -192,6 +193,31 @@ SELECT 1, 'c0000000-0000-4000-8000-000000000004'::uuid, 'RAD-DEMO-2026-0001', 'C
  WHERE NOT EXISTS (
         SELECT 1 FROM radiology_orders ro WHERE ro.accession_number = 'RAD-DEMO-2026-0001'
    );
+
+-- The Lab module (server/controllers/labController.js) reads `lab_requests`, NOT
+-- `lab_orders` — both are populated so the worklist and the IPD order feed agree.
+INSERT INTO lab_requests (patient_id, test_type_id, test_name, doctor_id, status, requested_at, priority, hospital_id, notes, payment_status, payment_amount)
+SELECT v.patient_id,
+       (SELECT id FROM lab_test_types ltt WHERE ltt.name = v.test_name AND ltt.hospital_id = 1 LIMIT 1),
+       v.test_name, (SELECT id FROM users WHERE username = 'doctor_demo'),
+       v.status, v.requested_at, v.priority, 1, v.notes, 'Pending', 0
+  FROM (VALUES
+        ('c0000000-0000-4000-8000-000000000001'::uuid, 'Complete Blood Count (CBC)', now() - INTERVAL '4 hours',  'Routine', 'Pending',   'Rule out dengue — sample collected at 08:15'),
+        ('c0000000-0000-4000-8000-000000000002'::uuid, 'Liver Function Test (LFT)',  now() - INTERVAL '3 hours',  'Routine', 'Pending',   'Screening before starting statin therapy'),
+        ('c0000000-0000-4000-8000-000000000003'::uuid, 'Complete Blood Count (CBC)', now() - INTERVAL '26 hours', 'Routine', 'Completed', 'Analyzer Sysmex XN-1000, verified by pathologist')
+       ) AS v(patient_id, test_name, requested_at, priority, status, notes)
+ WHERE NOT EXISTS (
+        SELECT 1 FROM lab_requests lr
+         WHERE lr.patient_id = v.patient_id AND lr.test_name = v.test_name
+   );
+
+UPDATE lab_requests
+   SET result_json = '{"analyzer":"Sysmex XN-1000","verified_by":"Dr. S. Kadam (Pathology)","parameters":[{"key":"hb","label":"Haemoglobin","value":14.2,"unit":"g/dL","ref":"13.0-17.0"},{"key":"wbc","label":"Total Leucocyte Count","value":8600,"unit":"/uL","ref":"4000-11000"},{"key":"plt","label":"Platelet Count","value":245000,"unit":"/uL","ref":"150000-450000"},{"key":"hct","label":"Haematocrit","value":42.5,"unit":"%","ref":"40-50"},{"key":"mcv","label":"MCV","value":88.4,"unit":"fL","ref":"83-101"}]}'::jsonb,
+       report_generated_at = now() - INTERVAL '20 hours',
+       sample_collected = true,
+       sample_collected_at = now() - INTERVAL '25 hours'
+ WHERE patient_id = 'c0000000-0000-4000-8000-000000000003'::uuid
+   AND test_name = 'Complete Blood Count (CBC)';
 
 -- ---------------------------------------------------------------------
 -- 8. COHORT D — IPD & ICU: 3 admitted patients, ICU beds assigned,

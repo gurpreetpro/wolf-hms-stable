@@ -30,7 +30,17 @@ class POSServiceManager {
     async getProviderByCode(code) { const result = await pool.query(`SELECT * FROM pos_providers WHERE code = $1`, [code]); return result.rows[0]; }
 
     // Device Management - Multi-Tenant
-    async getDevices(hospitalId, filters = {}) { let query = `SELECT d.*, p.name as provider_name, p.code as provider_code, p.logo_url as provider_logo FROM pos_devices d JOIN pos_providers p ON d.provider_id = p.id WHERE (d.hospital_id = $1 OR d.hospital_id IS NULL)`; const params = [hospitalId]; if (filters.status) { params.push(filters.status); query += ` AND d.status = $${params.length}`; } if (filters.department) { params.push(filters.department); query += ` AND d.department = $${params.length}`; } if (filters.location) { params.push(`%${filters.location}%`); query += ` AND d.location ILIKE $${params.length}`; } if (filters.provider) { params.push(filters.provider); query += ` AND p.code = $${params.length}`; } query += ` ORDER BY d.location, d.device_name`; const result = await pool.query(query, params); return result.rows; }
+    // NOTE (QA-P2 fix): `posController.getDevices` and `POSRoutingService` call this
+    // with a single filters object, while this signature expects (hospitalId, filters).
+    // The mismatch bound an object to $1 (500: invalid input syntax for type integer)
+    // and dropped the tenancy predicate. Accept either calling convention.
+    async getDevices(hospitalId, filters = {}) {
+        if (hospitalId && typeof hospitalId === 'object') {
+            filters = hospitalId;
+            hospitalId = filters.hospital_id;
+        }
+        if (hospitalId === undefined || hospitalId === null) hospitalId = 1; // single-tenant dev default
+        let query = `SELECT d.*, p.name as provider_name, p.code as provider_code, p.logo_url as provider_logo FROM pos_devices d JOIN pos_providers p ON d.provider_id = p.id WHERE (d.hospital_id = $1 OR d.hospital_id IS NULL)`; const params = [hospitalId]; if (filters.status) { params.push(filters.status); query += ` AND d.status = $${params.length}`; } if (filters.department) { params.push(filters.department); query += ` AND d.department = $${params.length}`; } if (filters.location) { params.push(`%${filters.location}%`); query += ` AND d.location ILIKE $${params.length}`; } if (filters.provider) { params.push(filters.provider); query += ` AND p.code = $${params.length}`; } query += ` ORDER BY d.location, d.device_name`; const result = await pool.query(query, params); return result.rows; }
 
     async getDevice(deviceId, hospitalId = null) { let query = `SELECT d.*, p.name as provider_name, p.code as provider_code FROM pos_devices d JOIN pos_providers p ON d.provider_id = p.id WHERE (d.id = $1 OR d.device_id = $1)`; const params = [deviceId]; if (hospitalId) { query += ` AND (d.hospital_id = $2 OR d.hospital_id IS NULL)`; params.push(hospitalId); } const result = await pool.query(query, params); return result.rows[0]; }
 

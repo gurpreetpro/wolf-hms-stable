@@ -1,0 +1,200 @@
+[
+  {
+    "at": "2026-10-15T12:14:34.155Z",
+    "label": "1a. login + /opd render",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "console.error",
+        "message": "[Socket.IO] Connection error: Authentication error: No token provided"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-15T12:14:38.053Z",
+    "label": "1a. login + /opd render",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "console.error",
+        "message": "[Socket.IO] Connection error: Authentication error: No token provided"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/settings/hospital-profile",
+        "bucket": "A",
+        "family": "settingsRoutes"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-15T12:18:45.631Z",
+    "label": "2a. /doctor render",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/specialties",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/specialties",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/stats",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/stats",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      }
+    ],
+    "warnings": []
+  },
+  {
+    "at": "2026-10-15T12:18:50.504Z",
+    "label": "2a. /doctor render",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/specialties",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/specialties",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/stats",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/govt-schemes/cghs/stats",
+        "bucket": "A",
+        "family": "govtSchemeRoutes"
+      }
+    ],
+    "warnings": []
+  },
+  {
+    "at": "2026-10-15T12:28:16.022Z",
+    "label": "5b. /billing render + invoice list",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/pos/devices",
+        "bucket": "B",
+        "family": "posRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/pos/devices",
+        "bucket": "B",
+        "family": "posRoutes"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "[Socket.IO] Connection error: Authentication error: No token provided"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-15T12:28:35.200Z",
+    "label": "5b. /billing render + invoice list",
+    "violations": [
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/pos/devices",
+        "bucket": "B",
+        "family": "posRoutes"
+      },
+      {
+        "kind": "http-5xx",
+        "status": 500,
+        "url": "/api/pos/devices",
+        "bucket": "B",
+        "family": "posRoutes"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "[Socket.IO] Connection error: Authentication error: No token provided"
+      }
+    ]
+  }
+]

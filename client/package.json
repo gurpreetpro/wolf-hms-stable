@@ -9,6 +9,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:demo": "playwright test e2e/golden-clinical-journey.spec.js",
+    "test:e2e:realtime": "playwright test e2e/socket-sync.spec.js e2e/demo-rehearsal.spec.js",
+    "test:e2e:rehearsal4g": "node e2e/run-rehearsal.cjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -32,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.64.1",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",

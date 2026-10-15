@@ -4,7 +4,111 @@
 
 ## Last Updated
 
-2026-09-18
+2026-10-15
+
+## Session 2026-10-15 — PRE-DEMO QA FUNNEL (Phases 0–5, local-only, zero prod contact)
+
+**Mission:** build a repeatable 5-stage verification funnel so the founder can demo with evidence,
+not hope. Production (`185.213.27.158`) was never touched — all work is local
+(`server-cloud.js` on `127.0.0.1:8080`, `hospital_db` on PG 18.1, Vite on `:5173`).
+
+### What was built
+
+| Phase | Artifact | Status |
+|---|---|---|
+| P0 recon | `plans/route_baseline.log` (517 matched / 20 broken ✓), `plans/bucket_ab_routes.json` (1 113 routes), `plans/bucket_c_routes.json` (20), `plans/bucket_b_500s.md`, `plans/admin_cli_smoke.log`, `plans/local_schema_dump.txt` | ✅ committed |
+| P1 snapshot | `server/scripts/seed-demo-hospital.{sql,js}` (15 patients, cohorts A–E, 15/15 row-count checks, 0.3 s), `backup-demo-snapshot.js` (pg_dump -Fc, 1.5 MB), `restore-demo-snapshot.js` (pg_restore --clean --if-exists --no-owner --single-transaction, 15/15 in 3.0 s), npm `demo:seed/backup/restore` | ✅ committed |
+| P2 500-hunter | `scripts/qa/500-hunter.js` (authenticated, real seeded ids, 429-aware, journalised reports, exit codes), `apply-migration.js`, `apply-legacy-schema.js`, migrations 306→310 + repo file 216 | ⚠️ instrument green, residual 500s (see known issues) |
+| P3 E2E | `client/playwright.config.js`, `e2e/helpers/{auth,demoData,zeroErrorTrap}.js`, `e2e/golden-clinical-journey.spec.js` | ✅ **5/5 passing** (25.9 s) |
+| P4 realtime/4G | `e2e/socket-sync.spec.js`, `e2e/demo-rehearsal.spec.js` | rehearsal ✅ 8.0 s; socket sync ❌ (real finding) |
+| P5 packaging | root `qa:*` scripts, `.github/workflows/pre-demo-qa.yml`, `docs/PRE_DEMO_QA.md` | ✅ |
+
+### Bugs the funnel actually caught and fixed (all local)
+
+1. `/api/settings/hospital-profile` 500 on **every** authenticated page load — `hospital_settings`
+   had no `hospital_id` (migration 308).
+2. `pacu_beds` / `aldrete_scores` missing → PACU dashboard dead (migration 306).
+3. `audit_logs` missing 7 columns written by `auditMiddleware` → audit trail silently disabled (307).
+4. `pos_devices` missing `hospital_id` **+** `POSServiceManager.getDevices()` argument-order bug
+   (callers passed filters where `hospitalId` was expected) → POS device list 500 on /billing
+   (migration 309 + service fix).
+5. `emergency_logs` missing the ward-alert columns and `action_taken NOT NULL` → **every Code Blue
+   trigger 500'd** so no broadcast could ever fire (migration 310).
+6. `govt_scheme_packages` table absent → CGHS screens 500'd on /doctor (repo file 216).
+7. Seed contract fix: the Lab module reads **`lab_requests`**, not `lab_orders` (both now seeded).
+8. Seed must **not** rename `hospitals.id=1` — it broke `tests/contract/slowQueryTelemetry.test.js`
+   (caught by the Jest gate, fixed by COALESCE-only updates).
+
+### Open findings (documented, not hidden)
+
+* 500-hunter residual: **134 critical 5xx** (full sweep) / **43** (demo profile) — root cause is
+  local schema drift (reduced dump: no `medicine_orders`, `telehealth_sessions`, `geofences`,
+  `hospital_buildings`, …), triaged in `plans/500-hunter-known-issues.md`. Reproduce: `npm run qa:500-hunter`.
+* `client/e2e/socket-sync.spec.js` fails: the ward banner is driven by `GET /api/emergency/status`
+  on load, but the `emergency_broadcast` push does **not** land in a second tab within the 300 ms
+  budget. Evidence + hypothesis (room-name mismatch `hosp_<id>` server-side vs `hospital_<id>`
+  client-side, plus unstable direct-to-8080 websocket transport in dev) recorded in the report.
+* `/api/ipd/*` mixes UUID and INTEGER admission ids (`invalid input syntax for type uuid: "16"`).
+
+### Local conventions learned the hard way
+
+* Local PK reality differs from prod: `admissions.id` is **INTEGER** here (UUID in prod);
+  `patients.id` UUID, `users.id`/`hospitals.id` INTEGER — the hunter reads ids from
+  `plans/seeded_ids.json` instead of assuming types.
+* `server-cloud.js` hardcodes a 500 req/15 min IP limiter — full sweeps must wait for the window
+  (the hunter now honours `RateLimit-Reset` and retries).
+* Playwright's CDN is blocked by TLS inspection (`SELF_SIGNED_CERT_IN_CHAIN`) → suites run on the
+  installed **Edge** via `channel: 'msedge'`; Fast-4G rehearsal must target `vite preview`
+  (built bundle), never the dev server.
+* `pg` pool option is `database`, not `name` — using `name` silently connects to the `postgres` DB
+  and produces bogus "relation does not exist" errors.
+
+### Next steps
+
+1. Reconcile the local DB with prod schema (restore a prod-shaped dump) → re-run
+   `npm run qa:500-hunter`; expect the drift entries to vanish in one pass.
+2. Fix the Socket.IO room mismatch (`hosp_${hospitalId}` vs `hospital_${hospitalId}`) and re-run
+   `e2e/socket-sync.spec.js`.
+3. Add `/api/ipd/*` UUID/INTEGER normalisation (single cast helper) — 2 routes.
+4. Only then treat `--profile full` as a green gate.
+
+## 🎯 OPERATING MODEL — Conductor / Team Leader (USER-MANDATED, 2026-09-20)
+
+**Claude (me) is the ORCHESTRATOR, not the implementer.**
+
+| What I DO | What I DON'T do |
+|---|---|
+| Diagnose and scope the problem | Write fix code myself (routine work) |
+| Write kickoff brief (root cause, exact files, acceptance criteria, rollback) | Deploy directly (unless trivial/P0) |
+| Assign work: **Gemini Flash** = bulk/mechanical, **Claude Opus** = surgical/deploy | Let an agent self-certify |
+| **Independently verify** afterwards — live probes, build checks, route matrix, diff review | |
+| Update memory bank, manage commits/pushes, report status with evidence | |
+
+**Rules:**
+1. **Routine/planned work** (Bucket B migrations, Phase 7, WGM, pingAllGuards, any feature) → always kickoff + delegate + verify. Never implement.
+2. **Production outage / P0 hotfix** → ASK USER FIRST: "Fix now by me (fast) or delegate via agent (safer protocol)?" — user picks per incident.
+3. **Verification is always mine** — an agent never self-certifies; I re-probe prod before reporting done.
+
+## Session 2026-09-21 — Superadmin Dashboard Audit + Fix (Conductor→Flash→Verify cycle ✓)
+
+**Audit verdict:** `/admin/superadmin` was 100% broken on prod — all 6 `/api/platform/*` endpoints returned 403. Root cause: `platformOwners.js` hardcoded whitelist (`gurpreetpro@gmail.com` etc.) vs prod DB emails (`gurpreet@wolfhms.in`, `owner@wolf.dev`, `admin@wolfhms.in`) — zero overlap.
+
+**Fix cycle:** Audit → kickoff `PLATFORM_SUPERADMIN_FIX_KICKOFF.md` (`3fae051`) → Flash executed (3 files only, 39 test suites green) → Conductor verified diff (audit_logs schema checked on prod first, prev_hash/record_hash nullable OK) → deployed (SFTP 3 files + `PLATFORM_ADMIN_EMAILS=gurpreet@wolfhms.in,owner@wolf.dev,admin@wolfhms.in` in `/var/www/wolf-hms/server/.env` + PM2 restart) → committed `9c5fa0b`.
+
+**Verified live (2026-09-21):** all 6 endpoints 200 — tenants (3), health (obj), usage (3), tenant details/logs, domain-check. Backups on host: `*.bak-20260922-*`.
+
+**Known gaps left:** (1) teleport token still no `jti` (replay within 15m), console line in route not DB-logged for deploy/status; (2) #2's `active_requests_rpm` now honestly null (was fake); (3) MOVED-from,.bash_history cron `run_assessment.sh` references `/app` — broken on this host (scripts only, not deployed artifacts).
+
+## Session 2026-09-20 — Ghost Beds Cleanup (P0-style data fix, user-approved direct run)
+
+**Root cause:** Prod `beds` seeded with 18 rows `status='Occupied'` (3 per ward × 6 wards, low IDs = seed pattern) but `admissions` table is completely EMPTY → ward dashboards showed "Occupied" beds with no patient name.
+
+**Action:** SSH + `docker exec wolf_fitness_db psql` (exec-sql backdoor neutralized 410 in Phase 2 — use `server/scripts/admin-cli.js` via SSH, token in server `.env` `MIGRATION_CLI_TOKEN`, or direct psql):
+1. Backed up 18 rows → `scratch/ghost_beds_backup_2026-09-20.json`
+2. `UPDATE beds SET status='Available' WHERE status='Occupied' AND hospital_id=1 AND NOT EXISTS (...)` → `UPDATE 18`
+3. Verified: 30 beds all Available, 0 orphans; live `GET /wolf/api/ward/beds` returns all Available with null patient fields. Script: `scratch/ghost_bed_fix.js`.
+
+**Learnt:** read-only diagnostics via SSH psql are fine in plan mode; admin-cli audit-logged route preferred for future mutations.
 
 ## Session 2026-09-20 — Ward Tile Fix (Conductor→Flash→Verify cycle complete)
 

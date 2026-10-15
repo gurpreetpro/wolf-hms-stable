@@ -1,4 +1,32 @@
 ## ✅ Completed & Verified
+### PRE-DEMO QA FUNNEL — Phases 0–5 (2026-10-15, local only, prod untouched)
+- [x] **P0 Recon:** route matrix re-verified (517 matched / 20 broken); `plans/bucket_ab_routes.json`
+      (1 113 routes), `plans/bucket_c_routes.json` (20), `plans/bucket_b_500s.md`,
+      `plans/local_schema_dump.txt`, `plans/admin_cli_smoke.log`
+- [x] **P1 Golden snapshot:** `demo:seed` (15 patients, 5 cohorts, 15/15 checks, 0.3 s) →
+      `demo:backup` (pg_dump -Fc, 1.5 MB) → `demo:restore` (pg_restore atomic, 15/15 in 3.0 s)
+- [x] **P2 500-Hunter:** authenticated sweep with real seeded ids, UUID/INTEGER-aware substitution,
+      429-aware retry, `UUID_MISMATCH`/`SCHEMA_GAP` classification, JSON+MD reports, exit codes
+- [x] **P2 heals:** migrations 306 (Bucket B PACU), 307 (`audit_logs`), 308 (`hospital_settings`
+      tenancy), 309 (POS devices + controller arg-order fix), 310 (`emergency_logs` ward alerts),
+      repo file 216 (`govt_scheme_packages`) — each was a demo-blocking 500 found by the funnel
+- [x] **P2 tests:** `npx jest --forceExit` → **193 passed, 0 failed** (3 skipped)
+- [x] **P3 E2E:** Playwright on Edge (`channel: msedge`); `golden-clinical-journey.spec.js`
+      **5/5 passing in 25.9 s** (Reception+registration → Doctor+AI interaction → ICU → Lab/Radiology
+      → Pharmacy/Billing) with the Zero-Error Trap (pageerror / any 5xx / Bucket A&B 4xx, Bucket C
+      404 exempt)
+- [x] **P4 rehearsal:** `demo-rehearsal.spec.js` passing under CDP Fast 4G on the built bundle
+      (bundle 7.31 MB < 8 MB budget, FCP 3.6 s, TTI 21 ms, Bucket C neutral states verified)
+- [ ] **P4 socket sync (RED):** `socket-sync.spec.js` — the `emergency_broadcast` push does not reach
+      the second tab within the 300 ms budget; the ward banner only appears from
+      `GET /api/emergency/status`. Hypothesis: room-name mismatch `hosp_<id>` (server) vs
+      `hospital_<id>` (client) + websocket instability when connecting straight to :8080 in dev.
+- [x] **P5 packaging:** root `qa:route-manifest|qa:500-hunter|qa:500-hunter:demo|qa:pre-demo`,
+      `.github/workflows/pre-demo-qa.yml`, `docs/PRE_DEMO_QA.md`
+- [ ] **Residual 500s (documented, not green):** 134 critical (full sweep) / 43 (demo profile) —
+      local schema drift, triaged in `plans/500-hunter-known-issues.md`
+
+
 
 ### WARD-TILE: Admin Dashboard Ward Tiles Fix (2026-09-20)
 - [x] Relabeled "Wards" tile to "Nurse Station (Ward Board)" (`/ward`)

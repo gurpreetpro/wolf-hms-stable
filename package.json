@@ -3,7 +3,11 @@
   "scripts": {
     "diagnose": "node scripts/diagnose/index.js",
     "diagnose:deep": "node scripts/diagnose/index.js --deep",
-    "build:exe": "pkg scripts/diagnose/index.js --targets node18-win-x64 --output wolf-diagnose.exe"
+    "build:exe": "pkg scripts/diagnose/index.js --targets node18-win-x64 --output wolf-diagnose.exe",
+    "qa:route-manifest": "node scripts/qa/build-route-manifest.js",
+    "qa:500-hunter": "node scripts/qa/500-hunter.js",
+    "qa:500-hunter:demo": "node scripts/qa/500-hunter.js --profile demo",
+    "qa:pre-demo": "npm --prefix server run demo:seed && node scripts/qa/500-hunter.js --profile demo && npm --prefix client run test:e2e"
   },
   "dependencies": {
     "axios": "^1.13.2",
