@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-10-15T11:30:52.784Z",
+  "count": 20,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/ambulance/trips",
+      "calledFrom": "client\\src\\pages\\AmbulanceDashboard.jsx",
+      "line": 18
+    },
+    {
+      "method": "GET",
+      "path": "/api/ambulance/vehicles",
+      "calledFrom": "client\\src\\pages\\AmbulanceDashboard.jsx",
+      "line": 17
+    },
+    {
+      "method": "GET",
+      "path": "/api/assets",
+      "calledFrom": "client\\src\\pages\\AssetDashboard.jsx",
+      "line": 14
+    },
+    {
+      "method": "GET",
+      "path": "/api/clinical-pathways",
+      "calledFrom": "client\\src\\pages\\ClinicalPathwaysDashboard.jsx",
+      "line": 13
+    },
+    {
+      "method": "GET",
+      "path": "/api/communications",
+      "calledFrom": "client\\src\\pages\\CommsDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "POST",
+      "path": "/api/infection-control/report",
+      "calledFrom": "client\\src\\pages\\InfectionControlDashboard.jsx",
+      "line": 59
+    },
+    {
+      "method": "GET",
+      "path": "/api/laundry/orders",
+      "calledFrom": "client\\src\\pages\\LaundryDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "POST",
+      "path": "/api/neonatal/admit",
+      "calledFrom": "client\\src\\pages\\NeonatalDashboard.jsx",
+      "line": 36
+    },
+    {
+      "method": "GET",
+      "path": "/api/neonatal/babies",
+      "calledFrom": "client\\src\\pages\\NeonatalDashboard.jsx",
+      "line": 15
+    },
+    {
+      "method": "GET",
+      "path": "/api/order-sets",
+      "calledFrom": "client\\src\\components\\OrderSetSelector.jsx",
+      "line": 18
+    },
+    {
+      "method": "POST",
+      "path": "/api/order-sets/apply",
+      "calledFrom": "client\\src\\components\\OrderSetSelector.jsx",
+      "line": 52
+    },
+    {
+      "method": "POST",
+      "path": "/api/pre-op/assessment",
+      "calledFrom": "client\\src\\pages\\OTDashboard.jsx",
+      "line": 171
+    },
+    {
+      "method": "POST",
+      "path": "/api/prior-auth/submit",
+      "calledFrom": "client\\src\\pages\\PriorAuthDashboard.jsx",
+      "line": 46
+    },
+    {
+      "method": "GET",
+      "path": "/api/quality/checklist",
+      "calledFrom": "client\\src\\pages\\QualityDashboard.jsx",
+      "line": 35
+    },
+    {
+      "method": "GET",
+      "path": "/api/quality/metrics",
+      "calledFrom": "client\\src\\pages\\QualityDashboard.jsx",
+      "line": 34
+    },
+    {
+      "method": "GET",
+      "path": "/api/staff/roster",
+      "calledFrom": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
+      "line": 17
+    },
+    {
+      "method": "GET",
+      "path": "/api/staff/shifts",
+      "calledFrom": "client\\src\\pages\\StaffSchedulingDashboard.jsx",
+      "line": 16
+    },
+    {
+      "method": "GET",
+      "path": "/api/waste/daily-log",
+      "calledFrom": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 43
+    },
+    {
+      "method": "POST",
+      "path": "/api/waste/log",
+      "calledFrom": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 85
+    },
+    {
+      "method": "GET",
+      "path": "/api/waste/stats",
+      "calledFrom": "client\\src\\pages\\WasteManagementDashboard.jsx",
+      "line": 44
+    }
+  ]
+}

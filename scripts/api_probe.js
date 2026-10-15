@@ -17,7 +17,7 @@ const path = require('path');
 // CONFIGURATION
 // =============================================
 
-const BASE_URL = 'https://wolf-tech-server-708086797390.asia-south1.run.app';
+const BASE_URL = process.env.API_BASE_URL || 'https://wolf-tech-server-708086797390.asia-south1.run.app';
 const SETUP_KEY = 'WolfSetup2024!';
 
 // Test user token (will login to get this)
@@ -140,8 +140,8 @@ const ENDPOINTS = [
 async function login() {
     try {
         const res = await axios.post(`${BASE_URL}/api/auth/login`, {
-            username: 'admin_kokila',
-            password: 'password123'
+            username: process.env.API_PROBE_USER || 'admin_kokila',
+            password: process.env.API_PROBE_PASSWORD || 'password123'
         });
         authToken = res.data.token;
         console.log('✅ Login successful\n');

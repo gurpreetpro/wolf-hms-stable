@@ -1,0 +1,523 @@
+# Local Schema Dump (hospital_db)
+Generated: 2026-10-15T11:16:36.065Z
+
+## All public tables (334)
+_migrations, _prisma_migrations, abdm_audit_log, access_logs, accounting_periods, adjustments, admin_audit_log, admin_audit_logs, admissions, ai_billing_predictions, ambient_scribe_drafts, anaesthesia_charts, anchor_nodes, api_usage_stats, app_build_history, appointments, approval_matrices, archive_logs, article_bookmarks, audit_logs, b2b_invoices, b2b_payments, bed_history, beds, billing_kpis, blood_component_types, blood_cross_matches, blood_crossmatch_logs, blood_donation_campaigns, blood_donors, blood_exempt_conditions, blood_requests, blood_service_charges, blood_storage_equipment, blood_temperature_log, blood_transfusions, blood_units, care_contexts, care_plan_templates, care_plans, care_tasks, chat_messages, chat_threads, chemo_cycles, chemo_sessions, claim_denials, claim_scrub_results, claim_scrub_rules, clinical_alerts, clinical_history, clinical_tasks, clinical_vitals, collections_worklist, consent_artifacts, consumable_usage, controlled_substance_log, corporate_contracts, cpoe_orders, cssd_batches, cssd_trays, data_anonymization_logs, data_retention_policy, death_records, delta_check_rules, denial_codes, dental_inventory, dental_lab_orders, dental_procedures, dental_visits, dialysis_sessions, dietary_orders, discharge_plans, dispense_logs, doctor_consultations, doctor_payouts, doctor_reviews, doctor_slots, domain_verifications, drug_logs, edi_transmissions, eligibility_checks, emar_logs, emergency_events, emergency_incidents, emergency_logs, emergency_responders, emergency_status, equipment_assignments, equipment_billing, equipment_change_requests, equipment_inventory, equipment_requests, equipment_types, erp_ledger_mappings, erp_sync_logs, facilities, facility_floors, fall_risk_assessments, family_members, floor_plans, fluid_balance, folio_transactions, govt_scheme_beneficiaries, guard_locations, guard_shifts, handoff_reports, hospital_admins, hospital_app_builds, hospital_assets, hospital_audit_log, hospital_branding, hospital_profile, hospital_settings, hospital_templates, hospitals, housekeeping_tasks, icd_code_suggestions, icu_fluid_io_charting, icu_ventilator_logs, idempotency_keys, instrument_calibrations, instrument_comm_log, instrument_drivers, instrument_logs, instrument_stats, instrument_test_mapping, insurance_claims, insurance_denials, insurance_preauth, insurance_providers, intra_op_anesthesia_logs, inventory_items, inventory_transfers, invoice_items, invoice_payments, invoice_split_ledger, invoices, iv_lines, lab_audit_log, lab_change_requests, lab_critical_alerts, lab_critical_values, lab_instruments, lab_orders, lab_package_items, lab_packages, lab_parameter_categories, lab_parameter_mappings, lab_parameters, lab_parameters_backup_2026, lab_payments, lab_public_reports, lab_qc_materials, lab_qc_results, lab_qc_violations, lab_reagents, lab_reference_ranges, lab_request_tests, lab_requests, lab_result_versions, lab_results, lab_revenue_log, lab_samples, lab_tat_log, lab_test_categories, lab_test_types, login_audit_log, mar_logs, master_identities, maternity_antenatal_profiles, maternity_delivery_registry, maternity_labor_partographs, medication_administration, medication_orders, mfa_attempts, migration_errors, migration_jobs, migrations, mortuary_chambers, notification_preferences, nurse_assignments, nurse_care_tasks, nursing_care_plans, nursing_tasks, oncology_staging, opd_queue, opd_visits, ophthalmology_biometry, ophthalmology_inventory, ophthalmology_procedures, ophthalmology_visits, order_sets, orthopedic_implants, orthopedic_physio_orders, orthopedic_procedures, orthopedic_visits, ot_equipment, ot_equipment_reservations, ot_rooms, ot_schedules, outsourced_vendors, pac_assessments, package_extras, package_items, package_usage_log, pacu_records, pain_assessments, pain_scores, parking_sessions, parking_tariffs, parking_violations, patient_abha_mapping, patient_care_plans, patient_consent_logs, patient_consumables, patient_documents, patient_folios, patient_history, patient_insurance, patient_links, patient_packages, patient_service_charges, patient_vitals, patient_vitals_analytics, patient_wearable_vitals, patients, payer_profiles, payment_confirmation_settings, payment_settings, payments, pending_charges, pharmacy_order_items, pharmacy_orders, pharmacy_price_requests, pharmacy_queue, pharmacy_refunds, platform_audit_logs, pmjay_beneficiaries, pmjay_claims, pmjay_hospital_empanelment, pmjay_hospital_mappings, pmjay_package_usage, pmjay_packages, pmjay_procedures, pmjay_specialties, po_approval_logs, po_items, pos_activity_log, pos_credentials, pos_devices, pos_providers, pos_refunds, pos_settlements, pos_transactions, preauth_requests, prescriptions, price_change_requests, procedures, purchase_order_items, purchase_orders, radiology_orders, radiology_templates, reagent_usage_log, refresh_tokens, rehab_plans, rehab_sessions, review_helpful, revoked_sessions, role_permissions, round_notes, rtls_asset_tracking, safety_counts, sample_journey, schema_migrations, security_checkpoints, security_gates, security_geofences, security_incidents, security_missions, security_patrols, security_visitors, sensor_logs, service_master, services, shift_handoff_notes, shift_handovers, sms_settings, soap_notes, spatial_zones, specialist_categories, sterilization_cycles, suppliers, surgeries, surgery_blood_prepared, surgery_blood_requirements, surgery_blood_standards, surgery_checklists, system_logs, system_settings, tenant_integrations, tenant_package_rates, tenant_usage, tpa_activity_log, tpa_credentials, tpa_providers, transfusion_reactions, translations, treatment_packages, user_bound_devices, user_sessions, users, vehicle_inspections, vehicle_registry, vendor_access_rules, vendor_contracts, vendor_ledger_entries, vendor_payable_ledger, vendors, visitors, visits, vital_logs, vitals, vitals_logs, ward_change_requests, ward_charges, ward_consumables, ward_requests, ward_service_charges, wards, webhook_deliveries, webhook_event_types, webhooks, who_safety_checklists, wound_assessments
+
+## hospitals (38 columns)
+  id | integer | null=NO | default=nextval('hospitals_id_seq'::regclass)
+  code | character varying | null=NO | default=-
+  name | character varying | null=NO | default=-
+  parent_hospital_id | integer | null=YES | default=-
+  branch_type | character varying | null=NO | default='STANDALONE'::character varying
+  subdomain | character varying | null=YES | default=-
+  custom_domain | character varying | null=YES | default=-
+  logo_url | text | null=YES | default=-
+  primary_color | character varying | null=YES | default='#0d6efd'::character varying
+  secondary_color | character varying | null=YES | default='#6c757d'::character varying
+  address | text | null=YES | default=-
+  city | character varying | null=YES | default=-
+  state | character varying | null=YES | default=-
+  country | character varying | null=YES | default='India'::character varying
+  phone | character varying | null=YES | default=-
+  email | character varying | null=YES | default=-
+  settings | jsonb | null=YES | default='{"currency": "INR", "features": {"ot": true, "lab": true, "pharmacy": true, "security": true, "radiology": true, "telemedicine": true}, "timezone": "Asia/Kolkata", "date_format": "DD/MM/YYYY"}'::jsonb
+  subscription_tier | character varying | null=YES | default='professional'::character varying
+  subscription_start | date | null=YES | default=-
+  subscription_end | date | null=YES | default=-
+  is_active | boolean | null=YES | default=true
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  bed_count | integer | null=YES | default=50
+  staff_count | integer | null=YES | default=25
+  pricing_tier | character varying | null=YES | default='small'::character varying
+  hospital_name | character varying | null=YES | default=-
+  hospital_domain | character varying | null=YES | default=-
+  status | character varying | null=YES | default='active'::character varying
+  subscription_plan | character varying | null=YES | default='professional'::character varying
+  slug | character varying | null=YES | default=-
+  tagline | character varying | null=YES | default=-
+  registration_no | character varying | null=YES | default=-
+  features | jsonb | null=YES | default='{}'::jsonb
+  connection_type | character varying | null=YES | default='SHARED'::character varying
+  database_url | text | null=YES | default=-
+  schema_name | character varying | null=YES | default=-
+  app_display_name | text | null=YES | default=-
+
+## users (51 columns)
+  id | integer | null=NO | default=nextval('users_id_seq'::regclass)
+  username | character varying | null=NO | default=-
+  password | character varying | null=NO | default=-
+  email | character varying | null=NO | default=-
+  role | character varying | null=NO | default=-
+  is_active | boolean | null=YES | default=true
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  name | character varying | null=YES | default=-
+  approval_status | character varying | null=YES | default='approved'::character varying
+  approval_notes | text | null=YES | default=-
+  department | character varying | null=YES | default=-
+  consultation_fee | numeric | null=YES | default=500.00
+  hospital_id | integer | null=YES | default=-
+  totp_secret | character varying | null=YES | default=-
+  totp_enabled | boolean | null=YES | default=false
+  totp_backup_codes | ARRAY | null=YES | default=-
+  mfa_enabled | boolean | null=YES | default=false
+  mfa_secret | character varying | null=YES | default=-
+  mfa_secret_temp | character varying | null=YES | default=-
+  mfa_verified_at | timestamp without time zone | null=YES | default=-
+  mfa_updated_at | timestamp without time zone | null=YES | default=-
+  full_name | character varying | null=YES | default=-
+  security_question | character varying | null=YES | default=-
+  security_answer | character varying | null=YES | default=-
+  security_question_2 | character varying | null=YES | default=-
+  security_answer_2 | character varying | null=YES | default=-
+  security_question_3 | character varying | null=YES | default=-
+  security_answer_3 | character varying | null=YES | default=-
+  is_mfa_enabled | boolean | null=YES | default=false
+  is_visiting | boolean | null=YES | default=false
+  is_on_leave | boolean | null=YES | default=false
+  delegated_to_user_id | integer | null=YES | default=-
+  specialist_category_id | integer | null=YES | default=-
+  revenue_share_override | integer | null=YES | default=-
+  visit_schedule | jsonb | null=YES | default='{}'::jsonb
+  bank_details | jsonb | null=YES | default='{}'::jsonb
+  min_guarantee | numeric | null=YES | default=0
+  payout_frequency | character varying | null=YES | default='monthly'::character varying
+  specialization | text | null=YES | default=-
+  qualification | text | null=YES | default=-
+  experience_years | integer | null=YES | default=-
+  profile_image | text | null=YES | default=-
+  available_days | text | null=YES | default=-
+  bio | text | null=YES | default=-
+  gender | text | null=YES | default=-
+  failed_login_count | integer | null=YES | default=0
+  locked_until | timestamp with time zone | null=YES | default=-
+  last_failed_ip | character varying | null=YES | default=-
+  last_login_at | timestamp with time zone | null=YES | default=-
+  last_login_ip | character varying | null=YES | default=-
+  is_2fa_enabled | boolean | null=YES | default=false
+
+## patients (30 columns)
+  id | uuid | null=NO | default=gen_random_uuid()
+  name | text | null=NO | default=-
+  dob | date | null=YES | default=-
+  gender | character varying | null=YES | default=-
+  phone | text | null=YES | default=-
+  password_hash | character varying | null=YES | default=-
+  address | text | null=YES | default=-
+  history_json | jsonb | null=YES | default='{}'::jsonb
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  blood_group | character varying | null=YES | default=-
+  blood_group_verified | boolean | null=YES | default=false
+  blood_group_verified_date | timestamp without time zone | null=YES | default=-
+  blood_group_verified_by | integer | null=YES | default=-
+  visit_count | integer | null=YES | default=0
+  last_visit_date | date | null=YES | default=-
+  is_registered | boolean | null=YES | default=false
+  hospital_id | integer | null=YES | default=-
+  uhid | character varying | null=YES | default=-
+  global_uhid | character varying | null=YES | default=-
+  deleted_at | timestamp without time zone | null=YES | default=-
+  deleted_by | integer | null=YES | default=-
+  deletion_reason | text | null=YES | default=-
+  pmjay_id | text | null=YES | default=-
+  pmjay_family_id | character varying | null=YES | default=-
+  pmjay_verified | boolean | null=YES | default=false
+  pmjay_verified_at | timestamp without time zone | null=YES | default=-
+  name_blind_index | character varying | null=YES | default=-
+  phone_blind_index | character varying | null=YES | default=-
+  abha_id | character varying | null=YES | default=-
+
+## admissions (27 columns)
+  id | integer | null=NO | default=nextval('admissions_id_seq'::regclass)
+  patient_id | uuid | null=YES | default=-
+  ward | character varying | null=YES | default=-
+  bed_number | character varying | null=YES | default=-
+  status | character varying | null=YES | default='Admitted'::character varying
+  admission_date | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  discharge_date | timestamp without time zone | null=YES | default=-
+  hospital_id | integer | null=YES | default=-
+  current_diet | character varying | null=YES | default='Normal'::character varying
+  last_round_at | timestamp without time zone | null=YES | default=-
+  ipd_number | character varying | null=YES | default=-
+  deleted_at | timestamp without time zone | null=YES | default=-
+  deleted_by | integer | null=YES | default=-
+  deletion_reason | text | null=YES | default=-
+  payment_mode | character varying | null=YES | default='SELF_PAY'::character varying
+  pmjay_verified | boolean | null=YES | default=false
+  pmjay_beneficiary_id | character varying | null=YES | default=-
+  pmjay_package_code | character varying | null=YES | default=-
+  pmjay_package_rate | numeric | null=YES | default=-
+  pmjay_preauth_id | character varying | null=YES | default=-
+  pmjay_preauth_status | character varying | null=YES | default=-
+  pmjay_claim_id | character varying | null=YES | default=-
+  treating_doctor_id | integer | null=YES | default=-
+  diagnosis | text | null=YES | default=-
+  notes | text | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=now()
+  updated_at | timestamp without time zone | null=YES | default=now()
+
+## beds (11 columns)
+  id | integer | null=NO | default=nextval('beds_id_seq'::regclass)
+  ward_id | integer | null=YES | default=-
+  bed_number | character varying | null=NO | default=-
+  bed_type | character varying | null=YES | default='Standard'::character varying
+  status | character varying | null=YES | default='Available'::character varying
+  daily_rate | numeric | null=YES | default=0
+  features | jsonb | null=YES | default='{}'::jsonb
+  current_admission_id | integer | null=YES | default=-
+  is_active | boolean | null=YES | default=true
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+
+## wards (14 columns)
+  id | integer | null=NO | default=nextval('wards_id_seq'::regclass)
+  name | character varying | null=NO | default=-
+  type | character varying | null=YES | default='General'::character varying
+  floor | character varying | null=YES | default=-
+  building | character varying | null=YES | default=-
+  total_beds | integer | null=YES | default=0
+  available_beds | integer | null=YES | default=0
+  nurse_station | character varying | null=YES | default=-
+  is_active | boolean | null=YES | default=true
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+  capacity | integer | null=YES | default=10
+  billing_cycle | integer | null=YES | default=24
+  occupied_beds | integer | null=YES | default=0
+
+## rooms  ==> MISSING TABLE
+
+## vitals (10 columns)
+  id | integer | null=NO | default=nextval('vitals_id_seq'::regclass)
+  admission_id | integer | null=YES | default=-
+  patient_id | uuid | null=YES | default=-
+  temperature | numeric | null=YES | default=-
+  pulse | integer | null=YES | default=-
+  bp_systolic | integer | null=YES | default=-
+  bp_diastolic | integer | null=YES | default=-
+  spo2 | integer | null=YES | default=-
+  recorded_by | integer | null=YES | default=-
+  recorded_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+
+## opd_visits (12 columns)
+  id | integer | null=NO | default=nextval('opd_visits_id_seq'::regclass)
+  patient_id | uuid | null=YES | default=-
+  doctor_id | integer | null=YES | default=-
+  token_number | integer | null=YES | default=-
+  status | character varying | null=YES | default='Waiting'::character varying
+  visit_date | date | null=YES | default=CURRENT_DATE
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  diagnosis | text | null=YES | default=-
+  consultation_type | character varying | null=YES | default='in-person'::character varying
+  hospital_id | integer | null=YES | default=-
+  complaint | text | null=YES | default=-
+  notes | text | null=YES | default=-
+
+## prescriptions (10 columns)
+  id | integer | null=NO | default=nextval('prescriptions_id_seq'::regclass)
+  patient_id | uuid | null=YES | default=-
+  doctor_id | integer | null=YES | default=-
+  diagnosis | text | null=YES | default=-
+  medications | jsonb | null=YES | default='[]'::jsonb
+  notes | text | null=YES | default=-
+  is_active | boolean | null=YES | default=true
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+
+## prescription_items  ==> MISSING TABLE
+
+## patient_medications  ==> MISSING TABLE
+
+## drug_interactions  ==> MISSING TABLE
+
+## drugs  ==> MISSING TABLE
+
+## clinical_notes  ==> MISSING TABLE
+
+## soap_notes (11 columns)
+  id | integer | null=NO | default=nextval('soap_notes_id_seq'::regclass)
+  admission_id | integer | null=YES | default=-
+  patient_id | uuid | null=YES | default=-
+  doctor_id | integer | null=YES | default=-
+  subjective | text | null=YES | default=-
+  objective | text | null=YES | default=-
+  assessment | text | null=YES | default=-
+  plan | text | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+
+## care_tasks (18 columns)
+  id | integer | null=NO | default=nextval('care_tasks_id_seq'::regclass)
+  patient_id | uuid | null=YES | default=-
+  admission_id | integer | null=YES | default=-
+  doctor_id | integer | null=YES | default=-
+  type | character varying | null=YES | default=-
+  description | text | null=YES | default=-
+  status | character varying | null=YES | default='Pending'::character varying
+  scheduled_time | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  completed_at | timestamp without time zone | null=YES | default=-
+  completed_by | integer | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+  pharmacy_status | character varying | null=YES | default='Pending'::character varying
+  updated_at | timestamp without time zone | null=YES | default=-
+  updated_by | integer | null=YES | default=-
+  acknowledged_at | timestamp without time zone | null=YES | default=-
+  acknowledged_by | integer | null=YES | default=-
+  acknowledged_by_name | character varying | null=YES | default=-
+
+## lab_orders (13 columns)
+  id | integer | null=NO | default=nextval('lab_orders_id_seq'::regclass)
+  patient_id | uuid | null=YES | default=-
+  admission_id | integer | null=YES | default=-
+  test_type_id | integer | null=YES | default=-
+  test_name | character varying | null=YES | default=-
+  ordered_by | integer | null=YES | default=-
+  ordered_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  priority | character varying | null=YES | default='Routine'::character varying
+  status | character varying | null=YES | default='Pending'::character varying
+  hospital_id | integer | null=YES | default=-
+  notes | text | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  results | jsonb | null=YES | default=-
+
+## lab_order_items  ==> MISSING TABLE
+
+## lab_tests  ==> MISSING TABLE
+
+## lab_parameters (17 columns)
+  id | integer | null=NO | default=nextval('lab_parameters_id_seq'::regclass)
+  test_name | character varying | null=NO | default=-
+  param_key | character varying | null=NO | default=-
+  param_label | character varying | null=NO | default=-
+  param_type | character varying | null=YES | default='number'::character varying
+  unit | character varying | null=YES | default=-
+  reference_min | numeric | null=YES | default=-
+  reference_max | numeric | null=YES | default=-
+  reference_text | text | null=YES | default=-
+  category | character varying | null=YES | default=-
+  display_order | integer | null=YES | default=0
+  is_required | boolean | null=YES | default=false
+  loinc_code | character varying | null=YES | default=-
+  critical_low | numeric | null=YES | default=-
+  critical_high | numeric | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+
+## lab_results (9 columns)
+  id | integer | null=NO | default=nextval('lab_results_id_seq'::regclass)
+  request_id | integer | null=YES | default=-
+  result_json | jsonb | null=YES | default=-
+  file_path | character varying | null=YES | default=-
+  uploaded_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  technician_id | integer | null=YES | default=-
+  ai_tags | ARRAY | null=YES | default=-
+  ai_confidence | numeric | null=YES | default=-
+  hospital_id | integer | null=YES | default=-
+
+## radiology_orders (19 columns)
+  id | integer | null=NO | default=nextval('radiology_orders_id_seq'::regclass)
+  hospital_id | integer | null=YES | default=-
+  patient_id | uuid | null=YES | default=-
+  visit_id | integer | null=YES | default=-
+  admission_id | integer | null=YES | default=-
+  accession_number | character varying | null=NO | default=-
+  modality | character varying | null=NO | default=-
+  study_instance_uid | character varying | null=YES | default=-
+  status | character varying | null=YES | default='Scheduled'::character varying
+  priority | character varying | null=YES | default='Routine'::character varying
+  study_description | text | null=YES | default=-
+  clinical_history | text | null=YES | default=-
+  scheduled_date | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  performed_date | timestamp without time zone | null=YES | default=-
+  report_content | text | null=YES | default=-
+  pacs_link | text | null=YES | default=-
+  radiologist_id | integer | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+
+## radiology_reports  ==> MISSING TABLE
+
+## pharmacy_inventory  ==> MISSING TABLE
+
+## pharmacy_batches  ==> MISSING TABLE
+
+## invoices (15 columns)
+  id | integer | null=NO | default=nextval('invoices_id_seq'::regclass)
+  admission_id | integer | null=YES | default=-
+  patient_id | uuid | null=YES | default=-
+  total_amount | numeric | null=YES | default=0.00
+  status | character varying | null=YES | default='Pending'::character varying
+  generated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  generated_by | integer | null=YES | default=-
+  invoice_number | character varying | null=YES | default=-
+  amount_paid | numeric | null=YES | default=0
+  patient_number | character varying | null=YES | default=-
+  hospital_id | integer | null=YES | default=-
+  erp_synced_at | timestamp without time zone | null=YES | default=-
+  erp_reference_id | character varying | null=YES | default=-
+  deleted_at | timestamp without time zone | null=YES | default=-
+  due_date | date | null=YES | default=CURRENT_DATE
+
+## invoice_items (15 columns)
+  id | integer | null=NO | default=nextval('invoice_items_id_seq'::regclass)
+  invoice_id | integer | null=YES | default=-
+  description | character varying | null=YES | default=-
+  quantity | integer | null=YES | default=1
+  unit_price | numeric | null=YES | default=-
+  total_price | numeric | null=YES | default=-
+  hospital_id | integer | null=YES | default=-
+  item_type | character varying | null=YES | default='general'::character varying
+  reference_id | integer | null=YES | default=-
+  doctor_id | integer | null=YES | default=-
+  hospital_revenue_cut | numeric | null=NO | default=0.00
+  is_outsourced | boolean | null=NO | default=false
+  is_package_excluded | boolean | null=NO | default=false
+  outsourced_vendor_id | integer | null=YES | default=-
+  vendor_payout_share | numeric | null=NO | default=0.00
+
+## payments (21 columns)
+  id | integer | null=NO | default=nextval('payments_id_seq'::regclass)
+  invoice_id | integer | null=YES | default=-
+  amount | numeric | null=NO | default=-
+  payment_mode | character varying | null=YES | default='Cash'::character varying
+  reference_number | character varying | null=YES | default=-
+  notes | text | null=YES | default=-
+  received_by | integer | null=YES | default=-
+  received_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  hospital_id | integer | null=YES | default=-
+  deleted_at | timestamp without time zone | null=YES | default=-
+  visit_id | integer | null=YES | default=-
+  patient_id | uuid | null=YES | default=-
+  refund_amount | numeric | null=YES | default=-
+  refund_reason | text | null=YES | default=-
+  refund_date | timestamp without time zone | null=YES | default=-
+  created_by | integer | null=YES | default=-
+  transaction_id | character varying | null=YES | default=-
+  erp_synced_at | timestamp without time zone | null=YES | default=-
+  erp_reference_id | character varying | null=YES | default=-
+  status | character varying | null=YES | default='Completed'::character varying
+  created_at | timestamp without time zone | null=YES | default=now()
+
+## pending_charges (26 columns)
+  id | integer | null=NO | default=nextval('pending_charges_id_seq'::regclass)
+  hospital_id | integer | null=NO | default=-
+  patient_id | uuid | null=NO | default=-
+  admission_id | integer | null=YES | default=-
+  charge_type | character varying | null=NO | default=-
+  description | character varying | null=NO | default=-
+  quantity | integer | null=NO | default=1
+  unit_price | numeric | null=NO | default=-
+  total_price | numeric | null=NO | default=-
+  source_table | character varying | null=YES | default=-
+  source_id | integer | null=YES | default=-
+  status | character varying | null=NO | default='pending'::character varying
+  invoice_id | integer | null=YES | default=-
+  insurance_eligible | boolean | null=NO | default=false
+  insurance_provider_id | integer | null=YES | default=-
+  preauth_id | integer | null=YES | default=-
+  preauth_status | character varying | null=YES | default=-
+  patient_share | numeric | null=YES | default=-
+  insurance_share | numeric | null=YES | default=-
+  created_by | integer | null=YES | default=-
+  created_at | timestamp without time zone | null=NO | default=CURRENT_TIMESTAMP
+  processed_by | integer | null=YES | default=-
+  processed_at | timestamp without time zone | null=YES | default=-
+  cancelled_by | integer | null=YES | default=-
+  cancelled_at | timestamp without time zone | null=YES | default=-
+  cancel_reason | character varying | null=YES | default=-
+
+## stock_batches  ==> MISSING TABLE
+
+## inventory_items (16 columns)
+  id | integer | null=NO | default=nextval('inventory_items_id_seq'::regclass)
+  name | character varying | null=NO | default=-
+  batch_number | character varying | null=YES | default=-
+  expiry_date | date | null=YES | default=-
+  stock_quantity | integer | null=YES | default=0
+  reorder_level | integer | null=YES | default=10
+  price_per_unit | numeric | null=NO | default=-
+  hospital_id | integer | null=YES | default=-
+  generic_name | character varying | null=YES | default=-
+  category | character varying | null=YES | default=-
+  manufacturer | character varying | null=YES | default=-
+  rack_location | character varying | null=YES | default=-
+  hsn_code | character varying | null=YES | default=-
+  is_controlled | boolean | null=YES | default=false
+  schedule_type | character varying | null=YES | default=-
+  barcode | character varying | null=YES | default=-
+
+## emergency_events (14 columns)
+  id | integer | null=NO | default=nextval('emergency_events_id_seq'::regclass)
+  event_code | character varying | null=YES | default=-
+  event_type | character varying | null=YES | default=-
+  location | character varying | null=YES | default=-
+  severity | character varying | null=YES | default='Medium'::character varying
+  description | text | null=YES | default=-
+  triggered_by | integer | null=YES | default=-
+  status | character varying | null=YES | default='Active'::character varying
+  triggered_at | timestamp without time zone | null=YES | default=now()
+  resolved_at | timestamp without time zone | null=YES | default=-
+  resolved_by | integer | null=YES | default=-
+  resolution_notes | text | null=YES | default=-
+  hospital_id | integer | null=YES | default=-
+  created_at | timestamp with time zone | null=YES | default=now()
+
+## emergency_logs (4 columns)
+  id | uuid | null=NO | default=gen_random_uuid()
+  incident_id | uuid | null=NO | default=-
+  action_taken | character varying | null=NO | default=-
+  recorded_at | timestamp without time zone | null=YES | default=now()
+
+## anaesthesia  ==> MISSING TABLE
+
+## anaesthesia_records  ==> MISSING TABLE
+
+## preauth  ==> MISSING TABLE
+
+## insurance_preauth (26 columns)
+  id | integer | null=NO | default=nextval('insurance_preauth_id_seq'::regclass)
+  preauth_number | character varying | null=NO | default=-
+  patient_id | uuid | null=NO | default=-
+  admission_id | integer | null=YES | default=-
+  insurance_id | integer | null=YES | default=-
+  provider_id | integer | null=YES | default=-
+  treatment_type | character varying | null=YES | default=-
+  procedure_codes | ARRAY | null=YES | default=-
+  diagnosis_codes | ARRAY | null=YES | default=-
+  estimated_cost | numeric | null=YES | default=-
+  requested_amount | numeric | null=YES | default=-
+  tpa_reference_id | character varying | null=YES | default=-
+  tpa_preauth_number | character varying | null=YES | default=-
+  approved_amount | numeric | null=YES | default=-
+  approval_validity | date | null=YES | default=-
+  approval_remarks | text | null=YES | default=-
+  status | character varying | null=YES | default='pending'::character varying
+  rejection_reason | text | null=YES | default=-
+  submitted_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  response_at | timestamp without time zone | null=YES | default=-
+  request_payload | jsonb | null=YES | default=-
+  response_payload | jsonb | null=YES | default=-
+  created_by | integer | null=YES | default=-
+  updated_by | integer | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  updated_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+
+## pac  ==> MISSING TABLE
+
+## pacu_beds  ==> MISSING TABLE
+
+## pacu_records (9 columns)
+  id | integer | null=NO | default=nextval('pacu_records_id_seq'::regclass)
+  surgery_id | integer | null=YES | default=-
+  entry_time | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
+  exit_time | timestamp without time zone | null=YES | default=-
+  aldrete_score | integer | null=YES | default=0
+  aldrete_components | jsonb | null=YES | default=-
+  status | character varying | null=YES | default='Recovering'::character varying
+  notes | text | null=YES | default=-
+  created_at | timestamp without time zone | null=YES | default=CURRENT_TIMESTAMP
