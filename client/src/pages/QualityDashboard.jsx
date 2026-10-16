@@ -35,8 +35,35 @@ const QualityDashboard = () => {
                 axios.get('/api/quality/checklist', { headers }).catch(() => ({ data: null }))
             ]);
 
-            setMetrics(metricsRes.data?.data || getDefaultMetrics());
-            setChecklist(checklistRes.data?.data || getDefaultChecklist());
+            const rawMetrics = metricsRes.data?.data || metricsRes.data?.metrics;
+            if (Array.isArray(rawMetrics) && rawMetrics.length > 0) {
+                const mapped = { ...getDefaultMetrics() };
+                rawMetrics.forEach(m => {
+                    const k = m.metric_key || '';
+                    const val = Number(m.value);
+                    const tgt = Number(m.target);
+                    if (/hai|infection/i.test(k)) mapped.infectionRate = { value: val, target: tgt, unit: m.unit || '%', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/readmission/i.test(k)) mapped.readmissionRate = { value: val, target: tgt, unit: m.unit || '%', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/mortality/i.test(k)) mapped.mortalityRate = { value: val, target: tgt, unit: m.unit || '%', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/stay|los/i.test(k)) mapped.avgLOS = { value: val, target: tgt, unit: m.unit || 'days', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/hand_hygiene/i.test(k)) mapped.handHygiene = { value: val, target: tgt, unit: m.unit || '%', metric_key: k, trend: val >= tgt ? 'up' : 'down' };
+                    else if (/error/i.test(k)) mapped.medErrors = { value: val, target: tgt, unit: m.unit || '/1000', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/fall/i.test(k)) mapped.fallRate = { value: val, target: tgt, unit: m.unit || '/1000', metric_key: k, trend: val <= tgt ? 'down' : 'up' };
+                    else if (/occupancy|ot/i.test(k)) mapped.bedOccupancy = { value: val, target: tgt, unit: m.unit || '%', metric_key: k, trend: val >= tgt ? 'up' : 'down' };
+                });
+                setMetrics(mapped);
+            } else if (rawMetrics && typeof rawMetrics === 'object' && !Array.isArray(rawMetrics)) {
+                setMetrics(rawMetrics);
+            } else {
+                setMetrics(getDefaultMetrics());
+            }
+
+            const rawChecklist = checklistRes.data?.data || checklistRes.data?.checklists;
+            if (Array.isArray(rawChecklist) && rawChecklist.length > 0) {
+                setChecklist(rawChecklist);
+            } else {
+                setChecklist(getDefaultChecklist());
+            }
         } catch {
             setMetrics(getDefaultMetrics());
             setChecklist(getDefaultChecklist());
@@ -74,7 +101,9 @@ const QualityDashboard = () => {
     ];
 
     const renderKPICard = (title, data, icon, color) => {
-        const isGood = data.trend === 'down' ? data.value <= data.target : data.value >= data.target;
+        if (!data) return null;
+        const isInverse = /rate|stay|error|fall|hai|infection|mortality|wait/i.test(data.metric_key || title || '');
+        const isGood = isInverse ? Number(data.value) <= Number(data.target) : Number(data.value) >= Number(data.target);
         return (
             <Col md={3} sm={6} className="mb-3">
                 <Card className="h-100 border-0 shadow-sm">
@@ -104,13 +133,10 @@ const QualityDashboard = () => {
     };
 
     const getStatusBadge = (status) => {
-        const map = {
-            compliant: { bg: 'success', label: '✅ Compliant' },
-            pending: { bg: 'warning', label: '⏳ Pending' },
-            'non-compliant': { bg: 'danger', label: '❌ Non-Compliant' }
-        };
-        const s = map[status] || map.pending;
-        return <Badge bg={s.bg}>{s.label}</Badge>;
+        const sLower = String(status || '').toLowerCase();
+        if (sLower.includes('complian') || sLower === 'completed') return <Badge bg="success">✅ Compliant</Badge>;
+        if (sLower.includes('progress') || sLower === 'pending') return <Badge bg="warning">⏳ In Progress</Badge>;
+        return <Badge bg="danger">❌ Non-Compliant</Badge>;
     };
 
     if (loading) {
@@ -122,8 +148,8 @@ const QualityDashboard = () => {
         );
     }
 
-    const compliantCount = checklist.filter(c => c.status === 'compliant').length;
-    const compliancePercent = Math.round((compliantCount / checklist.length) * 100);
+    const compliantCount = checklist.filter(c => ['compliant', 'completed'].includes(String(c.status || '').toLowerCase())).length;
+    const compliancePercent = checklist.length ? Math.round((compliantCount / checklist.length) * 100) : 100;
 
     return (
         <Container fluid className="py-3">
@@ -202,9 +228,9 @@ const QualityDashboard = () => {
                                 {checklist.map(item => (
                                     <tr key={item.id}>
                                         <td><Badge bg="light" text="dark">{item.category}</Badge></td>
-                                        <td>{item.item}</td>
+                                        <td>{item.item || item.checklist_name}</td>
                                         <td>{getStatusBadge(item.status)}</td>
-                                        <td><small className="text-muted">{new Date(item.due).toLocaleDateString()}</small></td>
+                                        <td><small className="text-muted">{item.due || item.due_date ? new Date(item.due || item.due_date).toLocaleDateString() : '—'}</small></td>
                                     </tr>
                                 ))}
                             </tbody>

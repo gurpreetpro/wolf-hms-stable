@@ -136,6 +136,8 @@ DO $$ BEGIN
         ALTER TABLE hospital_assets ALTER COLUMN asset_type SET DEFAULT 'equipment';
         -- legacy NOT NULL column from the document-store usage; register rows carry no file
         ALTER TABLE hospital_assets ALTER COLUMN file_path SET DEFAULT '';
+        ALTER TABLE hospital_assets DROP CONSTRAINT IF EXISTS hospital_assets_asset_type_check;
+        ALTER TABLE hospital_assets ADD CONSTRAINT hospital_assets_asset_type_check CHECK (asset_type IN ('logo','favicon','splash','banner','equipment'));
     END IF;
 END $$;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_asset_code ON hospital_assets (hospital_id, asset_code) WHERE asset_code IS NOT NULL;

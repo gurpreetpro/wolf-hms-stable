@@ -4,7 +4,14 @@
 
 ## Last Updated
 
-2026-10-15
+2026-10-16
+
+## Session 2026-10-16 — BUCKET-C BASELINE SEEDING & SCRATCH PURGE (Production VPS 185.213.27.158)
+- Populated newly created Migration-311 baseline tables on `wolf_hms_prod` (`hospital_id = 1`):
+  `quality_metrics` (8), `quality_checklists` (5), `ambulance_vehicles` (3), `laundry_orders` (4), `biomedical_waste_logs` (5), `hospital_assets` (6), `hospital_communications` (3), `prior_auth_requests` (2), `staff_shifts` (4), `staff_rosters` (5), `clinical_order_sets` (3), `clinical_pathways` (2), `pos_providers` (3), `pos_devices` (3).
+- Resolved active emergencies: `UPDATE emergency_logs SET status = 'Resolved', resolved_at = COALESCE(resolved_at, NOW()) WHERE status = 'Active';` (active emergencies = 0).
+- Verified `GET /api/quality/metrics` returns `total = 8` and `GET /api/ambulance/vehicles` returns `total = 3`.
+- Purged all deployment scratch files and scripts (`scratch/phase3_*.tar.gz`, `scratch/vps_*.js`, etc.). `git status --short` verified clean of any deployment artifacts.
 
 ## Session 2026-10-15 — PRE-DEMO QA FUNNEL (Phases 0–5, local-only, zero prod contact)
 

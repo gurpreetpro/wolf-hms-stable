@@ -1,4 +1,12 @@
 ## ✅ Completed & Verified
+### BUCKET-C BASELINES & DEMOCK ROLLOUT (2026-10-16, Production VPS 185.213.27.158)
+- [x] **Delta Deploy & Migration 311:** Deployed de-mocked bundle (`index-BGhCy1Hu.js`, `FloorPlanManager-880h6Q5q.js`), applied Migration 311 creating Bucket-C tables, restarted PM2 (`wolf-hms-api` online).
+- [x] **Bucket-C / Table-A Baseline Seeding:** Populated baseline rows on `wolf_hms_prod` (`hospital_id = 1`):
+  `quality_metrics` (8), `quality_checklists` (5), `ambulance_vehicles` (3), `laundry_orders` (4), `biomedical_waste_logs` (5), `hospital_assets` (6), `hospital_communications` (3), `prior_auth_requests` (2), `staff_shifts` (4), `staff_rosters` (5), `clinical_order_sets` (3), `clinical_pathways` (2), `pos_providers` (3), `pos_devices` (3).
+- [x] **Emergency Logs Resolution:** Resolved active alerts so `/admin/emergency` has 0 active emergencies.
+- [x] **Endpoint Verification:** `GET /api/quality/metrics` (`total = 8`), `GET /api/ambulance/vehicles` (`total = 3`), `GET /api/emergency/status` (`data = null`).
+- [x] **Scratch Purge:** Removed all deployment temporary files and SSH scripts from local workspace.
+
 ### PRE-DEMO QA FUNNEL — Phases 0–5 (2026-10-15, local only, prod untouched)
 - [x] **P0 Recon:** route matrix re-verified (517 matched / 20 broken); `plans/bucket_ab_routes.json`
       (1 113 routes), `plans/bucket_c_routes.json` (20), `plans/bucket_b_500s.md`,

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Bucket C Activation Router â€” WOLF HMS
  * =====================================
  * Implements the 20 previously-unmounted "Bucket C" endpoints (plus the prior-auth
@@ -46,7 +46,13 @@ router.get('/quality/metrics', asyncHandler(async (req, res) => {
           WHERE hospital_id = $1
           ORDER BY category NULLS LAST, label`, [hid(req)]);
     const metrics = rows.rows;
-    const onTarget = metrics.filter(m => m.target != null && Number(m.value) >= Number(m.target)).length;
+    const isInverse = (key) => /rate|stay|error|fall|hai|infection|mortality|wait/i.test(key || '');
+    const onTarget = metrics.filter(m => {
+        if (m.target == null) return false;
+        const v = Number(m.value);
+        const t = Number(m.target);
+        return isInverse(m.metric_key) ? v <= t : v >= t;
+    }).length;
     return dual(res, 'metrics', metrics, {
         summary: {
             total: metrics.length,

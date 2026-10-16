@@ -137449,7 +137449,7 @@ const QualityDashboard = () => {
     fetchQualityData();
   }, [dateRange]);
   const fetchQualityData = async () => {
-    var _a, _b;
+    var _a, _b, _c, _d;
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -137458,8 +137458,34 @@ const QualityDashboard = () => {
         axios.get(`/api/quality/metrics?range=${dateRange}`, { headers }).catch(() => ({ data: null })),
         axios.get("/api/quality/checklist", { headers }).catch(() => ({ data: null }))
       ]);
-      setMetrics(((_a = metricsRes.data) == null ? void 0 : _a.data) || getDefaultMetrics());
-      setChecklist(((_b = checklistRes.data) == null ? void 0 : _b.data) || getDefaultChecklist());
+      const rawMetrics = ((_a = metricsRes.data) == null ? void 0 : _a.data) || ((_b = metricsRes.data) == null ? void 0 : _b.metrics);
+      if (Array.isArray(rawMetrics) && rawMetrics.length > 0) {
+        const mapped = { ...getDefaultMetrics() };
+        rawMetrics.forEach((m2) => {
+          const k2 = m2.metric_key || "";
+          const val = Number(m2.value);
+          const tgt = Number(m2.target);
+          if (/hai|infection/i.test(k2)) mapped.infectionRate = { value: val, target: tgt, unit: m2.unit || "%", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/readmission/i.test(k2)) mapped.readmissionRate = { value: val, target: tgt, unit: m2.unit || "%", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/mortality/i.test(k2)) mapped.mortalityRate = { value: val, target: tgt, unit: m2.unit || "%", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/stay|los/i.test(k2)) mapped.avgLOS = { value: val, target: tgt, unit: m2.unit || "days", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/hand_hygiene/i.test(k2)) mapped.handHygiene = { value: val, target: tgt, unit: m2.unit || "%", metric_key: k2, trend: val >= tgt ? "up" : "down" };
+          else if (/error/i.test(k2)) mapped.medErrors = { value: val, target: tgt, unit: m2.unit || "/1000", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/fall/i.test(k2)) mapped.fallRate = { value: val, target: tgt, unit: m2.unit || "/1000", metric_key: k2, trend: val <= tgt ? "down" : "up" };
+          else if (/occupancy|ot/i.test(k2)) mapped.bedOccupancy = { value: val, target: tgt, unit: m2.unit || "%", metric_key: k2, trend: val >= tgt ? "up" : "down" };
+        });
+        setMetrics(mapped);
+      } else if (rawMetrics && typeof rawMetrics === "object" && !Array.isArray(rawMetrics)) {
+        setMetrics(rawMetrics);
+      } else {
+        setMetrics(getDefaultMetrics());
+      }
+      const rawChecklist = ((_c = checklistRes.data) == null ? void 0 : _c.data) || ((_d = checklistRes.data) == null ? void 0 : _d.checklists);
+      if (Array.isArray(rawChecklist) && rawChecklist.length > 0) {
+        setChecklist(rawChecklist);
+      } else {
+        setChecklist(getDefaultChecklist());
+      }
     } catch {
       setMetrics(getDefaultMetrics());
       setChecklist(getDefaultChecklist());
@@ -137494,7 +137520,9 @@ const QualityDashboard = () => {
     { id: 12, category: "Documentation", item: "Discharge summary completeness", status: "compliant", due: "2026-03-15" }
   ];
   const renderKPICard = (title, data, icon2, color2) => {
-    const isGood = data.trend === "down" ? data.value <= data.target : data.value >= data.target;
+    if (!data) return null;
+    const isInverse = /rate|stay|error|fall|hai|infection|mortality|wait/i.test(data.metric_key || title || "");
+    const isGood = isInverse ? Number(data.value) <= Number(data.target) : Number(data.value) >= Number(data.target);
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, sm: 6, className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "h-100 border-0 shadow-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "d-flex flex-column", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-start mb-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `rounded-circle p-2 bg-${color2} bg-opacity-10`, children: icon2 }),
@@ -137525,13 +137553,10 @@ const QualityDashboard = () => {
     ] }) }) });
   };
   const getStatusBadge = (status) => {
-    const map2 = {
-      compliant: { bg: "success", label: "✅ Compliant" },
-      pending: { bg: "warning", label: "⏳ Pending" },
-      "non-compliant": { bg: "danger", label: "❌ Non-Compliant" }
-    };
-    const s2 = map2[status] || map2.pending;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: s2.bg, children: s2.label });
+    const sLower = String(status || "").toLowerCase();
+    if (sLower.includes("complian") || sLower === "completed") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅ Compliant" });
+    if (sLower.includes("progress") || sLower === "pending") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "⏳ In Progress" });
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: "❌ Non-Compliant" });
   };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4 text-center", children: [
@@ -137539,8 +137564,8 @@ const QualityDashboard = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-3 text-muted", children: "Loading Quality Metrics..." })
     ] });
   }
-  const compliantCount = checklist.filter((c2) => c2.status === "compliant").length;
-  const compliancePercent = Math.round(compliantCount / checklist.length * 100);
+  const compliantCount = checklist.filter((c2) => ["compliant", "completed"].includes(String(c2.status || "").toLowerCase())).length;
+  const compliancePercent = checklist.length ? Math.round(compliantCount / checklist.length * 100) : 100;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -137610,9 +137635,9 @@ const QualityDashboard = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: checklist.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "light", text: "dark", children: item.category }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.item }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.item || item.checklist_name }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(item.status) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: new Date(item.due).toLocaleDateString() }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: item.due || item.due_date ? new Date(item.due || item.due_date).toLocaleDateString() : "—" }) })
         ] }, item.id)) })
       ] }) }) })
     ] })
@@ -153320,7 +153345,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-0ZJEO2uu.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-5iVN5-au.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),
