@@ -1,6 +1,6 @@
 # PLATFORM MOCK-DATA / "PHASE X" SUBTITLE / BUCKET C AUDIT
 
-**Generated:** 2026-10-16T00:47:41.644Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
+**Generated:** 2026-10-16T00:48:26.479Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
 **Scanner:** `scripts/qa/audit-mock-and-disabled-ui.js`  ·  **Raw data:** `plans/mock-audit.json`
 
 ## 0. Scope & method
