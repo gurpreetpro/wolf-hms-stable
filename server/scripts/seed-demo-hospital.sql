@@ -270,6 +270,8 @@ SELECT a.id, a.patient_id,
         SELECT 1 FROM vitals v
          WHERE v.admission_id = a.id
            AND v.recorded_at > now() - INTERVAL '24 hours'
+           -- top up (not just "any row exists") so the 24h telemetry never ages out
+           HAVING count(*) >= 20
    );
 
 INSERT INTO pharmacy_orders (order_number, patient_id, admission_id, status, payment_status, total_amount, created_by, notes)
@@ -388,5 +390,143 @@ ON CONFLICT (name, hospital_id) DO UPDATE
        category = EXCLUDED.category,
        manufacturer = EXCLUDED.manufacturer,
        rack_location = EXCLUDED.rack_location;
+
+-- ---------------------------------------------------------------------
+-- 11. Bucket C activation baselines (quality, ambulance, waste, laundry,
+--     assets, communications) — real rows so every module renders live data.
+-- ---------------------------------------------------------------------
+INSERT INTO quality_metrics (hospital_id, metric_key, label, value, unit, target, period, category)
+VALUES
+  (1, 'hai_rate',                'Hospital-acquired infection rate', 1.4,  '%',        2.0,  'current_month', 'Infection control'),
+  (1, 'hand_hygiene_compliance', 'Hand hygiene compliance',         91.5,  '%',       90.0,  'current_month', 'Infection control'),
+  (1, 'medication_error_rate',   'Medication error rate',            0.3,  'per 1000', 0.5,  'current_month', 'Patient safety'),
+  (1, 'fall_rate',               'Inpatient fall rate',              0.6,  'per 1000', 1.0,  'current_month', 'Patient safety'),
+  (1, 'readmission_rate_30d',    '30-day readmission rate',          4.8,  '%',        6.0,  'current_month', 'Clinical outcomes'),
+  (1, 'avg_length_of_stay',      'Average length of stay',           4.2,  'days',     5.0,  'current_month', 'Clinical outcomes'),
+  (1, 'ot_utilisation',          'Operation theatre utilisation',    78.4,  '%',       75.0,  'current_month', 'Operational'),
+  (1, 'nabh_compliance_score',   'NABH compliance score',           93.0,  '%',       90.0,  'current_month', 'Accreditation')
+ON CONFLICT (hospital_id, metric_key, period) DO UPDATE
+   SET value = EXCLUDED.value, label = EXCLUDED.label, target = EXCLUDED.target, updated_at = now();
+
+INSERT INTO quality_checklists (hospital_id, checklist_name, category, status, owner, due_date, notes)
+SELECT 1, v.name, v.category, v.status, v.owner, CURRENT_DATE + v.due_in, v.notes
+  FROM (VALUES
+        ('Hand hygiene audit — ICU',           'Infection control', 'Completed',  'Sr. Anita Deshmukh', -3, 'Monthly audit, 40 opportunities observed'),
+        ('Crash cart seal verification',       'Patient safety',    'Completed',  'Sr. Anita Deshmukh', -1, 'All 6 crash carts sealed and stocked'),
+        ('Medication storage temperature log', 'Patient safety',    'In Progress','Pharmacist On Duty',  2, 'Cold chain devices verified twice daily'),
+        ('OT sterilisation cycle records',     'Accreditation',     'Pending',    'OT Incharge',         5, 'Autoclave cycle logs pending signature'),
+        ('Fire safety equipment inspection',   'Accreditation',     'Pending',    'Facility Manager',    9, 'Extinguishers and hydrants quarterly check')
+       ) AS v(name, category, status, owner, due_in, notes)
+ WHERE NOT EXISTS (SELECT 1 FROM quality_checklists qc WHERE qc.checklist_name = v.name AND qc.hospital_id = 1);
+
+INSERT INTO ambulance_vehicles (hospital_id, registration_no, vehicle_type, driver_name, driver_phone, status, last_service_date)
+VALUES
+  (1, 'MH-12-AMB-4471', 'Advanced Life Support', 'Ganesh Pawar',   '+91 98220 41171', 'Available',   CURRENT_DATE - 21),
+  (1, 'MH-12-AMB-4472', 'Basic Life Support',    'Sunil Deshmukh', '+91 98220 41172', 'On Trip',     CURRENT_DATE - 48),
+  (1, 'MH-12-AMB-4473', 'Patient Transport',     'Imran Qureshi',  '+91 98220 41173', 'Maintenance', CURRENT_DATE - 9)
+ON CONFLICT (hospital_id, registration_no) DO UPDATE
+   SET status = EXCLUDED.status, driver_name = EXCLUDED.driver_name, driver_phone = EXCLUDED.driver_phone;
+
+INSERT INTO ambulance_trips (hospital_id, vehicle_id, patient_id, call_type, pickup_location, drop_location, start_time, distance_km, status)
+SELECT 1, v.id, 'e0000000-0000-4000-8000-000000000001'::uuid, 'Emergency', 'Baner Road, Pune', 'Kokila Hospital — Emergency Bay', now() - INTERVAL '2 hours', 6.4, 'Completed'
+  FROM ambulance_vehicles v
+ WHERE v.registration_no = 'MH-12-AMB-4471'
+   AND NOT EXISTS (SELECT 1 FROM ambulance_trips t WHERE t.hospital_id = 1 AND t.vehicle_id = v.id);
+
+INSERT INTO laundry_orders (hospital_id, order_no, department, item_type, quantity, status, requested_at)
+VALUES
+  (1, 'LN-2026-0001', 'ICU',              'Bed linen + gowns',      120, 'Delivered',  now() - INTERVAL '26 hours'),
+  (1, 'LN-2026-0002', 'Operation Theatre','Sterile drapes',          45, 'In Process', now() - INTERVAL '6 hours'),
+  (1, 'LN-2026-0003', 'General Ward B',   'Patient gowns + towels', 210, 'Requested',  now() - INTERVAL '2 hours'),
+  (1, 'LN-2026-0004', 'Dietary',          'Kitchen linen',           80, 'Delivered',  now() - INTERVAL '20 hours')
+ON CONFLICT (hospital_id, order_no) DO NOTHING;
+
+INSERT INTO biomedical_waste_logs (hospital_id, log_date, category, weight_kg, handed_to_vendor, manifest_no, notes)
+VALUES
+  (1, CURRENT_DATE, 'Yellow — infectious',  14.60, 'Pune Bio-Medical Waste Services', 'MNF-2026-0911', 'Collected 08:30 by authorised vendor'),
+  (1, CURRENT_DATE, 'Red — contaminated',    9.25, 'Pune Bio-Medical Waste Services', 'MNF-2026-0911', 'Sharps containers and soiled dressings'),
+  (1, CURRENT_DATE, 'White — sharps',        3.40, 'Pune Bio-Medical Waste Services', 'MNF-2026-0911', 'Puncture-proof containers sealed'),
+  (1, CURRENT_DATE, 'Blue — glassware',      2.10, 'Pune Bio-Medical Waste Services', 'MNF-2026-0911', 'Broken ampoules and vials'),
+  (1, CURRENT_DATE, 'Green — general',      22.75, 'PMC Municipal Collection',        'PMC-2026-4471', 'Non-hazardous general waste')
+ON CONFLICT (hospital_id, log_date, category) DO UPDATE SET weight_kg = EXCLUDED.weight_kg;
+
+INSERT INTO hospital_assets (hospital_id, asset_code, asset_name, category, department, status, purchase_date, warranty_upto, last_service_date)
+VALUES
+  (1, 'AST-ICU-0001', 'Sysmex XN-1000 Haematology Analyser', 'Diagnostics',  'Laboratory',        'Active',      CURRENT_DATE - 900,  CURRENT_DATE + 190, CURRENT_DATE - 30),
+  (1, 'AST-ICU-0002', 'Mindray uMEC12 Multipara Monitor',    'Monitoring',   'ICU',               'Active',      CURRENT_DATE - 640,  CURRENT_DATE + 90,  CURRENT_DATE - 45),
+  (1, 'AST-ICU-0003', 'Drager Savina 300 Ventilator',        'Life support', 'ICU',               'Active',      CURRENT_DATE - 1200, CURRENT_DATE - 15,  CURRENT_DATE - 20),
+  (1, 'AST-OT-0004',  'Stryker Endoscopy Tower',             'Surgical',     'Operation Theatre', 'Maintenance', CURRENT_DATE - 1500, CURRENT_DATE - 60,  CURRENT_DATE - 3),
+  (1, 'AST-RAD-0005', 'Siemens Multix Impact X-Ray',         'Imaging',      'Radiology',         'Active',      CURRENT_DATE - 700,  CURRENT_DATE + 250, CURRENT_DATE - 90),
+  (1, 'AST-PHR-0006', 'Vaccine Refrigerator (cold chain)',   'Cold chain',   'Pharmacy',          'Active',      CURRENT_DATE - 400,  CURRENT_DATE + 330, CURRENT_DATE - 12)
+ON CONFLICT (hospital_id, asset_code) WHERE asset_code IS NOT NULL DO UPDATE
+   SET status = EXCLUDED.status, last_service_date = EXCLUDED.last_service_date;
+
+INSERT INTO hospital_communications (hospital_id, channel, subject, message, audience, status, sent_at)
+SELECT 1, v.channel, v.subject, v.message, v.audience, v.status, now() - v.sent_ago
+  FROM (VALUES
+        ('App push',  'Visiting hours reminder', 'Visiting hours are 11:00-12:30 and 17:00-19:00 daily.',                    'Attendants of admitted patients', 'Sent',      INTERVAL '5 hours'),
+        ('SMS',       'Discharge summary ready', 'Your discharge summary is available in the Wolf Care app.',                 'Patients discharged today',       'Sent',      INTERVAL '3 hours'),
+        ('Broadcast', 'Fire drill at 15:00',     'Scheduled fire drill in the main block — follow ward marshal instructions.', 'All clinical staff',              'Scheduled', INTERVAL '0 hours')
+       ) AS v(channel, subject, message, audience, status, sent_ago)
+ WHERE NOT EXISTS (SELECT 1 FROM hospital_communications hc WHERE hc.hospital_id = 1 AND hc.subject = v.subject);
+
+-- ---------------------------------------------------------------- Neonatal / PAC / prior-auth
+INSERT INTO neonatal_records (hospital_id, baby_name, mother_patient_id, gestation_weeks, birth_weight_g, apgar_1, apgar_5, nicu_bed, status)
+SELECT 1, v.baby, v.mother, v.weeks, v.weight, v.a1, v.a5, v.bed, v.status
+  FROM (VALUES
+        ('Baby of Sneha Bhat',    'e0000000-0000-4000-8000-000000000002'::uuid, 34, 2150, 7, 9,  'NICU-01', 'Admitted'),
+        ('Baby of Nisha Kulkarni','d0000000-0000-4000-8000-000000000002'::uuid, 38, 2980, 8, 10, 'NICU-03', 'Stable')
+       ) AS v(baby, mother, weeks, weight, a1, a5, bed, status)
+ WHERE NOT EXISTS (SELECT 1 FROM neonatal_records n WHERE n.baby_name = v.baby AND n.hospital_id = 1);
+
+INSERT INTO prior_auth_requests (hospital_id, patient_id, patient_number, diagnosis, procedure_name, estimated_cost, insurer, status)
+SELECT 1, v.patient, v.pno, v.dx, v.proc, v.cost, v.insurer, v.status
+  FROM (VALUES
+        ('d0000000-0000-4000-8000-000000000001'::uuid, 'UHID-DEMO-0010', 'Acute coronary syndrome',        'Coronary angioplasty with stent', 285000.00, 'Star Health', 'Submitted'),
+        ('d0000000-0000-4000-8000-000000000003'::uuid, 'UHID-DEMO-0012', 'Chronic kidney disease stage 4', 'AV fistula creation',              96000.00, 'PMJAY',       'Approved')
+       ) AS v(patient, pno, dx, proc, cost, insurer, status)
+ WHERE NOT EXISTS (SELECT 1 FROM prior_auth_requests r WHERE r.hospital_id = 1 AND r.patient_number = v.pno AND r.procedure_name = v.proc);
+
+-- ---------------------------------------------------------------- Staffing / order sets / pathways
+INSERT INTO staff_shifts (hospital_id, shift_name, start_time, end_time, department, required_headcount)
+VALUES
+  (1, 'Morning', '07:00', '14:00', 'Nursing',       12),
+  (1, 'Evening', '14:00', '21:00', 'Nursing',       12),
+  (1, 'Night',   '21:00', '07:00', 'Nursing',        9),
+  (1, 'ICU Day', '08:00', '20:00', 'Critical Care',  6)
+ON CONFLICT (hospital_id, shift_name) DO UPDATE SET required_headcount = EXCLUDED.required_headcount;
+
+INSERT INTO staff_rosters (hospital_id, staff_user_id, staff_name, role, shift_date, shift_type, ward, status)
+SELECT 1, u.id, COALESCE(u.name, u.username), u.role, CURRENT_DATE, v.shift_type, v.ward, 'Scheduled'
+  FROM (VALUES
+        ('nurse_demo', 'Morning', 'ICU'),
+        ('nurse',      'Morning', 'General Ward B'),
+        ('doctor_demo','Morning', 'OPD'),
+        ('lab_tech',   'Morning', 'Laboratory'),
+        ('pharmacist', 'Evening', 'Pharmacy')
+       ) AS v(username, shift_type, ward)
+  JOIN users u ON u.username = v.username AND u.hospital_id = 1
+ WHERE NOT EXISTS (
+        SELECT 1 FROM staff_rosters sr
+         WHERE sr.hospital_id = 1 AND sr.staff_user_id = u.id
+           AND sr.shift_date = CURRENT_DATE AND sr.shift_type = v.shift_type);
+
+INSERT INTO clinical_order_sets (hospital_id, set_code, set_name, diagnosis, category, items)
+VALUES
+  (1, 'OS-ACS-01',    'Acute Coronary Syndrome Admission Set', 'Acute coronary syndrome', 'Cardiology',
+   '[{"type":"lab","name":"Troponin I"},{"type":"lab","name":"ECG 12 lead"},{"type":"drug","name":"Aspirin 300mg"},{"type":"drug","name":"Atorvastatin 80mg"},{"type":"imaging","name":"Chest X-Ray PA"}]'::jsonb),
+  (1, 'OS-DKA-02',    'Diabetic Ketoacidosis Protocol',        'Diabetic ketoacidosis',   'Endocrinology',
+   '[{"type":"lab","name":"Blood gas"},{"type":"lab","name":"Serum ketones"},{"type":"fluid","name":"Normal Saline 0.9%"},{"type":"drug","name":"Insulin infusion"}]'::jsonb),
+  (1, 'OS-SEPSIS-03', 'Sepsis Six Bundle',                     'Sepsis',                  'Critical Care',
+   '[{"type":"lab","name":"Blood culture"},{"type":"lab","name":"Lactate"},{"type":"drug","name":"Piperacillin-Tazobactam"},{"type":"fluid","name":"Crystalloid bolus"}]'::jsonb)
+ON CONFLICT (hospital_id, set_code) DO UPDATE SET items = EXCLUDED.items, set_name = EXCLUDED.set_name;
+
+INSERT INTO clinical_pathways (hospital_id, pathway_code, name, condition, steps)
+VALUES
+  (1, 'PW-STEMI',  'STEMI Rapid Reperfusion Pathway',    'ST-elevation myocardial infarction',
+   '["Door-to-ECG under 10 minutes","Aspirin + loading dose P2Y12","Cath lab activation","Door-to-balloon under 90 minutes"]'::jsonb),
+  (1, 'PW-STROKE', 'Acute Stroke Thrombolysis Pathway',  'Ischaemic stroke',
+   '["CT brain within 20 minutes","NIHSS assessment","Thrombolysis window check","Stroke unit admission"]'::jsonb)
+ON CONFLICT (hospital_id, pathway_code) DO NOTHING;
 
 COMMIT;

@@ -482,6 +482,17 @@ app.use('/api/consent', consentRoutes);
 const platformRoutes = require('./routes/platformRoutes');
 app.use('/api/platform', platformRoutes);
 
+// ---------------------------------------------------------------------------
+// Bucket C activation router (21 endpoints: ambulance, assets, communications,
+// laundry, neonatal, order sets, pre-clinical pathways, pre-op/PAC, prior-auth,
+// quality, staffing, waste, infection-control).
+// Mounted LAST so its `router.use(protect)` never intercepts earlier routes;
+// unmatched /api paths simply fall through to the 404 handler.
+// ---------------------------------------------------------------------------
+const bucketCActivationRoutes = require('./routes/bucketCActivationRoutes');
+app.use('/api', bucketCActivationRoutes);
+console.log('✅ Bucket C activation routes mounted at /api (21 endpoints)');
+
 console.log('✅ All routes loaded synchronously');
 
 // Serve static files from public directory (React app)

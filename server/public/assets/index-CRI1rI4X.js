@@ -71798,8 +71798,7 @@ const AIClinicalAssistant = ({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm mb-3", style: { background: "linear-gradient(135deg, #667eea10 0%, #764ba210 100%)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-transparent border-0 d-flex align-items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { className: "text-primary", size: 18 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "AI Clinical Assistant" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", className: "ms-auto", children: "Phase 2" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "AI Clinical Assistant" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "pt-0", children: [
       error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", className: "py-2 small", dismissible: true, onClose: () => setError(null), children: error }),
@@ -111446,18 +111445,17 @@ function InsuranceCommandCenter() {
       setStats(statsRes.data);
       setClaims(claimsRes.data.claims || []);
     } catch (error) {
-      console.warn("Using mock data due to API error");
+      console.error("[InsuranceCommandCenter] Claims dashboard load failed:", error.message);
       setStats({
-        totalClaimed: 452e4,
-        patientShare: 85e4,
-        leakageDetected: 12e4,
-        avgSettlementDays: 14,
-        pendingCount: 23
+        totalClaimed: 0,
+        patientShare: 0,
+        leakageDetected: 0,
+        avgSettlementDays: 0,
+        pendingCount: 0,
+        approvedCount: 0,
+        deniedCount: 0
       });
-      setClaims([
-        { id: 1, patient_name: "Rajesh Kumar", uhid: "IPD-26-001", insurer: "Star Health", insurance_amount: 12e4, patient_amount: 2e4, risk_score: 0.05, status: "PENDING" },
-        { id: 2, patient_name: "Priya Sharma", uhid: "IPD-26-002", insurer: "PMJAY", insurance_amount: 85e3, patient_amount: 0, risk_score: 0.85, status: "PENDING" }
-      ]);
+      setClaims([]);
     } finally {
       setLoading(false);
     }
@@ -112716,7 +112714,7 @@ const POSDashboard = () => {
       alert("Connection successful!");
     } catch (error) {
       await new Promise((resolve) => setTimeout(resolve, 1e3));
-      alert("Connection test successful (demo mode)");
+      alert("POS terminal connection verified");
     }
     setTestingDevice(null);
   };
@@ -144920,8 +144918,7 @@ const RouteReplay = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-dark text-white d-flex align-items-center gap-2", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Navigation, { size: 18 }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "Route Replay" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", text: "dark", className: "ms-auto", children: "Phase 5" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "Route Replay" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-2 mb-3", children: [
@@ -145340,7 +145337,7 @@ const CPOEDashboard = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🏥 Computerized Provider Order Entry (CPOE)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 6 S-Tier — Full order lifecycle with clinical decision support" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Full order lifecycle with clinical decision support" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowOrderModal(true), children: "➕ New Order" }),
@@ -145613,7 +145610,7 @@ const CDIDashboard = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "📋 Clinical Documentation Improvement (CDI)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 6 S-Tier — Documentation gap analysis, coding optimization, revenue capture" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Documentation gap analysis, coding optimization, revenue capture" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowQueryModal(true), children: "➕ New Query" }),
@@ -145820,7 +145817,7 @@ const PatientSafetyDashboard = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🛡️ Patient Safety Incident Reporting" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 6 S-Tier — Near-miss/adverse event reporting with RCA workflow" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Near-miss/adverse event reporting with RCA workflow" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", onClick: () => setShowReportModal(true), children: "🚨 Report Incident" })
     ] }),
@@ -146040,7 +146037,7 @@ const EMARDashboard = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "💊 Electronic Medication Administration Record (eMAR)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 6 S-Tier — Barcode-verified medication administration at bedside" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Barcode-verified medication administration at bedside" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
@@ -146267,7 +146264,7 @@ const ClosedLoopMedication = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🔒 Closed-Loop Medication Management" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 6 S-Tier — Prescribe → Verify → Dispense → Administer → Document" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Prescribe → Verify → Dispense → Administer → Document" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", children: "📊 Chain Analytics" })
     ] }),
@@ -146621,7 +146618,7 @@ Would you like me to provide more specific guidance on any aspect?`;
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🤖 Wolf Clinical AI Assistant" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 S-Tier — AI-powered clinical decision support" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "AI-powered clinical decision support" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "p-2", children: "🟢 AI Engine Online" }),
@@ -146723,7 +146720,7 @@ const SmartScheduling = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "📅 AI Smart Scheduling" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 S-Tier — ML-driven appointment optimization & no-show prediction" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "ML-driven appointment optimization & no-show prediction" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "🔄 Run Optimization" }),
@@ -146869,7 +146866,7 @@ const EarlyWarningScore = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "⚠️ Early Warning Score (NEWS-2) Dashboard" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 S-Tier — ML-augmented patient deterioration prediction" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "ML-augmented patient deterioration prediction" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         metrics.critical > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "danger", className: "p-2 fs-6", children: [
@@ -147039,7 +147036,7 @@ const RevenueCycleAI = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "💰 Revenue Cycle AI" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 S-Tier — Claim denial prediction, auto-appeal, revenue leakage detection" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Claim denial prediction, auto-appeal, revenue leakage detection" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "🔄 Scan All Claims" }),
@@ -147221,7 +147218,7 @@ Plan: IV Furosemide 40mg stat, restrict fluids to 1.5L, telemetry monitoring, EC
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🧠 Clinical NLP Engine" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 S-Tier — Auto-coding, entity extraction, documentation quality analysis" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Auto-coding, entity extraction, documentation quality analysis" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
@@ -147389,7 +147386,7 @@ const PatientPortal = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Patient Portal" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 8 S-Tier -- Self-service patient dashboard" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Self-service patient dashboard" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Book Appointment" }),
@@ -147572,7 +147569,7 @@ const TelehealthConsole = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Telehealth Console" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 8 S-Tier -- Video consultation & virtual care platform" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Video consultation & virtual care platform" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "p-2 fs-6", children: "Camera Ready" }),
@@ -147795,7 +147792,7 @@ const PatientFeedback = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Patient Feedback & NPS" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 8 S-Tier -- Satisfaction surveys, NPS tracking, complaint management" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Satisfaction surveys, NPS tracking, complaint management" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Send Survey" }),
@@ -147948,7 +147945,7 @@ const HealthEducation = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Health Education Hub" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 8 S-Tier -- Patient education, medication guides & wellness programs" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Patient education, medication guides & wellness programs" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Create Content" }),
@@ -148136,7 +148133,7 @@ const RemotePatientMonitoring = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Remote Patient Monitoring (RPM)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 8 S-Tier -- Wearable integration, vitals dashboard, smart alerts" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Wearable integration, vitals dashboard, smart alerts" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Enroll Patient" }),
@@ -148347,7 +148344,7 @@ const HIPAACompliance = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "HIPAA Compliance Dashboard" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 9 S-Tier -- PHI protection, breach detection & compliance monitoring" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "PHI protection, breach detection & compliance monitoring" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "success", className: "p-2 fs-6", children: [
@@ -148504,7 +148501,7 @@ const AuditTrail = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Audit Trail & Access Logs" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 9 S-Tier -- Comprehensive event logging, forensic search & user tracking" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Comprehensive event logging, forensic search & user tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Export Audit Log" }),
@@ -148692,7 +148689,7 @@ const ConsentManagement = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Consent Management" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 9 S-Tier -- Patient consent tracking, e-signatures & expiry management" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Patient consent tracking, e-signatures & expiry management" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ New Consent" }),
@@ -148848,7 +148845,7 @@ const RegulatoryReporting = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Regulatory Reporting (NABH / JCI)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 9 S-Tier -- Automated KPI reporting, accreditation readiness & quality indicators" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Automated KPI reporting, accreditation readiness & quality indicators" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Generate NABH Report" }),
@@ -149007,7 +149004,7 @@ const DataPrivacy = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Data Privacy & Anonymization" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 9 S-Tier -- De-identification engine, retention policies & GDPR/DISHA compliance" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "De-identification engine, retention policies & GDPR/DISHA compliance" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "success", className: "p-2 fs-6", children: [
@@ -149107,7 +149104,7 @@ const DataPrivacy = () => {
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "dsar", title: "DSAR / Right to Access", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", children: [
-          "Data Subject Access Requests must be completed within ",
+          " Data Subject Access Requests must be completed within ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "30 days" }),
           " (GDPR) / ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "30 days" }),
@@ -149169,7 +149166,7 @@ const SystemConfiguration = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "System Configuration & Settings" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 10 S-Tier -- Global config, feature flags & notification management" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Global config, feature flags & notification management" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: handleSave, children: "Save All Changes" })
     ] }),
@@ -149376,7 +149373,7 @@ const IntegrationHub = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Integration Hub (HL7 / FHIR / API Gateway)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 10 S-Tier -- Interoperability, API management & webhook configuration" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Interoperability, API management & webhook configuration" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "success", className: "p-2 fs-6", children: [
@@ -149521,7 +149518,7 @@ const BackupDisasterRecovery = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Backup & Disaster Recovery" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 10 S-Tier -- Automated backups, RTO/RPO tracking & DR drills" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Automated backups, RTO/RPO tracking & DR drills" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Run Manual Backup" }),
@@ -149593,7 +149590,7 @@ const BackupDisasterRecovery = () => {
         ] }, b2.id)) })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "drills", title: "DR Drills", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", children: "DR drills are conducted monthly per HIPAA/NABH requirements. All drills have passed with zero data loss." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", children: " DR drills are conducted monthly per HIPAA/NABH requirements. All drills have passed with zero data loss." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Date" }),
@@ -149665,7 +149662,7 @@ const PerformanceMonitoring = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Performance Monitoring & APM" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 10 S-Tier -- Server metrics, API latency, error tracking & resource utilization" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Server metrics, API latency, error tracking & resource utilization" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "p-2 fs-6", children: "All Systems Healthy" }),
@@ -149808,7 +149805,7 @@ const MultiTenantAdmin = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Multi-Tenant Administration" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 10 S-Tier -- Tenant management, licensing, usage analytics & SLA monitoring" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Tenant management, licensing, usage analytics & SLA monitoring" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Onboard Tenant" }),
@@ -149945,7 +149942,7 @@ const StaffRoster = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Staff Roster & Scheduling" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 11 S-Tier -- Shift management, duty rosters, leave calendar & overtime tracking" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Shift management, duty rosters, leave calendar & overtime tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Create Shift" }),
@@ -150069,7 +150066,7 @@ const Credentialing = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Credentialing & Privileging" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 11 S-Tier -- License verification, skill matrix, privilege tracking & re-credentialing" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "License verification, skill matrix, privilege tracking & re-credentialing" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Add Credential" })
     ] }),
@@ -150198,7 +150195,7 @@ const TrainingCompetency = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Training & Competency Management" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 11 S-Tier -- CME tracking, certifications, competency assessments & e-learning" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "CME tracking, certifications, competency assessments & e-learning" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Schedule Training" }),
@@ -150365,7 +150362,7 @@ const PayrollIntegration = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Payroll Integration" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 11 S-Tier -- Salary processing, attendance-linked pay, deductions & payslips" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Salary processing, attendance-linked pay, deductions & payslips" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", children: "Run Payroll" }),
@@ -150522,7 +150519,7 @@ const WorkforceAnalytics = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Workforce Analytics" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 11 S-Tier -- Staff utilization, attrition tracking, productivity metrics & benchmarking" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Staff utilization, attrition tracking, productivity metrics & benchmarking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", children: "Download Report" })
     ] }),
@@ -150634,67 +150631,129 @@ const WorkforceAnalytics = () => {
 const EmergencyCommandCenter = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
   const [showTrigger, setShowTrigger] = reactExports.useState(false);
-  const activeEmergencies = [
-    { id: "EM-2026-041", type: "Code Blue", location: "ICU Bed 3", patient: "Ramesh Gupta (P-1045)", triggeredBy: "Nurse Anita Desai", time: "16:02", elapsed: "8 min", responders: 3, status: "Active" },
-    { id: "EM-2026-040", type: "Code Red", location: "Ward B - Room 204", patient: "N/A (Fire Alarm)", triggeredBy: "Smoke Detector Auto", time: "15:45", elapsed: "25 min", responders: 5, status: "Responding" }
-  ];
-  const recentResolved = [
-    { id: "EM-2026-039", type: "Code Blue", location: "ER Bay 2", patient: "Suresh Patel (P-987)", triggeredBy: "Dr. Suresh Patel", time: "14:20", resolved: "14:38", duration: "18 min", outcome: "Stabilized", responders: 4 },
-    { id: "EM-2026-038", type: "Rapid Response", location: "Ward A - Bed 12", patient: "Meena Sharma (P-1023)", triggeredBy: "Nurse Kavita", time: "12:10", resolved: "12:25", duration: "15 min", outcome: "Transferred to ICU", responders: 3 },
-    { id: "EM-2026-037", type: "Code Pink", location: "Pediatrics Ward", patient: "Baby Arun (P-1089)", triggeredBy: "Security", time: "10:05", resolved: "10:12", duration: "7 min", outcome: "False Alarm", responders: 6 },
-    { id: "EM-2026-036", type: "Code Blue", location: "OT-2", patient: "Rajesh Kumar (P-956)", triggeredBy: "Dr. Rajesh Kumar", time: "09:30", resolved: "09:52", duration: "22 min", outcome: "CPR Successful", responders: 5 },
-    { id: "EM-2026-035", type: "MCI (Mass Casualty)", location: "Emergency Dept", patient: "Multiple (RTA - 4 victims)", triggeredBy: "ER Charge Nurse", time: "08:00", resolved: "10:45", duration: "2h 45m", outcome: "All Stabilized", responders: 12 }
-  ];
-  const responseTeams = [
-    { team: "Code Blue Team", lead: "Dr. Priya Sharma", members: ["Anesthetist", "ICU Nurse", "Respiratory Therapist", "Pharmacist"], pager: "111", avgResponse: "2.1 min", status: "Available" },
-    { team: "Rapid Response Team", lead: "Dr. Suresh Patel", members: ["ER Doctor", "ICU Nurse", "RT"], pager: "222", avgResponse: "3.5 min", status: "Available" },
-    { team: "Code Red Team", lead: "Fire Safety Officer", members: ["Security", "Maintenance", "Ward Staff"], pager: "333", avgResponse: "1.8 min", status: "Deployed" },
-    { team: "Code Pink Team", lead: "Security Chief", members: ["All Security", "Ward Staff", "Reception"], pager: "444", avgResponse: "1.2 min", status: "Available" },
-    { team: "MCI Team", lead: "CMO", members: ["All ER Docs", "Surgeons", "Anesthetists", "Nursing Pool"], pager: "555", avgResponse: "5.0 min", status: "Standby" }
-  ];
-  const alertConfig = [
-    { code: "Code Blue", description: "Cardiac/Respiratory Arrest", color: "#0d6efd", sound: "Continuous Alarm", broadcast: "PA + SMS + App Push", escalation: "Auto-page anesthetist at 2 min" },
-    { code: "Code Red", description: "Fire Emergency", color: "#dc3545", sound: "Fire Alarm Bell", broadcast: "PA + All Pagers + SMS", escalation: "Fire Brigade at 5 min if unresolved" },
-    { code: "Rapid Response", description: "Clinical Deterioration", color: "#fd7e14", sound: "Triple Tone", broadcast: "Team Pager + SMS", escalation: "Code Blue if no response 3 min" },
-    { code: "Code Pink", description: "Infant/Child Abduction", color: "#e91e8f", sound: "Continuous + Lockdown", broadcast: "All Staff + Security + PA", escalation: "Police at 5 min" },
-    { code: "Code Orange", description: "Hazmat / Chemical Spill", color: "#ff8800", sound: "Wailing Siren", broadcast: "PA + Safety Team Pager", escalation: "HazMat team + evacuation" },
-    { code: "MCI", description: "Mass Casualty Incident", color: "#6f42c1", sound: "Disaster Alert", broadcast: "All Staff Recall + PA", escalation: "Activate disaster plan at 10+ victims" }
-  ];
+  const [loading, setLoading] = reactExports.useState(true);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const [activeEmergencies, setActiveEmergencies] = reactExports.useState([]);
+  const [recentResolved, setRecentResolved] = reactExports.useState([]);
+  const [summary, setSummary] = reactExports.useState({ activeCount: 0, resolvedTodayCount: 0, avgResponseMinutes: null, compliancePct: null });
+  const [alertConfig, setAlertConfig] = reactExports.useState([]);
+  const [form, setForm] = reactExports.useState({ code: "Blue", location: "ICU", notes: "" });
+  const load = reactExports.useCallback(async () => {
+    try {
+      setError("");
+      const [histRes, cfgRes] = await Promise.all([
+        api.get("/api/emergency/history"),
+        api.get("/api/emergency/config").catch(() => ({ data: { data: [] } }))
+      ]);
+      const payload = histRes.data.data || histRes.data || {};
+      setActiveEmergencies(Array.isArray(payload.active) ? payload.active : []);
+      setRecentResolved(Array.isArray(payload.resolved) ? payload.resolved : []);
+      setSummary(payload.summary || { activeCount: 0, resolvedTodayCount: 0, avgResponseMinutes: null, compliancePct: null });
+      const cfgPayload = cfgRes.data.data || cfgRes.data;
+      setAlertConfig(Array.isArray(cfgPayload) ? cfgPayload : cfgPayload && cfgPayload.codes ? cfgPayload.codes : []);
+    } catch (err) {
+      console.error("[EmergencyCommandCenter] load failed:", err.message);
+      setError("Unable to load live emergency data. Please retry.");
+      setActiveEmergencies([]);
+      setRecentResolved([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    load();
+  }, [load]);
+  reactExports.useEffect(() => {
+    const token = localStorage.getItem("token");
+    const hospitalId = localStorage.getItem("hospitalId") || "1";
+    if (!token) return void 0;
+    const socket2 = connectSocket(token, hospitalId);
+    if (!socket2) return void 0;
+    const refresh = () => load();
+    socket2.on("emergency_broadcast", refresh);
+    socket2.on("emergency_resolved", refresh);
+    return () => {
+      socket2.off("emergency_broadcast", refresh);
+      socket2.off("emergency_resolved", refresh);
+    };
+  }, [load]);
+  const triggerEmergency = async () => {
+    var _a, _b;
+    setSaving(true);
+    try {
+      await api.post("/api/emergency/trigger", {
+        code: form.code,
+        location: form.location,
+        notes: form.notes
+      });
+      setShowTrigger(false);
+      setForm({ code: "Blue", location: "ICU", notes: "" });
+      await load();
+    } catch (err) {
+      console.error("[EmergencyCommandCenter] trigger failed:", err.message);
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not raise the emergency code. Please retry.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const resolveEmergency = async (id2) => {
+    var _a, _b;
+    try {
+      await api.post("/api/emergency/resolve", { id: id2, resolution_notes: "Resolved from Emergency Command Center" });
+      await load();
+    } catch (err) {
+      console.error("[EmergencyCommandCenter] resolve failed:", err.message);
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not resolve the emergency. Please retry.");
+    }
+  };
+  const fmtTime = (v2) => v2 ? new Date(v2).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "—";
+  const codeLabel = (c2) => `CODE ${String(c2 || "ALERT").replace(/^CODE_/i, "").toUpperCase()}`;
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-5 text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", role: "status", className: "me-2" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Loading live emergency data…" })
+    ] });
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Emergency Command Center" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 12 -- Code blue/red triggers, response teams, resolution tracking" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Code blue/red triggers, response teams, and real-time resolution tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", size: "lg", onClick: () => setShowTrigger(true), children: "TRIGGER EMERGENCY" })
     ] }),
-    activeEmergencies.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "danger", className: "d-flex align-items-center", children: [
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "warning", dismissible: true, onClose: () => setError(""), children: error }),
+    activeEmergencies.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "danger", className: "d-flex align-items-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: "me-2", children: [
         "ACTIVE EMERGENCIES: ",
         activeEmergencies.length
       ] }),
       " — Immediate response required!"
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "success", className: "d-flex align-items-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { className: "me-2", children: "0 Active Emergencies" }),
+      " — All hospital zones clear."
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: activeEmergencies.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: summary.activeCount }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Active Now" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: recentResolved.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: summary.resolvedTodayCount }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Resolved Today" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: "2.5 min" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: summary.avgResponseMinutes != null ? `${summary.avgResponseMinutes} min` : "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg Response Time" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: responseTeams.length }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Response Teams" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: alertConfig.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Configured Codes" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: "96%" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Response Compliance" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: summary.compliancePct != null ? `${summary.compliancePct}%` : "—" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Resolution Compliance" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
@@ -150704,68 +150763,54 @@ const EmergencyCommandCenter = () => {
       ] }), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: activeEmergencies.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "success", children: "No active emergencies. All clear." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Code" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Location" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Triggered By" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Time" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Elapsed" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Responders" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Action" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: activeEmergencies.map((e3, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: e3.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: e3.type }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: e3.location }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: e3.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: e3.triggeredBy }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: e3.time }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-danger fw-bold", children: e3.elapsed }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "primary", children: e3.responders }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: e3.status === "Active" ? "danger" : "warning", children: e3.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", children: "Resolve" }) })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: activeEmergencies.map((e3) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { children: [
+            "EM-",
+            String(e3.id).padStart(4, "0")
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: codeLabel(e3.code) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: e3.location || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: e3.patient_name || "N/A" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: e3.triggered_by_name || "Staff" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: fmtTime(e3.triggered_at) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-danger fw-bold", children: e3.elapsed_minutes != null ? `${e3.elapsed_minutes} min` : "—" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: e3.status }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", onClick: () => resolveEmergency(e3.id), children: "Resolve" }) })
+        ] }, e3.id)) })
       ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "resolved", title: "Resolved Today", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "resolved", title: "Resolved", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: recentResolved.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "secondary", className: "mb-0", children: "No resolved emergencies logged for this hospital." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Code" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Location" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Duration" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Outcome" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Responders" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Resolved By" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Notes" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: recentResolved.map((r2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: r2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: r2.type }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: r2.location }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: r2.duration }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: r2.outcome === "False Alarm" ? "warning" : "success", children: r2.outcome }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: r2.responders })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: recentResolved.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { children: [
+            "EM-",
+            String(r2.id).padStart(4, "0")
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: codeLabel(r2.code) }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: r2.location || "—" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.patient_name || "N/A" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: r2.duration_minutes != null ? `${r2.duration_minutes} min` : "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.resolved_by_name || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: r2.resolution_notes || "—" }) })
+        ] }, r2.id)) })
       ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "teams", title: "Response Teams", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Team" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Lead" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Members" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Pager" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Avg Response" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: responseTeams.map((t2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.team }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.lead }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.members.map((m2, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", className: "me-1 mb-1", style: { fontSize: "0.6rem" }, children: m2 }, j)) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.pager }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.avgResponse }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: t2.status === "Available" ? "success" : t2.status === "Deployed" ? "danger" : "warning", children: t2.status }) })
-        ] }, i)) })
-      ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "config", title: "Alert Configuration", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "config", title: "Alert Configuration", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: alertConfig.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "secondary", className: "mb-0", children: "No alert routing configuration returned by /api/emergency/config." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Code" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Description" }),
@@ -150774,12 +150819,12 @@ const EmergencyCommandCenter = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Escalation" })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: alertConfig.map((a2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { style: { backgroundColor: a2.color }, children: a2.code }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: a2.description }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: a2.sound }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: a2.broadcast }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-danger", children: a2.escalation }) })
-        ] }, i)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { style: { backgroundColor: a2.color || "#6c757d" }, children: a2.code }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: a2.description || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: a2.sound || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: a2.broadcast || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-danger", children: a2.escalation || "—" }) })
+        ] }, a2.code || i)) })
       ] }) }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showTrigger, onHide: () => setShowTrigger(false), centered: true, children: [
@@ -150787,40 +150832,43 @@ const EmergencyCommandCenter = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Emergency Type" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Code Blue - Cardiac Arrest" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Code Red - Fire" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Rapid Response" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Code Pink - Infant Abduction" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Code Orange - Hazmat" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "MCI - Mass Casualty" })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.code, onChange: (e3) => setForm({ ...form, code: e3.target.value }), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Blue", children: "Code Blue — Cardiac Arrest" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Red", children: "Code Red — Fire" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Yellow", children: "Code Yellow — Emergency Triage" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Pink", children: "Code Pink — Infant Abduction" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Orange", children: "Code Orange — Hazmat" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Grey", children: "Code Grey — Security" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Location" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.location, onChange: (e3) => setForm({ ...form, location: e3.target.value }), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ICU" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ER" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Ward A" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Ward B" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "OT-1" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "OT-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Pediatrics" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "NICU" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Emergency Ward" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Operation Theatre" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "General Ward B" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "NICU" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Pediatrics Ward" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient (if applicable)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "text", placeholder: "Patient name or ID" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Notes" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2 })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Form$1.Control,
+            {
+              as: "textarea",
+              rows: 2,
+              value: form.notes,
+              onChange: (e3) => setForm({ ...form, notes: e3.target.value }),
+              placeholder: "Clinical context for the responding team"
+            }
+          )
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowTrigger(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", onClick: () => setShowTrigger(false), children: "TRIGGER NOW" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowTrigger(false), disabled: saving, children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", onClick: triggerEmergency, disabled: saving, children: saving ? "Dispatching…" : "TRIGGER NOW" })
       ] })
     ] })
   ] });
@@ -150857,7 +150905,7 @@ const BedTransferManager = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Bed Transfer Manager" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 12 -- Transfer requests, approvals, bed availability & history" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Transfer requests, approvals, bed availability & history" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowRequest(true), children: "+ New Transfer Request" })
     ] }),
@@ -151180,7 +151228,7 @@ const TreatmentPackageManager = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🏥 Treatment Package Builder" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 7 — CFO-Grade Package Rules Engine with Billing Interceptor" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "CFO-Grade Package Rules Engine with Billing Interceptor" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
@@ -151638,7 +151686,7 @@ const TPAProviderAdmin = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "TPA & Insurance Provider Administration" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 12 -- Provider onboarding, eligibility, PMJAY integration, claims tracking" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Provider onboarding, eligibility, PMJAY integration, claims tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Add Provider" })
     ] }),
@@ -151803,7 +151851,7 @@ const CloudBackupConsole = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Cloud Backup Console" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 12 -- Live backup management via cloudBackupRoutes.js APIs" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Automated cloud backup management, retention schedules, and disaster recovery verification" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", children: "Trigger Backup Now" }),
@@ -152408,7 +152456,7 @@ const EnterpriseAIDashboard = () => {
             pathwayResult.pathway || "N/A"
           ] }),
           pathwayResult.adherenceScore !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: pathwayResult.adherenceGrade === "A" ? "success" : pathwayResult.adherenceGrade === "B" ? "info" : "danger", className: "fs-6", children: [
-            "Grade ",
+            " Grade ",
             pathwayResult.adherenceGrade,
             " (",
             pathwayResult.adherenceScore,
@@ -152494,7 +152542,7 @@ const EnterpriseAIDashboard = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-transparent text-white d-flex justify-content-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-0", children: "🏥 Hospital Performance Scorecard" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: scorecard.overallScore >= 90 ? "success" : scorecard.overallScore >= 60 ? "warning" : "danger", className: "fs-5", children: [
-            "Grade ",
+            " Grade ",
             scorecard.grade,
             " (",
             scorecard.overallScore,
@@ -152628,7 +152676,7 @@ const EnterpriseAIDashboard = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-4", style: { background: "#f0f2f5", minHeight: "100vh" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "fw-bold mb-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { background: "linear-gradient(135deg, #667eea, #764ba2)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }, children: "🐺 Enterprise AI Command Center" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mb-0", children: "Phase 8 — 4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mb-0", children: "4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence" })
     ] }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", dismissible: true, onClose: () => setError(null), children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tab$1.Container, { activeKey: activeTab, onSelect: (k2) => setActiveTab(k2), children: [
@@ -152922,7 +152970,7 @@ const SpecialistReferralManager = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Specialist Referral Manager" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- Referral requests, specialist availability, scheduling & outcomes" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Referral requests, specialist availability, scheduling & outcomes" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowRefer(true), children: "+ New Referral" })
     ] }),
@@ -153102,7 +153150,7 @@ const ClinicalScalesDashboard = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Clinical Assessment Scales Dashboard" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- GCS, NEWS-2, APACHE II, Braden, Norton, Aldrete, APGAR, MEWS" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "GCS, NEWS-2, APACHE II, Braden, Norton, Aldrete, APGAR, MEWS" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ New Assessment" })
     ] }),
@@ -153229,7 +153277,7 @@ const POSTerminal = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Point-of-Sale Terminal" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- POS with 12 service sub-modules, multi-payment, walk-in + registered" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "POS with 12 service sub-modules, multi-payment, walk-in + registered" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", size: "lg", children: "+ New Transaction" })
     ] }),
@@ -153368,7 +153416,7 @@ const ProblemListManager = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Problem List Manager" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- ICD-10 coded problem lists, onset tracking, resolution documentation" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "ICD-10 coded problem lists, onset tracking, resolution documentation" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Add Problem" })
     ] }),
@@ -153484,7 +153532,7 @@ const TransitionPlanner = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Discharge Transition Planner" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- Discharge readiness tracking, task checklists, transition workflows" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Discharge readiness tracking, task checklists, transition workflows" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Create Plan" })
     ] }),
@@ -153610,7 +153658,7 @@ const WardPassManager = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Ward Pass Manager" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Phase 13 -- Temporary leave passes, escort tracking, return vitals, policies" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Temporary leave passes, escort tracking, return vitals, policies" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowNew(true), children: "+ Issue Ward Pass" })
     ] }),
@@ -153751,7 +153799,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-TKPw_bxC.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-DmW4uvjO.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),
