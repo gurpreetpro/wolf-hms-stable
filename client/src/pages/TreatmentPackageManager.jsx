@@ -174,7 +174,7 @@ const TreatmentPackageManager = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">🏥 Treatment Package Builder</h4>
-          <small className="text-muted">Phase 7 — CFO-Grade Package Rules Engine with Billing Interceptor</small>
+          <small className="text-muted">CFO-Grade Package Rules Engine with Billing Interceptor</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => { setFormData({ ...EMPTY_PACKAGE }); setShowCreateModal(true); }}>+ Create Package</Button>

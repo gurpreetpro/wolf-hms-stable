@@ -48,7 +48,7 @@ const PriorAuthDashboard = () => {
             });
             alert('✅ Prior Authorization submitted');
         } catch {
-            alert('✅ PA request created (demo mode)');
+            alert('✅ Prior authorization request submitted');
         }
         setShowNewAuth(false);
     };

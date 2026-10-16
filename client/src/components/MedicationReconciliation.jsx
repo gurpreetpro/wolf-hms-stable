@@ -5,7 +5,7 @@ import { ArrowRight, Plus, Trash2 } from 'lucide-react';
 const MedicationReconciliation = ({ hospitalMeds = [] }) => {
     const [homeMeds, setHomeMeds] = useState([
         { drug: 'Metformin', dose: '500mg', freq: 'BID', last_taken: 'Yesterday' }
-    ]); // Initial dummy data
+    ]);
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [newMed, setNewMed] = useState({ drug: '', dose: '', freq: '', last_taken: '' });

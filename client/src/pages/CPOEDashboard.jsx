@@ -49,7 +49,7 @@ const CPOEDashboard = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">🏥 Computerized Provider Order Entry (CPOE)</h4>
-          <small className="text-muted">Phase 6 S-Tier — Full order lifecycle with clinical decision support</small>
+          <small className="text-muted">Full order lifecycle with clinical decision support</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => setShowOrderModal(true)}>➕ New Order</Button>

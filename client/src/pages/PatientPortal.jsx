@@ -51,7 +51,7 @@ const PatientPortal = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Patient Portal</h4>
-          <small className="text-muted">Phase 8 S-Tier -- Self-service patient dashboard</small>
+          <small className="text-muted">Self-service patient dashboard</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">Book Appointment</Button>

@@ -43,7 +43,7 @@ const BackupDisasterRecovery = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Backup & Disaster Recovery</h4>
-          <small className="text-muted">Phase 10 S-Tier -- Automated backups, RTO/RPO tracking & DR drills</small>
+          <small className="text-muted">Automated backups, RTO/RPO tracking & DR drills</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">Run Manual Backup</Button>
@@ -125,8 +125,7 @@ const BackupDisasterRecovery = () => {
         <Tab eventKey="drills" title="DR Drills">
           <Card>
             <Card.Body>
-              <Alert variant="info">
-                DR drills are conducted monthly per HIPAA/NABH requirements. All drills have passed with zero data loss.
+              <Alert variant="info"> DR drills are conducted monthly per HIPAA/NABH requirements. All drills have passed with zero data loss.
               </Alert>
               <Table bordered hover responsive>
                 <thead className="table-dark">

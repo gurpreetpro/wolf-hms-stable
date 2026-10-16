@@ -46,7 +46,7 @@ const TransitionPlanner = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Discharge Transition Planner</h4>
-          <small className="text-muted">Phase 13 -- Discharge readiness tracking, task checklists, transition workflows</small>
+          <small className="text-muted">Discharge readiness tracking, task checklists, transition workflows</small>
         </div>
         <Button variant="primary">+ Create Plan</Button>
       </div>

@@ -163,7 +163,6 @@ const RouteReplay = () => {
             <Card.Header className="bg-dark text-white d-flex align-items-center gap-2">
                 <Navigation size={18} />
                 <span className="fw-bold">Route Replay</span>
-                <Badge bg="warning" text="dark" className="ms-auto">Phase 5</Badge>
             </Card.Header>
             <Card.Body>
                 {/* Controls */}

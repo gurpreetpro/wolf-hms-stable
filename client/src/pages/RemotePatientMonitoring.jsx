@@ -55,7 +55,7 @@ const RemotePatientMonitoring = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Remote Patient Monitoring (RPM)</h4>
-          <small className="text-muted">Phase 8 S-Tier -- Wearable integration, vitals dashboard, smart alerts</small>
+          <small className="text-muted">Wearable integration, vitals dashboard, smart alerts</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">+ Enroll Patient</Button>

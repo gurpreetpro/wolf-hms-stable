@@ -35,7 +35,7 @@ const SpecialistReferralManager = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Specialist Referral Manager</h4>
-          <small className="text-muted">Phase 13 -- Referral requests, specialist availability, scheduling & outcomes</small>
+          <small className="text-muted">Referral requests, specialist availability, scheduling & outcomes</small>
         </div>
         <Button variant="primary" onClick={() => setShowRefer(true)}>+ New Referral</Button>
       </div>

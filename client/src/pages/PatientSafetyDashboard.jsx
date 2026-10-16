@@ -39,7 +39,7 @@ const PatientSafetyDashboard = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">🛡️ Patient Safety Incident Reporting</h4>
-          <small className="text-muted">Phase 6 S-Tier — Near-miss/adverse event reporting with RCA workflow</small>
+          <small className="text-muted">Near-miss/adverse event reporting with RCA workflow</small>
         </div>
         <Button variant="danger" onClick={() => setShowReportModal(true)}>🚨 Report Incident</Button>
       </div>

@@ -40,7 +40,7 @@ const EMARDashboard = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">💊 Electronic Medication Administration Record (eMAR)</h4>
-          <small className="text-muted">Phase 6 S-Tier — Barcode-verified medication administration at bedside</small>
+          <small className="text-muted">Barcode-verified medication administration at bedside</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => { setShowScanModal(true); setScanResult(null); }}>📱 Barcode Scan</Button>

@@ -38,7 +38,7 @@ const IntegrationHub = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Integration Hub (HL7 / FHIR / API Gateway)</h4>
-          <small className="text-muted">Phase 10 S-Tier -- Interoperability, API management & webhook configuration</small>
+          <small className="text-muted">Interoperability, API management & webhook configuration</small>
         </div>
         <div className="d-flex gap-2">
           <Badge bg="success" className="p-2 fs-6">{totalMsgsToday.toLocaleString()} msgs today</Badge>

@@ -56,7 +56,7 @@ Plan: IV Furosemide 40mg stat, restrict fluids to 1.5L, telemetry monitoring, EC
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">🧠 Clinical NLP Engine</h4>
-          <small className="text-muted">Phase 7 S-Tier — Auto-coding, entity extraction, documentation quality analysis</small>
+          <small className="text-muted">Auto-coding, entity extraction, documentation quality analysis</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => {}}>🔬 Analyze Note</Button>

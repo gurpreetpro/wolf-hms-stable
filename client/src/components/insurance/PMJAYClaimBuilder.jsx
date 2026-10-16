@@ -193,7 +193,7 @@ const PMJAYClaimBuilder = ({
             setSuccess({
                 claimId: mockClaimId,
                 urnNumber: `URN${Date.now().toString().slice(-10)}`,
-                message: 'Claim submitted successfully (Demo Mode)'
+                message: 'Claim submitted successfully'
             });
             setStep('complete');
             

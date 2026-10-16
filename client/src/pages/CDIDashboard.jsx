@@ -32,7 +32,7 @@ const CDIDashboard = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">📋 Clinical Documentation Improvement (CDI)</h4>
-          <small className="text-muted">Phase 6 S-Tier — Documentation gap analysis, coding optimization, revenue capture</small>
+          <small className="text-muted">Documentation gap analysis, coding optimization, revenue capture</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => setShowQueryModal(true)}>➕ New Query</Button>

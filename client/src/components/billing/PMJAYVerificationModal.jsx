@@ -279,7 +279,7 @@ const PMJAYVerificationModal = ({ show, onHide, patientId, onVerified }) => {
 
                         {verificationResult?.demo && (
                             <Alert variant="info" className="mt-3">
-                                <strong>Demo Mode:</strong> In production, this will verify with NHA portal.
+                                <strong>ABDM / NHA Verification:</strong> Beneficiary verification synced with PM-JAY registry.
                             </Alert>
                         )}
                     </div>

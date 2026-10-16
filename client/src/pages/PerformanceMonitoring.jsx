@@ -38,7 +38,7 @@ const PerformanceMonitoring = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Performance Monitoring & APM</h4>
-          <small className="text-muted">Phase 10 S-Tier -- Server metrics, API latency, error tracking & resource utilization</small>
+          <small className="text-muted">Server metrics, API latency, error tracking & resource utilization</small>
         </div>
         <div className="d-flex gap-2">
           <Badge bg="success" className="p-2 fs-6">All Systems Healthy</Badge>

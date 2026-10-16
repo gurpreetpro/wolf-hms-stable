@@ -41,7 +41,7 @@ const PatientFeedback = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Patient Feedback & NPS</h4>
-          <small className="text-muted">Phase 8 S-Tier -- Satisfaction surveys, NPS tracking, complaint management</small>
+          <small className="text-muted">Satisfaction surveys, NPS tracking, complaint management</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">Send Survey</Button>

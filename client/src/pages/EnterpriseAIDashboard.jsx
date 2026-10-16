@@ -463,8 +463,7 @@ const EnterpriseAIDashboard = () => {
                     <Card.Header className="bg-dark text-white d-flex justify-content-between">
                         <span>📋 Pathway Adherence — {pathwayResult.pathway || 'N/A'}</span>
                         {pathwayResult.adherenceScore !== null && (
-                            <Badge bg={pathwayResult.adherenceGrade === 'A' ? 'success' : pathwayResult.adherenceGrade === 'B' ? 'info' : 'danger'} className="fs-6">
-                                Grade {pathwayResult.adherenceGrade} ({pathwayResult.adherenceScore}%)
+                            <Badge bg={pathwayResult.adherenceGrade === 'A' ? 'success' : pathwayResult.adherenceGrade === 'B' ? 'info' : 'danger'} className="fs-6"> Grade {pathwayResult.adherenceGrade} ({pathwayResult.adherenceScore}%)
                             </Badge>
                         )}
                     </Card.Header>
@@ -544,8 +543,7 @@ const EnterpriseAIDashboard = () => {
                 <Card className="border-0 shadow-sm mb-3" style={{ background: 'linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 100%)' }}>
                     <Card.Header className="bg-transparent text-white d-flex justify-content-between">
                         <h5 className="mb-0">🏥 Hospital Performance Scorecard</h5>
-                        <Badge bg={scorecard.overallScore >= 90 ? 'success' : scorecard.overallScore >= 60 ? 'warning' : 'danger'} className="fs-5">
-                            Grade {scorecard.grade} ({scorecard.overallScore}/100)
+                        <Badge bg={scorecard.overallScore >= 90 ? 'success' : scorecard.overallScore >= 60 ? 'warning' : 'danger'} className="fs-5"> Grade {scorecard.grade} ({scorecard.overallScore}/100)
                         </Badge>
                     </Card.Header>
                     <Card.Body>
@@ -667,7 +665,7 @@ const EnterpriseAIDashboard = () => {
                         🐺 Enterprise AI Command Center
                     </span>
                 </h2>
-                <p className="text-muted mb-0">Phase 8 — 4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence</p>
+                <p className="text-muted mb-0">4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence</p>
             </div>
 
             {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}

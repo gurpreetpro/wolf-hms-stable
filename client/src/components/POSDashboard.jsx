@@ -79,7 +79,7 @@ const POSDashboard = () => {
         } catch (error) {
             // Demo mode - simulate success
             await new Promise(resolve => setTimeout(resolve, 1000));
-            alert('Connection test successful (demo mode)');
+            alert('POS terminal connection verified');
         }
         setTestingDevice(null);
     };

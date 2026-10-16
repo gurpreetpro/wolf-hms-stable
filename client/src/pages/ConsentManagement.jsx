@@ -34,7 +34,7 @@ const ConsentManagement = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Consent Management</h4>
-          <small className="text-muted">Phase 9 S-Tier -- Patient consent tracking, e-signatures & expiry management</small>
+          <small className="text-muted">Patient consent tracking, e-signatures & expiry management</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">+ New Consent</Button>

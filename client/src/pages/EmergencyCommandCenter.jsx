@@ -40,7 +40,7 @@ const EmergencyCommandCenter = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Emergency Command Center</h4>
-          <small className="text-muted">Phase 12 -- Code blue/red triggers, response teams, resolution tracking</small>
+          <small className="text-muted">Code blue/red triggers, response teams, and real-time resolution tracking</small>
         </div>
         <Button variant="danger" size="lg" onClick={() => setShowTrigger(true)}>TRIGGER EMERGENCY</Button>
       </div>

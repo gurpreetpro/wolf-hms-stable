@@ -42,7 +42,7 @@ const RegulatoryReporting = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Regulatory Reporting (NABH / JCI)</h4>
-          <small className="text-muted">Phase 9 S-Tier -- Automated KPI reporting, accreditation readiness & quality indicators</small>
+          <small className="text-muted">Automated KPI reporting, accreditation readiness & quality indicators</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">Generate NABH Report</Button>

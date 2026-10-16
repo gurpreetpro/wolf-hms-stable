@@ -96,15 +96,13 @@ export default function InsuranceCommandCenter() {
       setStats(statsRes.data);
       setClaims(claimsRes.data.claims || []);
     } catch (error) {
-      console.warn('Using mock data due to API error');
+      // Never fabricate claims: surface an honest empty state instead.
+      console.error('[InsuranceCommandCenter] Claims dashboard load failed:', error.message);
       setStats({
-        totalClaimed: 4520000, patientShare: 850000, leakageDetected: 120000, avgSettlementDays: 14,
-        pendingCount: 23
+        totalClaimed: 0, patientShare: 0, leakageDetected: 0, avgSettlementDays: 0,
+        pendingCount: 0, approvedCount: 0, deniedCount: 0
       });
-      setClaims([
-        { id: 1, patient_name: 'Rajesh Kumar', uhid: 'IPD-26-001', insurer: 'Star Health', insurance_amount: 120000, patient_amount: 20000, risk_score: 0.05, status: 'PENDING' },
-        { id: 2, patient_name: 'Priya Sharma', uhid: 'IPD-26-002', insurer: 'PMJAY', insurance_amount: 85000, patient_amount: 0, risk_score: 0.85, status: 'PENDING' },
-      ]);
+      setClaims([]);
     } finally { setLoading(false); }
   };
 

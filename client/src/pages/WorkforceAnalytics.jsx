@@ -45,7 +45,7 @@ const WorkforceAnalytics = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Workforce Analytics</h4>
-          <small className="text-muted">Phase 11 S-Tier -- Staff utilization, attrition tracking, productivity metrics & benchmarking</small>
+          <small className="text-muted">Staff utilization, attrition tracking, productivity metrics & benchmarking</small>
         </div>
         <Button variant="outline-primary">Download Report</Button>
       </div>

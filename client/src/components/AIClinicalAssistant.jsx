@@ -92,7 +92,6 @@ const AIClinicalAssistant = ({
             <Card.Header className="bg-transparent border-0 d-flex align-items-center gap-2">
                 <Sparkles className="text-primary" size={18} />
                 <span className="fw-bold">AI Clinical Assistant</span>
-                <Badge bg="info" className="ms-auto">Phase 2</Badge>
             </Card.Header>
             <Card.Body className="pt-0">
                 {error && <Alert variant="danger" className="py-2 small" dismissible onClose={() => setError(null)}>{error}</Alert>}

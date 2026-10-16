@@ -34,7 +34,7 @@ const EarlyWarningScore = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">⚠️ Early Warning Score (NEWS-2) Dashboard</h4>
-          <small className="text-muted">Phase 7 S-Tier — ML-augmented patient deterioration prediction</small>
+          <small className="text-muted">ML-augmented patient deterioration prediction</small>
         </div>
         <div className="d-flex gap-2">
           {metrics.critical > 0 && <Badge bg="danger" className="p-2 fs-6">🚨 {metrics.critical} CRITICAL</Badge>}

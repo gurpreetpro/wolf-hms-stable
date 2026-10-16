@@ -70,7 +70,7 @@ const ClosedLoopMedication = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">🔒 Closed-Loop Medication Management</h4>
-          <small className="text-muted">Phase 6 S-Tier — Prescribe → Verify → Dispense → Administer → Document</small>
+          <small className="text-muted">Prescribe → Verify → Dispense → Administer → Document</small>
         </div>
         <Button variant="outline-info">📊 Chain Analytics</Button>
       </div>

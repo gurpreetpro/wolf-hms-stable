@@ -39,7 +39,7 @@ const BedTransferManager = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Bed Transfer Manager</h4>
-          <small className="text-muted">Phase 12 -- Transfer requests, approvals, bed availability & history</small>
+          <small className="text-muted">Transfer requests, approvals, bed availability & history</small>
         </div>
         <Button variant="primary" onClick={() => setShowRequest(true)}>+ New Transfer Request</Button>
       </div>

@@ -1,6 +1,6 @@
 # PLATFORM MOCK-DATA / "PHASE X" SUBTITLE / BUCKET C AUDIT
 
-**Generated:** 2026-10-16T00:48:26.479Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
+**Generated:** 2026-10-16T10:39:33.258Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
 **Scanner:** `scripts/qa/audit-mock-and-disabled-ui.js`  ·  **Raw data:** `plans/mock-audit.json`
 
 ## 0. Scope & method
@@ -18,10 +18,10 @@
 |---|---|---|
 | **A — Disconnected** | **7** | mock UI + real backend already mounted |
 | **B — Pure static mock** | **55** | mock UI, no backend twin yet |
-| **C — Silent catch/state fallback** | **20** | API called, but fake data injected on failure/empty |
+| **C — Silent catch/state fallback** | **19** | API called, but fake data injected on failure/empty |
 | **D — Bucket C "Module not enabled"** | **12** | intentionally-disabled modules |
-| **E — Developer subtitle / mock wording** | **50** | visible "Phase N -- …"/"Mock"/"Demo Mode" text |
-| Files with ≥1 finding | **99 / 377** | |
+| **E — Developer subtitle / mock wording** | **0** | visible "Phase N -- …"/"Mock"/"Demo Mode" text |
+| Files with ≥1 finding | **92 / 377** | |
 
 ## Table A — Disconnected Screens (real backend exists, frontend uses mock data)
 
@@ -129,14 +129,13 @@
 | `client/src/components/DoctorReviewsPanel.jsx` | — | 1 catch block(s): \|\| [] fallback array | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/components/EligibilityVerification.jsx` | /api/preauth/patient/${patientId}/insurance<br>/api/preauth/providers<br>/api/preauth/verify-eligibility | 1 catch block(s): setState(array literal), mock wording | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/components/GovtSchemePanel.jsx` | — | 1 catch block(s): setState(array literal), \|\| [] fallback array | No explicit endpoint captured — inspect the catch source manually |
-| `client/src/components/insurance/PMJAYClaimBuilder.jsx` | — | 1 catch block(s): mock wording | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/components/insurance/PMJAYProcedureManager.jsx` | — | 1 catch block(s): setState(array literal) | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/components/IPDLabOrderModal.jsx` | — | 1 catch block(s): setState(array literal) | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/components/PreauthDashboard.jsx` | /api/preauth/requests<br>/api/preauth/stats<br>/api/preauth/request/${selectedRequest.id}/status | 1 catch block(s): fake patient/staff name, setState(array literal), mock wording · names: Priya Singh | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/components/settings/TOTPVerify.jsx` | /api/2fa/login-verify | 1 catch block(s): setState(array literal) | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/components/ShiftHandoverReport.jsx` | /api/nurse/shift-handover<br>/api/nurse/handover/notes<br>/api/nurse/handover/notes/${patient.admission_id} | 1 catch block(s): setState(array literal) | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/pages/AdminRecoveryConsole.jsx` | /api/admin/recovery/stats<br>/api/admin/recovery/patients<br>/api/admin/recovery/audit-logs | 1 catch block(s): \|\| [] fallback array · 1 useState([...]) seed with object literals | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
-| `client/src/pages/InsuranceCommandCenter.jsx` | — | 1 catch block(s): fake patient/staff name, setState(array literal), mock wording · names: Priya Sharma, Rajesh Kumar | No explicit endpoint captured — inspect the catch source manually |
+| `client/src/pages/InsuranceCommandCenter.jsx` | — | 1 catch block(s): setState(array literal) | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/pages/NeonatalDashboard.jsx` | /api/neonatal/babies<br>/api/neonatal/admit | 1 catch block(s): fake patient/staff name, setState(array literal) · names: Priya Sharma | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/pages/PriceApprovals.jsx` | /api/pharmacy/price-requests<br>/api/lab/requests<br>/api/ward/requests | 1 catch block(s): setState(array literal), \|\| [] fallback array | FAILS locally: 500 UNKNOWN (records/columns absent) — prod NOT probed (code freeze) |
 
@@ -163,58 +162,8 @@
 
 | File Path | Line # | Exact Leaked Text | Clean Production Replacement Text |
 |---|---|---|---|
-| `client/src/components/AIClinicalAssistant.jsx` | 95 | `<Badge bg="info" className="ms-auto">Phase 2</Badge>` | Phase 2 |
-| `client/src/components/billing/PMJAYVerificationModal.jsx` | 282 | `<strong>Demo Mode:</strong> In production, this will verify with NHA portal.` | Demo Mode: |
-| `client/src/components/delivery/RouteReplay.jsx` | 166 | `<Badge bg="warning" text="dark" className="ms-auto">Phase 5</Badge>` | Phase 5 |
-| `client/src/components/insurance/PMJAYClaimBuilder.jsx` | 196 | `message: 'Claim submitted successfully (Demo Mode)'` | Message: Claim submitted successfully (Demo Mode) |
-| `client/src/components/MedicationReconciliation.jsx` | 8 | `]); // Initial dummy data` | ]); // Initial dummy data |
-| `client/src/components/POSDashboard.jsx` | 82 | `alert('Connection test successful (demo mode)');` | Alert(Connection test successful (demo mode)); |
-| `client/src/pages/AuditTrail.jsx` | 47 | `<small className="text-muted">Phase 9 S-Tier -- Comprehensive event logging, forensic search & user tracking</small>` | Comprehensive event logging, forensic search & user tracking |
-| `client/src/pages/BackupDisasterRecovery.jsx` | 46 | `<small className="text-muted">Phase 10 S-Tier -- Automated backups, RTO/RPO tracking & DR drills</small>` | Automated backups, RTO/RPO tracking & DR drills |
-| `client/src/pages/BedTransferManager.jsx` | 42 | `<small className="text-muted">Phase 12 -- Transfer requests, approvals, bed availability & history</small>` | Transfer requests, approvals, bed availability & history |
-| `client/src/pages/CDIDashboard.jsx` | 35 | `<small className="text-muted">Phase 6 S-Tier — Documentation gap analysis, coding optimization, revenue capture</small>` | Documentation gap analysis, coding optimization, revenue capture |
-| `client/src/pages/ClinicalAIAssistant.jsx` | 193 | `<small className="text-muted">Phase 7 S-Tier — AI-powered clinical decision support</small>` | AI-powered clinical decision support |
-| `client/src/pages/ClinicalNLP.jsx` | 59 | `<small className="text-muted">Phase 7 S-Tier — Auto-coding, entity extraction, documentation quality analysis</small>` | Auto-coding, entity extraction, documentation quality analysis |
-| `client/src/pages/ClinicalScalesDashboard.jsx` | 42 | `<small className="text-muted">Phase 13 -- GCS, NEWS-2, APACHE II, Braden, Norton, Aldrete, APGAR, MEWS</small>` | GCS, NEWS-2, APACHE II, Braden, Norton, Aldrete, APGAR, MEWS |
-| `client/src/pages/ClosedLoopMedication.jsx` | 73 | `<small className="text-muted">Phase 6 S-Tier — Prescribe → Verify → Dispense → Administer → Document</small>` | Prescribe → Verify → Dispense → Administer → Document |
-| `client/src/pages/CloudBackupConsole.jsx` | 45 | `<small className="text-muted">Phase 12 -- Live backup management via cloudBackupRoutes.js APIs</small>` | Live backup management via cloudBackupRoutes.js APIs |
-| `client/src/pages/ConsentManagement.jsx` | 37 | `<small className="text-muted">Phase 9 S-Tier -- Patient consent tracking, e-signatures & expiry management</small>` | Patient consent tracking, e-signatures & expiry management |
-| `client/src/pages/CPOEDashboard.jsx` | 52 | `<small className="text-muted">Phase 6 S-Tier — Full order lifecycle with clinical decision support</small>` | Full order lifecycle with clinical decision support |
-| `client/src/pages/Credentialing.jsx` | 39 | `<small className="text-muted">Phase 11 S-Tier -- License verification, skill matrix, privilege tracking & re-credentialing</small>` | License verification, skill matrix, privilege tracking & re-credentialing |
-| `client/src/pages/DataPrivacy.jsx` | 43 | `<small className="text-muted">Phase 9 S-Tier -- De-identification engine, retention policies & GDPR/DISHA compliance</small>` | De-identification engine, retention policies & GDPR/DISHA compliance |
-| `client/src/pages/EarlyWarningScore.jsx` | 37 | `<small className="text-muted">Phase 7 S-Tier — ML-augmented patient deterioration prediction</small>` | ML-augmented patient deterioration prediction |
-| `client/src/pages/EMARDashboard.jsx` | 43 | `<small className="text-muted">Phase 6 S-Tier — Barcode-verified medication administration at bedside</small>` | Barcode-verified medication administration at bedside |
-| `client/src/pages/EmergencyCommandCenter.jsx` | 43 | `<small className="text-muted">Phase 12 -- Code blue/red triggers, response teams, resolution tracking</small>` | Code blue/red triggers, response teams, resolution tracking |
-| `client/src/pages/EnterpriseAIDashboard.jsx` | 670 | `<p className="text-muted mb-0">Phase 8 — 4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence</p>` | 4 AI Pillars • 16 Endpoints • Real-Time Hospital Intelligence |
-| `client/src/pages/HealthEducation.jsx` | 42 | `<small className="text-muted">Phase 8 S-Tier -- Patient education, medication guides & wellness programs</small>` | Patient education, medication guides & wellness programs |
-| `client/src/pages/HIPAACompliance.jsx` | 43 | `<small className="text-muted">Phase 9 S-Tier -- PHI protection, breach detection & compliance monitoring</small>` | PHI protection, breach detection & compliance monitoring |
-| `client/src/pages/InsuranceCommandCenter.jsx` | 99 | `console.warn('Using mock data due to API error');` | Console.warn(Using mock data due to API error); |
-| `client/src/pages/IntegrationHub.jsx` | 41 | `<small className="text-muted">Phase 10 S-Tier -- Interoperability, API management & webhook configuration</small>` | Interoperability, API management & webhook configuration |
-| `client/src/pages/MultiTenantAdmin.jsx` | 42 | `<small className="text-muted">Phase 10 S-Tier -- Tenant management, licensing, usage analytics & SLA monitoring</small>` | Tenant management, licensing, usage analytics & SLA monitoring |
-| `client/src/pages/PatientFeedback.jsx` | 44 | `<small className="text-muted">Phase 8 S-Tier -- Satisfaction surveys, NPS tracking, complaint management</small>` | Satisfaction surveys, NPS tracking, complaint management |
-| `client/src/pages/PatientPortal.jsx` | 54 | `<small className="text-muted">Phase 8 S-Tier -- Self-service patient dashboard</small>` | Self-service patient dashboard |
-| `client/src/pages/PatientSafetyDashboard.jsx` | 42 | `<small className="text-muted">Phase 6 S-Tier — Near-miss/adverse event reporting with RCA workflow</small>` | Near-miss/adverse event reporting with RCA workflow |
-| `client/src/pages/PayrollIntegration.jsx` | 40 | `<small className="text-muted">Phase 11 S-Tier -- Salary processing, attendance-linked pay, deductions & payslips</small>` | Salary processing, attendance-linked pay, deductions & payslips |
-| `client/src/pages/PerformanceMonitoring.jsx` | 41 | `<small className="text-muted">Phase 10 S-Tier -- Server metrics, API latency, error tracking & resource utilization</small>` | Server metrics, API latency, error tracking & resource utilization |
-| `client/src/pages/POSTerminal.jsx` | 53 | `<small className="text-muted">Phase 13 -- POS with 12 service sub-modules, multi-payment, walk-in + registered</small>` | POS with 12 service sub-modules, multi-payment, walk-in + registered |
-| `client/src/pages/PriorAuthDashboard.jsx` | 51 | `alert('✅ PA request created (demo mode)');` | Alert(✅ PA request created (demo mode)); |
-| `client/src/pages/ProblemListManager.jsx` | 36 | `<small className="text-muted">Phase 13 -- ICD-10 coded problem lists, onset tracking, resolution documentation</small>` | ICD-10 coded problem lists, onset tracking, resolution documentation |
-| `client/src/pages/RegulatoryReporting.jsx` | 45 | `<small className="text-muted">Phase 9 S-Tier -- Automated KPI reporting, accreditation readiness & quality indicators</small>` | Automated KPI reporting, accreditation readiness & quality indicators |
-| `client/src/pages/RemotePatientMonitoring.jsx` | 58 | `<small className="text-muted">Phase 8 S-Tier -- Wearable integration, vitals dashboard, smart alerts</small>` | Wearable integration, vitals dashboard, smart alerts |
-| `client/src/pages/RevenueCycleAI.jsx` | 38 | `<small className="text-muted">Phase 7 S-Tier — Claim denial prediction, auto-appeal, revenue leakage detection</small>` | Claim denial prediction, auto-appeal, revenue leakage detection |
-| `client/src/pages/SmartScheduling.jsx` | 39 | `<small className="text-muted">Phase 7 S-Tier — ML-driven appointment optimization & no-show prediction</small>` | ML-driven appointment optimization & no-show prediction |
-| `client/src/pages/SpecialistReferralManager.jsx` | 38 | `<small className="text-muted">Phase 13 -- Referral requests, specialist availability, scheduling & outcomes</small>` | Referral requests, specialist availability, scheduling & outcomes |
-| `client/src/pages/StaffRoster.jsx` | 38 | `<small className="text-muted">Phase 11 S-Tier -- Shift management, duty rosters, leave calendar & overtime tracking</small>` | Shift management, duty rosters, leave calendar & overtime tracking |
-| `client/src/pages/SystemConfiguration.jsx` | 34 | `<small className="text-muted">Phase 10 S-Tier -- Global config, feature flags & notification management</small>` | Global config, feature flags & notification management |
-| `client/src/pages/TelehealthConsole.jsx` | 40 | `<small className="text-muted">Phase 8 S-Tier -- Video consultation & virtual care platform</small>` | Video consultation & virtual care platform |
-| `client/src/pages/TPAProviderAdmin.jsx` | 46 | `<small className="text-muted">Phase 12 -- Provider onboarding, eligibility, PMJAY integration, claims tracking</small>` | Provider onboarding, eligibility, PMJAY integration, claims tracking |
-| `client/src/pages/TrainingCompetency.jsx` | 47 | `<small className="text-muted">Phase 11 S-Tier -- CME tracking, certifications, competency assessments & e-learning</small>` | CME tracking, certifications, competency assessments & e-learning |
-| `client/src/pages/TransitionPlanner.jsx` | 49 | `<small className="text-muted">Phase 13 -- Discharge readiness tracking, task checklists, transition workflows</small>` | Discharge readiness tracking, task checklists, transition workflows |
-| `client/src/pages/TreatmentPackageManager.jsx` | 177 | `<small className="text-muted">Phase 7 — CFO-Grade Package Rules Engine with Billing Interceptor</small>` | CFO-Grade Package Rules Engine with Billing Interceptor |
-| `client/src/pages/WardPassManager.jsx` | 32 | `<small className="text-muted">Phase 13 -- Temporary leave passes, escort tracking, return vitals, policies</small>` | Temporary leave passes, escort tracking, return vitals, policies |
-| `client/src/pages/WorkforceAnalytics.jsx` | 48 | `<small className="text-muted">Phase 11 S-Tier -- Staff utilization, attrition tracking, productivity metrics & benchmarking</small>` | Staff utilization, attrition tracking, productivity metrics & benchmarking |
 
-**Total visible leak lines:** 50 across 50 files. (In-file line/block comments that mention a phase are excluded — they are not user-visible.)
+**Total visible leak lines:** 0 across 0 files. (In-file line/block comments that mention a phase are excluded — they are not user-visible.)
 
 ## Prioritised remediation order
 

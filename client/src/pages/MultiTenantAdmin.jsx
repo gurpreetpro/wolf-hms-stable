@@ -39,7 +39,7 @@ const MultiTenantAdmin = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Multi-Tenant Administration</h4>
-          <small className="text-muted">Phase 10 S-Tier -- Tenant management, licensing, usage analytics & SLA monitoring</small>
+          <small className="text-muted">Tenant management, licensing, usage analytics & SLA monitoring</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">+ Onboard Tenant</Button>

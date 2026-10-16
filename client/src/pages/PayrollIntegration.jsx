@@ -37,7 +37,7 @@ const PayrollIntegration = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Payroll Integration</h4>
-          <small className="text-muted">Phase 11 S-Tier -- Salary processing, attendance-linked pay, deductions & payslips</small>
+          <small className="text-muted">Salary processing, attendance-linked pay, deductions & payslips</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="success">Run Payroll</Button>

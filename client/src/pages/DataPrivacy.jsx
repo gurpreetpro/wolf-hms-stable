@@ -40,7 +40,7 @@ const DataPrivacy = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Data Privacy & Anonymization</h4>
-          <small className="text-muted">Phase 9 S-Tier -- De-identification engine, retention policies & GDPR/DISHA compliance</small>
+          <small className="text-muted">De-identification engine, retention policies & GDPR/DISHA compliance</small>
         </div>
         <div className="d-flex gap-2">
           <Badge bg="success" className="p-2 fs-6">Privacy Score: {privacyScore}%</Badge>
@@ -146,8 +146,7 @@ const DataPrivacy = () => {
         <Tab eventKey="dsar" title="DSAR / Right to Access">
           <Card>
             <Card.Body>
-              <Alert variant="info">
-                Data Subject Access Requests must be completed within <strong>30 days</strong> (GDPR) / <strong>30 days</strong> (DISHA). Current avg TAT: <strong>3.2 days</strong>.
+              <Alert variant="info"> Data Subject Access Requests must be completed within <strong>30 days</strong> (GDPR) / <strong>30 days</strong> (DISHA). Current avg TAT: <strong>3.2 days</strong>.
               </Alert>
               <Table bordered hover responsive>
                 <thead className="table-dark">

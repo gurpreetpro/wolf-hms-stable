@@ -44,7 +44,7 @@ const TrainingCompetency = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Training & Competency Management</h4>
-          <small className="text-muted">Phase 11 S-Tier -- CME tracking, certifications, competency assessments & e-learning</small>
+          <small className="text-muted">CME tracking, certifications, competency assessments & e-learning</small>
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary">+ Schedule Training</Button>
