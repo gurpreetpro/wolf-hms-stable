@@ -16,13 +16,7 @@ const DEPARTMENTS = [
 ];
 
 // External specialists network (mock data)
-const EXTERNAL_SPECIALISTS = [
-    { id: 1, name: 'Dr. Anil Sharma', specialty: 'Cardiac Surgery', hospital: 'AIIMS Delhi', phone: '9876543210' },
-    { id: 2, name: 'Dr. Priya Mehta', specialty: 'Neurosurgery', hospital: 'Fortis Gurgaon', phone: '9876543211' },
-    { id: 3, name: 'Dr. Rajesh Kumar', specialty: 'Oncology', hospital: 'TMH Mumbai', phone: '9876543212' },
-    { id: 4, name: 'Dr. Sunita Verma', specialty: 'Nephrology', hospital: 'Medanta', phone: '9876543213' },
-    { id: 5, name: 'Dr. Vikram Singh', specialty: 'Joint Replacement', hospital: 'Max Hospital', phone: '9876543214' }
-];
+const EXTERNAL_SPECIALISTS = [];
 
 const ReferralNetwork = ({ patient, onReferralSent, internalDoctors = [], initialSelectedDoctor = null }) => {
     const [showModal, setShowModal] = useState(false);

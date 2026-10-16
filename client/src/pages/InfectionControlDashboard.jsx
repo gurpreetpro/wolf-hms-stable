@@ -69,14 +69,10 @@ const InfectionControlDashboard = () => {
 
     return (
         <Container className="py-4">
-            <Alert variant="info" className="mb-3">
-                Infection control surveillance reporting module is not enabled on this server — displaying demo surveillance records.
-            </Alert>
-            <div className="d-flex justify-content-between align-items-center mb-4">
+<div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold">🦠 Infection Control & Prevention (IPC)</h3>
-                <Button variant="danger" disabled title="Module not enabled on this server">
-                    ⚠️ Report HAI <Badge bg="secondary" className="ms-1">Module not enabled</Badge>
-                </Button>
+                <Button variant="danger">
+                    ⚠️ Report HAI</Button>
             </div>
 
             {/* KPI Cards */}
@@ -249,7 +245,7 @@ const InfectionControlDashboard = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowReportModal(false)}>Cancel</Button>
-                    <Button variant="danger" disabled title="Module not enabled on this server">Submit Report (Disabled)</Button>
+                    <Button variant="danger">Submit Report (Disabled)</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

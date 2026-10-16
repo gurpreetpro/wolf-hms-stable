@@ -6,28 +6,11 @@ const EMARDashboard = () => {
   const [showScanModal, setShowScanModal] = useState(false);
   const [scanResult, setScanResult] = useState(null);
 
-  const dueMedications = [
-    { id: 1, patient: 'Rajesh Kumar', bed: 'A-101', mrn: 'MRN-1045', medication: 'Metformin 500mg', route: 'PO', time: '12:00 PM', status: 'Due', dose: '500mg', frequency: 'BD', prescriber: 'Dr. Sharma', barcode: 'MED-MTF-500' },
-    { id: 2, patient: 'Rajesh Kumar', bed: 'A-101', mrn: 'MRN-1045', medication: 'Atorvastatin 20mg', route: 'PO', time: '12:00 PM', status: 'Due', dose: '20mg', frequency: 'OD', prescriber: 'Dr. Sharma', barcode: 'MED-ATV-020' },
-    { id: 3, patient: 'Anita Desai', bed: 'A-103', mrn: 'MRN-1078', medication: 'Ceftriaxone 1g', route: 'IV', time: '12:00 PM', status: 'Due', dose: '1g', frequency: 'BD', prescriber: 'Dr. Patel', barcode: 'MED-CFX-1000' },
-    { id: 4, patient: 'Suresh Menon', bed: 'B-205', mrn: 'MRN-1023', medication: 'Enoxaparin 40mg', route: 'SC', time: '12:00 PM', status: 'Overdue', dose: '40mg', frequency: 'OD', prescriber: 'Dr. Reddy', barcode: 'MED-ENX-040' },
-    { id: 5, patient: 'Priya Singh', bed: 'B-208', mrn: 'MRN-1056', medication: 'Pantoprazole 40mg', route: 'IV', time: '12:00 PM', status: 'Due', dose: '40mg', frequency: 'OD', prescriber: 'Dr. Sharma', barcode: 'MED-PNT-040' },
-    { id: 6, patient: 'Mohammed Ali', bed: 'ICU-3', mrn: 'MRN-1089', medication: 'Insulin Glargine 10U', route: 'SC', time: '12:00 PM', status: 'Due', dose: '10U', frequency: 'OD', prescriber: 'Dr. Khan', barcode: 'MED-INS-010' },
-  ];
+  const dueMedications = [];
 
-  const administeredMeds = [
-    { id: 101, patient: 'Rajesh Kumar', medication: 'Metformin 500mg', time: '08:00 AM', nurse: 'Nurse Meera', barcodeVerified: true, status: 'Given', notes: '' },
-    { id: 102, patient: 'Anita Desai', medication: 'Ceftriaxone 1g', time: '08:00 AM', nurse: 'Nurse Priya', barcodeVerified: true, status: 'Given', notes: '' },
-    { id: 103, patient: 'Lakshmi Nair', medication: 'Paracetamol 1g', time: '08:30 AM', nurse: 'Nurse Ritu', barcodeVerified: true, status: 'Given', notes: '' },
-    { id: 104, patient: 'Vikram Iyer', medication: 'Ondansetron 4mg', time: '09:00 AM', nurse: 'Nurse Meera', barcodeVerified: false, status: 'Held', notes: 'Patient vomiting — held per physician' },
-    { id: 105, patient: 'Suresh Menon', medication: 'Amlodipine 5mg', time: '08:00 AM', nurse: 'Nurse Priya', barcodeVerified: true, status: 'Given', notes: '' },
-  ];
+  const administeredMeds = [];
 
-  const prnMeds = [
-    { patient: 'Rajesh Kumar', medication: 'Paracetamol 1g PRN', lastGiven: '06:00 AM', nextEligible: '12:00 PM', reason: 'Pain Score > 4' },
-    { patient: 'Anita Desai', medication: 'Tramadol 50mg PRN', lastGiven: '10:00 AM', nextEligible: '02:00 PM', reason: 'Post-op pain' },
-    { patient: 'Mohammed Ali', medication: 'Insulin Lispro Sliding Scale', lastGiven: '08:00 AM', nextEligible: '12:00 PM', reason: 'CBG > 200' },
-  ];
+  const prnMeds = [];
 
   const statusColor = (s) => s === 'Overdue' ? 'danger' : s === 'Due' ? 'warning' : s === 'Given' ? 'success' : 'secondary';
 

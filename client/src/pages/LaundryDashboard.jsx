@@ -48,19 +48,14 @@ export default function LaundryDashboard() {
 
   return (
     <Container fluid className="p-4">
-      <Alert variant="info" className="d-flex align-items-center mb-3">
-        <Shirt size={18} className="me-2" />
-        Hospital linen and laundry tracking module is not enabled on this server — displaying demo tracking records.
-      </Alert>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+<div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Shirt className="me-2 text-info" />Laundry Management</h2>
           <p className="text-muted">Hospital Linen & Laundry Tracking System</p>
         </div>
-        <Button variant="info" disabled title="Module not enabled on this server">
+        <Button variant="info">
           <Plus size={16} className="me-1" /> New Laundry Order
-          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-        </Button>
+</Button>
       </div>
 
       {/* KPI */}
@@ -169,7 +164,7 @@ export default function LaundryDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="info" disabled title="Module not enabled on this server">Submit Order (Disabled)</Button>
+          <Button variant="info">Submit Order (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

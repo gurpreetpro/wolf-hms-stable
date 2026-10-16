@@ -4,19 +4,9 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const ConsentManagement = () => {
   const [activeTab, setActiveTab] = useState('active');
 
-  const activeConsents = [
-    { id: 'CON-301', patient: 'Rajesh Kumar', mrn: 'MRN-1045', type: 'Treatment Consent', procedure: 'Diabetes Management Plan', signDate: '2026-02-15', expiry: '2027-02-15', method: 'E-Signature', status: 'Active', witness: 'Nurse Priya' },
-    { id: 'CON-302', patient: 'Anita Desai', mrn: 'MRN-1078', type: 'Surgical Consent', procedure: 'Appendectomy', signDate: '2026-03-01', expiry: '2026-03-15', method: 'Wet Signature', status: 'Active', witness: 'Dr. Reddy' },
-    { id: 'CON-303', patient: 'Suresh Menon', mrn: 'MRN-1023', type: 'Research Consent', procedure: 'Cardiac Rehabilitation Study', signDate: '2026-01-20', expiry: '2027-01-20', method: 'E-Signature', status: 'Active', witness: 'Dr. Sharma' },
-    { id: 'CON-304', patient: 'Kavita Mehta', mrn: 'MRN-1067', type: 'Data Sharing', procedure: 'Share records with Dr. Patel (Cardiology)', signDate: '2026-02-28', expiry: '2026-08-28', method: 'E-Signature', status: 'Active', witness: 'Self' },
-    { id: 'CON-305', patient: 'Mohammed Ali', mrn: 'MRN-1089', type: 'Treatment Consent', procedure: 'Chemotherapy Cycle 3', signDate: '2026-02-20', expiry: '2026-05-20', method: 'Wet Signature', status: 'Active', witness: 'Nurse Deepa' },
-  ];
+  const activeConsents = [];
 
-  const expiringConsents = [
-    { id: 'CON-202', patient: 'Lakshmi Nair', mrn: 'MRN-1034', type: 'Treatment Consent', expiry: '2026-03-10', daysLeft: 8, procedure: 'Physiotherapy sessions' },
-    { id: 'CON-198', patient: 'Arun Das', mrn: 'MRN-1056', type: 'Data Sharing', expiry: '2026-03-05', daysLeft: 3, procedure: 'Insurance data sharing' },
-    { id: 'CON-189', patient: 'Priya Singh', mrn: 'MRN-1078', type: 'Research Consent', expiry: '2026-03-08', daysLeft: 6, procedure: 'Mental health survey participation' },
-  ];
+  const expiringConsents = [];
 
   const consentTemplates = [
     { name: 'General Treatment Consent', version: 'v3.2', lastUpdate: '2026-01-15', language: ['English', 'Hindi', 'Tamil'], approvedBy: 'Medical Director' },

@@ -5,14 +5,7 @@ const AnatomicPathology = () => {
     const [activeTab, setActiveTab] = useState('cases');
     const [showNewCase, setShowNewCase] = useState(false);
 
-    const cases = [
-        { id: 'PATH-2026-0121', patient: 'Ramesh K.', type: 'Biopsy', specimen: 'Colon polyp', site: 'Sigmoid colon', received: '2026-03-01', status: 'Grossing', assigned: 'Dr. Mehra', priority: 'Routine', tat: '2d' },
-        { id: 'PATH-2026-0120', patient: 'Priya S.', type: 'Excision', specimen: 'Breast lump', site: 'Right breast UOQ', received: '2026-02-28', status: 'Microscopy', assigned: 'Dr. Kapoor', priority: 'Urgent', tat: '3d' },
-        { id: 'PATH-2026-0119', patient: 'Suresh M.', type: 'FNAC', specimen: 'Thyroid nodule', site: 'Right lobe thyroid', received: '2026-02-28', status: 'Reporting', assigned: 'Dr. Mehra', priority: 'Routine', tat: '3d' },
-        { id: 'PATH-2026-0118', patient: 'Anita R.', type: 'Frozen Section', specimen: 'Ovarian mass', site: 'Left ovary', received: '2026-03-02', status: 'STAT', assigned: 'Dr. Kapoor', priority: 'STAT', tat: '30min' },
-        { id: 'PATH-2026-0117', patient: 'Vikram J.', type: 'Biopsy', specimen: 'Skin lesion', site: 'Left forearm', received: '2026-02-27', status: 'Finalized', assigned: 'Dr. Mehra', priority: 'Routine', tat: '4d' },
-        { id: 'PATH-2026-0116', patient: 'Meera L.', type: 'Resection', specimen: 'Appendix', site: 'Appendix', received: '2026-02-26', status: 'Finalized', assigned: 'Dr. Sharma', priority: 'Routine', tat: '5d' },
-    ];
+    const cases = [];
 
     const slides = [
         { id: 'SL-0891', caseId: 'PATH-2026-0120', stain: 'H&E', blocks: 4, status: 'Cut', quality: 'Good' },

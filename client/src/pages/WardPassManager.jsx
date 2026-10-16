@@ -1,21 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Modal, Form } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const WardPassManager = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [showNew, setShowNew] = useState(false);
+  const [activePasses, setActivePasses] = useState([]);
+  const [returnedPasses, setReturnedPasses] = useState([]);
 
-  const activePasses = [
-    { id: 'WP-078', patient: 'Ramesh Gupta (P-1045)', ward: 'Ward A-12', type: 'Day Pass', reason: 'Family event attendance', approvedBy: 'Dr. Priya Sharma', issuedAt: '2026-03-02 09:00', returnBy: '2026-03-02 18:00', escortedBy: 'Son — Manoj Gupta', contact: '98765-43210', conditions: 'Continue oral meds, avoid exertion', status: 'Out' },
-    { id: 'WP-077', patient: 'Meena Sharma (P-1023)', ward: 'Ward A-8', type: 'Short Leave', reason: 'Religious ceremony at home', approvedBy: 'Dr. Suresh Patel', issuedAt: '2026-03-02 10:00', returnBy: '2026-03-02 14:00', escortedBy: 'Husband — Rajesh Sharma', contact: '87654-32100', conditions: 'Wound care instructions provided', status: 'Out' },
-  ];
+  // Live ward passes (replaces the previously hardcoded pass rows)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/ward-pass/passes');
+        const all = res.data.data || res.data.passes || [];
+        setActivePasses(all.filter(p => p.status === 'Active'));
+        setReturnedPasses(all.filter(p => p.status !== 'Active'));
+      } catch (err) {
+        console.error('[WardPassManager] pass load failed:', err.message);
+        setActivePasses([]);
+        setReturnedPasses([]);
+      }
+    })();
+  }, []);
 
-  const returnedPasses = [
-    { id: 'WP-076', patient: 'Anil Mehta (P-1067)', ward: 'Ward B-14', type: 'Day Pass', reason: 'Bank work', issuedAt: '2026-03-01 09:00', returnBy: '18:00', returnedAt: '17:30', status: 'Returned On Time', vitalsOnReturn: 'BP 130/80, Temp 98.4°F, SpO2 97%' },
-    { id: 'WP-075', patient: 'Vikram Singh (P-998)', ward: 'Ward B-7', type: 'Overnight', reason: 'Night at home before discharge', issuedAt: '2026-02-28 18:00', returnBy: 'Mar 1 08:00', returnedAt: '08:15', status: 'Returned Late (15min)', vitalsOnReturn: 'BP 120/78, Temp 98.2°F, SpO2 99%' },
-    { id: 'WP-074', patient: 'Fatima Khan (P-1012)', ward: 'Ward A-15', type: 'Short Leave', reason: 'Follow-up at dental clinic', issuedAt: '2026-02-28 10:00', returnBy: '13:00', returnedAt: '12:45', status: 'Returned On Time', vitalsOnReturn: 'BP 118/75, Temp 98.6°F, SpO2 98%' },
-    { id: 'WP-073', patient: 'Neha Gupta (P-1034)', ward: 'Ward A-5', type: 'Day Pass', reason: "Child's school function", issuedAt: '2026-02-27 08:00', returnBy: '16:00', returnedAt: '15:30', status: 'Returned On Time', vitalsOnReturn: 'BP 110/70, Temp 98.4°F, SpO2 99%' },
-  ];
+  const totalPasses = activePasses.length + returnedPasses.length;
 
   const policies = [
     { type: 'Short Leave', maxDuration: '4 hours', eligibility: 'Stable patients, Day 3+', approval: 'Treating Doctor', escortRequired: 'Yes', vitalsCheck: 'Before & After', restrictions: 'No alcohol, continue meds' },
@@ -37,7 +46,7 @@ const WardPassManager = () => {
       <Row className="mb-3">
         <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{activePasses.length}</h3><small>Currently Out</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{returnedPasses.length}</h3><small>Returned (7d)</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">95%</h3><small>On-Time Return Rate</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{totalPasses > 0 ? `${Math.round((returnedPasses.length / totalPasses) * 100)}%` : '—'}</h3><small>On-Time Return Rate</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">{policies.length}</h3><small>Pass Types</small></Card.Body></Card></Col>
       </Row>
 

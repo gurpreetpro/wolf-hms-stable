@@ -9,13 +9,7 @@ const PatientFeedback = () => {
     trend: [65, 68, 70, 69, 72], months: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb']
   };
 
-  const recentFeedback = [
-    { id: 'FB-101', patient: 'Rajesh Kumar', date: '2026-03-01', nps: 9, comment: 'Excellent care by Dr. Sharma. The new telehealth feature is very convenient.', dept: 'Medicine', sentiment: 'Positive' },
-    { id: 'FB-102', patient: 'Anita Desai', date: '2026-02-28', nps: 7, comment: 'Good treatment but waiting time was long. Had to wait 45 minutes past appointment.', dept: 'Cardiology', sentiment: 'Neutral' },
-    { id: 'FB-103', patient: 'Priya Singh', date: '2026-02-27', nps: 3, comment: 'Billing was confusing. Got charged for services not received. Need better transparency.', dept: 'Billing', sentiment: 'Negative' },
-    { id: 'FB-104', patient: 'Vikram Iyer', date: '2026-02-26', nps: 10, comment: 'The nursing staff was exceptional. Clean rooms and great food quality.', dept: 'IPD', sentiment: 'Positive' },
-    { id: 'FB-105', patient: 'Mohammed Ali', date: '2026-02-25', nps: 8, comment: 'Smooth admission process. Pharmacy was quick with medications.', dept: 'Emergency', sentiment: 'Positive' },
-  ];
+  const recentFeedback = [];
 
   const departmentScores = [
     { dept: 'Emergency', nps: 78, responses: 45, topIssue: 'Wait time', satisfaction: 4.2 },
@@ -27,12 +21,7 @@ const PatientFeedback = () => {
     { dept: 'Pharmacy', nps: 80, responses: 35, topIssue: 'Wait for discharge meds', satisfaction: 4.3 },
   ];
 
-  const complaints = [
-    { id: 'CMP-201', date: '2026-02-28', patient: 'Priya Singh', category: 'Billing', desc: 'Incorrect charges on final bill', status: 'Under Review', priority: 'High', tat: '2 days' },
-    { id: 'CMP-202', date: '2026-02-27', patient: 'Arun Das', category: 'Wait Time', desc: 'OPD wait exceeded 1 hour', status: 'Resolved', priority: 'Medium', tat: '1 day' },
-    { id: 'CMP-203', date: '2026-02-26', patient: 'Kavita Mehta', category: 'Staff', desc: 'Rude behavior at reception', status: 'Escalated', priority: 'High', tat: '3 days' },
-    { id: 'CMP-204', date: '2026-02-25', patient: 'Lakshmi Nair', category: 'Cleanliness', desc: 'Washroom not cleaned in Ward B', status: 'Resolved', priority: 'Low', tat: '4 hours' },
-  ];
+  const complaints = [];
 
   const sentimentColor = (s) => s === 'Positive' ? 'success' : s === 'Negative' ? 'danger' : 'warning';
 

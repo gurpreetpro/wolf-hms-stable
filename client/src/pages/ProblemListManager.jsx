@@ -1,32 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const ProblemListManager = () => {
   const [activeTab, setActiveTab] = useState('active');
+  const [activeProblems, setActiveProblems] = useState([]);
+  const [resolvedProblems, setResolvedProblems] = useState([]);
+  const [summary, setSummary] = useState({ active: 0, resolved: 0, patients: 0, high: 0 });
 
-  const activeProblems = [
-    { patient: 'Ramesh Gupta (P-1045)', problems: [
-      { icd: 'I48.0', name: 'Atrial Fibrillation', onset: '2025-06-15', severity: 'Moderate', status: 'Active', managedBy: 'Dr. Amit Verma' },
-      { icd: 'E11.9', name: 'Type 2 Diabetes Mellitus', onset: '2020-03-10', severity: 'Controlled', status: 'Active', managedBy: 'Dr. Priya Sharma' },
-      { icd: 'I10', name: 'Essential Hypertension', onset: '2019-08-22', severity: 'Controlled', status: 'Active', managedBy: 'Dr. Priya Sharma' },
-    ]},
-    { patient: 'Meena Devi (P-1078)', problems: [
-      { icd: 'O60.1', name: 'Preterm Labor - 32 weeks', onset: '2026-03-01', severity: 'High', status: 'Active', managedBy: 'Dr. Rajesh Kumar' },
-      { icd: 'O24.4', name: 'Gestational Diabetes', onset: '2026-01-15', severity: 'Moderate', status: 'Active', managedBy: 'Dr. Rajesh Kumar' },
-    ]},
-    { patient: 'Anil Mehta (P-1067)', problems: [
-      { icd: 'K25.9', name: 'Gastric Ulcer', onset: '2026-02-20', severity: 'Moderate', status: 'Active', managedBy: 'Dr. Suresh Patel' },
-      { icd: 'F10.1', name: 'Alcohol Use Disorder', onset: '2024-01-01', severity: 'Moderate', status: 'Active', managedBy: 'Dr. Suresh Patel' },
-      { icd: 'K70.3', name: 'Alcoholic Cirrhosis', onset: '2025-11-10', severity: 'Severe', status: 'Active', managedBy: 'Dr. Rao' },
-    ]},
-  ];
-
-  const resolvedProblems = [
-    { patient: 'Vikram Singh (P-998)', icd: 'I21.0', name: 'Acute STEMI', onset: '2026-02-25', resolved: '2026-02-27', resolution: 'PTCA + DES Stenting successful' },
-    { patient: 'Priya Sen (P-978)', icd: 'R05', name: 'Chronic Cough', onset: '2026-01-10', resolved: '2026-02-28', resolution: 'Diagnosed as Asthma — started inhaler therapy' },
-    { patient: 'Rekha Jain (P-945)', icd: 'A41.9', name: 'Sepsis', onset: '2026-02-20', resolved: '2026-02-28', resolution: 'IV antibiotics 7-day course completed, cultures negative' },
-    { patient: 'Suresh Patel (P-987)', icd: 'N17.9', name: 'Acute Kidney Injury', onset: '2026-02-15', resolved: '2026-02-22', resolution: 'Resolved with hydration, Cr normalized to 1.1' },
-  ];
+  // Live coded problem list (icd10 codes) from the problem-list module
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/patient-problems');
+        const all = res.data.data || res.data.problems || [];
+        const byPatient = new Map();
+        for (const row of all.filter(r => r.status === 'Active')) {
+          const key = row.patient_name || row.patient_id;
+          if (!byPatient.has(key)) byPatient.set(key, { patient: key, problems: [] });
+          byPatient.get(key).problems.push(row);
+        }
+        setActiveProblems([...byPatient.values()]);
+        setResolvedProblems(all.filter(r => r.status !== 'Active'));
+        setSummary({
+          active: all.filter(r => r.status === 'Active').length,
+          resolved: all.filter(r => r.status !== 'Active').length,
+          patients: byPatient.size,
+          high: 0,
+        });
+      } catch (err) {
+        console.error('[ProblemListManager] problem load failed:', err.message);
+        setActiveProblems([]);
+        setResolvedProblems([]);
+        setSummary({ active: 0, resolved: 0, patients: 0, high: 0 });
+      }
+    })();
+  }, []);
 
   return (
     <Container fluid className="py-3">
@@ -39,14 +48,14 @@ const ProblemListManager = () => {
       </div>
 
       <Row className="mb-3">
-        <Col><Card className="text-center border-danger"><Card.Body><h3 className="text-danger">8</h3><small>Active Problems</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">4</h3><small>Resolved This Month</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">3</h3><small>Patients Tracked</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">2</h3><small>High Severity</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-danger"><Card.Body><h3 className="text-danger">{summary.active}</h3><small>Active Problems</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{summary.resolved}</h3><small>Resolved</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{summary.patients}</h3><small>Patients Tracked</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{summary.high}</h3><small>High Severity</small></Card.Body></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
-        <Tab eventKey="active" title={<span>Active Problems <Badge bg="danger">8</Badge></span>}>
+        <Tab eventKey="active" title={<span>Active Problems <Badge bg="danger">{summary.active}</Badge></span>}>
           {activeProblems.map((p) => (
             <Card key={p.patient} className="mb-3">
               <Card.Header className="bg-dark text-white"><strong>{p.patient}</strong> — {p.problems.length} active problems</Card.Header>

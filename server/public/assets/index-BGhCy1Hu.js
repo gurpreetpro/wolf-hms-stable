@@ -66987,10 +66987,9 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", disabled: true, title: "Module not enabled on this server", className: "w-100 d-flex align-items-center justify-content-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", className: "w-100 d-flex align-items-center justify-content-center", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { size: 18, className: "me-2" }),
-      "Select Order Set",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+      "Select Order Set"
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showModal, onHide: () => setShowModal(false), size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Order Sets / Clinical Pathways" }) }),
@@ -73398,13 +73397,7 @@ const DEPARTMENTS$2 = [
   "Pediatrics",
   "Radiology"
 ];
-const EXTERNAL_SPECIALISTS = [
-  { id: 1, name: "Dr. Anil Sharma", specialty: "Cardiac Surgery", hospital: "AIIMS Delhi", phone: "9876543210" },
-  { id: 2, name: "Dr. Priya Mehta", specialty: "Neurosurgery", hospital: "Fortis Gurgaon", phone: "9876543211" },
-  { id: 3, name: "Dr. Rajesh Kumar", specialty: "Oncology", hospital: "TMH Mumbai", phone: "9876543212" },
-  { id: 4, name: "Dr. Sunita Verma", specialty: "Nephrology", hospital: "Medanta", phone: "9876543213" },
-  { id: 5, name: "Dr. Vikram Singh", specialty: "Joint Replacement", hospital: "Max Hospital", phone: "9876543214" }
-];
+const EXTERNAL_SPECIALISTS = [];
 const ReferralNetwork = ({ patient, onReferralSent, internalDoctors = [], initialSelectedDoctor = null }) => {
   const [showModal, setShowModal] = reactExports.useState(false);
   const [referralType, setReferralType] = reactExports.useState("internal");
@@ -107610,15 +107603,7 @@ const AdvancedReportsDashboard = () => {
       setTrendData(trendRes.data);
     } catch (error) {
       console.error("Error loading reports:", error);
-      setDepartmentData({
-        departments: [
-          { name: "IPD/Ward", revenue: 18e4, percentage: 36, invoice_count: 45 },
-          { name: "OPD", revenue: 125e3, percentage: 25, invoice_count: 85 },
-          { name: "Laboratory", revenue: 75e3, percentage: 15, invoice_count: 92 },
-          { name: "Pharmacy", revenue: 65e3, percentage: 13, invoice_count: 78 }
-        ],
-        total_revenue: 5e5
-      });
+      setDepartmentData({ departments: [], total_revenue: 0 });
     } finally {
       setLoading(false);
     }
@@ -111998,15 +111983,11 @@ const PreauthDashboard = () => {
     } catch (error) {
       console.error("Error loading preauth data:", error);
       setStats({
-        counts: { total: 12, pending: 4, under_review: 3, approved: 4, denied: 1 },
-        amounts: { total_requested: 85e4, total_approved: 62e4, approval_rate: 83 },
-        avg_turnaround: 2
+        counts: { total: 0, pending: 0, under_review: 0, approved: 0, denied: 0 },
+        amounts: { total_requested: 0, total_approved: 0, approval_rate: 0 },
+        avg_turnaround: 0
       });
-      setRequests([
-        { id: 1, request_number: "PA2412-ABC123", patient_name: "Ramesh Kumar", procedure_name: "Knee Replacement", requested_amount: 15e4, status: "Approved", approved_amount: 14e4, provider_name: "Star Health", created_at: (/* @__PURE__ */ new Date()).toISOString() },
-        { id: 2, request_number: "PA2412-DEF456", patient_name: "Priya Singh", procedure_name: "Cardiac Stent", requested_amount: 25e4, status: "Under Review", provider_name: "ICICI Lombard", created_at: (/* @__PURE__ */ new Date()).toISOString() },
-        { id: 3, request_number: "PA2412-GHI789", patient_name: "Suresh Reddy", procedure_name: "Appendectomy", requested_amount: 45e3, status: "Pending", provider_name: "Medi Assist", created_at: (/* @__PURE__ */ new Date()).toISOString() }
-      ]);
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -119198,110 +119179,106 @@ Status: ${e3.resource.status}`
       ) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "pre-op", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Clipboard, { size: 14, className: "me-1" }),
-        "Pre-Op Assessment ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-1", children: "Module not enabled" })
+        "Pre-Op Assessment"
       ] }), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "shadow-sm border-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { className: "bg-white fw-bold", children: "Pre-Operative Assessment Checklist" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", className: "mb-3", children: "Pre-Operative assessment module is not enabled on this server." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: async (e3) => {
-              e3.preventDefault();
-              const formData = new FormData(e3.target);
-              const data = Object.fromEntries(formData);
-              try {
-                await api.post("/api/pre-op/assessment", data);
-                alert("✅ Pre-Op Assessment Saved!");
-              } catch {
-                alert("Pre-Op Assessment saved locally. API endpoint pending.");
-              }
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient ID" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "patient_id", required: true, placeholder: "Enter Patient ID" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Surgery ID" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "surgery_id", placeholder: "OT Schedule ID" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3", children: "Airway Assessment" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Mallampati Score" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { name: "mallampati", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class I" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class II" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class III" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class IV" })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Difficult Airway Anticipated", name: "difficult_airway", className: "mb-3" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3", children: "Patient Status" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "ASA Physical Status" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { name: "asa_score", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA I - Healthy" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA II - Mild systemic disease" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA III - Severe systemic disease" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA IV - Life-threatening" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA V - Moribund" })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Fasting Status (NPO hours)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "npo_hours", type: "number", placeholder: "e.g., 8" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Consent Signed", name: "consent_signed", className: "mb-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Site Marked", name: "site_marked", className: "mb-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Blood Type & Screen Done", name: "blood_type_screen", className: "mb-2" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3 mt-3", children: "Allergies" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", name: "allergies", rows: 2, placeholder: "Known drug/latex allergies...", className: "mb-3" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "submit", variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 14, className: "me-1" }),
-                " Save Pre-Op Assessment (Disabled)"
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: async (e3) => {
+            e3.preventDefault();
+            const formData = new FormData(e3.target);
+            const data = Object.fromEntries(formData);
+            try {
+              await api.post("/api/pre-op/assessment", data);
+              alert("✅ Pre-Op Assessment Saved!");
+            } catch {
+              alert("Pre-Op Assessment saved locally. API endpoint pending.");
+            }
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient ID" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "patient_id", required: true, placeholder: "Enter Patient ID" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Surgery ID" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "surgery_id", placeholder: "OT Schedule ID" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3", children: "Airway Assessment" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Mallampati Score" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { name: "mallampati", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class I" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class II" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class III" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Class IV" })
               ] })
-            ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "warning", className: "small", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "⚠️ Surgical Safety Checklist (WHO)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-                "Complete BEFORE patient enters OT. Verify: identity, procedure, site, consent, allergies, airway, blood loss risk."
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, size: "sm", className: "mt-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Check" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
-                ] }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Patient Identity Confirmed" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Procedure & Site Verified" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Consent Documented" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "⏳" }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Allergy Band Applied" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Anesthesia Safety Check" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "⏳" }) })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Imaging Available" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
-                  ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Difficult Airway Anticipated", name: "difficult_airway", className: "mb-3" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3", children: "Patient Status" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "ASA Physical Status" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { name: "asa_score", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA I - Healthy" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA II - Mild systemic disease" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA III - Severe systemic disease" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA IV - Life-threatening" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ASA V - Moribund" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Fasting Status (NPO hours)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { name: "npo_hours", type: "number", placeholder: "e.g., 8" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Consent Signed", name: "consent_signed", className: "mb-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Site Marked", name: "site_marked", className: "mb-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Check, { label: "Blood Type & Screen Done", name: "blood_type_screen", className: "mb-2" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-3 mt-3", children: "Allergies" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", name: "allergies", rows: 2, placeholder: "Known drug/latex allergies...", className: "mb-3" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "submit", variant: "primary", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 14, className: "me-1" }),
+              " Save Pre-Op Assessment (Disabled)"
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "warning", className: "small", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "⚠️ Surgical Safety Checklist (WHO)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+              "Complete BEFORE patient enters OT. Verify: identity, procedure, site, consent, allergies, airway, blood loss risk."
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, size: "sm", className: "mt-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Check" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Patient Identity Confirmed" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Procedure & Site Verified" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Consent Documented" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "⏳" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Allergy Band Applied" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Anesthesia Safety Check" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "⏳" }) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Imaging Available" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" }) })
                 ] })
               ] })
             ] })
           ] })
-        ] })
+        ] }) })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "intra-op", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Heart, { size: 14, className: "me-1" }),
@@ -137565,16 +137542,11 @@ const QualityDashboard = () => {
   const compliantCount = checklist.filter((c2) => c2.status === "compliant").length;
   const compliancePercent = Math.round(compliantCount / checklist.length * 100);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { size: 18, className: "me-2" }),
-      "Quality metrics and NABH compliance module is not enabled on this server — displaying baseline benchmark data."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "fw-bold mb-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Award, { size: 24, className: "me-2 text-primary" }),
-          " Quality & NABH Compliance",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+          " Quality & NABH Compliance"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Hospital quality indicators and accreditation tracking" })
       ] }),
@@ -137736,10 +137708,6 @@ const WasteManagementDashboard = () => {
     ] });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 18, className: "me-2" }),
-      "Biomedical waste management module is not enabled on this server — displaying demo compliance data."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "fw-bold mb-1", children: [
@@ -137749,10 +137717,9 @@ const WasteManagementDashboard = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "CPCB BMW Rules 2016 Compliance — Color Coded Waste Tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", size: "sm", disabled: true, title: "Module not enabled on this server", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", size: "sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { size: 14, className: "me-1" }),
-          " Log Waste ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-1", children: "Module not enabled" })
+          " Log Waste"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", size: "sm", onClick: fetchWasteData, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { size: 14, className: "me-1" }),
@@ -137941,7 +137908,7 @@ const WasteManagementDashboard = () => {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowLogModal(false), children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", type: "submit", disabled: true, title: "Module not enabled on this server", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", type: "submit", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, className: "me-1" }),
             " Record (Disabled)"
           ] })
@@ -137961,12 +137928,7 @@ function NeonatalDashboard() {
         const res = await api.get("/api/neonatal/babies");
         setBabies(res.data.data || res.data || []);
       } catch {
-        setBabies([
-          { id: 1, name: "Baby of Priya Sharma", weight: 2.1, gestational_age: 34, apgar_1: 7, apgar_5: 9, status: "Stable", bed: "NICU-W1", temp: 36.8, hr: 145, spo2: 96, feeding: "NGT", diagnosis: "Preterm, LBW" },
-          { id: 2, name: "Baby of Sunita Devi", weight: 1.8, gestational_age: 32, apgar_1: 6, apgar_5: 8, status: "Critical", bed: "NICU-W2", temp: 36.5, hr: 160, spo2: 92, feeding: "TPN", diagnosis: "RDS, VLBW" },
-          { id: 3, name: "Baby of Anjali Rao", weight: 3.2, gestational_age: 38, apgar_1: 8, apgar_5: 9, status: "Stable", bed: "NICU-W3", temp: 37, hr: 130, spo2: 98, feeding: "Breastfeed", diagnosis: "Neonatal Jaundice" },
-          { id: 4, name: "Baby of Meena Kumari", weight: 2.5, gestational_age: 36, apgar_1: 7, apgar_5: 8, status: "Monitoring", bed: "NICU-W4", temp: 36.6, hr: 150, spo2: 95, feeding: "EBM via Cup", diagnosis: "Sepsis screening" }
-        ]);
+        setBabies([]);
       } finally {
         setLoading(false);
       }
@@ -137978,10 +137940,6 @@ function NeonatalDashboard() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[status] || "secondary", children: status });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Baby, { size: 18, className: "me-2" }),
-      "Neonatal ICU management module is not enabled on this server — displaying demo census data."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -137990,10 +137948,9 @@ function NeonatalDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Level III NICU — Monitoring & Care" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " Admit Neonate",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " Admit Neonate"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -138183,7 +138140,7 @@ function NeonatalDashboard() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdmit(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", disabled: true, title: "Module not enabled on this server", children: "Admit to NICU (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", children: "Admit to NICU (Disabled)" })
       ] })
     ] })
   ] });
@@ -138230,10 +138187,6 @@ function AmbulanceDashboard() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[p2] || "secondary", children: p2 });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Truck, { size: 18, className: "me-2" }),
-      "Ambulance fleet dispatch module is not enabled on this server — displaying demo fleet data."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -138242,10 +138195,9 @@ function AmbulanceDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Fleet Management & Emergency Dispatch" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " Dispatch Ambulance",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " Dispatch Ambulance"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -138356,7 +138308,7 @@ function AmbulanceDashboard() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowDispatch(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", disabled: true, title: "Module not enabled on this server", children: "Dispatch Now (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", children: "Dispatch Now (Disabled)" })
       ] })
     ] })
   ] });
@@ -138401,10 +138353,6 @@ function LaundryDashboard() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[c2] || "secondary", text: c2 === "Routine" ? "dark" : void 0, children: c2 });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Shirt, { size: 18, className: "me-2" }),
-      "Hospital linen and laundry tracking module is not enabled on this server — displaying demo tracking records."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -138413,10 +138361,9 @@ function LaundryDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Hospital Linen & Laundry Tracking System" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " New Laundry Order",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " New Laundry Order"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -138543,7 +138490,7 @@ function LaundryDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", disabled: true, title: "Module not enabled on this server", children: "Submit Order (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", children: "Submit Order (Disabled)" })
       ] })
     ] })
   ] });
@@ -138585,10 +138532,6 @@ function StaffSchedulingDashboard() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[s2] || "secondary", children: s2 });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$2, { size: 18, className: "me-2" }),
-      "Staff shift scheduling module is not enabled on this server — displaying demo schedule."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -138597,10 +138540,9 @@ function StaffSchedulingDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Shift Management & Roster Planning" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " Add Shift",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " Add Shift"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -138728,7 +138670,7 @@ function StaffSchedulingDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdd(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: "Assign Shift (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Assign Shift (Disabled)" })
       ] })
     ] })
   ] });
@@ -138764,10 +138706,6 @@ function AssetDashboard() {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[c2] || "secondary", children: c2 });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { size: 18, className: "me-2" }),
-      "Biomedical asset management module is not enabled on this server — displaying demo equipment inventory."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -138776,10 +138714,9 @@ function AssetDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Biomedical Equipment Tracking & Maintenance" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " Register Asset",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " Register Asset"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -138869,7 +138806,7 @@ function AssetDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdd(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: "Register (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Register (Disabled)" })
       ] })
     ] })
   ] });
@@ -138902,10 +138839,6 @@ function CommsDashboard() {
     fetchData();
   }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MessageSquare, { size: 18, className: "me-2" }),
-      "Internal communications module is not enabled on this server — displaying demo notices."
-    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
@@ -138914,10 +138847,9 @@ function CommsDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Internal Announcements & Messaging" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
-        " New Announcement",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-2", children: "Module not enabled" })
+        " New Announcement"
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
@@ -139008,7 +138940,7 @@ function CommsDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 14, className: "me-1" }),
           " Post (Disabled)"
         ] })
@@ -139179,13 +139111,9 @@ const InfectionControlDashboard = () => {
     return "#dc3545";
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", className: "mb-3", children: "Infection control surveillance reporting module is not enabled on this server — displaying demo surveillance records." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold", children: "🦠 Infection Control & Prevention (IPC)" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", disabled: true, title: "Module not enabled on this server", children: [
-        "⚠️ Report HAI ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-1", children: "Module not enabled" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", children: "⚠️ Report HAI" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "mb-4 g-3", children: [
       { title: "Active HAIs", value: kpis.activeHAI, color: "danger" },
@@ -139330,7 +139258,7 @@ const InfectionControlDashboard = () => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowReportModal(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", disabled: true, title: "Module not enabled on this server", children: "Submit Report (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", children: "Submit Report (Disabled)" })
       ] })
     ] })
   ] });
@@ -142538,13 +142466,9 @@ const PriorAuthDashboard = () => {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: map2[urgency] || "secondary", children: urgency });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", className: "mb-3", children: "Insurance prior authorization module is not enabled on this server — displaying demo authorizations." }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold", children: "📋 Prior Authorization Management" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: [
-        "➕ New PA Request ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "ms-1", children: "Module not enabled" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "➕ New PA Request" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "mb-4 g-3", children: [
       { title: "Total Requests", value: kpis.total, color: "primary" },
@@ -142694,7 +142618,7 @@ const PriorAuthDashboard = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNewAuth(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", disabled: true, title: "Module not enabled on this server", children: "📤 Submit PA Request (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "📤 Submit PA Request (Disabled)" })
       ] })
     ] })
   ] });
@@ -143019,13 +142943,7 @@ ${autoReorderItems.map((i) => `• ${i.name}: Order ${i.max - i.stock} ${i.unit}
 };
 const PredictiveAnalytics = () => {
   const [activeTab, setActiveTab] = reactExports.useState("readmission");
-  const readmissionRisk = [
-    { id: "P-10045", name: "Ramesh Kumar", age: 72, diagnosis: "CHF Exacerbation", los: 8, risk: 82, factors: ["Age >65", "Readmitted 2x in 6mo", "Multiple comorbidities", "Low EF"], discharge: "2026-03-01" },
-    { id: "P-10032", name: "Sunita Devi", age: 65, diagnosis: "COPD Acute", los: 6, risk: 71, factors: ["Prior readmission", "Low FEV1", "Steroid dependent"], discharge: "2026-03-02" },
-    { id: "P-10078", name: "Arvind Shah", age: 58, diagnosis: "Diabetic Ketoacidosis", los: 4, risk: 55, factors: ["Non-compliance history", "HbA1c >10", "No caregiver"], discharge: "2026-03-02" },
-    { id: "P-10091", name: "Meera Patel", age: 45, diagnosis: "Pneumonia", los: 5, risk: 30, factors: ["First admission", "Good social support"], discharge: "2026-03-03" },
-    { id: "P-10105", name: "Vikram Singh", age: 38, diagnosis: "Appendectomy", los: 2, risk: 8, factors: ["Young", "Surgical - routine"], discharge: "2026-03-02" }
-  ];
+  const readmissionRisk = [];
   const losPredictions = [
     { ward: "General Medicine", current: 32, avgLOS: 4.2, predicted: 4.5, trend: "up" },
     { ward: "Cardiology", current: 18, avgLOS: 5.8, predicted: 6.1, trend: "up" },
@@ -143285,14 +143203,7 @@ const PopulationHealth = () => {
 const AnatomicPathology = () => {
   const [activeTab, setActiveTab] = reactExports.useState("cases");
   const [showNewCase, setShowNewCase] = reactExports.useState(false);
-  const cases = [
-    { id: "PATH-2026-0121", patient: "Ramesh K.", type: "Biopsy", specimen: "Colon polyp", site: "Sigmoid colon", received: "2026-03-01", status: "Grossing", assigned: "Dr. Mehra", priority: "Routine", tat: "2d" },
-    { id: "PATH-2026-0120", patient: "Priya S.", type: "Excision", specimen: "Breast lump", site: "Right breast UOQ", received: "2026-02-28", status: "Microscopy", assigned: "Dr. Kapoor", priority: "Urgent", tat: "3d" },
-    { id: "PATH-2026-0119", patient: "Suresh M.", type: "FNAC", specimen: "Thyroid nodule", site: "Right lobe thyroid", received: "2026-02-28", status: "Reporting", assigned: "Dr. Mehra", priority: "Routine", tat: "3d" },
-    { id: "PATH-2026-0118", patient: "Anita R.", type: "Frozen Section", specimen: "Ovarian mass", site: "Left ovary", received: "2026-03-02", status: "STAT", assigned: "Dr. Kapoor", priority: "STAT", tat: "30min" },
-    { id: "PATH-2026-0117", patient: "Vikram J.", type: "Biopsy", specimen: "Skin lesion", site: "Left forearm", received: "2026-02-27", status: "Finalized", assigned: "Dr. Mehra", priority: "Routine", tat: "4d" },
-    { id: "PATH-2026-0116", patient: "Meera L.", type: "Resection", specimen: "Appendix", site: "Appendix", received: "2026-02-26", status: "Finalized", assigned: "Dr. Sharma", priority: "Routine", tat: "5d" }
-  ];
+  const cases = [];
   const slides = [
     { id: "SL-0891", caseId: "PATH-2026-0120", stain: "H&E", blocks: 4, status: "Cut", quality: "Good" },
     { id: "SL-0890", caseId: "PATH-2026-0120", stain: "IHC - ER/PR", blocks: 2, status: "Staining", quality: "Pending" },
@@ -143447,12 +143358,7 @@ const CreditDebitNotes = () => {
   const [activeTab, setActiveTab] = reactExports.useState("credit");
   const [showNew, setShowNew] = reactExports.useState(false);
   const [noteType, setNoteType] = reactExports.useState("Credit");
-  const creditNotes = [
-    { id: "CN-2026-0045", date: "2026-03-01", patient: "Ramesh Kumar", invoice: "INV-87234", amount: 4500, reason: "Duplicate charge — Chest X-Ray", status: "Approved", approvedBy: "Dr. Finance Head" },
-    { id: "CN-2026-0044", date: "2026-02-28", patient: "Priya Sharma", invoice: "INV-87198", amount: 12e3, reason: "Insurance adjustment — TPA rate difference", status: "Approved", approvedBy: "Billing Manager" },
-    { id: "CN-2026-0043", date: "2026-02-27", patient: "Suresh Mehta", invoice: "INV-87156", amount: 2200, reason: "Cancelled lab test — CBC Panel", status: "Pending", approvedBy: "—" },
-    { id: "CN-2026-0042", date: "2026-02-26", patient: "Anita Reddy", invoice: "INV-87101", amount: 8500, reason: "Package rate correction — Normal delivery", status: "Rejected", approvedBy: "Rejected: insufficient docs" }
-  ];
+  const creditNotes = [];
   const debitNotes = [
     { id: "DN-2026-0018", date: "2026-03-01", patient: "Vikram Joshi", invoice: "INV-87245", amount: 3200, reason: "Additional medication charges", status: "Approved", approvedBy: "Billing Manager" },
     { id: "DN-2026-0017", date: "2026-02-28", patient: "Meera Patel", invoice: "INV-87200", amount: 15e3, reason: "Extended ICU stay — 2 additional days", status: "Pending", approvedBy: "—" },
@@ -143593,44 +143499,7 @@ const CreditDebitNotes = () => {
 };
 const MultiPayerSplit = () => {
   const [showSplit, setShowSplit] = reactExports.useState(false);
-  const splitBills = [
-    {
-      id: "INV-87301",
-      patient: "Ramesh Kumar",
-      total: 25e4,
-      date: "2026-03-01",
-      status: "Settled",
-      payers: [
-        { type: "Insurance", name: "Star Health — Gold Plan", amount: 175e3, pct: 70, status: "Paid" },
-        { type: "Corporate", name: "TCS Wellness Program", amount: 5e4, pct: 20, status: "Paid" },
-        { type: "Patient", name: "Self / Cash", amount: 25e3, pct: 10, status: "Paid" }
-      ]
-    },
-    {
-      id: "INV-87298",
-      patient: "Priya Sharma",
-      total: 18e4,
-      date: "2026-02-28",
-      status: "Partial",
-      payers: [
-        { type: "Insurance", name: "ICICI Lombard — Platinum", amount: 15e4, pct: 83, status: "Approved" },
-        { type: "PMJAY", name: "PMJAY — AB-PMJAY", amount: 0, pct: 0, status: "N/A" },
-        { type: "Patient", name: "Self / Cash", amount: 3e4, pct: 17, status: "Pending" }
-      ]
-    },
-    {
-      id: "INV-87285",
-      patient: "Vikram Joshi",
-      total: 95e3,
-      date: "2026-02-27",
-      status: "Pending",
-      payers: [
-        { type: "Insurance", name: "Max Bupa — Heartbeat", amount: 6e4, pct: 63, status: "Submitted" },
-        { type: "Corporate", name: "Infosys EHB", amount: 2e4, pct: 21, status: "Pending" },
-        { type: "Patient", name: "Advance Deposit", amount: 15e3, pct: 16, status: "Collected" }
-      ]
-    }
-  ];
+  const splitBills = [];
   const payerColor = (t2) => ({ Insurance: "primary", Corporate: "info", Patient: "success", PMJAY: "warning" })[t2] || "secondary";
   const statusColor = (s2) => ({ Paid: "success", Approved: "info", Collected: "success", Submitted: "warning", Pending: "danger", "N/A": "secondary" })[s2] || "secondary";
   const billStatus = (s2) => ({ Settled: "success", Partial: "warning", Pending: "danger" })[s2] || "secondary";
@@ -143722,15 +143591,7 @@ const MultiPayerSplit = () => {
 };
 const HL7ADTFeed = () => {
   const [activeTab, setActiveTab] = reactExports.useState("live");
-  const liveFeed = [
-    { id: "MSG-00891", type: "A01", event: "Admit", patient: "Ramesh Kumar", mrn: "MR-10045", location: "Ward 3A, Bed 12", time: "14:32:05", status: "Sent" },
-    { id: "MSG-00890", type: "A03", event: "Discharge", patient: "Priya Sharma", mrn: "MR-10032", location: "Ward 2B, Bed 8", time: "14:28:11", status: "Sent" },
-    { id: "MSG-00889", type: "A02", event: "Transfer", patient: "Suresh Mehta", mrn: "MR-10078", location: "ICU → Ward 4A", time: "14:15:44", status: "Sent" },
-    { id: "MSG-00888", type: "A08", event: "Update", patient: "Anita Reddy", mrn: "MR-10091", location: "Ward 1C, Bed 3", time: "13:55:20", status: "Sent" },
-    { id: "MSG-00887", type: "A01", event: "Admit", patient: "Vikram Joshi", mrn: "MR-10105", location: "ED → ICU Bed 5", time: "13:42:38", status: "ACK" },
-    { id: "MSG-00886", type: "A04", event: "Registration", patient: "Meera Patel", mrn: "MR-10112", location: "OPD Registration", time: "13:30:00", status: "Sent" },
-    { id: "MSG-00885", type: "A03", event: "Discharge", patient: "Arun Singh", mrn: "MR-10089", location: "Ward 5B, Bed 2", time: "12:45:12", status: "NACK" }
-  ];
+  const liveFeed = [];
   const subscribers = [
     { name: "Wolf Care (Patient App)", endpoint: "wss://care.wolfhms.in/hl7", events: ["A01", "A03", "A08"], status: "Connected", lastPing: "2s ago" },
     { name: "Wolf Lab Bridge", endpoint: "tcp://lab-bridge:2575", events: ["A01", "A04"], status: "Connected", lastPing: "5s ago" },
@@ -145302,14 +145163,7 @@ const CPOEDashboard = () => {
   const [selectedOrderType, setSelectedOrderType] = reactExports.useState("medication");
   const [orderSearch, setOrderSearch] = reactExports.useState("");
   const [showSafetyAlert, setShowSafetyAlert] = reactExports.useState(false);
-  const pendingOrders = [
-    { id: "ORD-2401", patient: "Rajesh Kumar", mrn: "MRN-1045", type: "Medication", order: "Metformin 500mg BD", priority: "Routine", status: "Pending Verification", doctor: "Dr. Sharma", time: "10:30 AM", safety: "clear" },
-    { id: "ORD-2402", patient: "Anita Desai", mrn: "MRN-1078", type: "Lab", order: "CBC + ESR + CRP", priority: "Urgent", status: "Pending Collection", doctor: "Dr. Patel", time: "10:45 AM", safety: "clear" },
-    { id: "ORD-2403", patient: "Suresh Menon", mrn: "MRN-1023", type: "Medication", order: "Warfarin 5mg OD", priority: "Routine", status: "Safety Alert", doctor: "Dr. Reddy", time: "11:00 AM", safety: "warning" },
-    { id: "ORD-2404", patient: "Priya Singh", mrn: "MRN-1056", type: "Radiology", order: "Chest X-Ray PA View", priority: "Routine", status: "Sent to Dept", doctor: "Dr. Sharma", time: "11:15 AM", safety: "clear" },
-    { id: "ORD-2405", patient: "Mohammed Ali", mrn: "MRN-1089", type: "Medication", order: "Insulin Glargine 10U SC", priority: "STAT", status: "Pending Verification", doctor: "Dr. Khan", time: "11:20 AM", safety: "clear" },
-    { id: "ORD-2406", patient: "Lakshmi Nair", mrn: "MRN-1034", type: "Diet", order: "Diabetic Diet 1800 Cal", priority: "Routine", status: "Active", doctor: "Dr. Patel", time: "09:00 AM", safety: "clear" }
-  ];
+  const pendingOrders = [];
   const safetyChecks = [
     { check: "Drug-Drug Interaction", status: "⚠️ Warfarin + Aspirin (already prescribed)", severity: "high", action: "Increased bleeding risk — requires physician override" },
     { check: "Allergy Check", status: "✅ No known allergies to ordered medications", severity: "clear", action: "None required" },
@@ -145326,11 +145180,7 @@ const CPOEDashboard = () => {
     { name: "Sepsis Bundle (Hour-1)", orders: 7, lastUsed: "6h ago", category: "Critical Care" },
     { name: "Stroke — Code Brain", orders: 9, lastUsed: "1d ago", category: "Neurology" }
   ];
-  const recentOrders = [
-    { id: "ORD-2398", patient: "Vikram Iyer", order: "Ceftriaxone 1g IV BD", status: "Dispensed", time: "09:15 AM", verified: true },
-    { id: "ORD-2399", patient: "Preeti Joshi", order: "ECG 12-Lead", status: "Completed", time: "09:30 AM", verified: true },
-    { id: "ORD-2400", patient: "Arun Das", order: "KFT + LFT", status: "Results Ready", time: "08:45 AM", verified: true }
-  ];
+  const recentOrders = [];
   const priorityColor = (p2) => p2 === "STAT" ? "danger" : p2 === "Urgent" ? "warning" : "secondary";
   const statusColor = (s2) => s2 === "Safety Alert" ? "danger" : s2 === "Pending Verification" ? "warning" : s2 === "Active" ? "success" : s2 === "Sent to Dept" ? "info" : "primary";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
@@ -145584,13 +145434,7 @@ const CPOEDashboard = () => {
 const CDIDashboard = () => {
   const [activeTab, setActiveTab] = reactExports.useState("queries");
   const [showQueryModal, setShowQueryModal] = reactExports.useState(false);
-  const cdiQueries = [
-    { id: "CDI-301", patient: "Rajesh Kumar", mrn: "MRN-1045", query: "Sepsis — clinical indicators present but not documented", type: "Clarification", priority: "High", status: "Pending", age: "2h", drgImpact: "+₹45,000", physician: "Dr. Sharma" },
-    { id: "CDI-302", patient: "Anita Desai", mrn: "MRN-1078", query: "Acute kidney injury vs CKD— specify severity stage", type: "Specificity", priority: "Medium", status: "Sent", age: "4h", drgImpact: "+₹28,000", physician: "Dr. Patel" },
-    { id: "CDI-303", patient: "Suresh Menon", mrn: "MRN-1023", query: "Malnutrition — BMI 16.5, consider documenting severity", type: "Capture", priority: "High", status: "Pending", age: "1h", drgImpact: "+₹35,000", physician: "Dr. Reddy" },
-    { id: "CDI-304", patient: "Priya Singh", mrn: "MRN-1056", query: "Heart failure — document EF% and NYHA class", type: "Specificity", priority: "Medium", status: "Responded", age: "6h", drgImpact: "+₹22,000", physician: "Dr. Sharma" },
-    { id: "CDI-305", patient: "Amit Verma", mrn: "MRN-1090", query: "Pneumonia — organism and type (CAP/HAP) not specified", type: "Clarification", priority: "Low", status: "Resolved", age: "1d", drgImpact: "+₹18,000", physician: "Dr. Khan" }
-  ];
+  const cdiQueries = [];
   const gapAlerts = [
     { category: "Missing HCC Codes", count: 12, impact: "Revenue risk ₹3.2L/month", action: "Review diagnoses for chronic conditions" },
     { category: "Incomplete Procedures", count: 5, impact: "Unbilled ₹1.8L", action: "Procedure notes missing for 5 surgeries" },
@@ -145783,14 +145627,7 @@ const CDIDashboard = () => {
 const PatientSafetyDashboard = () => {
   const [activeTab, setActiveTab] = reactExports.useState("incidents");
   const [showReportModal, setShowReportModal] = reactExports.useState(false);
-  const incidents = [
-    { id: "PSR-101", date: "02 Mar 2026", type: "Medication Error", category: "Near Miss", severity: "Low", patient: "Rajesh Kumar", location: "Ward-A", reporter: "Nurse Meera", status: "Under Review", description: "Wrong dose prepared — caught before administration" },
-    { id: "PSR-102", date: "01 Mar 2026", type: "Fall", category: "Adverse Event", severity: "Moderate", patient: "Lakshmi Nair", location: "ICU", reporter: "Nurse Priya", status: "RCA Initiated", description: "Patient fell from bed, bed rails were down" },
-    { id: "PSR-103", date: "01 Mar 2026", type: "Surgical", category: "Near Miss", severity: "High", patient: "Suresh Menon", location: "OT-2", reporter: "Dr. Reddy", status: "Resolved", description: "Wrong site prep — caught during surgical pause" },
-    { id: "PSR-104", date: "28 Feb 2026", type: "Infection", category: "Adverse Event", severity: "Moderate", patient: "Priya Singh", location: "Ward-B", reporter: "Dr. Patel", status: "Under Review", description: "CAUTI suspected — catheter in situ > 5 days" },
-    { id: "PSR-105", date: "27 Feb 2026", type: "Lab Error", category: "Near Miss", severity: "Low", patient: "Mohammed Ali", location: "Lab", reporter: "Tech Arun", status: "Resolved", description: "Mislabeled sample — identified at accessioning" },
-    { id: "PSR-106", date: "27 Feb 2026", type: "Blood Transfusion", category: "Sentinel Event", severity: "Critical", patient: "Vikram Iyer", location: "ICU", reporter: "Nurse Ritu", status: "RCA Complete", description: "Transfusion reaction — ABO incompatibility, TRALI workup" }
-  ];
+  const incidents = [];
   const rcaData = [
     { id: "RCA-201", incident: "PSR-102", title: "Patient Fall — ICU Bed Rails", phase: "Analysis", owner: "QI Team", deadline: "10 Mar 2026", progress: 60, findings: ["Bed rail standard not enforced", "Night staffing reduced", "Fall risk not reassessed"] },
     { id: "RCA-202", incident: "PSR-106", title: "Transfusion Reaction — ABO", phase: "Action Plan", owner: "Blood Bank", deadline: "05 Mar 2026", progress: 85, findings: ["BBTS barcode scanner offline", "Manual crosscheck skipped", "Double-check protocol not followed"] }
@@ -146009,26 +145846,9 @@ const EMARDashboard = () => {
   const [activeTab, setActiveTab] = reactExports.useState("due");
   const [showScanModal, setShowScanModal] = reactExports.useState(false);
   const [scanResult, setScanResult] = reactExports.useState(null);
-  const dueMedications = [
-    { id: 1, patient: "Rajesh Kumar", bed: "A-101", mrn: "MRN-1045", medication: "Metformin 500mg", route: "PO", time: "12:00 PM", status: "Due", dose: "500mg", frequency: "BD", prescriber: "Dr. Sharma", barcode: "MED-MTF-500" },
-    { id: 2, patient: "Rajesh Kumar", bed: "A-101", mrn: "MRN-1045", medication: "Atorvastatin 20mg", route: "PO", time: "12:00 PM", status: "Due", dose: "20mg", frequency: "OD", prescriber: "Dr. Sharma", barcode: "MED-ATV-020" },
-    { id: 3, patient: "Anita Desai", bed: "A-103", mrn: "MRN-1078", medication: "Ceftriaxone 1g", route: "IV", time: "12:00 PM", status: "Due", dose: "1g", frequency: "BD", prescriber: "Dr. Patel", barcode: "MED-CFX-1000" },
-    { id: 4, patient: "Suresh Menon", bed: "B-205", mrn: "MRN-1023", medication: "Enoxaparin 40mg", route: "SC", time: "12:00 PM", status: "Overdue", dose: "40mg", frequency: "OD", prescriber: "Dr. Reddy", barcode: "MED-ENX-040" },
-    { id: 5, patient: "Priya Singh", bed: "B-208", mrn: "MRN-1056", medication: "Pantoprazole 40mg", route: "IV", time: "12:00 PM", status: "Due", dose: "40mg", frequency: "OD", prescriber: "Dr. Sharma", barcode: "MED-PNT-040" },
-    { id: 6, patient: "Mohammed Ali", bed: "ICU-3", mrn: "MRN-1089", medication: "Insulin Glargine 10U", route: "SC", time: "12:00 PM", status: "Due", dose: "10U", frequency: "OD", prescriber: "Dr. Khan", barcode: "MED-INS-010" }
-  ];
-  const administeredMeds = [
-    { id: 101, patient: "Rajesh Kumar", medication: "Metformin 500mg", time: "08:00 AM", nurse: "Nurse Meera", barcodeVerified: true, status: "Given", notes: "" },
-    { id: 102, patient: "Anita Desai", medication: "Ceftriaxone 1g", time: "08:00 AM", nurse: "Nurse Priya", barcodeVerified: true, status: "Given", notes: "" },
-    { id: 103, patient: "Lakshmi Nair", medication: "Paracetamol 1g", time: "08:30 AM", nurse: "Nurse Ritu", barcodeVerified: true, status: "Given", notes: "" },
-    { id: 104, patient: "Vikram Iyer", medication: "Ondansetron 4mg", time: "09:00 AM", nurse: "Nurse Meera", barcodeVerified: false, status: "Held", notes: "Patient vomiting — held per physician" },
-    { id: 105, patient: "Suresh Menon", medication: "Amlodipine 5mg", time: "08:00 AM", nurse: "Nurse Priya", barcodeVerified: true, status: "Given", notes: "" }
-  ];
-  const prnMeds = [
-    { patient: "Rajesh Kumar", medication: "Paracetamol 1g PRN", lastGiven: "06:00 AM", nextEligible: "12:00 PM", reason: "Pain Score > 4" },
-    { patient: "Anita Desai", medication: "Tramadol 50mg PRN", lastGiven: "10:00 AM", nextEligible: "02:00 PM", reason: "Post-op pain" },
-    { patient: "Mohammed Ali", medication: "Insulin Lispro Sliding Scale", lastGiven: "08:00 AM", nextEligible: "12:00 PM", reason: "CBG > 200" }
-  ];
+  const dueMedications = [];
+  const administeredMeds = [];
+  const prnMeds = [];
   const statusColor = (s2) => s2 === "Overdue" ? "danger" : s2 === "Due" ? "warning" : s2 === "Given" ? "success" : "secondary";
   const handleBarcodeScan = () => {
     setScanResult({ verified: true, patient: "Rajesh Kumar", medication: "Metformin 500mg", dose: "500mg", match: "5 Rights Verified ✅" });
@@ -146183,63 +146003,7 @@ const EMARDashboard = () => {
 };
 const ClosedLoopMedication = () => {
   const [activeTab, setActiveTab] = reactExports.useState("tracking");
-  const medicationOrders = [
-    {
-      id: "CLM-501",
-      patient: "Rajesh Kumar",
-      bed: "A-101",
-      medication: "Metformin 500mg",
-      prescribe: { status: "complete", time: "08:00 AM", by: "Dr. Sharma", cpoe: true, ddiCheck: true },
-      verify: { status: "complete", time: "08:15 AM", by: "Clinical Pharmacist" },
-      dispense: { status: "complete", time: "08:30 AM", by: "Pharmacy", lotNo: "LOT-2401A", expiry: "2027-06" },
-      administer: { status: "complete", time: "08:45 AM", by: "Nurse Meera", barcodeVerified: true },
-      document: { status: "complete", time: "08:46 AM", autoLogged: true }
-    },
-    {
-      id: "CLM-502",
-      patient: "Anita Desai",
-      bed: "A-103",
-      medication: "Ceftriaxone 1g IV",
-      prescribe: { status: "complete", time: "08:00 AM", by: "Dr. Patel", cpoe: true, ddiCheck: true },
-      verify: { status: "complete", time: "08:20 AM", by: "Clinical Pharmacist" },
-      dispense: { status: "complete", time: "08:40 AM", by: "Pharmacy", lotNo: "LOT-2401B", expiry: "2026-12" },
-      administer: { status: "in_progress", time: "--", by: "--", barcodeVerified: false },
-      document: { status: "pending", time: "--", autoLogged: false }
-    },
-    {
-      id: "CLM-503",
-      patient: "Suresh Menon",
-      bed: "B-205",
-      medication: "Warfarin 5mg",
-      prescribe: { status: "complete", time: "09:00 AM", by: "Dr. Reddy", cpoe: true, ddiCheck: false },
-      verify: { status: "alert", time: "--", by: "--", alert: "DDI: Warfarin + Aspirin" },
-      dispense: { status: "blocked", time: "--", by: "--" },
-      administer: { status: "pending", time: "--", by: "--", barcodeVerified: false },
-      document: { status: "pending", time: "--", autoLogged: false }
-    },
-    {
-      id: "CLM-504",
-      patient: "Mohammed Ali",
-      bed: "ICU-3",
-      medication: "Insulin Glargine 10U SC",
-      prescribe: { status: "complete", time: "07:30 AM", by: "Dr. Khan", cpoe: true, ddiCheck: true },
-      verify: { status: "complete", time: "07:45 AM", by: "Clinical Pharmacist" },
-      dispense: { status: "complete", time: "08:00 AM", by: "Pharmacy", lotNo: "LOT-2401C", expiry: "2026-09" },
-      administer: { status: "complete", time: "08:10 AM", by: "Nurse Ritu", barcodeVerified: true },
-      document: { status: "complete", time: "08:11 AM", autoLogged: true }
-    },
-    {
-      id: "CLM-505",
-      patient: "Priya Singh",
-      bed: "B-208",
-      medication: "Pantoprazole 40mg IV",
-      prescribe: { status: "complete", time: "09:30 AM", by: "Dr. Sharma", cpoe: true, ddiCheck: true },
-      verify: { status: "complete", time: "09:45 AM", by: "Clinical Pharmacist" },
-      dispense: { status: "in_progress", time: "--", by: "Pharmacy" },
-      administer: { status: "pending", time: "--", by: "--", barcodeVerified: false },
-      document: { status: "pending", time: "--", autoLogged: false }
-    }
-  ];
+  const medicationOrders = [];
   const stepBadge = (status) => {
     if (status === "complete") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" });
     if (status === "in_progress") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "🔄" });
@@ -146435,9 +146199,7 @@ const ClosedLoopMedication = () => {
   ] });
 };
 const ClinicalAIAssistant = () => {
-  const [messages2, setMessages] = reactExports.useState([
-    { role: "assistant", text: "👋 Hello Dr. Sharma! I'm Wolf AI, your clinical decision support assistant. I can help with:\n\n• **Drug interactions** — check medication safety\n• **Diagnosis support** — differential diagnosis from symptoms\n• **Lab interpretation** — analyze lab results\n• **Clinical guidelines** — evidence-based recommendations\n• **ICD-10 coding** — suggest appropriate codes\n\nHow can I assist you today?", time: "10:00 AM" }
-  ]);
+  const [messages2, setMessages] = reactExports.useState([]);
   const [input, setInput] = reactExports.useState("");
   const [isTyping, setIsTyping] = reactExports.useState(false);
   const chatEndRef = reactExports.useRef(null);
@@ -146609,11 +146371,7 @@ Would you like me to provide more specific guidance on any aspect?`;
     var _a;
     (_a = chatEndRef.current) == null ? void 0 : _a.scrollIntoView({ behavior: "smooth" });
   }, [messages2]);
-  const recentPatients = [
-    { name: "Rajesh Kumar", mrn: "MRN-1045", condition: "T2DM + HTN", ward: "A-101" },
-    { name: "Anita Desai", mrn: "MRN-1078", condition: "Pneumonia", ward: "A-103" },
-    { name: "Suresh Menon", mrn: "MRN-1023", condition: "Post-CABG", ward: "ICU-2" }
-  ];
+  const recentPatients = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -146690,25 +146448,9 @@ Would you like me to provide more specific guidance on any aspect?`;
 };
 const SmartScheduling = () => {
   const [activeTab, setActiveTab] = reactExports.useState("optimization");
-  const scheduleSuggestions = [
-    { id: "SS-01", patient: "Rajesh Kumar", type: "Follow-up", currentSlot: "Mon 10:00 AM", suggestedSlot: "Tue 11:30 AM", reason: "Doctor has 3 back-to-back complex cases Mon AM", confidence: 92, impact: "Reduces wait by 25 min" },
-    { id: "SS-02", patient: "Anita Desai", type: "Lab Review", currentSlot: "Wed 09:00 AM", suggestedSlot: "Wed 02:00 PM", reason: "Lab results expected by 1 PM — avoid wasted visit", confidence: 88, impact: "Prevents re-visit" },
-    { id: "SS-03", patient: "Priya Singh", type: "Consultation", currentSlot: "Thu 03:00 PM", suggestedSlot: "Thu 10:00 AM", reason: "Patient travel distance 45km — earlier slot reduces fatigue", confidence: 75, impact: "Better patient experience" },
-    { id: "SS-04", patient: "Mohammed Ali", type: "Dialysis", currentSlot: "Fri 08:00 AM", suggestedSlot: "No change", reason: "Optimal slot — dialysis unit least busy", confidence: 95, impact: "Already optimal" }
-  ];
-  const noShowPredictions = [
-    { patient: "Vikram Iyer", appointment: "Mon 11:00 AM", doctor: "Dr. Patel", risk: 78, factors: ["3 prior no-shows", "Distance > 30km", "No reminder response"], action: "Double-book slot" },
-    { patient: "Lakshmi Nair", appointment: "Tue 02:00 PM", doctor: "Dr. Sharma", risk: 65, factors: ["1 prior no-show", "Weather forecast: rain", "Chronic condition — low urgency"], action: "Send reminder 2h before" },
-    { patient: "Arun Das", appointment: "Wed 10:00 AM", doctor: "Dr. Reddy", risk: 42, factors: ["New patient", "Self-referral", "No deposit paid"], action: "Confirmation call" },
-    { patient: "Kavita Mehta", appointment: "Thu 09:30 AM", doctor: "Dr. Khan", risk: 15, factors: ["Regular patient", "Post-surgical follow-up", "Deposit paid"], action: "No action needed" }
-  ];
-  const doctorLoad = [
-    { doctor: "Dr. Sharma", specialty: "Medicine", scheduled: 24, capacity: 28, utilization: 86, overbookedSlots: 2, avgWait: "18 min" },
-    { doctor: "Dr. Patel", specialty: "Cardiology", scheduled: 18, capacity: 20, utilization: 90, overbookedSlots: 1, avgWait: "22 min" },
-    { doctor: "Dr. Reddy", specialty: "Surgery", scheduled: 12, capacity: 16, utilization: 75, overbookedSlots: 0, avgWait: "12 min" },
-    { doctor: "Dr. Khan", specialty: "Ortho", scheduled: 20, capacity: 22, utilization: 91, overbookedSlots: 3, avgWait: "28 min" },
-    { doctor: "Dr. Gupta", specialty: "Pediatrics", scheduled: 15, capacity: 24, utilization: 63, overbookedSlots: 0, avgWait: "8 min" }
-  ];
+  const scheduleSuggestions = [];
+  const noShowPredictions = [];
+  const doctorLoad = [];
   const weeklyMetrics = {
     totalAppointments: 342,
     noShowRate: 12.4,
@@ -146838,14 +146580,20 @@ const SmartScheduling = () => {
 };
 const EarlyWarningScore = () => {
   const [activeTab, setActiveTab] = reactExports.useState("monitoring");
-  const patients = [
-    { bed: "ICU-1", patient: "Suresh Menon", mrn: "MRN-1023", hr: 118, bp: "85/50", rr: 28, temp: 39.2, spo2: 88, gcs: 13, news2: 11, trend: "↑↑", alert: "CRITICAL", prediction: "Septic shock — 78% deterioration risk in 4h", actions: ["Notify ICU registrar", "Repeat lactate", "Start vasopressors"] },
-    { bed: "A-101", patient: "Rajesh Kumar", mrn: "MRN-1045", hr: 98, bp: "128/82", rr: 20, temp: 37.4, spo2: 95, gcs: 15, news2: 4, trend: "→", alert: "LOW", prediction: "Stable — 8% deterioration risk in 4h", actions: ["Routine monitoring q4h"] },
-    { bed: "A-103", patient: "Anita Desai", mrn: "MRN-1078", hr: 105, bp: "100/60", rr: 24, temp: 38.6, spo2: 91, gcs: 14, news2: 8, trend: "↑", alert: "HIGH", prediction: "Respiratory failure — 52% deterioration risk in 4h", actions: ["Increase O2", "ABG stat", "Chest X-ray", "Consider BiPAP"] },
-    { bed: "B-205", patient: "Priya Singh", mrn: "MRN-1056", hr: 76, bp: "118/72", rr: 16, temp: 36.8, spo2: 97, gcs: 15, news2: 1, trend: "↓", alert: "LOW", prediction: "Improving — 3% deterioration risk in 4h", actions: ["Continue current plan"] },
-    { bed: "ICU-3", patient: "Mohammed Ali", mrn: "MRN-1089", hr: 110, bp: "92/58", rr: 26, temp: 38.1, spo2: 90, gcs: 14, news2: 9, trend: "↑", alert: "HIGH", prediction: "DKA worsening — 61% deterioration risk in 4h", actions: ["Insulin infusion adjust", "K+ check", "Fluid bolus", "ABG q2h"] },
-    { bed: "B-208", patient: "Lakshmi Nair", mrn: "MRN-1034", hr: 88, bp: "130/85", rr: 18, temp: 37, spo2: 96, gcs: 15, news2: 2, trend: "→", alert: "LOW", prediction: "Stable — 5% deterioration risk in 4h", actions: ["Routine monitoring q4h"] }
-  ];
+  const [patients, setPatients] = reactExports.useState([]);
+  const [scoringError, setScoringError] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("/api/ews/scores");
+        setPatients(res.data.data || res.data.patients || []);
+      } catch (err) {
+        console.error("[EarlyWarningScore] score load failed:", err.message);
+        setPatients([]);
+        setScoringError("Unable to load live vitals for NEWS-2 scoring. Please refresh.");
+      }
+    })();
+  }, []);
   const scoreColor = (s2) => s2 >= 7 ? "danger" : s2 >= 5 ? "warning" : s2 >= 1 ? "info" : "success";
   const escalationProtocol = [
     { score: "0-4", level: "Low", response: "Routine ward monitoring", frequency: "q4-6h", team: "Ward nurse" },
@@ -146857,10 +146605,7 @@ const EarlyWarningScore = () => {
     totalMonitored: patients.length,
     critical: patients.filter((p2) => p2.alert === "CRITICAL").length,
     high: patients.filter((p2) => p2.alert === "HIGH").length,
-    avgNEWS2: (patients.reduce((s2, p2) => s2 + p2.news2, 0) / patients.length).toFixed(1),
-    rrTriggers: 3,
-    codeBluesAvoided: 2,
-    predictionAccuracy: 91
+    avgNEWS2: patients.length ? (patients.reduce((s2, p2) => s2 + (p2.news2 || 0), 0) / patients.length).toFixed(1) : "—"
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
@@ -147007,17 +146752,8 @@ const EarlyWarningScore = () => {
 };
 const RevenueCycleAI = () => {
   const [activeTab, setActiveTab] = reactExports.useState("denials");
-  const denialPredictions = [
-    { id: "CLM-8801", patient: "Rajesh Kumar", payer: "Star Health", amount: "₹2,45,000", procedure: "CABG", denialRisk: 82, reason: "Missing pre-auth for stent", suggestedAction: "Attach pre-auth doc #PA-2401", expectedRecovery: "₹2,45,000", status: "Pre-submission" },
-    { id: "CLM-8802", patient: "Anita Desai", payer: "ICICI Lombard", amount: "₹78,000", procedure: "Appendectomy", denialRisk: 35, reason: "Coding issue — unspecified laterality", suggestedAction: "Change K35.80 to K35.89", expectedRecovery: "₹78,000", status: "Pre-submission" },
-    { id: "CLM-8803", patient: "Suresh Menon", payer: "TATA AIG", amount: "₹1,85,000", procedure: "Knee Replacement", denialRisk: 68, reason: "Conservative treatment not documented", suggestedAction: "Add 6-month physio records", expectedRecovery: "₹1,85,000", status: "Pre-submission" },
-    { id: "CLM-8804", patient: "Priya Singh", payer: "Bajaj Allianz", amount: "₹45,000", procedure: "Chemotherapy", denialRisk: 12, reason: "N/A — clean claim", suggestedAction: "Submit as-is", expectedRecovery: "₹45,000", status: "Ready" }
-  ];
-  const deniedClaims = [
-    { id: "CLM-8750", patient: "Vikram Iyer", payer: "Max Bupa", amount: "₹3,20,000", reason: "Pre-existing condition exclusion", aiStrategy: "Cite IRDAI circular 2024 — PED waiver after 4 years", successProb: 72, appealDraft: true },
-    { id: "CLM-8765", patient: "Lakshmi Nair", payer: "New India", amount: "₹1,10,000", reason: "Experimental treatment", aiStrategy: "Attach WHO essential medicines list + 3 peer-reviewed studies", successProb: 58, appealDraft: true },
-    { id: "CLM-8778", patient: "Arun Das", payer: "Oriental", amount: "₹55,000", reason: "Duplicate claim", aiStrategy: "Show different DOS and procedure codes", successProb: 91, appealDraft: true }
-  ];
+  const denialPredictions = [];
+  const deniedClaims = [];
   const leakageDetection = [
     { category: "Unbilled Procedures", count: 12, amount: "₹4,80,000", detail: "OR procedures not linked to billing" },
     { category: "Missed Charges", count: 28, amount: "₹2,10,000", detail: "Consumables used but not charged" },
@@ -147351,11 +147087,7 @@ const PatientPortal = () => {
     allergies: ["Penicillin", "Sulfa drugs"],
     conditions: ["Type 2 Diabetes", "Hypertension", "CKD Stage 3"]
   };
-  const upcomingAppointments = [
-    { id: "APT-301", date: "2026-03-05", time: "10:00 AM", doctor: "Dr. Sharma", dept: "Medicine", type: "Follow-up", status: "Confirmed" },
-    { id: "APT-302", date: "2026-03-12", time: "11:30 AM", doctor: "Dr. Patel", dept: "Cardiology", type: "ECG Review", status: "Pending" },
-    { id: "APT-303", date: "2026-03-20", time: "09:00 AM", doctor: "Dr. Reddy", dept: "Nephrology", type: "Lab Review", status: "Confirmed" }
-  ];
+  const upcomingAppointments = [];
   const recentReports = [
     { id: "RPT-501", date: "2026-02-28", name: "Complete Blood Count", status: "Ready", critical: false },
     { id: "RPT-502", date: "2026-02-28", name: "HbA1c", status: "Ready", critical: true },
@@ -147363,25 +147095,9 @@ const PatientPortal = () => {
     { id: "RPT-504", date: "2026-03-01", name: "Lipid Profile", status: "Processing", critical: false },
     { id: "RPT-505", date: "2026-02-20", name: "Chest X-Ray", status: "Ready", critical: false }
   ];
-  const prescriptions = [
-    { drug: "Metformin 500mg", dosage: "1-0-1", duration: "90 days", refills: 2, nextRefill: "2026-03-15", doctor: "Dr. Sharma" },
-    { drug: "Amlodipine 5mg", dosage: "0-0-1", duration: "90 days", refills: 1, nextRefill: "2026-04-01", doctor: "Dr. Patel" },
-    { drug: "Telmisartan 40mg", dosage: "1-0-0", duration: "90 days", refills: 2, nextRefill: "2026-03-15", doctor: "Dr. Sharma" },
-    { drug: "Atorvastatin 10mg", dosage: "0-0-1", duration: "60 days", refills: 0, nextRefill: "Needs renewal", doctor: "Dr. Patel" }
-  ];
-  const bills = [
-    { id: "INV-2201", date: "2026-02-28", desc: "OPD Consultation + Labs", total: 3500, paid: 3500, balance: 0, status: "Paid" },
-    { id: "INV-2198", date: "2026-02-15", desc: "Cardiology Review + ECG", total: 2800, paid: 2800, balance: 0, status: "Paid" },
-    { id: "INV-2210", date: "2026-03-01", desc: "Lab Tests (Lipid + RFT)", total: 1800, paid: 0, balance: 1800, status: "Pending" }
-  ];
-  const healthTimeline = [
-    { date: "2026-03-01", event: "Lab tests ordered (Lipid Profile)", type: "lab" },
-    { date: "2026-02-28", event: "Follow-up with Dr. Sharma - medication adjusted", type: "visit" },
-    { date: "2026-02-28", event: "HbA1c result: 7.8% (Target < 7%)", type: "result" },
-    { date: "2026-02-25", event: "Renal Function Test - eGFR 48 (stable)", type: "result" },
-    { date: "2026-02-15", event: "Cardiology review - BP well controlled", type: "visit" },
-    { date: "2026-02-01", event: "Annual health checkup completed", type: "visit" }
-  ];
+  const prescriptions = [];
+  const bills = [];
+  const healthTimeline = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -147539,31 +147255,34 @@ const PatientPortal = () => {
 const TelehealthConsole = () => {
   const [activeTab, setActiveTab] = reactExports.useState("waitingroom");
   const [inCall, setInCall] = reactExports.useState(false);
-  const waitingRoom = [
-    { id: "TH-401", patient: "Rajesh Kumar", mrn: "MRN-1045", type: "Follow-up", waitTime: "5 min", priority: "Normal", complaint: "Diabetes medication review", vitals: "BP: 138/86, Sugar: 180 mg/dL" },
-    { id: "TH-402", patient: "Anita Desai", mrn: "MRN-1078", type: "Urgent", waitTime: "12 min", priority: "High", complaint: "Persistent cough with fever 3 days", vitals: "Temp: 38.4C, SpO2: 94%" },
-    { id: "TH-403", patient: "Priya Singh", mrn: "MRN-1056", type: "New Consult", waitTime: "2 min", priority: "Normal", complaint: "Skin rash assessment", vitals: "N/A" }
-  ];
-  const todaySchedule = [
-    { time: "09:00 AM", patient: "Vikram Iyer", type: "Follow-up", status: "Completed", duration: "15 min" },
-    { time: "09:30 AM", patient: "Lakshmi Nair", type: "Review", status: "Completed", duration: "12 min" },
-    { time: "10:00 AM", patient: "Rajesh Kumar", type: "Follow-up", status: "In Waiting", duration: "--" },
-    { time: "10:30 AM", patient: "Anita Desai", type: "Urgent", status: "In Waiting", duration: "--" },
-    { time: "11:00 AM", patient: "Priya Singh", type: "New Consult", status: "In Waiting", duration: "--" },
-    { time: "11:30 AM", patient: "Mohammed Ali", type: "Follow-up", status: "Scheduled", duration: "--" },
-    { time: "02:00 PM", patient: "Kavita Mehta", type: "Post-op Review", status: "Scheduled", duration: "--" }
-  ];
+  const [waitingRoom, setWaitingRoom] = reactExports.useState([]);
+  const [todaySchedule, setTodaySchedule] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("/api/telehealth/sessions");
+        const all3 = res.data.data || res.data.sessions || [];
+        setWaitingRoom(all3.filter((s2) => s2.status === "Waiting"));
+        setTodaySchedule(all3.filter((s2) => s2.status !== "Waiting"));
+      } catch (err) {
+        console.error("[TelehealthConsole] session load failed:", err.message);
+        setWaitingRoom([]);
+        setTodaySchedule([]);
+      }
+    })();
+  }, []);
   const ePrescriptionDrugs = [
     { drug: "Azithromycin 500mg", dosage: "1-0-0", days: 5, instructions: "Take on empty stomach" },
     { drug: "Paracetamol 650mg", dosage: "1-1-1", days: 3, instructions: "After food, SOS for fever > 100F" },
     { drug: "Cetirizine 10mg", dosage: "0-0-1", days: 5, instructions: "At bedtime" }
   ];
   const metrics = {
-    todayConsults: 7,
-    completed: 2,
-    avgDuration: "14 min",
-    satisfaction: 4.6,
-    noShowRate: "8%"
+    todayConsults: waitingRoom.length + todaySchedule.length,
+    completed: todaySchedule.length,
+    avgDuration: "—",
+    satisfaction: "—",
+    totalThisWeek: waitingRoom.length + todaySchedule.length,
+    noShowRate: "—"
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
@@ -147765,13 +147484,7 @@ const PatientFeedback = () => {
     trend: [65, 68, 70, 69, 72],
     months: ["Oct", "Nov", "Dec", "Jan", "Feb"]
   };
-  const recentFeedback = [
-    { id: "FB-101", patient: "Rajesh Kumar", date: "2026-03-01", nps: 9, comment: "Excellent care by Dr. Sharma. The new telehealth feature is very convenient.", dept: "Medicine", sentiment: "Positive" },
-    { id: "FB-102", patient: "Anita Desai", date: "2026-02-28", nps: 7, comment: "Good treatment but waiting time was long. Had to wait 45 minutes past appointment.", dept: "Cardiology", sentiment: "Neutral" },
-    { id: "FB-103", patient: "Priya Singh", date: "2026-02-27", nps: 3, comment: "Billing was confusing. Got charged for services not received. Need better transparency.", dept: "Billing", sentiment: "Negative" },
-    { id: "FB-104", patient: "Vikram Iyer", date: "2026-02-26", nps: 10, comment: "The nursing staff was exceptional. Clean rooms and great food quality.", dept: "IPD", sentiment: "Positive" },
-    { id: "FB-105", patient: "Mohammed Ali", date: "2026-02-25", nps: 8, comment: "Smooth admission process. Pharmacy was quick with medications.", dept: "Emergency", sentiment: "Positive" }
-  ];
+  const recentFeedback = [];
   const departmentScores = [
     { dept: "Emergency", nps: 78, responses: 45, topIssue: "Wait time", satisfaction: 4.2 },
     { dept: "Medicine", nps: 82, responses: 62, topIssue: "None significant", satisfaction: 4.5 },
@@ -147781,12 +147494,7 @@ const PatientFeedback = () => {
     { dept: "Billing", nps: 52, responses: 40, topIssue: "Billing transparency", satisfaction: 3.4 },
     { dept: "Pharmacy", nps: 80, responses: 35, topIssue: "Wait for discharge meds", satisfaction: 4.3 }
   ];
-  const complaints = [
-    { id: "CMP-201", date: "2026-02-28", patient: "Priya Singh", category: "Billing", desc: "Incorrect charges on final bill", status: "Under Review", priority: "High", tat: "2 days" },
-    { id: "CMP-202", date: "2026-02-27", patient: "Arun Das", category: "Wait Time", desc: "OPD wait exceeded 1 hour", status: "Resolved", priority: "Medium", tat: "1 day" },
-    { id: "CMP-203", date: "2026-02-26", patient: "Kavita Mehta", category: "Staff", desc: "Rude behavior at reception", status: "Escalated", priority: "High", tat: "3 days" },
-    { id: "CMP-204", date: "2026-02-25", patient: "Lakshmi Nair", category: "Cleanliness", desc: "Washroom not cleaned in Ward B", status: "Resolved", priority: "Low", tat: "4 hours" }
-  ];
+  const complaints = [];
   const sentimentColor = (s2) => s2 === "Positive" ? "success" : s2 === "Negative" ? "danger" : "warning";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
@@ -148059,67 +147767,8 @@ const HealthEducation = () => {
 };
 const RemotePatientMonitoring = () => {
   const [activeTab, setActiveTab] = reactExports.useState("dashboard");
-  const monitoredPatients = [
-    {
-      id: "RPM-01",
-      patient: "Rajesh Kumar",
-      mrn: "MRN-1045",
-      condition: "T2DM + HTN + CKD",
-      devices: ["Glucometer", "BP Monitor", "Weight Scale"],
-      vitals: { bp: "142/88", glucose: 186, hr: 82, weight: 78.5, spo2: 96, steps: 3200 },
-      alerts: 2,
-      trend: "Worsening",
-      compliance: 78,
-      lastSync: "10 min ago",
-      thresholds: { bp_high: "140/90", glucose_high: 180, glucose_low: 70 }
-    },
-    {
-      id: "RPM-02",
-      patient: "Suresh Menon",
-      mrn: "MRN-1023",
-      condition: "Post-CABG + CHF",
-      devices: ["BP Monitor", "Weight Scale", "SpO2 Sensor"],
-      vitals: { bp: "118/72", glucose: null, hr: 76, weight: 82.1, spo2: 95, steps: 1800 },
-      alerts: 0,
-      trend: "Stable",
-      compliance: 92,
-      lastSync: "5 min ago",
-      thresholds: { bp_high: "130/80", weight_gain: "+2kg/week" }
-    },
-    {
-      id: "RPM-03",
-      patient: "Anita Desai",
-      mrn: "MRN-1078",
-      condition: "COPD + Asthma",
-      devices: ["SpO2 Sensor", "Peak Flow Meter", "BP Monitor"],
-      vitals: { bp: "126/78", glucose: null, hr: 88, weight: 62.3, spo2: 91, steps: 1200, peakFlow: 280 },
-      alerts: 3,
-      trend: "Worsening",
-      compliance: 65,
-      lastSync: "25 min ago",
-      thresholds: { spo2_low: 92, peakFlow_low: 300 }
-    },
-    {
-      id: "RPM-04",
-      patient: "Kavita Mehta",
-      mrn: "MRN-1067",
-      condition: "Gestational Diabetes",
-      devices: ["Glucometer", "BP Monitor", "Fetal Monitor"],
-      vitals: { bp: "110/70", glucose: 128, hr: 78, weight: 68.2, spo2: 98, steps: 4500, fetalHR: 142 },
-      alerts: 0,
-      trend: "Improving",
-      compliance: 95,
-      lastSync: "2 min ago",
-      thresholds: { glucose_high: 140, bp_high: "130/80" }
-    }
-  ];
-  const alertHistory = [
-    { time: "09:45 AM", patient: "Rajesh Kumar", type: "Blood Glucose", value: "186 mg/dL", threshold: "> 180", severity: "Warning", action: "SMS sent to patient + doctor notified" },
-    { time: "09:30 AM", patient: "Anita Desai", type: "SpO2", value: "91%", threshold: "< 92%", severity: "Critical", action: "Auto-call triggered + doctor alerted" },
-    { time: "09:15 AM", patient: "Anita Desai", type: "Peak Flow", value: "280 L/min", threshold: "< 300", severity: "Warning", action: "SMS reminder to use inhaler" },
-    { time: "08:50 AM", patient: "Rajesh Kumar", type: "Blood Pressure", value: "142/88", threshold: "> 140/90", severity: "Warning", action: "Logged for doctor review" },
-    { time: "08:00 AM", patient: "Anita Desai", type: "Missed Reading", value: "No SpO2", threshold: "Every 4h", severity: "Info", action: "Reminder SMS sent" }
-  ];
+  const monitoredPatients = [];
+  const alertHistory = [];
   const programMetrics = {
     totalPatients: 4,
     activeAlerts: 5,
@@ -148321,13 +147970,7 @@ const HIPAACompliance = () => {
     { name: "Organizational Requirements", score: 90, items: 10, compliant: 9, findings: 1, status: "Compliant" },
     { name: "Breach Notification", score: 95, items: 6, compliant: 6, findings: 0, status: "Fully Compliant" }
   ];
-  const phiAccessLog = [
-    { time: "10:42 AM", user: "Dr. Sharma", role: "Physician", patient: "Rajesh Kumar (MRN-1045)", action: "Viewed Medical Record", ip: "192.168.1.45", justified: true },
-    { time: "10:38 AM", user: "Nurse Priya", role: "Nurse", patient: "Anita Desai (MRN-1078)", action: "Updated Vitals", ip: "192.168.1.52", justified: true },
-    { time: "10:15 AM", user: "Admin Ravi", role: "Admin", patient: "Suresh Menon (MRN-1023)", action: "Exported Lab Report", ip: "192.168.1.10", justified: true },
-    { time: "09:55 AM", user: "Dr. Patel", role: "Physician", patient: "Kavita Mehta (MRN-1067)", action: "Viewed Billing Record", ip: "192.168.1.48", justified: false },
-    { time: "09:30 AM", user: "Receptionist Anil", role: "Front Desk", patient: "Mohammed Ali (MRN-1089)", action: "Accessed Clinical Notes", ip: "192.168.1.22", justified: false }
-  ];
+  const phiAccessLog = [];
   const breachAlerts = [
     { id: "BR-001", date: "2026-02-28", type: "Unauthorized Access", severity: "High", user: "Receptionist Anil", details: "Accessed clinical notes outside role scope", status: "Under Investigation", action: "Access revoked, HR notified" },
     { id: "BR-002", date: "2026-02-20", type: "Data Export", severity: "Medium", user: "Admin Ravi", details: "Bulk patient data export detected (200+ records)", status: "Resolved", action: "Justified for audit report, documented" }
@@ -148470,23 +148113,8 @@ const HIPAACompliance = () => {
 const AuditTrail = () => {
   const [activeTab, setActiveTab] = reactExports.useState("events");
   const [searchQuery, setSearchQuery] = reactExports.useState("");
-  const auditEvents = [
-    { id: "AE-10045", timestamp: "2026-03-02 10:45:12", user: "Dr. Sharma", role: "Physician", module: "EMR", action: "UPDATE", resource: "Patient Record (MRN-1045)", details: "Modified medication list - added Metformin 500mg", ip: "192.168.1.45", session: "S-8821" },
-    { id: "AE-10044", timestamp: "2026-03-02 10:42:08", user: "Nurse Priya", role: "Nurse", module: "Vitals", action: "CREATE", resource: "Vitals Entry (MRN-1078)", details: "Recorded BP: 120/80, Temp: 37.2C, SpO2: 98%", ip: "192.168.1.52", session: "S-8819" },
-    { id: "AE-10043", timestamp: "2026-03-02 10:38:55", user: "Admin Ravi", role: "Admin", module: "Reports", action: "EXPORT", resource: "Lab Report Bundle", details: "Exported 15 lab reports for external audit", ip: "192.168.1.10", session: "S-8815" },
-    { id: "AE-10042", timestamp: "2026-03-02 10:30:22", user: "Dr. Patel", role: "Physician", module: "Orders", action: "CREATE", resource: "Lab Order (MRN-1067)", details: "Ordered CBC, RFT, LFT for pre-op assessment", ip: "192.168.1.48", session: "S-8812" },
-    { id: "AE-10041", timestamp: "2026-03-02 10:25:10", user: "Pharmacist Deepa", role: "Pharmacist", module: "Pharmacy", action: "DISPENSE", resource: "Rx-4421 (MRN-1045)", details: "Dispensed Metformin 500mg x 90 tabs", ip: "192.168.1.35", session: "S-8810" },
-    { id: "AE-10040", timestamp: "2026-03-02 10:20:05", user: "System", role: "System", module: "Auth", action: "LOGIN_FAIL", resource: "User: unknown_user", details: "Failed login attempt - invalid credentials (3rd attempt)", ip: "203.45.67.89", session: "N/A" },
-    { id: "AE-10039", timestamp: "2026-03-02 10:15:30", user: "Billing Meena", role: "Billing", module: "Billing", action: "UPDATE", resource: "Invoice INV-2210", details: "Applied insurance adjustment Rs.1,200", ip: "192.168.1.28", session: "S-8808" },
-    { id: "AE-10038", timestamp: "2026-03-02 10:10:18", user: "Dr. Reddy", role: "Physician", module: "EMR", action: "DELETE", resource: "Clinical Note (MRN-1023)", details: "Deleted draft note - replaced with final version", ip: "192.168.1.50", session: "S-8805" }
-  ];
-  const userActivity = [
-    { user: "Dr. Sharma", sessions: 12, actions: 145, lastActive: "10:45 AM", avgDuration: "6.2h", topModule: "EMR", riskScore: "Low" },
-    { user: "Nurse Priya", sessions: 8, actions: 98, lastActive: "10:42 AM", avgDuration: "8.5h", topModule: "Vitals", riskScore: "Low" },
-    { user: "Admin Ravi", sessions: 5, actions: 67, lastActive: "10:38 AM", avgDuration: "4.1h", topModule: "Reports", riskScore: "Medium" },
-    { user: "Receptionist Anil", sessions: 3, actions: 42, lastActive: "09:30 AM", avgDuration: "3.8h", topModule: "Registration", riskScore: "High" },
-    { user: "Dr. Patel", sessions: 10, actions: 132, lastActive: "10:30 AM", avgDuration: "7.0h", topModule: "Orders", riskScore: "Low" }
-  ];
+  const auditEvents = [];
+  const userActivity = [];
   const actionColor = (a2) => {
     if (a2 === "CREATE") return "success";
     if (a2 === "UPDATE") return "primary";
@@ -148664,18 +148292,8 @@ const AuditTrail = () => {
 };
 const ConsentManagement = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
-  const activeConsents = [
-    { id: "CON-301", patient: "Rajesh Kumar", mrn: "MRN-1045", type: "Treatment Consent", procedure: "Diabetes Management Plan", signDate: "2026-02-15", expiry: "2027-02-15", method: "E-Signature", status: "Active", witness: "Nurse Priya" },
-    { id: "CON-302", patient: "Anita Desai", mrn: "MRN-1078", type: "Surgical Consent", procedure: "Appendectomy", signDate: "2026-03-01", expiry: "2026-03-15", method: "Wet Signature", status: "Active", witness: "Dr. Reddy" },
-    { id: "CON-303", patient: "Suresh Menon", mrn: "MRN-1023", type: "Research Consent", procedure: "Cardiac Rehabilitation Study", signDate: "2026-01-20", expiry: "2027-01-20", method: "E-Signature", status: "Active", witness: "Dr. Sharma" },
-    { id: "CON-304", patient: "Kavita Mehta", mrn: "MRN-1067", type: "Data Sharing", procedure: "Share records with Dr. Patel (Cardiology)", signDate: "2026-02-28", expiry: "2026-08-28", method: "E-Signature", status: "Active", witness: "Self" },
-    { id: "CON-305", patient: "Mohammed Ali", mrn: "MRN-1089", type: "Treatment Consent", procedure: "Chemotherapy Cycle 3", signDate: "2026-02-20", expiry: "2026-05-20", method: "Wet Signature", status: "Active", witness: "Nurse Deepa" }
-  ];
-  const expiringConsents = [
-    { id: "CON-202", patient: "Lakshmi Nair", mrn: "MRN-1034", type: "Treatment Consent", expiry: "2026-03-10", daysLeft: 8, procedure: "Physiotherapy sessions" },
-    { id: "CON-198", patient: "Arun Das", mrn: "MRN-1056", type: "Data Sharing", expiry: "2026-03-05", daysLeft: 3, procedure: "Insurance data sharing" },
-    { id: "CON-189", patient: "Priya Singh", mrn: "MRN-1078", type: "Research Consent", expiry: "2026-03-08", daysLeft: 6, procedure: "Mental health survey participation" }
-  ];
+  const activeConsents = [];
+  const expiringConsents = [];
   const consentTemplates = [
     { name: "General Treatment Consent", version: "v3.2", lastUpdate: "2026-01-15", language: ["English", "Hindi", "Tamil"], approvedBy: "Medical Director" },
     { name: "Surgical Consent", version: "v2.8", lastUpdate: "2026-02-01", language: ["English", "Hindi"], approvedBy: "Chief Surgeon" },
@@ -148995,11 +148613,7 @@ const DataPrivacy = () => {
     { category: "Consent Forms", retention: "Until revoked + 3 years", review: "Annual", records: 8900, status: "Active", compliance: 95 },
     { category: "Research Data", retention: "5 years post-study", review: "Per study", records: 3200, status: "Active", compliance: 100 }
   ];
-  const dsarRequests = [
-    { id: "DSAR-01", patient: "Rajesh Kumar", type: "Data Access", status: "Completed", received: "2026-02-20", completed: "2026-02-25", tat: "5 days" },
-    { id: "DSAR-02", patient: "Priya Singh", type: "Data Deletion", status: "Under Review", received: "2026-02-28", completed: "--", tat: "2 days" },
-    { id: "DSAR-03", patient: "Arun Das", type: "Data Portability", status: "In Progress", received: "2026-03-01", completed: "--", tat: "1 day" }
-  ];
+  const dsarRequests = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -149915,29 +149529,9 @@ const MultiTenantAdmin = () => {
 };
 const StaffRoster = () => {
   const [activeTab, setActiveTab] = reactExports.useState("roster");
-  const todayRoster = [
-    { name: "Dr. Priya Sharma", dept: "Cardiology", role: "Senior Consultant", shift: "Morning (7AM-3PM)", status: "On Duty", phone: "+91-98765-43210" },
-    { name: "Dr. Rajesh Kumar", dept: "Orthopedics", role: "HOD", shift: "Morning (7AM-3PM)", status: "On Duty", phone: "+91-98765-43211" },
-    { name: "Nurse Anita Desai", dept: "ICU", role: "Head Nurse", shift: "Morning (7AM-3PM)", status: "On Duty", phone: "+91-98765-43212" },
-    { name: "Dr. Suresh Patel", dept: "Emergency", role: "Consultant", shift: "Afternoon (3PM-11PM)", status: "Upcoming", phone: "+91-98765-43213" },
-    { name: "Nurse Kavita Rao", dept: "General Ward", role: "Staff Nurse", shift: "Afternoon (3PM-11PM)", status: "Upcoming", phone: "+91-98765-43214" },
-    { name: "Dr. Meena Iyer", dept: "Pediatrics", role: "Consultant", shift: "Night (11PM-7AM)", status: "Off Duty", phone: "+91-98765-43215" },
-    { name: "Tech. Arun Nair", dept: "Radiology", role: "Sr. Technician", shift: "Morning (7AM-3PM)", status: "On Duty", phone: "+91-98765-43216" },
-    { name: "Dr. Fatima Khan", dept: "OB-GYN", role: "Consultant", shift: "On Call (24h)", status: "On Call", phone: "+91-98765-43217" }
-  ];
-  const leaveCalendar = [
-    { name: "Dr. Anil Mehta", dept: "Surgery", type: "Annual Leave", from: "2026-03-05", to: "2026-03-10", days: 6, status: "Approved", coverage: "Dr. R. Kumar" },
-    { name: "Nurse Priya S.", dept: "ICU", type: "Sick Leave", from: "2026-03-02", to: "2026-03-03", days: 2, status: "Approved", coverage: "Nurse K. Rao" },
-    { name: "Dr. Vikram Singh", dept: "Cardiology", type: "CME Leave", from: "2026-03-08", to: "2026-03-09", days: 2, status: "Approved", coverage: "Dr. P. Sharma" },
-    { name: "Tech. Ravi Joshi", dept: "Lab", type: "Personal Leave", from: "2026-03-04", to: "2026-03-04", days: 1, status: "Pending", coverage: "TBD" },
-    { name: "Dr. Neha Gupta", dept: "Dermatology", type: "Maternity Leave", from: "2026-03-15", to: "2026-06-15", days: 90, status: "Approved", coverage: "Dr. S. Verma (Locum)" }
-  ];
-  const overtime = [
-    { name: "Nurse Anita Desai", dept: "ICU", regularHrs: 160, overtimeHrs: 24, totalHrs: 184, rate: "Rs.350/hr", amount: "Rs.8,400", month: "Feb 2026" },
-    { name: "Dr. Suresh Patel", dept: "Emergency", regularHrs: 160, overtimeHrs: 32, totalHrs: 192, rate: "Rs.800/hr", amount: "Rs.25,600", month: "Feb 2026" },
-    { name: "Nurse Kavita Rao", dept: "General Ward", regularHrs: 160, overtimeHrs: 18, totalHrs: 178, rate: "Rs.300/hr", amount: "Rs.5,400", month: "Feb 2026" },
-    { name: "Tech. Arun Nair", dept: "Radiology", regularHrs: 160, overtimeHrs: 12, totalHrs: 172, rate: "Rs.250/hr", amount: "Rs.3,000", month: "Feb 2026" }
-  ];
+  const todayRoster = [];
+  const leaveCalendar = [];
+  const overtime = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -150039,28 +149633,9 @@ const StaffRoster = () => {
 };
 const Credentialing = () => {
   const [activeTab, setActiveTab] = reactExports.useState("licenses");
-  const licenses = [
-    { name: "Dr. Priya Sharma", dept: "Cardiology", license: "MCI-MH-28456", type: "Medical Council", issued: "2022-06-15", expiry: "2027-06-14", daysLeft: 470, status: "Valid", verified: true },
-    { name: "Dr. Rajesh Kumar", dept: "Orthopedics", license: "MCI-MH-31892", type: "Medical Council", issued: "2023-01-10", expiry: "2028-01-09", daysLeft: 680, status: "Valid", verified: true },
-    { name: "Nurse Anita Desai", dept: "ICU", license: "NCI-MH-45623", type: "Nursing Council", issued: "2024-03-20", expiry: "2026-03-19", daysLeft: 17, status: "Expiring Soon", verified: true },
-    { name: "Dr. Suresh Patel", dept: "Emergency", license: "MCI-GJ-52341", type: "Medical Council", issued: "2021-08-05", expiry: "2026-08-04", daysLeft: 155, status: "Valid", verified: true },
-    { name: "Tech. Arun Nair", dept: "Radiology", license: "AERB-RT-8923", type: "AERB Radiation", issued: "2023-11-01", expiry: "2026-10-31", daysLeft: 243, status: "Valid", verified: true },
-    { name: "Pharm. Rekha Jain", dept: "Pharmacy", license: "PCI-MH-67890", type: "Pharmacy Council", issued: "2024-05-15", expiry: "2026-05-14", daysLeft: 73, status: "Expiring Soon", verified: true },
-    { name: "Dr. Fatima Khan", dept: "OB-GYN", license: "MCI-MH-39012", type: "Medical Council", issued: "2020-02-10", expiry: "2025-02-09", daysLeft: -386, status: "Expired", verified: false }
-  ];
-  const skillMatrix = [
-    { name: "Dr. Priya Sharma", skills: ["Interventional Cardiology", "Echo", "Cardiac Cath", "ACLS"], level: "Expert", certifications: 4, lastAssessed: "2026-01-15" },
-    { name: "Nurse Anita Desai", skills: ["Critical Care", "Ventilator Mgmt", "ACLS", "BLS", "IV Therapy"], level: "Advanced", certifications: 5, lastAssessed: "2026-02-10" },
-    { name: "Dr. Suresh Patel", skills: ["Emergency Medicine", "Trauma Care", "ATLS", "ACLS", "Toxicology"], level: "Expert", certifications: 5, lastAssessed: "2025-12-20" },
-    { name: "Tech. Arun Nair", skills: ["CT Scan", "MRI", "X-Ray", "Fluoroscopy", "Radiation Safety"], level: "Advanced", certifications: 4, lastAssessed: "2026-01-25" },
-    { name: "Nurse Kavita Rao", skills: ["General Nursing", "Wound Care", "BLS", "Patient Education"], level: "Intermediate", certifications: 3, lastAssessed: "2026-02-05" }
-  ];
-  const privileges = [
-    { name: "Dr. Priya Sharma", dept: "Cardiology", privileges: ["Cardiac Catheterization", "PCI/Stenting", "Pacemaker Implantation", "TEE"], granted: "2024-01-15", review: "2026-01-15", status: "Active" },
-    { name: "Dr. Rajesh Kumar", dept: "Orthopedics", privileges: ["Total Joint Replacement", "Arthroscopy", "Spinal Surgery", "Fracture Fixation"], granted: "2024-06-01", review: "2026-06-01", status: "Active" },
-    { name: "Dr. Suresh Patel", dept: "Emergency", privileges: ["Emergency Intubation", "Chest Tube Insertion", "Central Line", "Lumbar Puncture"], granted: "2024-03-10", review: "2026-03-10", status: "Due for Review" },
-    { name: "Dr. Meena Iyer", dept: "Pediatrics", privileges: ["Neonatal Resuscitation", "Pediatric Intubation", "Umbilical Catheterization"], granted: "2025-01-20", review: "2027-01-20", status: "Active" }
-  ];
+  const licenses = [];
+  const skillMatrix = [];
+  const privileges = [];
   const expiring = licenses.filter((l2) => l2.daysLeft <= 90);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
@@ -150160,14 +149735,7 @@ const Credentialing = () => {
 };
 const TrainingCompetency = () => {
   const [activeTab, setActiveTab] = reactExports.useState("cme");
-  const cmeTracking = [
-    { name: "Dr. Priya Sharma", dept: "Cardiology", required: 30, earned: 28, remaining: 2, cycle: "2025-2027", status: "On Track", lastActivity: "Interventional Cardiology Workshop (8 credits)" },
-    { name: "Dr. Rajesh Kumar", dept: "Orthopedics", required: 30, earned: 30, remaining: 0, cycle: "2025-2027", status: "Completed", lastActivity: "Arthroplasty Masterclass (6 credits)" },
-    { name: "Dr. Suresh Patel", dept: "Emergency", required: 30, earned: 22, remaining: 8, cycle: "2025-2027", status: "On Track", lastActivity: "ATLS Recertification (16 credits)" },
-    { name: "Nurse Anita Desai", dept: "ICU", required: 20, earned: 18, remaining: 2, cycle: "2025-2026", status: "On Track", lastActivity: "Critical Care Nursing Update (4 credits)" },
-    { name: "Dr. Meena Iyer", dept: "Pediatrics", required: 30, earned: 12, remaining: 18, cycle: "2025-2027", status: "Behind", lastActivity: "Neonatal Resuscitation (4 credits)" },
-    { name: "Pharm. Rekha Jain", dept: "Pharmacy", required: 15, earned: 15, remaining: 0, cycle: "2025-2026", status: "Completed", lastActivity: "Clinical Pharmacy Conference (5 credits)" }
-  ];
+  const cmeTracking = [];
   const certifications = [
     { cert: "BLS (Basic Life Support)", provider: "AHA", staff: 230, total: 245, coverage: 93.9, validity: "2 years", nextBatch: "2026-04-15" },
     { cert: "ACLS (Advanced Cardiac)", provider: "AHA", staff: 85, total: 120, coverage: 70.8, validity: "2 years", nextBatch: "2026-03-20" },
@@ -150177,13 +149745,7 @@ const TrainingCompetency = () => {
     { cert: "Radiation Safety", provider: "AERB", staff: 18, total: 18, coverage: 100, validity: "3 years", nextBatch: "2028-01-01" },
     { cert: "Hand Hygiene", provider: "WHO", staff: 245, total: 245, coverage: 100, validity: "6 months", nextBatch: "2026-06-01" }
   ];
-  const assessments = [
-    { name: "Dr. Priya Sharma", domain: "Clinical Procedures", score: 95, grade: "A+", date: "2026-01-15", next: "2027-01-15", status: "Passed" },
-    { name: "Nurse Anita Desai", domain: "Critical Care Nursing", score: 88, grade: "A", date: "2026-02-10", next: "2027-02-10", status: "Passed" },
-    { name: "Dr. Suresh Patel", domain: "Emergency Protocols", score: 92, grade: "A+", date: "2025-12-20", next: "2026-12-20", status: "Passed" },
-    { name: "Tech. Arun Nair", domain: "Imaging Equipment", score: 85, grade: "A", date: "2026-01-25", next: "2027-01-25", status: "Passed" },
-    { name: "Nurse Kavita Rao", domain: "General Nursing", score: 78, grade: "B+", date: "2026-02-05", next: "2026-08-05", status: "Passed (Retest in 6mo)" }
-  ];
+  const assessments = [];
   const eLearning = [
     { course: "HIPAA Privacy & Security", enrolled: 245, completed: 238, inProgress: 7, avgScore: 92, mandatory: true },
     { course: "Patient Safety Fundamentals", enrolled: 245, completed: 245, inProgress: 0, avgScore: 89, mandatory: true },
@@ -150342,22 +149904,8 @@ const PayrollIntegration = () => {
     totalNet: "Rs.1,04,05,000",
     status: "Processed"
   };
-  const payroll = [
-    { empId: "WH-001", name: "Dr. Priya Sharma", dept: "Cardiology", designation: "Sr. Consultant", basic: 18e4, da: 36e3, hra: 72e3, special: 25e3, ot: 0, gross: 313e3, pf: 21600, tax: 42500, insurance: 2500, other: 1500, deductions: 68100, net: 244900, bank: "HDFC ****4521" },
-    { empId: "WH-015", name: "Dr. Rajesh Kumar", dept: "Orthopedics", designation: "HOD", basic: 2e5, da: 4e4, hra: 8e4, special: 3e4, ot: 0, gross: 35e4, pf: 21600, tax: 52e3, insurance: 2500, other: 1500, deductions: 77600, net: 272400, bank: "SBI ****7832" },
-    { empId: "WH-042", name: "Nurse Anita Desai", dept: "ICU", designation: "Head Nurse", basic: 55e3, da: 11e3, hra: 22e3, special: 8e3, ot: 8400, gross: 104400, pf: 6600, tax: 5200, insurance: 2500, other: 0, deductions: 14300, net: 90100, bank: "ICICI ****1234" },
-    { empId: "WH-067", name: "Dr. Suresh Patel", dept: "Emergency", designation: "Consultant", basic: 15e4, da: 3e4, hra: 6e4, special: 2e4, ot: 25600, gross: 285600, pf: 21600, tax: 35e3, insurance: 2500, other: 1500, deductions: 60600, net: 225e3, bank: "Axis ****5678" },
-    { empId: "WH-089", name: "Nurse Kavita Rao", dept: "General Ward", designation: "Staff Nurse", basic: 35e3, da: 7e3, hra: 14e3, special: 5e3, ot: 5400, gross: 66400, pf: 4200, tax: 0, insurance: 2500, other: 0, deductions: 6700, net: 59700, bank: "BOB ****9012" },
-    { empId: "WH-112", name: "Tech. Arun Nair", dept: "Radiology", designation: "Sr. Technician", basic: 45e3, da: 9e3, hra: 18e3, special: 6e3, ot: 3e3, gross: 81e3, pf: 5400, tax: 2500, insurance: 2500, other: 0, deductions: 10400, net: 70600, bank: "HDFC ****3456" }
-  ];
-  const attendance = [
-    { name: "Dr. Priya Sharma", present: 24, absent: 0, halfDay: 0, leave: 4, holidays: 2, lop: 0, workingDays: 24 },
-    { name: "Dr. Rajesh Kumar", present: 25, absent: 0, halfDay: 0, leave: 3, holidays: 2, lop: 0, workingDays: 25 },
-    { name: "Nurse Anita Desai", present: 26, absent: 1, halfDay: 0, leave: 1, holidays: 2, lop: 0, workingDays: 26 },
-    { name: "Dr. Suresh Patel", present: 27, absent: 0, halfDay: 0, leave: 1, holidays: 2, lop: 0, workingDays: 27 },
-    { name: "Nurse Kavita Rao", present: 24, absent: 0, halfDay: 1, leave: 3, holidays: 2, lop: 0, workingDays: 24.5 },
-    { name: "Tech. Arun Nair", present: 25, absent: 0, halfDay: 0, leave: 3, holidays: 2, lop: 0, workingDays: 25 }
-  ];
+  const payroll = [];
+  const attendance = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -150876,23 +150424,9 @@ const EmergencyCommandCenter = () => {
 const BedTransferManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("pending");
   const [showRequest, setShowRequest] = reactExports.useState(false);
-  const pendingTransfers = [
-    { id: "TRF-301", patient: "Ramesh Gupta (P-1045)", from: "ICU Bed 3", to: "Ward A - Bed 12", reason: "Step-down: Stable vitals for 24h", requestedBy: "Dr. Priya Sharma", time: "15:30", priority: "High", status: "Awaiting Approval" },
-    { id: "TRF-302", patient: "Meena Sharma (P-1023)", from: "Ward A - Bed 8", to: "ICU Bed 5", reason: "Deterioration: SpO2 dropped to 88%", requestedBy: "Nurse Kavita", time: "14:45", priority: "Urgent", status: "Doctor Review" },
-    { id: "TRF-303", patient: "Anil Mehta (P-1067)", from: "Ward B - Bed 14", to: "Ward A - Bed 3", reason: "Patient request: closer to nursing station", requestedBy: "Ward B Incharge", time: "13:20", priority: "Low", status: "Awaiting Approval" }
-  ];
-  const approvedTransfers = [
-    { id: "TRF-298", patient: "Vikram Singh (P-998)", from: "ER Bay 4", to: "Ward B - Bed 7", reason: "ER to ward admission", approvedBy: "Dr. Rajesh Kumar", approvedAt: "12:00", executedAt: "12:25", duration: "25 min" },
-    { id: "TRF-297", patient: "Fatima Khan (P-1012)", from: "OT Recovery", to: "Ward A - Bed 15", reason: "Post-op recovery complete", approvedBy: "Dr. Meena Iyer", approvedAt: "11:30", executedAt: "11:50", duration: "20 min" },
-    { id: "TRF-296", patient: "Suresh Patel (P-987)", from: "Ward A - Bed 6", to: "ICU Bed 1", reason: "Post-cardiac arrest monitoring", approvedBy: "Dr. Priya Sharma", approvedAt: "10:15", executedAt: "10:22", duration: "7 min" }
-  ];
-  const transferHistory = [
-    { id: "TRF-295", patient: "Neha Gupta (P-1034)", from: "ICU", to: "Ward B", date: "2026-03-01", reason: "Step-down", status: "Completed", duration: "15 min" },
-    { id: "TRF-294", patient: "Ravi Joshi (P-1001)", from: "ER", to: "OT-1", date: "2026-03-01", reason: "Emergency surgery", status: "Completed", duration: "8 min" },
-    { id: "TRF-293", patient: "Priya Sen (P-978)", from: "Ward A", to: "Ward B", date: "2026-03-01", reason: "Isolation required", status: "Completed", duration: "30 min" },
-    { id: "TRF-292", patient: "Amit Verma (P-1056)", from: "NICU", to: "Pediatrics", date: "2026-02-28", reason: "Neonatal discharge", status: "Completed", duration: "20 min" },
-    { id: "TRF-291", patient: "Rekha Jain (P-945)", from: "Ward B", to: "ICU", date: "2026-02-28", reason: "Sepsis escalation", status: "Completed", duration: "5 min" }
-  ];
+  const pendingTransfers = [];
+  const approvedTransfers = [];
+  const transferHistory = [];
   const availableBeds = [
     { ward: "ICU", total: 12, occupied: 10, available: 2, beds: ["ICU-5", "ICU-11"] },
     { ward: "Ward A", total: 30, occupied: 26, available: 4, beds: ["A-3", "A-12", "A-18", "A-27"] },
@@ -151664,24 +151198,13 @@ const TPAProviderAdmin = () => {
     { code: "CAPF", name: "CAPF (Armed Police Forces)", type: "Government", plansMapped: 149, patientsActive: 4, claimsThisMonth: 2, settlementRate: "85%", avgTAT: "45 days", apiStatus: "Rate Engine", lastSync: "Live" },
     { code: "RSBY", name: "Rashtriya Swasthya Bima", type: "Government", plansMapped: 1, patientsActive: 5, claimsThisMonth: 2, settlementRate: "75%", avgTAT: "90 days", apiStatus: "Offline", lastSync: "N/A" }
   ];
-  const eligibilityChecks = [
-    { patient: "Ramesh Gupta (P-1045)", provider: "Star Health", policyNo: "SH-2026-78432", status: "Eligible", coverage: "Rs.5,00,000", copay: "10%", preExisting: "2yr waiting", checkedAt: "16:05" },
-    { patient: "Meena Devi (P-1078)", provider: "PMJAY", policyNo: "PMJAY-MH-45678", status: "Eligible", coverage: "Rs.5,00,000", copay: "0%", preExisting: "Covered", checkedAt: "15:30" },
-    { patient: "Suresh Patel (P-987)", provider: "ICICI Lombard", policyNo: "IL-2025-99123", status: "Not Eligible", coverage: "-", copay: "-", preExisting: "Policy Expired", checkedAt: "14:20" },
-    { patient: "Fatima Khan (P-1012)", provider: "HDFC ERGO", policyNo: "HE-2026-55789", status: "Eligible", coverage: "Rs.10,00,000", copay: "0%", preExisting: "4yr waiting", checkedAt: "13:10" }
-  ];
+  const eligibilityChecks = [];
   const pmjayBeneficiaries = [
     { name: "Lakshmi Devi", hhid: "RSBY-MH-2026-001234", aadhar: "****-****-5678", familySize: 5, eligCard: "Golden Card", district: "Pune", status: "Verified", lastVerified: "2026-03-01" },
     { name: "Raju Yadav", hhid: "RSBY-MH-2026-005678", aadhar: "****-****-9012", familySize: 4, eligCard: "Golden Card", district: "Nashik", status: "Verified", lastVerified: "2026-03-02" },
     { name: "Kamla Bai", hhid: "RSBY-MH-2026-009012", aadhar: "****-****-3456", familySize: 6, eligCard: "Pending", district: "Nagpur", status: "OTP Sent", lastVerified: "-" }
   ];
-  const claimsStatus = [
-    { claimId: "CLM-4521", patient: "Vikram Singh", provider: "Star Health", amount: "Rs.1,20,000", submitted: "2026-02-20", status: "Approved", approved: "Rs.1,15,000", TAT: "10 days" },
-    { claimId: "CLM-4520", patient: "Priya Sen", provider: "ICICI Lombard", amount: "Rs.85,000", submitted: "2026-02-18", status: "Under Review", approved: "-", TAT: "12 days" },
-    { claimId: "CLM-4519", patient: "Amit Verma", provider: "PMJAY", amount: "Rs.45,000", submitted: "2026-02-15", status: "Approved", approved: "Rs.45,000", TAT: "15 days" },
-    { claimId: "CLM-4518", patient: "Neha Sharma", provider: "HDFC ERGO", amount: "Rs.2,30,000", submitted: "2026-02-12", status: "Partially Approved", approved: "Rs.1,90,000", TAT: "18 days" },
-    { claimId: "CLM-4517", patient: "Rekha Jain", provider: "Niva Bupa", amount: "Rs.55,000", submitted: "2026-02-10", status: "Denied", approved: "Rs.0", TAT: "20 days" }
-  ];
+  const claimsStatus = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -151818,6 +151341,24 @@ const TPAProviderAdmin = () => {
 };
 const CloudBackupConsole = () => {
   const [activeTab, setActiveTab] = reactExports.useState("overview");
+  const [dbSummary, setDbSummary] = reactExports.useState({ database_size_mb: "—", tables: "—", patients: "—", admitted: "—" });
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("/api/cloud-backup/summary");
+        const row = (res.data.data || [])[0] || (res.data.summary || {});
+        setDbSummary({
+          database_size_mb: row.database_size_mb != null ? row.database_size_mb : "—",
+          tables: row.tables != null ? row.tables : "—",
+          patients: row.patients != null ? row.patients : "—",
+          admitted: row.admitted != null ? row.admitted : "—"
+        });
+      } catch (err) {
+        console.error("[CloudBackupConsole] summary load failed:", err.message);
+        setDbSummary({ database_size_mb: "—", tables: "—", patients: "—", admitted: "—" });
+      }
+    })();
+  }, []);
   const backupHistory = [
     { id: "BK-2026-090", type: "Full", size: "2.4 GB", started: "02:00 AM", completed: "02:18 AM", duration: "18 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "30 days" },
     { id: "BK-2026-089", type: "Incremental", size: "340 MB", started: "14:00 PM", completed: "14:04 PM", duration: "4 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "7 days" },
@@ -151860,24 +151401,27 @@ const CloudBackupConsole = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: "90" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Backups (30d)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: dbSummary.tables }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "DB Tables" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: "100%" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Success Rate" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: dbSummary.patients }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Patients (live)" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: "2.4 GB" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Latest Full Backup" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-info", children: [
+          dbSummary.database_size_mb,
+          " MB"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Database Size" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: "18 min" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Latest Backup Duration" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: dbSummary.admitted }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Admitted Now" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { color: "#198754" }, children: "2.5h" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "RTO Actual" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { color: "#198754" }, children: "< 4h" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "RTO Target" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
@@ -152944,18 +152488,8 @@ const PasswordStrengthChecker = ({ headers }) => {
 const SpecialistReferralManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("pending");
   const [showRefer, setShowRefer] = reactExports.useState(false);
-  const pendingReferrals = [
-    { id: "REF-501", patient: "Ramesh Gupta (P-1045)", from: "Dr. Priya Sharma (Gen Medicine)", to: "Dr. Amit Verma (Cardiology)", reason: "Persistent arrhythmia, needs EP study evaluation", priority: "Urgent", requested: "15:30", status: "Pending Acceptance" },
-    { id: "REF-502", patient: "Meena Devi (P-1078)", from: "Dr. Rajesh Kumar (OB/GYN)", to: "Dr. Sunita Iyer (Neonatology)", reason: "High-risk pregnancy — preterm labor signs at 32 weeks", priority: "Urgent", requested: "14:45", status: "Pending Acceptance" },
-    { id: "REF-503", patient: "Anil Mehta (P-1067)", from: "Dr. Suresh Patel (Gen Surgery)", to: "Dr. Rao (Gastroenterology)", reason: "Pre-op endoscopy for suspected duodenal ulcer", priority: "High", requested: "13:20", status: "Scheduling" },
-    { id: "REF-504", patient: "Fatima Khan (P-1012)", from: "Dr. Kavita (ER)", to: "Dr. Mohan (Orthopedics)", reason: "Comminuted fracture right tibia — needs surgical fixation", priority: "High", requested: "12:00", status: "Accepted" }
-  ];
-  const completedReferrals = [
-    { id: "REF-498", patient: "Vikram Singh (P-998)", from: "ER", to: "Cardiology", reason: "STEMI evaluation", outcome: "PTCA + Stenting done", duration: "2 days", satisfaction: "5/5" },
-    { id: "REF-497", patient: "Priya Sen (P-978)", from: "Gen Medicine", to: "Pulmonology", reason: "Chronic cough 6 weeks", outcome: "TB ruled out, Asthma diagnosed", duration: "3 days", satisfaction: "4/5" },
-    { id: "REF-496", patient: "Rekha Jain (P-945)", from: "OB/GYN", to: "Anesthesiology", reason: "Pre-anesthetic checkup for LSCS", outcome: "Cleared for spinal anesthesia", duration: "1 day", satisfaction: "5/5" },
-    { id: "REF-495", patient: "Suresh Patel (P-987)", from: "Gen Medicine", to: "Nephrology", reason: "Elevated creatinine (3.2)", outcome: "CKD Stage 3 — dialysis not yet needed", duration: "4 days", satisfaction: "4/5" }
-  ];
+  const pendingReferrals = [];
+  const completedReferrals = [];
   const specialists = [
     { name: "Dr. Amit Verma", dept: "Cardiology", specialization: "Interventional", queue: 2, avgWait: "1.5 hrs", availability: "Available", rating: "4.8/5" },
     { name: "Dr. Sunita Iyer", dept: "Neonatology", specialization: "NICU", queue: 1, avgWait: "30 min", availability: "Available", rating: "4.9/5" },
@@ -153119,15 +152653,7 @@ const SpecialistReferralManager = () => {
 };
 const ClinicalScalesDashboard = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
-  const activeAssessments = [
-    { patient: "Ramesh Gupta (P-1045)", ward: "ICU-3", scale: "GCS", score: "8/15 (E2V2M4)", interpretation: "Severe Brain Injury", trend: "↓ from 10", lastAssessed: "15:45", assessedBy: "Nurse Anita", nextDue: "17:45", alert: true },
-    { patient: "Meena Sharma (P-1023)", ward: "Ward A-12", scale: "NEWS-2", score: "7", interpretation: "High Clinical Risk", trend: "↑ from 4", lastAssessed: "15:30", assessedBy: "Nurse Kavita", nextDue: "16:30", alert: true },
-    { patient: "Suresh Patel (P-987)", ward: "ICU-1", scale: "APACHE II", score: "22", interpretation: "Predicted Mortality 40%", trend: "→ stable", lastAssessed: "14:00", assessedBy: "Dr. Priya", nextDue: "20:00", alert: false },
-    { patient: "Anil Mehta (P-1067)", ward: "Ward B-14", scale: "Braden", score: "12/23", interpretation: "High Risk Pressure Injury", trend: "↓ from 14", lastAssessed: "14:30", assessedBy: "Nurse Renu", nextDue: "20:30", alert: true },
-    { patient: "Rajesh Kumar (P-956)", ward: "PACU-2", scale: "Aldrete", score: "7/10", interpretation: "Not Ready for Discharge", trend: "↑ from 5", lastAssessed: "15:00", assessedBy: "Nurse Maya", nextDue: "15:30", alert: false },
-    { patient: "Lakshmi Devi (P-1078)", ward: "Ward A-8", scale: "Norton", score: "10/20", interpretation: "Very High Risk Falls", trend: "→ stable", lastAssessed: "13:00", assessedBy: "Nurse Pooja", nextDue: "19:00", alert: true },
-    { patient: "Baby Arun (P-1089)", ward: "NICU-4", scale: "APGAR", score: "6 (1min) → 8 (5min)", interpretation: "Normal Recovery", trend: "↑", lastAssessed: "12:30", assessedBy: "Dr. Sunita", nextDue: "N/A", alert: false }
-  ];
+  const activeAssessments = [];
   const scaleDefinitions = [
     { name: "GCS (Glasgow Coma Scale)", range: "3-15", components: "Eye (1-4) + Verbal (1-5) + Motor (1-6)", frequency: "q2h in ICU, q4h in ward", thresholds: "≤8 Severe, 9-12 Moderate, 13-15 Mild", usage: "Head injury, altered consciousness" },
     { name: "NEWS-2 (National Early Warning)", range: "0-20", components: "RR + SpO2 + Temp + BP + HR + Consciousness", frequency: "q1h if ≥7, q4h if 1-4, q12h if 0", thresholds: "≥7 High, 5-6 Medium, 1-4 Low", usage: "General ward deterioration" },
@@ -153237,19 +152763,26 @@ const ClinicalScalesDashboard = () => {
 };
 const POSTerminal = () => {
   const [activeTab, setActiveTab] = reactExports.useState("terminal");
-  const currentQueue = [
-    { token: "T-045", patient: "Walk-in", service: "OPD Consultation", department: "General Medicine", amount: "Rs.500", method: "UPI", time: "16:05", status: "Processing" },
-    { token: "T-046", patient: "Ramesh Gupta (P-1045)", service: "Lab - CBC + LFT + KFT", department: "Laboratory", amount: "Rs.1,450", method: "Card", time: "16:08", status: "Waiting" },
-    { token: "T-047", patient: "Walk-in", service: "Pharmacy Purchase", department: "Pharmacy", amount: "Rs.780", method: "Cash", time: "16:10", status: "Waiting" }
-  ];
-  const todayTransactions = [
-    { id: "POS-3201", time: "15:55", patient: "Meena Devi", service: "Ultrasound Abdomen", amount: "Rs.1,200", method: "UPI", operator: "Rekha", status: "Completed" },
-    { id: "POS-3200", time: "15:40", patient: "Walk-in", service: "ECG", amount: "Rs.300", method: "Cash", operator: "Sanjay", status: "Completed" },
-    { id: "POS-3199", time: "15:22", patient: "Anil Mehta", service: "X-Ray Chest PA", amount: "Rs.450", method: "Card", operator: "Rekha", status: "Completed" },
-    { id: "POS-3198", time: "15:10", patient: "Walk-in", service: "OPD + Pharmacy", amount: "Rs.1,850", method: "UPI", operator: "Sanjay", status: "Completed" },
-    { id: "POS-3197", time: "14:55", patient: "Fatima Khan", service: "MRI Brain", amount: "Rs.5,500", method: "Card", operator: "Rekha", status: "Completed" },
-    { id: "POS-3196", time: "14:30", patient: "Walk-in", service: "Health Checkup Package", amount: "Rs.4,999", method: "UPI", operator: "Sanjay", status: "Completed" }
-  ];
+  const [devices, setDevices] = reactExports.useState([]);
+  const [providerCount, setProviderCount] = reactExports.useState(0);
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const [devRes, provRes] = await Promise.all([
+          api.get("/api/pos/devices"),
+          api.get("/api/pos/providers/active").catch(() => ({ data: { data: [] } }))
+        ]);
+        setDevices(devRes.data.data || devRes.data.devices || []);
+        setProviderCount((provRes.data.data || []).length);
+      } catch (err) {
+        console.error("[POSTerminal] terminal load failed:", err.message);
+        setDevices([]);
+        setProviderCount(0);
+      }
+    })();
+  }, []);
+  const currentQueue = [];
+  const todayTransactions = [];
   const serviceModules = [
     { module: "OPD Consultation", txnToday: 45, revenue: "Rs.22,500", avgTicket: "Rs.500" },
     { module: "Laboratory", txnToday: 38, revenue: "Rs.55,100", avgTicket: "Rs.1,450" },
@@ -153271,8 +152804,8 @@ const POSTerminal = () => {
     { method: "Insurance (Cashless TPA)", count: 8, amount: "Rs.8,500", share: "2.8%" },
     { method: "PMJAY", count: 4, amount: "Rs.3,492", share: "1.1%" }
   ];
-  const totalRevenue = "Rs.3,06,892";
-  const totalTxn = 234;
+  const totalRevenue = "—";
+  const totalTxn = todayTransactions.length;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -153283,8 +152816,12 @@ const POSTerminal = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: totalRevenue }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Revenue Today" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: devices.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
+          "POS Terminals (",
+          providerCount,
+          " providers)"
+        ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: totalTxn }),
@@ -153390,28 +152927,36 @@ const POSTerminal = () => {
 };
 const ProblemListManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
-  const activeProblems = [
-    { patient: "Ramesh Gupta (P-1045)", problems: [
-      { icd: "I48.0", name: "Atrial Fibrillation", onset: "2025-06-15", severity: "Moderate", status: "Active", managedBy: "Dr. Amit Verma" },
-      { icd: "E11.9", name: "Type 2 Diabetes Mellitus", onset: "2020-03-10", severity: "Controlled", status: "Active", managedBy: "Dr. Priya Sharma" },
-      { icd: "I10", name: "Essential Hypertension", onset: "2019-08-22", severity: "Controlled", status: "Active", managedBy: "Dr. Priya Sharma" }
-    ] },
-    { patient: "Meena Devi (P-1078)", problems: [
-      { icd: "O60.1", name: "Preterm Labor - 32 weeks", onset: "2026-03-01", severity: "High", status: "Active", managedBy: "Dr. Rajesh Kumar" },
-      { icd: "O24.4", name: "Gestational Diabetes", onset: "2026-01-15", severity: "Moderate", status: "Active", managedBy: "Dr. Rajesh Kumar" }
-    ] },
-    { patient: "Anil Mehta (P-1067)", problems: [
-      { icd: "K25.9", name: "Gastric Ulcer", onset: "2026-02-20", severity: "Moderate", status: "Active", managedBy: "Dr. Suresh Patel" },
-      { icd: "F10.1", name: "Alcohol Use Disorder", onset: "2024-01-01", severity: "Moderate", status: "Active", managedBy: "Dr. Suresh Patel" },
-      { icd: "K70.3", name: "Alcoholic Cirrhosis", onset: "2025-11-10", severity: "Severe", status: "Active", managedBy: "Dr. Rao" }
-    ] }
-  ];
-  const resolvedProblems = [
-    { patient: "Vikram Singh (P-998)", icd: "I21.0", name: "Acute STEMI", onset: "2026-02-25", resolved: "2026-02-27", resolution: "PTCA + DES Stenting successful" },
-    { patient: "Priya Sen (P-978)", icd: "R05", name: "Chronic Cough", onset: "2026-01-10", resolved: "2026-02-28", resolution: "Diagnosed as Asthma — started inhaler therapy" },
-    { patient: "Rekha Jain (P-945)", icd: "A41.9", name: "Sepsis", onset: "2026-02-20", resolved: "2026-02-28", resolution: "IV antibiotics 7-day course completed, cultures negative" },
-    { patient: "Suresh Patel (P-987)", icd: "N17.9", name: "Acute Kidney Injury", onset: "2026-02-15", resolved: "2026-02-22", resolution: "Resolved with hydration, Cr normalized to 1.1" }
-  ];
+  const [activeProblems, setActiveProblems] = reactExports.useState([]);
+  const [resolvedProblems, setResolvedProblems] = reactExports.useState([]);
+  const [summary, setSummary] = reactExports.useState({ active: 0, resolved: 0, patients: 0, high: 0 });
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("/api/patient-problems");
+        const all3 = res.data.data || res.data.problems || [];
+        const byPatient = /* @__PURE__ */ new Map();
+        for (const row of all3.filter((r2) => r2.status === "Active")) {
+          const key = row.patient_name || row.patient_id;
+          if (!byPatient.has(key)) byPatient.set(key, { patient: key, problems: [] });
+          byPatient.get(key).problems.push(row);
+        }
+        setActiveProblems([...byPatient.values()]);
+        setResolvedProblems(all3.filter((r2) => r2.status !== "Active"));
+        setSummary({
+          active: all3.filter((r2) => r2.status === "Active").length,
+          resolved: all3.filter((r2) => r2.status !== "Active").length,
+          patients: byPatient.size,
+          high: 0
+        });
+      } catch (err) {
+        console.error("[ProblemListManager] problem load failed:", err.message);
+        setActiveProblems([]);
+        setResolvedProblems([]);
+        setSummary({ active: 0, resolved: 0, patients: 0, high: 0 });
+      }
+    })();
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -153422,26 +152967,26 @@ const ProblemListManager = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: "8" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: summary.active }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Active Problems" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: "4" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Resolved This Month" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: summary.resolved }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Resolved" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: "3" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: summary.patients }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Patients Tracked" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: "2" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: summary.high }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "High Severity" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "active", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         "Active Problems ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: "8" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: summary.active })
       ] }), children: activeProblems.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-dark text-white", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.patient }),
@@ -153494,40 +153039,9 @@ const ProblemListManager = () => {
 };
 const TransitionPlanner = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
-  const activePlans = [
-    { patient: "Ramesh Gupta (P-1045)", ward: "ICU-3", admDate: "2026-02-28", targetDischarge: "2026-03-04", day: 3, tasks: [
-      { task: "Wean ventilator", status: "Completed", owner: "RT Team" },
-      { task: "Tolerating oral feeds", status: "Completed", owner: "Dietitian" },
-      { task: "Ambulation started", status: "In Progress", owner: "Physiotherapy" },
-      { task: "Discharge medications finalized", status: "Pending", owner: "Dr. Priya" },
-      { task: "Follow-up appointment booked", status: "Pending", owner: "Reception" },
-      { task: "Family counseling", status: "Pending", owner: "Nurse" }
-    ], progress: 33, destination: "Step-down to Ward A → Home" },
-    { patient: "Meena Sharma (P-1023)", ward: "Ward A-12", admDate: "2026-02-27", targetDischarge: "2026-03-03", day: 4, tasks: [
-      { task: "IV antibiotics completed", status: "Completed", owner: "Pharmacy" },
-      { task: "Wound healing satisfactory", status: "Completed", owner: "Surgeon" },
-      { task: "Drain removal", status: "Completed", owner: "Dr. Suresh" },
-      { task: "Oral antibiotics started", status: "Completed", owner: "Pharmacy" },
-      { task: "Discharge summary prepared", status: "In Progress", owner: "Dr. Suresh" },
-      { task: "Insurance pre-auth for follow-up", status: "Pending", owner: "TPA Desk" }
-    ], progress: 67, destination: "Home with home care follow-up" },
-    { patient: "Suresh Patel (P-987)", ward: "ICU-1", admDate: "2026-02-25", targetDischarge: "2026-03-05", day: 6, tasks: [
-      { task: "Cardiac rehab started", status: "In Progress", owner: "Physiotherapy" },
-      { task: "Dual antiplatelet compliance", status: "Completed", owner: "Pharmacy" },
-      { task: "Echo follow-up done", status: "Completed", owner: "Cardiology" },
-      { task: "Dietitian counseling", status: "Completed", owner: "Dietitian" },
-      { task: "Home BP monitor arranged", status: "Pending", owner: "Nurse" }
-    ], progress: 60, destination: "Home — Cardiac Rehab OPD twice/week" }
-  ];
-  const readyForDischarge = [
-    { patient: "Vikram Singh (P-998)", ward: "Ward B-7", diagnosis: "Post-PTCA Recovery", los: "5 days", allTasksDone: true, dischargeSummary: "Ready", insurance: "Settled", followUp: "Booked — Mar 10" },
-    { patient: "Fatima Khan (P-1012)", ward: "Ward A-15", diagnosis: "Post-op Fracture Fixation", los: "3 days", allTasksDone: true, dischargeSummary: "Ready", insurance: "HDFC ERGO — Approved", followUp: "Booked — Mar 8" }
-  ];
-  const dischargedToday = [
-    { patient: "Neha Gupta (P-1034)", diagnosis: "Pneumonia", los: "4 days", dischargedAt: "11:00 AM", destination: "Home", followUp: "Mar 9", summary: "Completed" },
-    { patient: "Ravi Joshi (P-1001)", diagnosis: "Appendectomy", los: "2 days", dischargedAt: "10:30 AM", destination: "Home", followUp: "Mar 7", summary: "Completed" },
-    { patient: "Amit Verma (P-1056)", diagnosis: "NICU — Preterm stabilized", los: "8 days", dischargedAt: "09:00 AM", destination: "Home with Kangaroo Care", followUp: "Mar 5", summary: "Completed" }
-  ];
+  const activePlans = [];
+  const readyForDischarge = [];
+  const dischargedToday = [];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -153638,16 +153152,23 @@ const TransitionPlanner = () => {
 const WardPassManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
   const [showNew, setShowNew] = reactExports.useState(false);
-  const activePasses = [
-    { id: "WP-078", patient: "Ramesh Gupta (P-1045)", ward: "Ward A-12", type: "Day Pass", reason: "Family event attendance", approvedBy: "Dr. Priya Sharma", issuedAt: "2026-03-02 09:00", returnBy: "2026-03-02 18:00", escortedBy: "Son — Manoj Gupta", contact: "98765-43210", conditions: "Continue oral meds, avoid exertion", status: "Out" },
-    { id: "WP-077", patient: "Meena Sharma (P-1023)", ward: "Ward A-8", type: "Short Leave", reason: "Religious ceremony at home", approvedBy: "Dr. Suresh Patel", issuedAt: "2026-03-02 10:00", returnBy: "2026-03-02 14:00", escortedBy: "Husband — Rajesh Sharma", contact: "87654-32100", conditions: "Wound care instructions provided", status: "Out" }
-  ];
-  const returnedPasses = [
-    { id: "WP-076", patient: "Anil Mehta (P-1067)", ward: "Ward B-14", type: "Day Pass", reason: "Bank work", issuedAt: "2026-03-01 09:00", returnBy: "18:00", returnedAt: "17:30", status: "Returned On Time", vitalsOnReturn: "BP 130/80, Temp 98.4°F, SpO2 97%" },
-    { id: "WP-075", patient: "Vikram Singh (P-998)", ward: "Ward B-7", type: "Overnight", reason: "Night at home before discharge", issuedAt: "2026-02-28 18:00", returnBy: "Mar 1 08:00", returnedAt: "08:15", status: "Returned Late (15min)", vitalsOnReturn: "BP 120/78, Temp 98.2°F, SpO2 99%" },
-    { id: "WP-074", patient: "Fatima Khan (P-1012)", ward: "Ward A-15", type: "Short Leave", reason: "Follow-up at dental clinic", issuedAt: "2026-02-28 10:00", returnBy: "13:00", returnedAt: "12:45", status: "Returned On Time", vitalsOnReturn: "BP 118/75, Temp 98.6°F, SpO2 98%" },
-    { id: "WP-073", patient: "Neha Gupta (P-1034)", ward: "Ward A-5", type: "Day Pass", reason: "Child's school function", issuedAt: "2026-02-27 08:00", returnBy: "16:00", returnedAt: "15:30", status: "Returned On Time", vitalsOnReturn: "BP 110/70, Temp 98.4°F, SpO2 99%" }
-  ];
+  const [activePasses, setActivePasses] = reactExports.useState([]);
+  const [returnedPasses, setReturnedPasses] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get("/api/ward-pass/passes");
+        const all3 = res.data.data || res.data.passes || [];
+        setActivePasses(all3.filter((p2) => p2.status === "Active"));
+        setReturnedPasses(all3.filter((p2) => p2.status !== "Active"));
+      } catch (err) {
+        console.error("[WardPassManager] pass load failed:", err.message);
+        setActivePasses([]);
+        setReturnedPasses([]);
+      }
+    })();
+  }, []);
+  const totalPasses = activePasses.length + returnedPasses.length;
   const policies = [
     { type: "Short Leave", maxDuration: "4 hours", eligibility: "Stable patients, Day 3+", approval: "Treating Doctor", escortRequired: "Yes", vitalsCheck: "Before & After", restrictions: "No alcohol, continue meds" },
     { type: "Day Pass", maxDuration: "8 hours (08:00-18:00)", eligibility: "Stable patients, Day 5+", approval: "Treating Doctor + HOD", escortRequired: "Yes", vitalsCheck: "Before & After", restrictions: "Signed AMA acknowledgment" },
@@ -153672,7 +153193,7 @@ const WardPassManager = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Returned (7d)" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: "95%" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: totalPasses > 0 ? `${Math.round(returnedPasses.length / totalPasses * 100)}%` : "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "On-Time Return Rate" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
@@ -153799,7 +153320,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-DmW4uvjO.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-0ZJEO2uu.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),

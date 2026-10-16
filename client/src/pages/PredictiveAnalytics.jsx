@@ -4,13 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, ProgressBar } from 
 const PredictiveAnalytics = () => {
     const [activeTab, setActiveTab] = useState('readmission');
 
-    const readmissionRisk = [
-        { id: 'P-10045', name: 'Ramesh Kumar', age: 72, diagnosis: 'CHF Exacerbation', los: 8, risk: 82, factors: ['Age >65', 'Readmitted 2x in 6mo', 'Multiple comorbidities', 'Low EF'], discharge: '2026-03-01' },
-        { id: 'P-10032', name: 'Sunita Devi', age: 65, diagnosis: 'COPD Acute', los: 6, risk: 71, factors: ['Prior readmission', 'Low FEV1', 'Steroid dependent'], discharge: '2026-03-02' },
-        { id: 'P-10078', name: 'Arvind Shah', age: 58, diagnosis: 'Diabetic Ketoacidosis', los: 4, risk: 55, factors: ['Non-compliance history', 'HbA1c >10', 'No caregiver'], discharge: '2026-03-02' },
-        { id: 'P-10091', name: 'Meera Patel', age: 45, diagnosis: 'Pneumonia', los: 5, risk: 30, factors: ['First admission', 'Good social support'], discharge: '2026-03-03' },
-        { id: 'P-10105', name: 'Vikram Singh', age: 38, diagnosis: 'Appendectomy', los: 2, risk: 8, factors: ['Young', 'Surgical - routine'], discharge: '2026-03-02' },
-    ];
+    const readmissionRisk = [];
 
     const losPredictions = [
         { ward: 'General Medicine', current: 32, avgLOS: 4.2, predicted: 4.5, trend: 'up' },

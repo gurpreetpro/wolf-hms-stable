@@ -5,13 +5,7 @@ const CDIDashboard = () => {
   const [activeTab, setActiveTab] = useState('queries');
   const [showQueryModal, setShowQueryModal] = useState(false);
 
-  const cdiQueries = [
-    { id: 'CDI-301', patient: 'Rajesh Kumar', mrn: 'MRN-1045', query: 'Sepsis — clinical indicators present but not documented', type: 'Clarification', priority: 'High', status: 'Pending', age: '2h', drgImpact: '+₹45,000', physician: 'Dr. Sharma' },
-    { id: 'CDI-302', patient: 'Anita Desai', mrn: 'MRN-1078', query: 'Acute kidney injury vs CKD— specify severity stage', type: 'Specificity', priority: 'Medium', status: 'Sent', age: '4h', drgImpact: '+₹28,000', physician: 'Dr. Patel' },
-    { id: 'CDI-303', patient: 'Suresh Menon', mrn: 'MRN-1023', query: 'Malnutrition — BMI 16.5, consider documenting severity', type: 'Capture', priority: 'High', status: 'Pending', age: '1h', drgImpact: '+₹35,000', physician: 'Dr. Reddy' },
-    { id: 'CDI-304', patient: 'Priya Singh', mrn: 'MRN-1056', query: 'Heart failure — document EF% and NYHA class', type: 'Specificity', priority: 'Medium', status: 'Responded', age: '6h', drgImpact: '+₹22,000', physician: 'Dr. Sharma' },
-    { id: 'CDI-305', patient: 'Amit Verma', mrn: 'MRN-1090', query: 'Pneumonia — organism and type (CAP/HAP) not specified', type: 'Clarification', priority: 'Low', status: 'Resolved', age: '1d', drgImpact: '+₹18,000', physician: 'Dr. Khan' },
-  ];
+  const cdiQueries = [];
 
   const gapAlerts = [
     { category: 'Missing HCC Codes', count: 12, impact: 'Revenue risk ₹3.2L/month', action: 'Review diagnoses for chronic conditions' },

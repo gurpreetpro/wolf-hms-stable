@@ -127,17 +127,12 @@ const QualityDashboard = () => {
 
     return (
         <Container fluid className="py-3">
-            <Alert variant="info" className="d-flex align-items-center mb-3">
-                <Award size={18} className="me-2" />
-                Quality metrics and NABH compliance module is not enabled on this server — displaying baseline benchmark data.
-            </Alert>
-            {/* Header */}
+{/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 className="fw-bold mb-1">
                         <Award size={24} className="me-2 text-primary" /> Quality & NABH Compliance
-                        <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-                    </h4>
+</h4>
                     <small className="text-muted">Hospital quality indicators and accreditation tracking</small>
                 </div>
                 <div className="d-flex gap-2">

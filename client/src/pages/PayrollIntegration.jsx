@@ -14,23 +14,9 @@ const PayrollIntegration = () => {
     status: 'Processed',
   };
 
-  const payroll = [
-    { empId: 'WH-001', name: 'Dr. Priya Sharma', dept: 'Cardiology', designation: 'Sr. Consultant', basic: 180000, da: 36000, hra: 72000, special: 25000, ot: 0, gross: 313000, pf: 21600, tax: 42500, insurance: 2500, other: 1500, deductions: 68100, net: 244900, bank: 'HDFC ****4521' },
-    { empId: 'WH-015', name: 'Dr. Rajesh Kumar', dept: 'Orthopedics', designation: 'HOD', basic: 200000, da: 40000, hra: 80000, special: 30000, ot: 0, gross: 350000, pf: 21600, tax: 52000, insurance: 2500, other: 1500, deductions: 77600, net: 272400, bank: 'SBI ****7832' },
-    { empId: 'WH-042', name: 'Nurse Anita Desai', dept: 'ICU', designation: 'Head Nurse', basic: 55000, da: 11000, hra: 22000, special: 8000, ot: 8400, gross: 104400, pf: 6600, tax: 5200, insurance: 2500, other: 0, deductions: 14300, net: 90100, bank: 'ICICI ****1234' },
-    { empId: 'WH-067', name: 'Dr. Suresh Patel', dept: 'Emergency', designation: 'Consultant', basic: 150000, da: 30000, hra: 60000, special: 20000, ot: 25600, gross: 285600, pf: 21600, tax: 35000, insurance: 2500, other: 1500, deductions: 60600, net: 225000, bank: 'Axis ****5678' },
-    { empId: 'WH-089', name: 'Nurse Kavita Rao', dept: 'General Ward', designation: 'Staff Nurse', basic: 35000, da: 7000, hra: 14000, special: 5000, ot: 5400, gross: 66400, pf: 4200, tax: 0, insurance: 2500, other: 0, deductions: 6700, net: 59700, bank: 'BOB ****9012' },
-    { empId: 'WH-112', name: 'Tech. Arun Nair', dept: 'Radiology', designation: 'Sr. Technician', basic: 45000, da: 9000, hra: 18000, special: 6000, ot: 3000, gross: 81000, pf: 5400, tax: 2500, insurance: 2500, other: 0, deductions: 10400, net: 70600, bank: 'HDFC ****3456' },
-  ];
+  const payroll = [];
 
-  const attendance = [
-    { name: 'Dr. Priya Sharma', present: 24, absent: 0, halfDay: 0, leave: 4, holidays: 2, lop: 0, workingDays: 24 },
-    { name: 'Dr. Rajesh Kumar', present: 25, absent: 0, halfDay: 0, leave: 3, holidays: 2, lop: 0, workingDays: 25 },
-    { name: 'Nurse Anita Desai', present: 26, absent: 1, halfDay: 0, leave: 1, holidays: 2, lop: 0, workingDays: 26 },
-    { name: 'Dr. Suresh Patel', present: 27, absent: 0, halfDay: 0, leave: 1, holidays: 2, lop: 0, workingDays: 27 },
-    { name: 'Nurse Kavita Rao', present: 24, absent: 0, halfDay: 1, leave: 3, holidays: 2, lop: 0, workingDays: 24.5 },
-    { name: 'Tech. Arun Nair', present: 25, absent: 0, halfDay: 0, leave: 3, holidays: 2, lop: 0, workingDays: 25 },
-  ];
+  const attendance = [];
 
   return (
     <Container fluid className="py-3">

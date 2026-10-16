@@ -1,26 +1,18 @@
 {
   "summary": {
-    "generatedAt": "2026-10-16T10:57:44.413Z",
+    "generatedAt": "2026-10-16T12:29:03.281Z",
     "scannedFiles": 377,
-    "filesWithFindings": 92,
+    "filesWithFindings": 44,
     "counts": {
-      "DISCONNECTED": 6,
-      "PURE_MOCK": 55,
-      "SILENT_FALLBACK": 20,
-      "BUCKET_C": 12,
+      "DISCONNECTED": 0,
+      "PURE_MOCK": 44,
+      "SILENT_FALLBACK": 0,
+      "BUCKET_C": 0,
       "PHASE_LEAK": 0
     },
-    "disconnectedScreens": [
-      "client/src/pages/CloudBackupConsole.jsx",
-      "client/src/pages/EarlyWarningScore.jsx",
-      "client/src/pages/POSTerminal.jsx",
-      "client/src/pages/ProblemListManager.jsx",
-      "client/src/pages/TelehealthConsole.jsx",
-      "client/src/pages/WardPassManager.jsx"
-    ],
+    "disconnectedScreens": [],
     "pureMockScreens": [
       "client/src/pages/AnatomicPathology.jsx",
-      "client/src/pages/AuditTrail.jsx",
       "client/src/pages/AutoReorderEngine.jsx",
       "client/src/pages/BackupDisasterRecovery.jsx",
       "client/src/pages/BedTransferManager.jsx",
@@ -28,38 +20,29 @@
       "client/src/pages/ClinicalAIAssistant.jsx",
       "client/src/pages/ClinicalNLP.jsx",
       "client/src/pages/ClinicalScalesDashboard.jsx",
-      "client/src/pages/ClosedLoopMedication.jsx",
       "client/src/pages/ConsentManagement.jsx",
       "client/src/pages/CPOEDashboard.jsx",
-      "client/src/pages/Credentialing.jsx",
       "client/src/pages/CreditDebitNotes.jsx",
       "client/src/pages/DataPrivacy.jsx",
-      "client/src/pages/EMARDashboard.jsx",
       "client/src/pages/HealthEducation.jsx",
       "client/src/pages/HIPAACompliance.jsx",
       "client/src/pages/HL7ADTFeed.jsx",
       "client/src/pages/IntegrationHub.jsx",
-      "client/src/pages/MultiPayerSplit.jsx",
       "client/src/pages/MultiTenantAdmin.jsx",
       "client/src/pages/NABHCertification.jsx",
       "client/src/pages/PatientFeedback.jsx",
       "client/src/pages/PatientPortal.jsx",
       "client/src/pages/PatientSafetyDashboard.jsx",
-      "client/src/pages/PayrollIntegration.jsx",
       "client/src/pages/PerformanceMonitoring.jsx",
       "client/src/pages/PopulationHealth.jsx",
       "client/src/pages/PredictiveAnalytics.jsx",
       "client/src/pages/ProcurementDashboard.jsx",
       "client/src/pages/RegulatoryReporting.jsx",
-      "client/src/pages/RemotePatientMonitoring.jsx",
       "client/src/pages/RevenueCycleAI.jsx",
-      "client/src/pages/SmartScheduling.jsx",
       "client/src/pages/SpecialistReferralManager.jsx",
-      "client/src/pages/StaffRoster.jsx",
       "client/src/pages/SystemConfiguration.jsx",
       "client/src/pages/TPAProviderAdmin.jsx",
       "client/src/pages/TrainingCompetency.jsx",
-      "client/src/pages/TransitionPlanner.jsx",
       "client/src/pages/WhiteLabelSaaS.jsx",
       "client/src/pages/WorkforceAnalytics.jsx",
       "client/src/components/CardiologyModule.jsx",
@@ -70,227 +53,16 @@
       "client/src/components/OrderTrackingTimeline.jsx",
       "client/src/components/PatrolMap.jsx",
       "client/src/components/PediatricsModule.jsx",
-      "client/src/components/ReferralNetwork.jsx",
       "client/src/components/security/CCTVGrid.jsx",
       "client/src/components/security/dashboard/AlertSettingsModal.jsx",
       "client/src/components/ui/TableToolbar.jsx"
     ],
-    "bucketCScreens": [
-      "client/src/pages/AmbulanceDashboard.jsx",
-      "client/src/pages/AssetDashboard.jsx",
-      "client/src/pages/CommsDashboard.jsx",
-      "client/src/pages/InfectionControlDashboard.jsx",
-      "client/src/pages/LaundryDashboard.jsx",
-      "client/src/pages/NeonatalDashboard.jsx",
-      "client/src/pages/OTDashboard.jsx",
-      "client/src/pages/PriorAuthDashboard.jsx",
-      "client/src/pages/QualityDashboard.jsx",
-      "client/src/pages/StaffSchedulingDashboard.jsx",
-      "client/src/pages/WasteManagementDashboard.jsx",
-      "client/src/components/OrderSetSelector.jsx"
-    ],
+    "bucketCScreens": [],
     "backendMounts": 105,
     "backendRouters": 133,
     "backendControllers": 90
   },
   "records": [
-    {
-      "file": "client/src/pages/NeonatalDashboard.jsx",
-      "component": "NeonatalDashboard",
-      "routes": [
-        "/admin/neonatal"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/neonatal/babies",
-        "/api/neonatal/admit"
-      ],
-      "bucketCRoutes": [
-        "POST /api/neonatal/admit",
-        "GET /api/neonatal/babies"
-      ],
-      "bucketCLines": [
-        {
-          "line": 53,
-          "text": "<Button variant=\"info\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 55,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 206,
-          "text": "<Button variant=\"info\" disabled title=\"Module not enabled on this server\">Admit to NICU (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Priya Sharma"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 17,
-          "signals": [
-            "fake patient/staff name",
-            "setState(array literal)"
-          ],
-          "snippet": "setBabies([ { id: 1, name: 'Baby of Priya Sharma', weight: 2.1, gestational_age: 34, apgar_1: 7, apgar_5: 9, status: 'Stable', bed: 'NICU-W1', temp: 3"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "neonatal",
-      "keyword": "neonatal",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C",
-        "SILENT_FALLBACK"
-      ],
-      "findings": 2
-    },
-    {
-      "file": "client/src/pages/AdminRecoveryConsole.jsx",
-      "component": "AdminRecoveryConsole",
-      "routes": [
-        "/admin/recovery"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 12,
-      "endpointsCalled": [
-        "/api/admin/recovery/stats",
-        "/api/admin/recovery/patients",
-        "/api/admin/recovery/audit-logs",
-        "/api/admin/recovery/manual/entries",
-        "/api/admin/recovery/manual/search-patients",
-        "/api/admin/recovery/manual/invoice",
-        "/api/admin/recovery/manual/payment",
-        "/api/admin/recovery/patients/${selectedPatient.id}",
-        "/api/admin/recovery/patients/${selectedPatient.id}/restore",
-        "/api/admin/recovery/patients/${patientId}/export"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [
-        {
-          "line": 29,
-          "objects": 2
-        }
-      ],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 71,
-          "signals": [
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Stats error:', err); } }; const fetchPatients = async () => { setLoading(true); try { const res = await axios.get(`/api/admin/recovery/"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "adminrecovery",
-      "keyword": "recovery",
-      "backend": {
-        "exists": true,
-        "mount": "/api/admin/recovery",
-        "router": "adminRecoveryRoutes.js",
-        "controller": "adminRecoveryController.js",
-        "endpoints": [
-          "GET /api/admin/recovery/audit-logs   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/manual/entries   [adminRecoveryRoutes]",
-          "POST /api/admin/recovery/manual/invoice   [adminRecoveryRoutes]",
-          "POST /api/admin/recovery/manual/payment   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/manual/search-patients   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/patients   [adminRecoveryRoutes]",
-          "POST /api/admin/recovery/patients   [adminRecoveryRoutes]",
-          "DELETE /api/admin/recovery/patients/{}   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/patients/{}   [adminRecoveryRoutes]",
-          "PUT /api/admin/recovery/patients/{}   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/patients/{}/export   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/patients/{}/history   [adminRecoveryRoutes]",
-          "POST /api/admin/recovery/patients/{}/restore   [adminRecoveryRoutes]",
-          "GET /api/admin/recovery/stats   [adminRecoveryRoutes]"
-        ],
-        "endpointCount": 14
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/AmbulanceDashboard.jsx",
-      "component": "AmbulanceDashboard",
-      "routes": [
-        "/admin/ambulance"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/ambulance/vehicles",
-        "/api/ambulance/trips"
-      ],
-      "bucketCRoutes": [
-        "GET /api/ambulance/trips",
-        "GET /api/ambulance/vehicles"
-      ],
-      "bucketCLines": [
-        {
-          "line": 60,
-          "text": "<Button variant=\"danger\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 62,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 182,
-          "text": "<Button variant=\"danger\" disabled title=\"Module not enabled on this server\">Dispatch Now (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Priya Sharma",
-        "Rajesh Kumar"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "ambulance",
-      "keyword": "ambulance",
-      "backend": {
-        "exists": true,
-        "mount": null,
-        "router": null,
-        "controller": "ambulanceController.js",
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
     {
       "file": "client/src/pages/AnatomicPathology.jsx",
       "component": "AnatomicPathology",
@@ -304,14 +76,9 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "cases",
-          "objects": 4,
-          "line": 8
-        },
-        {
           "name": "slides",
           "objects": 6,
-          "line": 17
+          "line": 10
         }
       ],
       "useStateMock": [],
@@ -326,115 +93,6 @@
       "hasMockRows": true,
       "domainKeyword": "anatomicpathology",
       "keyword": "pathology",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/AssetDashboard.jsx",
-      "component": "AssetDashboard",
-      "routes": [
-        "/admin/assets"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/assets"
-      ],
-      "bucketCRoutes": [
-        "GET /api/assets"
-      ],
-      "bucketCLines": [
-        {
-          "line": 51,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 53,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 123,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">Register (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "asset",
-      "keyword": "assets",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/AuditTrail.jsx",
-      "component": "AuditTrail",
-      "routes": [
-        "/admin/audit-trail"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "auditEvents",
-          "objects": 4,
-          "line": 8
-        },
-        {
-          "name": "userActivity",
-          "objects": 5,
-          "line": 19
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1067",
-        "INV-2210",
-        "MRN-1023"
-      ],
-      "fakeNames": [
-        "Nurse Priya",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "audittrail",
-      "keyword": "audittrail",
       "backend": {
         "exists": false,
         "mount": null,
@@ -553,49 +211,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "pendingTransfers",
-          "objects": 4,
-          "line": 8
-        },
-        {
-          "name": "approvedTransfers",
-          "objects": 4,
-          "line": 14
-        },
-        {
-          "name": "transferHistory",
-          "objects": 5,
-          "line": 20
-        },
-        {
           "name": "availableBeds",
           "objects": 6,
-          "line": 28
+          "line": 14
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "TRF-301",
-        "P-1045",
-        "TRF-302",
-        "P-1023",
-        "TRF-303",
-        "P-1067",
-        "TRF-298",
-        "P-998",
-        "TRF-297",
-        "P-1012"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Meena Sharma",
-        "Anil Mehta",
-        "Nurse Kavita",
-        "Dr. Priya"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [
         "17",
         "18 min"
@@ -632,37 +255,19 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "cdiQueries",
-          "objects": 4,
-          "line": 8
-        },
-        {
           "name": "gapAlerts",
           "objects": 6,
-          "line": 16
+          "line": 10
         }
       ],
       "useStateMock": [],
       "fakeIds": [
-        "CDI-301",
-        "MRN-1045",
-        "CDI-302",
-        "MRN-1078",
-        "CDI-303",
-        "MRN-1023",
-        "CDI-304",
-        "MRN-1056",
-        "CDI-305",
-        "MRN-1090"
+        "MRN-1045"
       ],
       "fakeNames": [
-        "Anita Desai",
         "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
         "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
+        "Dr. Patel"
       ],
       "staticKpi": [],
       "catchFallbacks": [],
@@ -699,26 +304,12 @@
         {
           "name": "quickActions",
           "objects": 6,
-          "line": 12
-        },
-        {
-          "name": "recentPatients",
-          "objects": 3,
-          "line": 182
+          "line": 10
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1023"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Suresh Menon",
-        "Dr. Sharma"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -803,42 +394,19 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "activeAssessments",
-          "objects": 4,
-          "line": 7
-        },
-        {
           "name": "scaleDefinitions",
           "objects": 4,
-          "line": 17
+          "line": 9
         },
         {
           "name": "analytics",
           "objects": 6,
-          "line": 28
+          "line": 20
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1023",
-        "P-987",
-        "P-1067",
-        "P-956",
-        "P-1078",
-        "P-1089"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Meena Sharma",
-        "Anil Mehta",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Dr. Priya",
-        "Baby Arun"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [
         "4",
         "3",
@@ -865,192 +433,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/ClosedLoopMedication.jsx",
-      "component": "ClosedLoopMedication",
-      "routes": [
-        "/admin/closed-loop-med"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "medicationOrders",
-          "objects": 9,
-          "line": 7
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "CLM-501",
-        "CLM-502",
-        "CLM-503",
-        "CLM-504",
-        "CLM-505"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Nurse Meera",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
-      ],
-      "staticKpi": [
-        "12 min",
-        "18 min",
-        "15 min",
-        "1 min",
-        "46 min"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "closedloopmedication",
-      "keyword": "closedloopmed",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/CloudBackupConsole.jsx",
-      "component": "CloudBackupConsole",
-      "routes": [
-        "/admin/cloud-backup"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "backupHistory",
-          "objects": 4,
-          "line": 7
-        },
-        {
-          "name": "schedule",
-          "objects": 4,
-          "line": 16
-        },
-        {
-          "name": "drMetrics",
-          "objects": 8,
-          "line": 23
-        },
-        {
-          "name": "restoreHistory",
-          "objects": 3,
-          "line": 34
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [
-        "90",
-        "100%",
-        "18 min"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "cloudbackup",
-      "keyword": "cloudbackup",
-      "backend": {
-        "exists": true,
-        "mount": null,
-        "router": "cloudBackupRoutes.js",
-        "controller": null,
-        "endpoints": [
-          "GET /api/backup/google/auth-url   [cloudBackupRoutes]",
-          "POST /api/backup/google/backup-and-upload   [cloudBackupRoutes]",
-          "GET /api/backup/google/callback   [cloudBackupRoutes]",
-          "POST /api/backup/google/cleanup   [cloudBackupRoutes]",
-          "DELETE /api/backup/google/disconnect   [cloudBackupRoutes]",
-          "POST /api/backup/google/download/{}   [cloudBackupRoutes]",
-          "GET /api/backup/google/list   [cloudBackupRoutes]",
-          "GET /api/backup/google/status   [cloudBackupRoutes]",
-          "POST /api/backup/google/upload   [cloudBackupRoutes]",
-          "POST /api/backup/google/upload-custom   [cloudBackupRoutes]"
-        ],
-        "endpointCount": 10
-      },
-      "kinds": [
-        "DISCONNECTED"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/CommsDashboard.jsx",
-      "component": "CommsDashboard",
-      "routes": [
-        "/admin/communications"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/communications"
-      ],
-      "bucketCRoutes": [
-        "GET /api/communications"
-      ],
-      "bucketCLines": [
-        {
-          "line": 46,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 48,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 114,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\"><Send size={14} className=\"me-1\" /> Post (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "comms",
-      "keyword": "communications",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/ConsentManagement.jsx",
       "component": "ConsentManagement",
       "routes": [
@@ -1063,45 +445,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "activeConsents",
-          "objects": 4,
-          "line": 7
-        },
-        {
-          "name": "expiringConsents",
-          "objects": 6,
-          "line": 15
-        },
-        {
           "name": "consentTemplates",
           "objects": 6,
-          "line": 21
+          "line": 11
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "CON-301",
-        "MRN-1045",
-        "CON-302",
-        "MRN-1078",
-        "CON-303",
-        "MRN-1023",
-        "CON-304",
-        "MRN-1067",
-        "CON-305",
-        "MRN-1089"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Nurse Priya",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -1135,49 +486,24 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "pendingOrders",
-          "objects": 5,
-          "line": 11
-        },
-        {
           "name": "safetyChecks",
           "objects": 7,
-          "line": 20
+          "line": 13
         },
         {
           "name": "orderSets",
-          "objects": 9,
-          "line": 29
-        },
-        {
-          "name": "recentOrders",
-          "objects": 3,
-          "line": 38
+          "objects": 6,
+          "line": 22
         }
       ],
       "useStateMock": [],
       "fakeIds": [
-        "ORD-2401",
         "MRN-1045",
-        "ORD-2402",
-        "MRN-1078",
-        "ORD-2403",
-        "MRN-1023",
-        "ORD-2404",
-        "MRN-1056",
-        "ORD-2405",
-        "MRN-1089"
+        "MRN-1078"
       ],
       "fakeNames": [
         "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
+        "Rajesh Kumar"
       ],
       "staticKpi": [],
       "catchFallbacks": [],
@@ -1186,67 +512,6 @@
       "hasMockRows": true,
       "domainKeyword": "cpoe",
       "keyword": "cpoe",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/Credentialing.jsx",
-      "component": "Credentialing",
-      "routes": [
-        "/admin/credentialing"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "licenses",
-          "objects": 5,
-          "line": 7
-        },
-        {
-          "name": "skillMatrix",
-          "objects": 5,
-          "line": 17
-        },
-        {
-          "name": "privileges",
-          "objects": 4,
-          "line": 25
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Anita Desai",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Dr. Priya"
-      ],
-      "staticKpi": [
-        "100%"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "credentialing",
-      "keyword": "credentialing",
       "backend": {
         "exists": false,
         "mount": null,
@@ -1273,21 +538,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "creditNotes",
-          "objects": 4,
-          "line": 9
-        },
-        {
           "name": "debitNotes",
           "objects": 4,
-          "line": 16
+          "line": 11
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Priya Sharma"
-      ],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -1334,19 +592,11 @@
           "name": "retentionPolicies",
           "objects": 7,
           "line": 22
-        },
-        {
-          "name": "dsarRequests",
-          "objects": 3,
-          "line": 32
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Rajesh Kumar",
-        "Priya Singh"
-      ],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -1364,189 +614,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/EarlyWarningScore.jsx",
-      "component": "EarlyWarningScore",
-      "routes": [
-        "/admin/ews"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "patients",
-          "objects": 4,
-          "line": 7
-        },
-        {
-          "name": "escalationProtocol",
-          "objects": 5,
-          "line": 19
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "MRN-1023",
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1056",
-        "MRN-1089",
-        "MRN-1034"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "earlywarningscore",
-      "keyword": "ews",
-      "backend": {
-        "exists": true,
-        "mount": "/api/reviews",
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "DISCONNECTED"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/EMARDashboard.jsx",
-      "component": "EMARDashboard",
-      "routes": [
-        "/admin/emar"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "dueMedications",
-          "objects": 4,
-          "line": 9
-        },
-        {
-          "name": "administeredMeds",
-          "objects": 5,
-          "line": 18
-        },
-        {
-          "name": "prnMeds",
-          "objects": 4,
-          "line": 26
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1023",
-        "MRN-1056",
-        "MRN-1089"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Nurse Priya",
-        "Nurse Meera",
-        "Dr. Sharma",
-        "Dr. Patel"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "emar",
-      "keyword": "emar",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/EmergencyCommandCenter.jsx",
-      "component": "EmergencyCommandCenter",
-      "routes": [
-        "/admin/emergency"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 6,
-      "endpointsCalled": [
-        "/api/emergency/history",
-        "/api/emergency/config",
-        "/api/emergency/trigger",
-        "/api/emergency/resolve"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 44,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "console.error('[EmergencyCommandCenter] load failed:', err.message); setError('Unable to load live emergency data. Please retry.'); setActiveEmergenci"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "emergency",
-      "keyword": "emergency",
-      "backend": {
-        "exists": true,
-        "mount": "/api/emergency",
-        "router": "emergencyRoutes.js",
-        "controller": "emergencyController.js",
-        "endpoints": [
-          "POST /api/emergency/code-blue   [emergencyRoutes]",
-          "GET /api/emergency/config   [emergencyRoutes]",
-          "POST /api/emergency/dispatch   [emergencyRoutes]",
-          "POST /api/emergency/resolve   [emergencyRoutes]",
-          "POST /api/emergency/respond   [emergencyRoutes]",
-          "GET /api/emergency/status   [emergencyRoutes]",
-          "POST /api/emergency/trigger   [emergencyRoutes]"
-        ],
-        "endpointCount": 7
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
       ],
       "findings": 1
     },
@@ -1623,38 +690,19 @@
           "line": 8
         },
         {
-          "name": "phiAccessLog",
-          "objects": 5,
-          "line": 16
-        },
-        {
           "name": "breachAlerts",
           "objects": 5,
-          "line": 24
+          "line": 18
         },
         {
           "name": "policies",
           "objects": 6,
-          "line": 29
+          "line": 23
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1023",
-        "MRN-1067",
-        "MRN-1089"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Nurse Priya",
-        "Dr. Sharma",
-        "Dr. Patel"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -1688,26 +736,19 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "liveFeed",
-          "objects": 6,
-          "line": 7
-        },
-        {
           "name": "subscribers",
           "objects": 6,
-          "line": 17
+          "line": 9
         },
         {
           "name": "messageTypes",
           "objects": 8,
-          "line": 26
+          "line": 18
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Priya Sharma"
-      ],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -1725,137 +766,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/InfectionControlDashboard.jsx",
-      "component": "InfectionControlDashboard",
-      "routes": [
-        "/admin/infection-control"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/infection-control/report"
-      ],
-      "bucketCRoutes": [
-        "POST /api/infection-control/report"
-      ],
-      "bucketCLines": [
-        {
-          "line": 77,
-          "text": "<Button variant=\"danger\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 78,
-          "text": "⚠️ Report HAI <Badge bg=\"secondary\" className=\"ms-1\">Module not enabled</Badge>"
-        },
-        {
-          "line": 252,
-          "text": "<Button variant=\"danger\" disabled title=\"Module not enabled on this server\">Submit Report (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [
-        {
-          "line": 11,
-          "objects": 4
-        },
-        {
-          "line": 19,
-          "objects": 4
-        },
-        {
-          "line": 25,
-          "objects": 5
-        },
-        {
-          "line": 33,
-          "objects": 6
-        }
-      ],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "infectioncontrol",
-      "keyword": "infectioncontrol",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/InsuranceCommandCenter.jsx",
-      "component": "InsuranceCommandCenter",
-      "routes": [
-        "/insurance",
-        "/insurance/claims"
-      ],
-      "menuLabels": [
-        "💰 Billing & Revenue (Sidebar.jsx)",
-        "💳 Claims Dashboard (Sidebar.jsx)"
-      ],
-      "apiCallCount": 2,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 98,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "// Never fabricate claims: surface an honest empty state instead. console.error('[InsuranceCommandCenter] Claims dashboard load failed:', error.messag"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "insurance",
-      "keyword": "insurance",
-      "backend": {
-        "exists": true,
-        "mount": "/api/insurance",
-        "router": "insuranceFinanceRoutes.js",
-        "controller": "insuranceController.js",
-        "endpoints": [
-          "POST /api/insurance/claims   [insuranceRoutes]",
-          "GET /api/insurance/claims/{}   [insuranceRoutes]",
-          "PUT /api/insurance/claims/{}   [insuranceRoutes]",
-          "POST /api/insurance/claims/{}/settle   [insuranceRoutes]",
-          "GET /api/insurance/claims/pending   [insuranceRoutes]",
-          "GET /api/insurance/claims/stats   [insuranceRoutes]",
-          "GET /api/insurance/denial-codes   [insuranceRoutes]",
-          "GET /api/insurance/patient/{}   [insuranceRoutes]",
-          "POST /api/insurance/patient/{}/link   [insuranceRoutes]",
-          "POST /api/insurance/preauth   [insuranceRoutes]",
-          "GET /api/insurance/preauth/{}   [insuranceRoutes]",
-          "PUT /api/insurance/preauth/{}   [insuranceRoutes]",
-          "GET /api/insurance/preauth/admission/{}   [insuranceRoutes]",
-          "POST /api/insurance/predict-denial   [insuranceRoutes]"
-        ],
-        "endpointCount": 17
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
       ],
       "findings": 1
     },
@@ -1906,107 +816,6 @@
       "hasMockRows": true,
       "domainKeyword": "integrationhub",
       "keyword": "integrationhub",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/LaundryDashboard.jsx",
-      "component": "LaundryDashboard",
-      "routes": [
-        "/admin/laundry"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/laundry/orders"
-      ],
-      "bucketCRoutes": [
-        "GET /api/laundry/orders"
-      ],
-      "bucketCLines": [
-        {
-          "line": 60,
-          "text": "<Button variant=\"info\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 62,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 172,
-          "text": "<Button variant=\"info\" disabled title=\"Module not enabled on this server\">Submit Order (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [
-        {
-          "name": "mock",
-          "objects": 5,
-          "line": 25
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "laundry",
-      "keyword": "laundry",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/MultiPayerSplit.jsx",
-      "component": "MultiPayerSplit",
-      "routes": [
-        "/admin/multi-payer"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "splitBills",
-          "objects": 8,
-          "line": 7
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Priya Sharma"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "multipayersplit",
-      "keyword": "multipayer",
       "backend": {
         "exists": false,
         "mount": null,
@@ -2115,60 +924,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/OTDashboard.jsx",
-      "component": "OTDashboard",
-      "routes": [
-        "/ot"
-      ],
-      "menuLabels": [
-        "Pharmacy (Sidebar.jsx)",
-        "OT Scheduler (Sidebar.jsx)"
-      ],
-      "apiCallCount": 0,
-      "endpointsCalled": [
-        "/api/ot/rooms",
-        "/api/ot/schedule",
-        "/api/ot/book",
-        "/api/pre-op/assessment"
-      ],
-      "bucketCRoutes": [
-        "POST /api/pre-op/assessment"
-      ],
-      "bucketCLines": [
-        {
-          "line": 157,
-          "text": "<Tab eventKey=\"pre-op\" title={<span><Clipboard size={14} className=\"me-1\" />Pre-Op Assessment <Badge bg=\"secondary\" className=\"ms-1\">Module not enabled</Badge></span>}>"
-        },
-        {
-          "line": 215,
-          "text": "<Button type=\"submit\" variant=\"primary\" disabled title=\"Module not enabled on this server\"><CheckCircle size={14} className=\"me-1\" /> Save Pre-Op Assessment (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "ot",
-      "keyword": "preop",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/PatientFeedback.jsx",
       "component": "PatientFeedback",
       "routes": [
@@ -2181,31 +936,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "recentFeedback",
-          "objects": 5,
-          "line": 12
-        },
-        {
           "name": "departmentScores",
-          "objects": 8,
-          "line": 20
-        },
-        {
-          "name": "complaints",
-          "objects": 4,
-          "line": 30
+          "objects": 7,
+          "line": 14
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Dr. Sharma"
-      ],
+      "fakeNames": [],
       "staticKpi": [
         "68%"
       ],
@@ -2241,43 +979,17 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "upcomingAppointments",
-          "objects": 7,
-          "line": 13
-        },
-        {
           "name": "recentReports",
-          "objects": 8,
-          "line": 19
-        },
-        {
-          "name": "prescriptions",
-          "objects": 7,
-          "line": 27
-        },
-        {
-          "name": "bills",
-          "objects": 8,
-          "line": 34
-        },
-        {
-          "name": "healthTimeline",
-          "objects": 6,
-          "line": 40
+          "objects": 5,
+          "line": 15
         }
       ],
       "useStateMock": [],
       "fakeIds": [
-        "MRN-1045",
-        "INV-2201",
-        "INV-2198",
-        "INV-2210"
+        "MRN-1045"
       ],
       "fakeNames": [
-        "Rajesh Kumar",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
+        "Rajesh Kumar"
       ],
       "staticKpi": [
         "3"
@@ -2314,29 +1026,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "incidents",
-          "objects": 4,
-          "line": 8
-        },
-        {
           "name": "rcaData",
           "objects": 6,
-          "line": 17
+          "line": 10
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Nurse Priya",
-        "Nurse Meera",
-        "Dr. Patel",
-        "Dr. Reddy"
-      ],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -2344,60 +1041,6 @@
       "hasMockRows": true,
       "domainKeyword": "patientsafety",
       "keyword": "patientsafety",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/PayrollIntegration.jsx",
-      "component": "PayrollIntegration",
-      "routes": [
-        "/admin/payroll"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "payroll",
-          "objects": 4,
-          "line": 17
-        },
-        {
-          "name": "attendance",
-          "objects": 6,
-          "line": 26
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Anita Desai",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Dr. Priya"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "payrollintegration",
-      "keyword": "payroll",
       "backend": {
         "exists": false,
         "mount": null,
@@ -2518,82 +1161,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/POSTerminal.jsx",
-      "component": "POSTerminal",
-      "routes": [
-        "/admin/pos"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "currentQueue",
-          "objects": 5,
-          "line": 7
-        },
-        {
-          "name": "todayTransactions",
-          "objects": 6,
-          "line": 13
-        },
-        {
-          "name": "serviceModules",
-          "objects": 10,
-          "line": 22
-        },
-        {
-          "name": "paymentSummary",
-          "objects": 5,
-          "line": 37
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "P-1045"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Anil Mehta"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "posterminal",
-      "keyword": "pos",
-      "backend": {
-        "exists": true,
-        "mount": "/api/pos",
-        "router": "posRoutes.js",
-        "controller": "posController.js",
-        "endpoints": [
-          "GET /api/pos/devices   [posRoutes]",
-          "POST /api/pos/devices   [posRoutes]",
-          "DELETE /api/pos/devices/{}   [posRoutes]",
-          "GET /api/pos/devices/{}   [posRoutes]",
-          "PUT /api/pos/devices/{}   [posRoutes]",
-          "POST /api/pos/devices/{}/settlement   [posRoutes]",
-          "POST /api/pos/devices/{}/test   [posRoutes]",
-          "GET /api/pos/emi-offers   [posRoutes]",
-          "GET /api/pos/offline-queue/pending   [posRoutes]",
-          "POST /api/pos/offline-queue/process   [posRoutes]",
-          "GET /api/pos/offline-queue/status   [posRoutes]",
-          "POST /api/pos/payment/{}/cancel   [posRoutes]",
-          "POST /api/pos/payment/{}/refund   [posRoutes]",
-          "GET /api/pos/payment/{}/status   [posRoutes]"
-        ],
-        "endpointCount": 29
-      },
-      "kinds": [
-        "DISCONNECTED"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/PredictiveAnalytics.jsx",
       "component": "PredictiveAnalytics",
       "routes": [
@@ -2606,19 +1173,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "readmissionRisk",
-          "objects": 5,
-          "line": 7
-        },
-        {
           "name": "losPredictions",
           "objects": 10,
-          "line": 15
+          "line": 9
         },
         {
           "name": "bedDemand",
           "objects": 7,
-          "line": 24
+          "line": 18
         }
       ],
       "useStateMock": [],
@@ -2641,188 +1203,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/PriceApprovals.jsx",
-      "component": "PriceApprovals",
-      "routes": [
-        "/admin/prices"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 8,
-      "endpointsCalled": [
-        "/api/pharmacy/price-requests",
-        "/api/lab/requests",
-        "/api/ward/requests",
-        "/api/equipment/requests/pending",
-        "/api/pharmacy/price-request/${id}/${action}",
-        "/api/lab/request/${id}/${action}",
-        "/api/ward/request/${id}/${action}",
-        "/api/equipment/requests/${id}/${action}"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 51,
-          "signals": [
-            "setState(array literal)",
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Ward requests error:', err); setWardRequests([]); } }; const fetchEquipmentRequests = async () => { try { const res = await api.get('/a"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "priceapprovals",
-      "keyword": "prices",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/PriorAuthDashboard.jsx",
-      "component": "PriorAuthDashboard",
-      "routes": [
-        "/admin/prior-auth"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/prior-auth/submit"
-      ],
-      "bucketCRoutes": [
-        "POST /api/prior-auth/submit"
-      ],
-      "bucketCLines": [
-        {
-          "line": 63,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 64,
-          "text": "➕ New PA Request <Badge bg=\"secondary\" className=\"ms-1\">Module not enabled</Badge>"
-        },
-        {
-          "line": 244,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">📤 Submit PA Request (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [
-        {
-          "line": 12,
-          "objects": 3
-        }
-      ],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "priorauth",
-      "keyword": "priorauth",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/ProblemListManager.jsx",
-      "component": "ProblemListManager",
-      "routes": [
-        "/admin/problem-list"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "activeProblems",
-          "objects": 8,
-          "line": 7
-        },
-        {
-          "name": "resolvedProblems",
-          "objects": 4,
-          "line": 24
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1078",
-        "P-1067",
-        "P-998",
-        "P-978",
-        "P-945",
-        "P-987"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Anil Mehta",
-        "Dr. Priya"
-      ],
-      "staticKpi": [
-        "8",
-        "4",
-        "3",
-        "2"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "problemlist",
-      "keyword": "problemlist",
-      "backend": {
-        "exists": true,
-        "mount": null,
-        "router": "problemListRoutes.js",
-        "controller": "problemListController.js",
-        "endpoints": [
-          "POST /api/clinical/problems   [problemListRoutes]",
-          "DELETE /api/clinical/problems/{}   [problemListRoutes]",
-          "GET /api/clinical/problems/{}   [problemListRoutes]",
-          "PATCH /api/clinical/problems/{}   [problemListRoutes]",
-          "PUT /api/clinical/problems/{}/resolve   [problemListRoutes]"
-        ],
-        "endpointCount": 5
-      },
-      "kinds": [
-        "DISCONNECTED"
       ],
       "findings": 1
     },
@@ -2881,52 +1261,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/QualityDashboard.jsx",
-      "component": "QualityDashboard",
-      "routes": [
-        "/admin/quality"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/quality/metrics",
-        "/api/quality/checklist"
-      ],
-      "bucketCRoutes": [
-        "GET /api/quality/checklist",
-        "GET /api/quality/metrics"
-      ],
-      "bucketCLines": [
-        {
-          "line": 139,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "quality",
-      "keyword": "quality",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/RegulatoryReporting.jsx",
       "component": "RegulatoryReporting",
       "routes": [
@@ -2973,61 +1307,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/RemotePatientMonitoring.jsx",
-      "component": "RemotePatientMonitoring",
-      "routes": [
-        "/admin/rpm"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "monitoredPatients",
-          "objects": 7,
-          "line": 7
-        },
-        {
-          "name": "alertHistory",
-          "objects": 5,
-          "line": 38
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1023",
-        "MRN-1078",
-        "MRN-1067"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Suresh Menon"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "remotepatientmonitoring",
-      "keyword": "rpm",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/RevenueCycleAI.jsx",
       "component": "RevenueCycleAI",
       "routes": [
@@ -3040,38 +1319,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "denialPredictions",
-          "objects": 4,
-          "line": 7
-        },
-        {
-          "name": "deniedClaims",
-          "objects": 5,
-          "line": 14
-        },
-        {
           "name": "leakageDetection",
           "objects": 6,
-          "line": 20
+          "line": 11
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "CLM-8801",
-        "CLM-8802",
-        "CLM-8803",
-        "CLM-8804",
-        "CLM-8750",
-        "CLM-8765",
-        "CLM-8778"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Suresh Menon",
-        "Vikram Iyer"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [],
       "catchFallbacks": [],
       "phaseLeaks": [],
@@ -3079,71 +1334,6 @@
       "hasMockRows": true,
       "domainKeyword": "revenuecycleai",
       "keyword": "revenueai",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/SmartScheduling.jsx",
-      "component": "SmartScheduling",
-      "routes": [
-        "/admin/smart-scheduling"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "scheduleSuggestions",
-          "objects": 4,
-          "line": 7
-        },
-        {
-          "name": "noShowPredictions",
-          "objects": 5,
-          "line": 14
-        },
-        {
-          "name": "doctorLoad",
-          "objects": 6,
-          "line": 21
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "SS-01",
-        "SS-02",
-        "SS-03",
-        "SS-04"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Dr. Sharma",
-        "Dr. Patel",
-        "Dr. Reddy"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "smartscheduling",
-      "keyword": "smartscheduling",
       "backend": {
         "exists": false,
         "mount": null,
@@ -3170,40 +1360,14 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "pendingReferrals",
-          "objects": 4,
-          "line": 8
-        },
-        {
-          "name": "completedReferrals",
-          "objects": 4,
-          "line": 15
-        },
-        {
           "name": "specialists",
           "objects": 6,
-          "line": 22
+          "line": 12
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1078",
-        "P-1067",
-        "P-1012",
-        "P-998",
-        "P-978",
-        "P-945",
-        "P-987"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Anil Mehta",
-        "Dr. Priya"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [
         "1.2 hrs"
       ],
@@ -3223,129 +1387,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/StaffRoster.jsx",
-      "component": "StaffRoster",
-      "routes": [
-        "/admin/staff-roster"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "todayRoster",
-          "objects": 6,
-          "line": 7
-        },
-        {
-          "name": "leaveCalendar",
-          "objects": 6,
-          "line": 18
-        },
-        {
-          "name": "overtime",
-          "objects": 4,
-          "line": 26
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Anita Desai",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Anil Mehta",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Nurse Priya",
-        "Dr. Priya"
-      ],
-      "staticKpi": [
-        "245",
-        "182",
-        "12",
-        "8",
-        "86 hrs"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "staffroster",
-      "keyword": "staffroster",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/StaffSchedulingDashboard.jsx",
-      "component": "StaffSchedulingDashboard",
-      "routes": [
-        "/admin/staff-scheduling"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/staff/shifts",
-        "/api/staff/roster"
-      ],
-      "bucketCRoutes": [
-        "GET /api/staff/roster",
-        "GET /api/staff/shifts"
-      ],
-      "bucketCLines": [
-        {
-          "line": 57,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 59,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        },
-        {
-          "line": 149,
-          "text": "<Button variant=\"primary\" disabled title=\"Module not enabled on this server\">Assign Shift (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Nurse Priya"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "staffscheduling",
-      "keyword": "staffscheduling",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
       ],
       "findings": 1
     },
@@ -3396,73 +1437,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/pages/TelehealthConsole.jsx",
-      "component": "TelehealthConsole",
-      "routes": [
-        "/admin/telehealth"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "waitingRoom",
-          "objects": 6,
-          "line": 8
-        },
-        {
-          "name": "todaySchedule",
-          "objects": 8,
-          "line": 14
-        },
-        {
-          "name": "ePrescriptionDrugs",
-          "objects": 4,
-          "line": 24
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "MRN-1045",
-        "MRN-1078",
-        "MRN-1056"
-      ],
-      "fakeNames": [
-        "Anita Desai",
-        "Rajesh Kumar",
-        "Priya Singh",
-        "Mohammed Ali",
-        "Vikram Iyer",
-        "Dr. Sharma"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "telehealth",
-      "keyword": "telehealth",
-      "backend": {
-        "exists": true,
-        "mount": "/api/telehealth",
-        "router": "telehealthRoutes.js",
-        "controller": null,
-        "endpoints": [
-          "GET /api/telehealth/admin/stats   [telehealthRoutes]",
-          "POST /api/telehealth/doctor/join   [telehealthRoutes]",
-          "POST /api/telehealth/patient/join   [telehealthRoutes]",
-          "GET /api/telehealth/status/{}   [telehealthRoutes]"
-        ],
-        "endpointCount": 4
-      },
-      "kinds": [
-        "DISCONNECTED"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/pages/TPAProviderAdmin.jsx",
       "component": "TPAProviderAdmin",
       "routes": [
@@ -3480,37 +1454,14 @@
           "line": 7
         },
         {
-          "name": "eligibilityChecks",
-          "objects": 5,
-          "line": 20
-        },
-        {
           "name": "pmjayBeneficiaries",
-          "objects": 5,
-          "line": 27
-        },
-        {
-          "name": "claimsStatus",
-          "objects": 5,
-          "line": 33
+          "objects": 3,
+          "line": 22
         }
       ],
       "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1078",
-        "P-987",
-        "P-1012",
-        "CLM-4521",
-        "CLM-4520",
-        "CLM-4519",
-        "CLM-4518",
-        "CLM-4517"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Suresh Patel"
-      ],
+      "fakeIds": [],
+      "fakeNames": [],
       "staticKpi": [
         "171",
         "94",
@@ -3548,37 +1499,19 @@
       "bucketCLines": [],
       "rowArrays": [
         {
-          "name": "cmeTracking",
-          "objects": 5,
-          "line": 7
-        },
-        {
           "name": "certifications",
           "objects": 7,
-          "line": 16
-        },
-        {
-          "name": "assessments",
-          "objects": 6,
-          "line": 26
+          "line": 9
         },
         {
           "name": "eLearning",
           "objects": 5,
-          "line": 34
+          "line": 21
         }
       ],
       "useStateMock": [],
       "fakeIds": [],
-      "fakeNames": [
-        "Anita Desai",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Dr. Priya"
-      ],
+      "fakeNames": [],
       "staticKpi": [
         "92%",
         "7",
@@ -3602,204 +1535,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/TransitionPlanner.jsx",
-      "component": "TransitionPlanner",
-      "routes": [
-        "/admin/transition-planner"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "activePlans",
-          "objects": 9,
-          "line": 7
-        },
-        {
-          "name": "readyForDischarge",
-          "objects": 5,
-          "line": 33
-        },
-        {
-          "name": "dischargedToday",
-          "objects": 3,
-          "line": 38
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1023",
-        "P-987",
-        "P-998",
-        "P-1012",
-        "P-1034",
-        "P-1001",
-        "P-1056"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Suresh Patel",
-        "Meena Sharma",
-        "Dr. Priya"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "transitionplanner",
-      "keyword": "transitionplanner",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/WardPassManager.jsx",
-      "component": "WardPassManager",
-      "routes": [
-        "/admin/ward-pass"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "activePasses",
-          "objects": 3,
-          "line": 8
-        },
-        {
-          "name": "returnedPasses",
-          "objects": 4,
-          "line": 13
-        },
-        {
-          "name": "policies",
-          "objects": 4,
-          "line": 20
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [
-        "P-1045",
-        "P-1023",
-        "P-1067",
-        "P-998",
-        "P-1012",
-        "P-1034"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Priya Sharma",
-        "Suresh Patel",
-        "Meena Sharma",
-        "Anil Mehta",
-        "Dr. Priya"
-      ],
-      "staticKpi": [
-        "95%"
-      ],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "wardpass",
-      "keyword": "wardpass",
-      "backend": {
-        "exists": true,
-        "mount": null,
-        "router": "wardPassRoutes.js",
-        "controller": "wardPassController.js",
-        "endpoints": [
-          "POST /api/ward-access/issue   [wardPassRoutes]",
-          "GET /api/ward-access/stats   [wardPassRoutes]",
-          "POST /api/ward-access/verify   [wardPassRoutes]"
-        ],
-        "endpointCount": 3
-      },
-      "kinds": [
-        "DISCONNECTED"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/pages/WasteManagementDashboard.jsx",
-      "component": "WasteManagementDashboard",
-      "routes": [
-        "/admin/waste"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 3,
-      "endpointsCalled": [
-        "/api/waste/daily-log",
-        "/api/waste/stats",
-        "/api/waste/log"
-      ],
-      "bucketCRoutes": [
-        "GET /api/waste/daily-log",
-        "POST /api/waste/log",
-        "GET /api/waste/stats"
-      ],
-      "bucketCLines": [
-        {
-          "line": 132,
-          "text": "<Button variant=\"warning\" size=\"sm\" disabled title=\"Module not enabled on this server\">"
-        },
-        {
-          "line": 133,
-          "text": "<Package size={14} className=\"me-1\" /> Log Waste <Badge bg=\"secondary\" className=\"ms-1\">Module not enabled</Badge>"
-        },
-        {
-          "line": 330,
-          "text": "<Button variant=\"warning\" type=\"submit\" disabled title=\"Module not enabled on this server\"><Trash2 size={14} className=\"me-1\" /> Record (Disabled)</Button>"
-        }
-      ],
-      "rowArrays": [
-        {
-          "name": "WASTE_CATEGORIES",
-          "objects": 5,
-          "line": 17
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "wastemanagement",
-      "keyword": "waste",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
       ],
       "findings": 1
     },
@@ -3909,350 +1644,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/components/admin/SuperAdminDashboard.jsx",
-      "component": "SuperAdminDashboard",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 7,
-      "endpointsCalled": [
-        "/api/platform/health",
-        "/api/platform/tenants",
-        "/api/platform/usage",
-        "/api/platform/status",
-        "/api/platform/teleport",
-        "/api/platform/tenants/${id}/domain"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 52,
-          "signals": [
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Failed to fetch health updates', e); } }; const fetchData = async () => { setLoading(true); setError(null); try { const [tenantsRes, he"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "superadmin",
-      "keyword": "superadmin",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/AdmissionModal.jsx",
-      "component": "AdmissionModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 3,
-      "endpointsCalled": [
-        "/api/ward/wards",
-        "/api/admissions/available-beds",
-        "/api/admissions/admit"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 40,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "console.error('Failed to fetch wards:', err); setError(`Failed to load wards: ${err.message || 'Unknown Error'}`); } }; fetchWards(); }, [show]); // F"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "admission",
-      "keyword": "admission",
-      "backend": {
-        "exists": true,
-        "mount": "/api/admissions",
-        "router": "admissionRoutes.js",
-        "controller": "admissionController.js",
-        "endpoints": [
-          "GET /api/admission   [admissionRoutes]",
-          "GET /api/admission/active   [admissionRoutes]",
-          "POST /api/admission/admit   [admissionRoutes]",
-          "GET /api/admission/available-beds   [admissionRoutes]",
-          "GET /api/admission/bed-history/{}   [admissionRoutes]",
-          "PUT /api/admission/diet   [admissionRoutes]",
-          "POST /api/admission/discharge   [admissionRoutes]",
-          "POST /api/admission/rounds/seen   [admissionRoutes]",
-          "POST /api/admission/transfer   [admissionRoutes]",
-          "GET /api/admissions   [admissionRoutes]",
-          "GET /api/admissions/active   [admissionRoutes]",
-          "POST /api/admissions/admit   [admissionRoutes]",
-          "GET /api/admissions/available-beds   [admissionRoutes]",
-          "GET /api/admissions/bed-history/{}   [admissionRoutes]"
-        ],
-        "endpointCount": 18
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/AdvancedReportsDashboard.jsx",
-      "component": "AdvancedReportsDashboard",
-      "routes": [
-        "/admin/reports"
-      ],
-      "menuLabels": [],
-      "apiCallCount": 3,
-      "endpointsCalled": [
-        "/api/finance/reports/department-revenue",
-        "/api/finance/reports/payer-analysis",
-        "/api/finance/reports/revenue-trend"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 43,
-          "signals": [
-            "mock wording"
-          ],
-          "snippet": "console.error('Error loading reports:', error); // Set mock data (Fallback) setDepartmentData({ departments: [ { name: 'IPD/Ward', revenue: 180000, pe"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "advancedreports",
-      "keyword": "reports",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/billing/AdvancePaymentModal.jsx",
-      "component": "AdvancePaymentModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/patients/search"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 43,
-          "signals": [
-            "setState(array literal)",
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Error parsing billing_advances', e); localStorage.removeItem('billing_advances'); } const filtered = selectedPatient ? all.filter(a => "
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "advancepayment",
-      "keyword": "advancepayment",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/billing/NewInvoiceModal.jsx",
-      "component": "NewInvoiceModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 3,
-      "endpointsCalled": [
-        "/api/insurance/providers",
-        "/api/patients/search",
-        "/api/finance/generate"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 55,
-          "signals": [
-            "setState(array literal)",
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error(e); setPackages([]); } try { setDiscounts(savedDiscounts && savedDiscounts !== 'undefined' ? JSON.parse(savedDiscounts) : []); } catch ("
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "newinvoice",
-      "keyword": "newinvoice",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/billing/PaymentConfirmationModal.jsx",
-      "component": "PaymentConfirmationModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 7,
-      "endpointsCalled": [
-        "/api/pos/devices",
-        "/api/pos/payment/initiate",
-        "/api/pos/payment/${txnId}/status",
-        "/api/pos/payment/${posTransactionId}/cancel",
-        "/api/finance/invoices/${invoiceId}/items",
-        "/api/finance/invoices/${invoice.id}/payments",
-        "/api/sms/payment-confirmation"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "paymentMethods",
-          "objects": 5,
-          "line": 271
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 240,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "console.error('Error fetching invoice items:', err); setInvoiceItems([]);"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "paymentconfirmation",
-      "keyword": "paymentconfirmation",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/billing/RefundModal.jsx",
-      "component": "RefundModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [
-        "/api/finance/invoices"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 50,
-          "signals": [
-            "setState(array literal)",
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Error parsing invoices:', e); } } } catch(e) { console.error(e); } setRefunds(all); }; // Search invoices const handleSearch = async (t"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "refund",
-      "keyword": "refund",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/components/CardiologyModule.jsx",
       "component": "CardiologyModule",
       "routes": [],
@@ -4331,52 +1722,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/components/DoctorReviewsPanel.jsx",
-      "component": "DoctorReviewsPanel",
-      "routes": [
-        "/admin/reviews"
-      ],
-      "menuLabels": [
-        "🔐 Insurance Vault (Sidebar.jsx)",
-        "⭐ Patient Reviews (Sidebar.jsx)"
-      ],
-      "apiCallCount": 4,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 39,
-          "signals": [
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Failed to fetch doctors:', err); } }; const fetchReviews = async (doctorId = '') => { try { setLoading(true); const url = doctorId ? `$"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "doctorreviews",
-      "keyword": "reviews",
-      "backend": {
-        "exists": true,
-        "mount": "/api/reviews",
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/components/DoctorScheduleManager.jsx",
       "component": "DoctorScheduleManager",
       "routes": [],
@@ -4421,53 +1766,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/components/EligibilityVerification.jsx",
-      "component": "EligibilityVerification",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 4,
-      "endpointsCalled": [
-        "/api/preauth/patient/${patientId}/insurance",
-        "/api/preauth/providers",
-        "/api/preauth/verify-eligibility",
-        "/api/preauth/patient/insurance"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 32,
-          "signals": [
-            "setState(array literal)",
-            "mock wording"
-          ],
-          "snippet": "console.error('Error loading insurance data:', error); // Mock data setProviders([ { id: 1, name: 'Star Health Insurance', code: 'STAR' }, { id: 2, na"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "eligibilityverification",
-      "keyword": "eligibilityverification",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/components/FloatingToolbar.jsx",
       "component": "FloatingToolbar",
       "routes": [],
@@ -4507,157 +1805,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/components/GovtSchemePanel.jsx",
-      "component": "GovtSchemePanel",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 1,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "SCHEMES",
-          "objects": 4,
-          "line": 11
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 40,
-          "signals": [
-            "setState(array literal)",
-            "|| [] fallback array"
-          ],
-          "snippet": "console.error('Failed to load specialties:', err); setSpecialties([]); } }; fetchSpecialties(); }, [selectedScheme]); // Fetch stats on scheme change "
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "govtscheme",
-      "keyword": "govtscheme",
-      "backend": {
-        "exists": true,
-        "mount": "/api/govt-schemes",
-        "router": "govtSchemeRoutes.js",
-        "controller": "govtSchemeController.js",
-        "endpoints": [
-          "POST /api/govt-schemes/{}/calculate-claim   [govtSchemeRoutes]",
-          "POST /api/govt-schemes/{}/compare-rates   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/{}/modifiers   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/{}/packages   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/{}/packages/{}   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/{}/specialties   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/{}/stats   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/beneficiaries/patient/{}   [govtSchemeRoutes]",
-          "POST /api/govt-schemes/beneficiaries/register   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/beneficiaries/search   [govtSchemeRoutes]",
-          "POST /api/govt-schemes/beneficiaries/verify   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/empanelment   [govtSchemeRoutes]",
-          "POST /api/govt-schemes/empanelment   [govtSchemeRoutes]",
-          "GET /api/govt-schemes/ward-entitlement/{}   [govtSchemeRoutes]"
-        ],
-        "endpointCount": 14
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/insurance/PMJAYProcedureManager.jsx",
-      "component": "PMJAYProcedureManager",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 6,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 71,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "// No mappings yet setMappings([]); } // Fetch empanelment try { const empRes = await api.get('/pmjay/hbp/hospital/empanelment'); if (empRes.data.succ"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "pmjayprocedure",
-      "keyword": "pmjayprocedure",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/IPDLabOrderModal.jsx",
-      "component": "IPDLabOrderModal",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "PRIORITY_OPTIONS",
-          "objects": 3,
-          "line": 9
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 48,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "console.error('Failed to load test types:', err); setError('Failed to load lab tests. Please try again.'); setTestTypes([]); setFilteredTests([]);"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "ipdlaborder",
-      "keyword": "ipdlaborder",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/components/MedicationReconciliation.jsx",
       "component": "MedicationReconciliation",
       "routes": [],
@@ -4692,54 +1839,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/OrderSetSelector.jsx",
-      "component": "OrderSetSelector",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/order-sets",
-        "/api/order-sets/apply"
-      ],
-      "bucketCRoutes": [
-        "GET /api/order-sets",
-        "POST /api/order-sets/apply"
-      ],
-      "bucketCLines": [
-        {
-          "line": 72,
-          "text": "<Button variant=\"outline-primary\" disabled title=\"Module not enabled on this server\" className=\"w-100 d-flex align-items-center justify-content-center\">"
-        },
-        {
-          "line": 75,
-          "text": "<Badge bg=\"secondary\" className=\"ms-2\">Module not enabled</Badge>"
-        }
-      ],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "orderset",
-      "keyword": "orderset",
-      "backend": {
-        "exists": true,
-        "mount": null,
-        "router": "orderSetRoutes.js",
-        "controller": "orderSetController.js",
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "BUCKET_C"
       ],
       "findings": 1
     },
@@ -4861,107 +1960,6 @@
       "findings": 1
     },
     {
-      "file": "client/src/components/PreauthDashboard.jsx",
-      "component": "PreauthDashboard",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 4,
-      "endpointsCalled": [
-        "/api/preauth/requests",
-        "/api/preauth/stats",
-        "/api/preauth/request/${selectedRequest.id}/status",
-        "/api/preauth/request"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Priya Singh"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 38,
-          "signals": [
-            "fake patient/staff name",
-            "setState(array literal)",
-            "mock wording"
-          ],
-          "snippet": "console.error('Error loading preauth data:', error); // Mock data for demo setStats({ counts: { total: 12, pending: 4, under_review: 3, approved: 4, d"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "preauth",
-      "keyword": "preauth",
-      "backend": {
-        "exists": true,
-        "mount": "/api/preauth",
-        "router": "preauthRoutes.js",
-        "controller": "preauthController.js",
-        "endpoints": [
-          "GET /api/preauth/patient/{}/insurance   [preauthRoutes]",
-          "POST /api/preauth/patient/insurance   [preauthRoutes]",
-          "GET /api/preauth/providers   [preauthRoutes]",
-          "POST /api/preauth/request   [preauthRoutes]",
-          "PUT /api/preauth/request/{}/status   [preauthRoutes]",
-          "GET /api/preauth/requests   [preauthRoutes]",
-          "GET /api/preauth/stats   [preauthRoutes]",
-          "POST /api/preauth/verify-eligibility   [preauthRoutes]"
-        ],
-        "endpointCount": 8
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/ReferralNetwork.jsx",
-      "component": "ReferralNetwork",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [
-        {
-          "name": "EXTERNAL_SPECIALISTS",
-          "objects": 5,
-          "line": 19
-        }
-      ],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [
-        "Rajesh Kumar",
-        "Dr. Priya"
-      ],
-      "staticKpi": [],
-      "catchFallbacks": [],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": true,
-      "domainKeyword": "referralnetwork",
-      "keyword": "referralnetwork",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
       "file": "client/src/components/security/CCTVGrid.jsx",
       "component": "CCTVGrid",
       "routes": [],
@@ -5041,95 +2039,6 @@
       },
       "kinds": [
         "PURE_MOCK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/settings/TOTPVerify.jsx",
-      "component": "TOTPVerify",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 2,
-      "endpointsCalled": [
-        "/api/2fa/login-verify"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 77,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "setError(err.response?.data?.error || 'Invalid verification code'); setDigits(['', '', '', '', '', '']); inputRefs.current[0]?.focus();"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "totpverify",
-      "keyword": "totpverify",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
-      ],
-      "findings": 1
-    },
-    {
-      "file": "client/src/components/ShiftHandoverReport.jsx",
-      "component": "ShiftHandoverReport",
-      "routes": [],
-      "menuLabels": [],
-      "apiCallCount": 4,
-      "endpointsCalled": [
-        "/api/nurse/shift-handover",
-        "/api/nurse/handover/notes",
-        "/api/nurse/handover/notes/${patient.admission_id}",
-        "/api/nurse/handover/readback"
-      ],
-      "bucketCRoutes": [],
-      "bucketCLines": [],
-      "rowArrays": [],
-      "useStateMock": [],
-      "fakeIds": [],
-      "fakeNames": [],
-      "staticKpi": [],
-      "catchFallbacks": [
-        {
-          "line": 109,
-          "signals": [
-            "setState(array literal)"
-          ],
-          "snippet": "setHistoryNotes([]);"
-        }
-      ],
-      "phaseLeaks": [],
-      "mockWordLeaks": [],
-      "hasMockRows": false,
-      "domainKeyword": "shifthandoverreport",
-      "keyword": "shifthandoverreport",
-      "backend": {
-        "exists": false,
-        "mount": null,
-        "router": null,
-        "controller": null,
-        "endpoints": [],
-        "endpointCount": 0
-      },
-      "kinds": [
-        "SILENT_FALLBACK"
       ],
       "findings": 1
     },

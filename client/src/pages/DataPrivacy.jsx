@@ -29,11 +29,7 @@ const DataPrivacy = () => {
     { category: 'Research Data', retention: '5 years post-study', review: 'Per study', records: 3200, status: 'Active', compliance: 100 },
   ];
 
-  const dsarRequests = [
-    { id: 'DSAR-01', patient: 'Rajesh Kumar', type: 'Data Access', status: 'Completed', received: '2026-02-20', completed: '2026-02-25', tat: '5 days' },
-    { id: 'DSAR-02', patient: 'Priya Singh', type: 'Data Deletion', status: 'Under Review', received: '2026-02-28', completed: '--', tat: '2 days' },
-    { id: 'DSAR-03', patient: 'Arun Das', type: 'Data Portability', status: 'In Progress', received: '2026-03-01', completed: '--', tat: '1 day' },
-  ];
+  const dsarRequests = [];
 
   return (
     <Container fluid className="py-3">

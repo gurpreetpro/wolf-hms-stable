@@ -4,42 +4,11 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const TransitionPlanner = () => {
   const [activeTab, setActiveTab] = useState('active');
 
-  const activePlans = [
-    { patient: 'Ramesh Gupta (P-1045)', ward: 'ICU-3', admDate: '2026-02-28', targetDischarge: '2026-03-04', day: 3, tasks: [
-      { task: 'Wean ventilator', status: 'Completed', owner: 'RT Team' },
-      { task: 'Tolerating oral feeds', status: 'Completed', owner: 'Dietitian' },
-      { task: 'Ambulation started', status: 'In Progress', owner: 'Physiotherapy' },
-      { task: 'Discharge medications finalized', status: 'Pending', owner: 'Dr. Priya' },
-      { task: 'Follow-up appointment booked', status: 'Pending', owner: 'Reception' },
-      { task: 'Family counseling', status: 'Pending', owner: 'Nurse' },
-    ], progress: 33, destination: 'Step-down to Ward A → Home' },
-    { patient: 'Meena Sharma (P-1023)', ward: 'Ward A-12', admDate: '2026-02-27', targetDischarge: '2026-03-03', day: 4, tasks: [
-      { task: 'IV antibiotics completed', status: 'Completed', owner: 'Pharmacy' },
-      { task: 'Wound healing satisfactory', status: 'Completed', owner: 'Surgeon' },
-      { task: 'Drain removal', status: 'Completed', owner: 'Dr. Suresh' },
-      { task: 'Oral antibiotics started', status: 'Completed', owner: 'Pharmacy' },
-      { task: 'Discharge summary prepared', status: 'In Progress', owner: 'Dr. Suresh' },
-      { task: 'Insurance pre-auth for follow-up', status: 'Pending', owner: 'TPA Desk' },
-    ], progress: 67, destination: 'Home with home care follow-up' },
-    { patient: 'Suresh Patel (P-987)', ward: 'ICU-1', admDate: '2026-02-25', targetDischarge: '2026-03-05', day: 6, tasks: [
-      { task: 'Cardiac rehab started', status: 'In Progress', owner: 'Physiotherapy' },
-      { task: 'Dual antiplatelet compliance', status: 'Completed', owner: 'Pharmacy' },
-      { task: 'Echo follow-up done', status: 'Completed', owner: 'Cardiology' },
-      { task: 'Dietitian counseling', status: 'Completed', owner: 'Dietitian' },
-      { task: 'Home BP monitor arranged', status: 'Pending', owner: 'Nurse' },
-    ], progress: 60, destination: 'Home — Cardiac Rehab OPD twice/week' },
-  ];
+  const activePlans = [];
 
-  const readyForDischarge = [
-    { patient: 'Vikram Singh (P-998)', ward: 'Ward B-7', diagnosis: 'Post-PTCA Recovery', los: '5 days', allTasksDone: true, dischargeSummary: 'Ready', insurance: 'Settled', followUp: 'Booked — Mar 10' },
-    { patient: 'Fatima Khan (P-1012)', ward: 'Ward A-15', diagnosis: 'Post-op Fracture Fixation', los: '3 days', allTasksDone: true, dischargeSummary: 'Ready', insurance: 'HDFC ERGO — Approved', followUp: 'Booked — Mar 8' },
-  ];
+  const readyForDischarge = [];
 
-  const dischargedToday = [
-    { patient: 'Neha Gupta (P-1034)', diagnosis: 'Pneumonia', los: '4 days', dischargedAt: '11:00 AM', destination: 'Home', followUp: 'Mar 9', summary: 'Completed' },
-    { patient: 'Ravi Joshi (P-1001)', diagnosis: 'Appendectomy', los: '2 days', dischargedAt: '10:30 AM', destination: 'Home', followUp: 'Mar 7', summary: 'Completed' },
-    { patient: 'Amit Verma (P-1056)', diagnosis: 'NICU — Preterm stabilized', los: '8 days', dischargedAt: '09:00 AM', destination: 'Home with Kangaroo Care', followUp: 'Mar 5', summary: 'Completed' },
-  ];
+  const dischargedToday = [];
 
   return (
     <Container fluid className="py-3">

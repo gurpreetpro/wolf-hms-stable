@@ -5,14 +5,7 @@ const PatientSafetyDashboard = () => {
   const [activeTab, setActiveTab] = useState('incidents');
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const incidents = [
-    { id: 'PSR-101', date: '02 Mar 2026', type: 'Medication Error', category: 'Near Miss', severity: 'Low', patient: 'Rajesh Kumar', location: 'Ward-A', reporter: 'Nurse Meera', status: 'Under Review', description: 'Wrong dose prepared — caught before administration' },
-    { id: 'PSR-102', date: '01 Mar 2026', type: 'Fall', category: 'Adverse Event', severity: 'Moderate', patient: 'Lakshmi Nair', location: 'ICU', reporter: 'Nurse Priya', status: 'RCA Initiated', description: 'Patient fell from bed, bed rails were down' },
-    { id: 'PSR-103', date: '01 Mar 2026', type: 'Surgical', category: 'Near Miss', severity: 'High', patient: 'Suresh Menon', location: 'OT-2', reporter: 'Dr. Reddy', status: 'Resolved', description: 'Wrong site prep — caught during surgical pause' },
-    { id: 'PSR-104', date: '28 Feb 2026', type: 'Infection', category: 'Adverse Event', severity: 'Moderate', patient: 'Priya Singh', location: 'Ward-B', reporter: 'Dr. Patel', status: 'Under Review', description: 'CAUTI suspected — catheter in situ > 5 days' },
-    { id: 'PSR-105', date: '27 Feb 2026', type: 'Lab Error', category: 'Near Miss', severity: 'Low', patient: 'Mohammed Ali', location: 'Lab', reporter: 'Tech Arun', status: 'Resolved', description: 'Mislabeled sample — identified at accessioning' },
-    { id: 'PSR-106', date: '27 Feb 2026', type: 'Blood Transfusion', category: 'Sentinel Event', severity: 'Critical', patient: 'Vikram Iyer', location: 'ICU', reporter: 'Nurse Ritu', status: 'RCA Complete', description: 'Transfusion reaction — ABO incompatibility, TRALI workup' },
-  ];
+  const incidents = [];
 
   const rcaData = [
     { id: 'RCA-201', incident: 'PSR-102', title: 'Patient Fall — ICU Bed Rails', phase: 'Analysis', owner: 'QI Team', deadline: '10 Mar 2026', progress: 60, findings: ['Bed rail standard not enforced', 'Night staffing reduced', 'Fall risk not reassessed'] },

@@ -196,5 +196,165 @@
         "message": "[Socket.IO] Connection error: Authentication error: No token provided"
       }
     ]
+  },
+  {
+    "at": "2026-10-16T12:23:38.249Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-16T12:23:41.929Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-16T12:27:09.174Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-16T12:27:13.488Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-16T12:28:04.234Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "Dashboard data error: TypeError: invoices.filter is not a function\n    at fetchDashboardData (http://localhost:5173/src/pages/Dashboard.jsx:138:40)"
+      },
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
+  },
+  {
+    "at": "2026-10-16T12:28:07.928Z",
+    "label": "4.3 live module page /admin/quality",
+    "violations": [
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      },
+      {
+        "kind": "pageerror",
+        "message": "Cannot read properties of undefined (reading 'trend')",
+        "stack": "TypeError: Cannot read properties of undefined (reading 'trend') |     at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25) |     at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11) |     at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-NUMECXU6.js?v=19564447:11548:26)"
+      }
+    ],
+    "warnings": [
+      {
+        "kind": "console.error",
+        "message": "The above error occurred in the <QualityDashboard> component:\n\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:9:33)\n    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=19564447:4131:5)\n    at Outlet (http://localhost:5173/node_modu"
+      },
+      {
+        "kind": "console.error",
+        "message": "ErrorBoundary caught an error: TypeError: Cannot read properties of undefined (reading 'trend')\n    at renderKPICard (http://localhost:5173/src/pages/QualityDashboard.jsx:63:25)\n    at QualityDashboard (http://localhost:5173/src/pages/QualityDashboard.jsx:300:11)\n    at renderWithHooks (http://local"
+      }
+    ]
   }
 ]

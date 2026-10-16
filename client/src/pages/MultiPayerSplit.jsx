@@ -4,32 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Button, Modal, Form, ProgressB
 const MultiPayerSplit = () => {
     const [showSplit, setShowSplit] = useState(false);
 
-    const splitBills = [
-        {
-            id: 'INV-87301', patient: 'Ramesh Kumar', total: 250000, date: '2026-03-01', status: 'Settled',
-            payers: [
-                { type: 'Insurance', name: 'Star Health — Gold Plan', amount: 175000, pct: 70, status: 'Paid' },
-                { type: 'Corporate', name: 'TCS Wellness Program', amount: 50000, pct: 20, status: 'Paid' },
-                { type: 'Patient', name: 'Self / Cash', amount: 25000, pct: 10, status: 'Paid' },
-            ]
-        },
-        {
-            id: 'INV-87298', patient: 'Priya Sharma', total: 180000, date: '2026-02-28', status: 'Partial',
-            payers: [
-                { type: 'Insurance', name: 'ICICI Lombard — Platinum', amount: 150000, pct: 83, status: 'Approved' },
-                { type: 'PMJAY', name: 'PMJAY — AB-PMJAY', amount: 0, pct: 0, status: 'N/A' },
-                { type: 'Patient', name: 'Self / Cash', amount: 30000, pct: 17, status: 'Pending' },
-            ]
-        },
-        {
-            id: 'INV-87285', patient: 'Vikram Joshi', total: 95000, date: '2026-02-27', status: 'Pending',
-            payers: [
-                { type: 'Insurance', name: 'Max Bupa — Heartbeat', amount: 60000, pct: 63, status: 'Submitted' },
-                { type: 'Corporate', name: 'Infosys EHB', amount: 20000, pct: 21, status: 'Pending' },
-                { type: 'Patient', name: 'Advance Deposit', amount: 15000, pct: 16, status: 'Collected' },
-            ]
-        },
-    ];
+    const splitBills = [];
 
     const payerColor = (t) => ({ Insurance: 'primary', Corporate: 'info', Patient: 'success', PMJAY: 'warning' }[t] || 'secondary');
     const statusColor = (s) => ({ Paid: 'success', Approved: 'info', Collected: 'success', Submitted: 'warning', Pending: 'danger', 'N/A': 'secondary' }[s] || 'secondary');

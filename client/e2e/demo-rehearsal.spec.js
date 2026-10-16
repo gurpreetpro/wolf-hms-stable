@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import { loginAs } from './helpers/auth.js';
+import { API_ORIGIN } from './helpers/demoData.js';
 import { installTrap } from './helpers/zeroErrorTrap.js';
 
 /**
@@ -40,7 +41,7 @@ test.describe('Fast 4G dress rehearsal', () => {
             });
         }
 
-        await loginAs(page, 'admin');
+        const auth = await loginAs(page, 'admin');
 
         const navStart = Date.now();
         await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -65,20 +66,45 @@ test.describe('Fast 4G dress rehearsal', () => {
         const ttiMs = Date.now() - ttiStart;
         trap.assertClean('4.2 app boot under Fast 4G');
 
-        // ---- Bucket C neutral badges ----
+        // ---- Live module pages (badges removed in Part 2) ----
         const bucketC = [
-            { path: '/admin/infection-control', label: 'Infection Control' },
-            { path: '/admin/quality', label: 'Quality Dashboard' },
+            { path: '/admin/infection-control', label: 'Infection Control', api: '/api/infection-control/reports' },
+            { path: '/admin/quality', label: 'Quality Dashboard', api: '/api/quality/metrics' },
         ];
         const bucketCResults = [];
         for (const c of bucketC) {
-            await page.goto(c.path);
+            const resp = await page.goto(c.path);
             await expect(page.locator('body')).toBeVisible();
             const bodyText = (await page.locator('body').innerText()).slice(0, 4000);
-            const neutral = /Module not enabled|not enabled|coming soon|disabled/i.test(bodyText);
-            bucketCResults.push({ ...c, neutralBadge: neutral });
-            trap.assertClean(`4.3 Bucket C neutral state ${c.path}`);
+            const hasBadge = /Module not enabled/i.test(bodyText);
+            expect(hasBadge, `${c.path} must NOT render a "Module not enabled" badge`).toBeFalsy();
+
+            const liveRes = await page.request.get(`${API_ORIGIN}${c.api}`, {
+                headers: { Authorization: `Bearer ${auth.token}`, 'X-Hospital-ID': '1' },
+            });
+            expect(liveRes.status(), `${c.api} must be live (200)`).toBe(200);
+
+            bucketCResults.push({
+                ...c,
+                httpStatus: resp ? resp.status() : null,
+                liveApiStatus: liveRes.status(),
+                rows: (() => { try { const b = liveRes.json(); return Array.isArray(b) ? b.length : 0; } catch { return 0; } })(),
+            });
+            trap.assertClean(`4.3 live module page ${c.path}`);
         }
+
+        // ---- /admin/emergency must be live data only (no leaked dev labels / mock rows) ----
+        await page.goto('/admin/emergency');
+        await expect(page.locator('body')).toContainText(/Emergency Command Center/i);
+        const emBody = await page.locator('body').innerText();
+        for (const forbidden of ['Phase 12', 'EM-2026-041', 'EM-2026-040', 'Ramesh Gupta', 'Anita Desai']) {
+            expect(emBody.includes(forbidden), `/admin/emergency must not render "${forbidden}"`).toBeFalsy();
+        }
+        const emApi = await page.request.get(`${API_ORIGIN}/api/emergency/history`, {
+            headers: { Authorization: `Bearer ${auth.token}`, 'X-Hospital-ID': '1' },
+        });
+        expect(emApi.status(), 'GET /api/emergency/history must be live (200)').toBe(200);
+        trap.assertClean('4.3b live /admin/emergency');
 
         // ---- Bundle budget (built artifact) ----
         const distDir = path.resolve('dist', 'assets');
@@ -116,9 +142,9 @@ test.describe('Fast 4G dress rehearsal', () => {
         lines.push('');
         lines.push('## Bucket C neutral state (intentionally disabled modules)');
         lines.push('');
-        lines.push('| Route | Neutral badge present | Uncaught React errors |');
-        lines.push('|---|---|---|');
-        for (const r of bucketCResults) lines.push(`| ${r.path} | ${r.neutralBadge ? 'PASS' : 'WARN (no explicit badge text found)'} | 0 |`);
+        lines.push('| Route | HTTP | Live API | Rows | "Module not enabled" absent |');
+        lines.push('|---|---|---|---|---|');
+        for (const r of bucketCResults) lines.push(`| ${r.path} | ${r.httpStatus} | ${r.liveApiStatus} | ${r.rows} | PASS |`);
         lines.push('');
         lines.push('_TTI definition: navigation start → first interactive nav link visible after hydration. Console warnings are recorded in `zero-error-trap.json`._');
         lines.push('');

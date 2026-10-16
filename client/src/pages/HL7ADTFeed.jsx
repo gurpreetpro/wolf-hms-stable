@@ -4,15 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Button } from 'reac
 const HL7ADTFeed = () => {
     const [activeTab, setActiveTab] = useState('live');
 
-    const liveFeed = [
-        { id: 'MSG-00891', type: 'A01', event: 'Admit', patient: 'Ramesh Kumar', mrn: 'MR-10045', location: 'Ward 3A, Bed 12', time: '14:32:05', status: 'Sent' },
-        { id: 'MSG-00890', type: 'A03', event: 'Discharge', patient: 'Priya Sharma', mrn: 'MR-10032', location: 'Ward 2B, Bed 8', time: '14:28:11', status: 'Sent' },
-        { id: 'MSG-00889', type: 'A02', event: 'Transfer', patient: 'Suresh Mehta', mrn: 'MR-10078', location: 'ICU → Ward 4A', time: '14:15:44', status: 'Sent' },
-        { id: 'MSG-00888', type: 'A08', event: 'Update', patient: 'Anita Reddy', mrn: 'MR-10091', location: 'Ward 1C, Bed 3', time: '13:55:20', status: 'Sent' },
-        { id: 'MSG-00887', type: 'A01', event: 'Admit', patient: 'Vikram Joshi', mrn: 'MR-10105', location: 'ED → ICU Bed 5', time: '13:42:38', status: 'ACK' },
-        { id: 'MSG-00886', type: 'A04', event: 'Registration', patient: 'Meera Patel', mrn: 'MR-10112', location: 'OPD Registration', time: '13:30:00', status: 'Sent' },
-        { id: 'MSG-00885', type: 'A03', event: 'Discharge', patient: 'Arun Singh', mrn: 'MR-10089', location: 'Ward 5B, Bed 2', time: '12:45:12', status: 'NACK' },
-    ];
+    const liveFeed = [];
 
     const subscribers = [
         { name: 'Wolf Care (Patient App)', endpoint: 'wss://care.wolfhms.in/hl7', events: ['A01', 'A03', 'A08'], status: 'Connected', lastPing: '2s ago' },

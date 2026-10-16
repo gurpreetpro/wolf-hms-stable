@@ -15,12 +15,7 @@ export default function NeonatalDashboard() {
         const res = await api.get('/api/neonatal/babies');
         setBabies(res.data.data || res.data || []);
       } catch {
-        setBabies([
-          { id: 1, name: 'Baby of Priya Sharma', weight: 2.1, gestational_age: 34, apgar_1: 7, apgar_5: 9, status: 'Stable', bed: 'NICU-W1', temp: 36.8, hr: 145, spo2: 96, feeding: 'NGT', diagnosis: 'Preterm, LBW' },
-          { id: 2, name: 'Baby of Sunita Devi', weight: 1.8, gestational_age: 32, apgar_1: 6, apgar_5: 8, status: 'Critical', bed: 'NICU-W2', temp: 36.5, hr: 160, spo2: 92, feeding: 'TPN', diagnosis: 'RDS, VLBW' },
-          { id: 3, name: 'Baby of Anjali Rao', weight: 3.2, gestational_age: 38, apgar_1: 8, apgar_5: 9, status: 'Stable', bed: 'NICU-W3', temp: 37.0, hr: 130, spo2: 98, feeding: 'Breastfeed', diagnosis: 'Neonatal Jaundice' },
-          { id: 4, name: 'Baby of Meena Kumari', weight: 2.5, gestational_age: 36, apgar_1: 7, apgar_5: 8, status: 'Monitoring', bed: 'NICU-W4', temp: 36.6, hr: 150, spo2: 95, feeding: 'EBM via Cup', diagnosis: 'Sepsis screening' }
-        ]);
+        setBabies([]);
       } finally { setLoading(false); }
     };
     fetchData();
@@ -41,19 +36,14 @@ export default function NeonatalDashboard() {
 
   return (
     <Container fluid className="p-4">
-      <Alert variant="info" className="d-flex align-items-center mb-3">
-        <Baby size={18} className="me-2" />
-        Neonatal ICU management module is not enabled on this server — displaying demo census data.
-      </Alert>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+<div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Baby className="me-2 text-info" />Neonatal ICU (NICU)</h2>
           <p className="text-muted">Level III NICU — Monitoring & Care</p>
         </div>
-        <Button variant="info" disabled title="Module not enabled on this server">
+        <Button variant="info">
           <Plus size={16} className="me-1" /> Admit Neonate
-          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-        </Button>
+</Button>
       </div>
 
       {/* KPI Cards */}
@@ -203,7 +193,7 @@ export default function NeonatalDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdmit(false)}>Cancel</Button>
-          <Button variant="info" disabled title="Module not enabled on this server">Admit to NICU (Disabled)</Button>
+          <Button variant="info">Admit to NICU (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

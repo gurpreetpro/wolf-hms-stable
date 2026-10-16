@@ -42,17 +42,8 @@ const AdvancedReportsDashboard = () => {
             setTrendData(trendRes.data);
         } catch (error) {
             console.error('Error loading reports:', error);
-            // Set mock data (Fallback)
-            setDepartmentData({
-                departments: [
-                    { name: 'IPD/Ward', revenue: 180000, percentage: 36, invoice_count: 45 },
-                    { name: 'OPD', revenue: 125000, percentage: 25, invoice_count: 85 },
-                    { name: 'Laboratory', revenue: 75000, percentage: 15, invoice_count: 92 },
-                    { name: 'Pharmacy', revenue: 65000, percentage: 13, invoice_count: 78 }
-                ],
-                total_revenue: 500000
-            });
-            // ... (Keep existing fallbacks if needed, simplified here)
+            // No fabricated financials: surface an honest empty state.
+            setDepartmentData({ departments: [], total_revenue: 0 });
         } finally {
             setLoading(false);
         }

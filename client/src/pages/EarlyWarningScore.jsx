@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Alert } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const EarlyWarningScore = () => {
   const [activeTab, setActiveTab] = useState('monitoring');
+  const [patients, setPatients] = useState([]);
+  const [scoringError, setScoringError] = useState('');
 
-  const patients = [
-    { bed: 'ICU-1', patient: 'Suresh Menon', mrn: 'MRN-1023', hr: 118, bp: '85/50', rr: 28, temp: 39.2, spo2: 88, gcs: 13, news2: 11, trend: '↑↑', alert: 'CRITICAL', prediction: 'Septic shock — 78% deterioration risk in 4h', actions: ['Notify ICU registrar', 'Repeat lactate', 'Start vasopressors'] },
-    { bed: 'A-101', patient: 'Rajesh Kumar', mrn: 'MRN-1045', hr: 98, bp: '128/82', rr: 20, temp: 37.4, spo2: 95, gcs: 15, news2: 4, trend: '→', alert: 'LOW', prediction: 'Stable — 8% deterioration risk in 4h', actions: ['Routine monitoring q4h'] },
-    { bed: 'A-103', patient: 'Anita Desai', mrn: 'MRN-1078', hr: 105, bp: '100/60', rr: 24, temp: 38.6, spo2: 91, gcs: 14, news2: 8, trend: '↑', alert: 'HIGH', prediction: 'Respiratory failure — 52% deterioration risk in 4h', actions: ['Increase O2', 'ABG stat', 'Chest X-ray', 'Consider BiPAP'] },
-    { bed: 'B-205', patient: 'Priya Singh', mrn: 'MRN-1056', hr: 76, bp: '118/72', rr: 16, temp: 36.8, spo2: 97, gcs: 15, news2: 1, trend: '↓', alert: 'LOW', prediction: 'Improving — 3% deterioration risk in 4h', actions: ['Continue current plan'] },
-    { bed: 'ICU-3', patient: 'Mohammed Ali', mrn: 'MRN-1089', hr: 110, bp: '92/58', rr: 26, temp: 38.1, spo2: 90, gcs: 14, news2: 9, trend: '↑', alert: 'HIGH', prediction: 'DKA worsening — 61% deterioration risk in 4h', actions: ['Insulin infusion adjust', 'K+ check', 'Fluid bolus', 'ABG q2h'] },
-    { bed: 'B-208', patient: 'Lakshmi Nair', mrn: 'MRN-1034', hr: 88, bp: '130/85', rr: 18, temp: 37.0, spo2: 96, gcs: 15, news2: 2, trend: '→', alert: 'LOW', prediction: 'Stable — 5% deterioration risk in 4h', actions: ['Routine monitoring q4h'] },
-  ];
+  // NEWS-2 is scored server-side from each admitted patient's latest vitals
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/ews/scores');
+        setPatients(res.data.data || res.data.patients || []);
+      } catch (err) {
+        console.error('[EarlyWarningScore] score load failed:', err.message);
+        setPatients([]);
+        setScoringError('Unable to load live vitals for NEWS-2 scoring. Please refresh.');
+      }
+    })();
+  }, []);
 
   const alertColor = (a) => a === 'CRITICAL' ? 'danger' : a === 'HIGH' ? 'warning' : 'success';
   const scoreColor = (s) => s >= 7 ? 'danger' : s >= 5 ? 'warning' : s >= 1 ? 'info' : 'success';
@@ -24,9 +32,10 @@ const EarlyWarningScore = () => {
   ];
 
   const metrics = {
-    totalMonitored: patients.length, critical: patients.filter(p => p.alert === 'CRITICAL').length,
-    high: patients.filter(p => p.alert === 'HIGH').length, avgNEWS2: (patients.reduce((s,p) => s+p.news2, 0) / patients.length).toFixed(1),
-    rrTriggers: 3, codeBluesAvoided: 2, predictionAccuracy: 91
+    totalMonitored: patients.length,
+    critical: patients.filter(p => p.alert === 'CRITICAL').length,
+    high: patients.filter(p => p.alert === 'HIGH').length,
+    avgNEWS2: patients.length ? (patients.reduce((s, p) => s + (p.news2 || 0), 0) / patients.length).toFixed(1) : '—'
   };
 
   return (

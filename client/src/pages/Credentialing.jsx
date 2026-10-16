@@ -4,30 +4,11 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const Credentialing = () => {
   const [activeTab, setActiveTab] = useState('licenses');
 
-  const licenses = [
-    { name: 'Dr. Priya Sharma', dept: 'Cardiology', license: 'MCI-MH-28456', type: 'Medical Council', issued: '2022-06-15', expiry: '2027-06-14', daysLeft: 470, status: 'Valid', verified: true },
-    { name: 'Dr. Rajesh Kumar', dept: 'Orthopedics', license: 'MCI-MH-31892', type: 'Medical Council', issued: '2023-01-10', expiry: '2028-01-09', daysLeft: 680, status: 'Valid', verified: true },
-    { name: 'Nurse Anita Desai', dept: 'ICU', license: 'NCI-MH-45623', type: 'Nursing Council', issued: '2024-03-20', expiry: '2026-03-19', daysLeft: 17, status: 'Expiring Soon', verified: true },
-    { name: 'Dr. Suresh Patel', dept: 'Emergency', license: 'MCI-GJ-52341', type: 'Medical Council', issued: '2021-08-05', expiry: '2026-08-04', daysLeft: 155, status: 'Valid', verified: true },
-    { name: 'Tech. Arun Nair', dept: 'Radiology', license: 'AERB-RT-8923', type: 'AERB Radiation', issued: '2023-11-01', expiry: '2026-10-31', daysLeft: 243, status: 'Valid', verified: true },
-    { name: 'Pharm. Rekha Jain', dept: 'Pharmacy', license: 'PCI-MH-67890', type: 'Pharmacy Council', issued: '2024-05-15', expiry: '2026-05-14', daysLeft: 73, status: 'Expiring Soon', verified: true },
-    { name: 'Dr. Fatima Khan', dept: 'OB-GYN', license: 'MCI-MH-39012', type: 'Medical Council', issued: '2020-02-10', expiry: '2025-02-09', daysLeft: -386, status: 'Expired', verified: false },
-  ];
+  const licenses = [];
 
-  const skillMatrix = [
-    { name: 'Dr. Priya Sharma', skills: ['Interventional Cardiology', 'Echo', 'Cardiac Cath', 'ACLS'], level: 'Expert', certifications: 4, lastAssessed: '2026-01-15' },
-    { name: 'Nurse Anita Desai', skills: ['Critical Care', 'Ventilator Mgmt', 'ACLS', 'BLS', 'IV Therapy'], level: 'Advanced', certifications: 5, lastAssessed: '2026-02-10' },
-    { name: 'Dr. Suresh Patel', skills: ['Emergency Medicine', 'Trauma Care', 'ATLS', 'ACLS', 'Toxicology'], level: 'Expert', certifications: 5, lastAssessed: '2025-12-20' },
-    { name: 'Tech. Arun Nair', skills: ['CT Scan', 'MRI', 'X-Ray', 'Fluoroscopy', 'Radiation Safety'], level: 'Advanced', certifications: 4, lastAssessed: '2026-01-25' },
-    { name: 'Nurse Kavita Rao', skills: ['General Nursing', 'Wound Care', 'BLS', 'Patient Education'], level: 'Intermediate', certifications: 3, lastAssessed: '2026-02-05' },
-  ];
+  const skillMatrix = [];
 
-  const privileges = [
-    { name: 'Dr. Priya Sharma', dept: 'Cardiology', privileges: ['Cardiac Catheterization', 'PCI/Stenting', 'Pacemaker Implantation', 'TEE'], granted: '2024-01-15', review: '2026-01-15', status: 'Active' },
-    { name: 'Dr. Rajesh Kumar', dept: 'Orthopedics', privileges: ['Total Joint Replacement', 'Arthroscopy', 'Spinal Surgery', 'Fracture Fixation'], granted: '2024-06-01', review: '2026-06-01', status: 'Active' },
-    { name: 'Dr. Suresh Patel', dept: 'Emergency', privileges: ['Emergency Intubation', 'Chest Tube Insertion', 'Central Line', 'Lumbar Puncture'], granted: '2024-03-10', review: '2026-03-10', status: 'Due for Review' },
-    { name: 'Dr. Meena Iyer', dept: 'Pediatrics', privileges: ['Neonatal Resuscitation', 'Pediatric Intubation', 'Umbilical Catheterization'], granted: '2025-01-20', review: '2027-01-20', status: 'Active' },
-  ];
+  const privileges = [];
 
   const expiring = licenses.filter(l => l.daysLeft <= 90);
 

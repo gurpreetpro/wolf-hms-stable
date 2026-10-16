@@ -354,4 +354,141 @@ router.get('/clinical-pathways', asyncHandler(async (req, res) => {
     dual(res, 'pathways', rows.rows);
 }));
 
+/* ================= Table-A twin endpoints (disconnected-screen wiring) ============== */
+
+/** Telehealth sessions (TelehealthConsole /admin/telehealth). */
+router.get('/telehealth/sessions', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT t.id, t.patient_id, p.name AS patient_name, t.doctor_id, d.name AS doctor_name,
+                t.session_type, t.platform, t.scheduled_at, t.started_at, t.ended_at, t.status, t.notes
+           FROM telehealth_sessions t
+           LEFT JOIN patients p ON p.id = t.patient_id
+           LEFT JOIN users d ON d.id = t.doctor_id
+          WHERE t.hospital_id = $1
+          ORDER BY (t.status = 'Waiting') DESC, t.scheduled_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'sessions', rows.rows, {
+        waiting: rows.rows.filter(r => r.status === 'Waiting').length,
+        inProgress: rows.rows.filter(r => r.status === 'In Progress').length,
+    });
+}));
+
+router.post('/telehealth/sessions', asyncHandler(async (req, res) => {
+    const { patient_id, doctor_id, session_type, scheduled_at, notes } = req.body || {};
+    if (!patient_id) return ResponseHandler.error(res, 'patient_id is required', 400);
+    const out = await pool.query(
+        `INSERT INTO telehealth_sessions (hospital_id, patient_id, doctor_id, session_type, scheduled_at, notes)
+         VALUES ($1,$2,$3,COALESCE($4,'Video Consultation'),COALESCE($5, now()),$6) RETURNING *`,
+        [hid(req), patient_id, doctor_id || uid(req), session_type || null, scheduled_at || null, notes || null]);
+    ResponseHandler.success(res, out.rows[0], 'Telehealth session scheduled');
+}));
+
+/** Ward passes (WardPassManager /admin/ward-pass). */
+router.get('/ward-pass/passes', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT w.id, w.patient_id, p.name AS patient_name, w.pass_type, w.purpose, w.escort_name,
+                w.valid_from, w.valid_until, w.status, w.return_vitals
+           FROM ward_passes w
+           LEFT JOIN patients p ON p.id = w.patient_id
+          WHERE w.hospital_id = $1
+          ORDER BY (w.status = 'Active') DESC, w.valid_from DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'passes', rows.rows, {
+        active: rows.rows.filter(r => r.status === 'Active').length,
+        returned: rows.rows.filter(r => r.status === 'Returned').length,
+    });
+}));
+
+router.post('/ward-pass/passes', asyncHandler(async (req, res) => {
+    const { patient_id, pass_type, purpose, escort_name, valid_until } = req.body || {};
+    if (!patient_id) return ResponseHandler.error(res, 'patient_id is required', 400);
+    const out = await pool.query(
+        `INSERT INTO ward_passes (hospital_id, patient_id, pass_type, purpose, escort_name, valid_until, issued_by)
+         VALUES ($1,$2,COALESCE($3,'Short leave'),$4,$5,$6,$7) RETURNING *`,
+        [hid(req), patient_id, pass_type || null, purpose || null, escort_name || null, valid_until || null, uid(req)]);
+    ResponseHandler.success(res, out.rows[0], 'Ward pass issued');
+}));
+
+/** Coded problem list across the hospital (ProblemListManager /admin/problem-list). */
+router.get('/patient-problems', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT pp.id, pp.patient_id, p.name AS patient_name, pp.icd10_code, pp.description,
+                pp.onset_date, pp.status, pp.resolved_date
+           FROM patient_problems pp
+           LEFT JOIN patients p ON p.id = pp.patient_id
+          WHERE pp.hospital_id = $1
+          ORDER BY (pp.status = 'Active') DESC, pp.onset_date DESC LIMIT 300`, [hid(req)]);
+    dual(res, 'problems', rows.rows, {
+        active: rows.rows.filter(r => r.status === 'Active').length,
+        resolved: rows.rows.filter(r => r.status === 'Resolved').length,
+        patients: new Set(rows.rows.map(r => r.patient_id)).size,
+    });
+}));
+
+/** Data-integrity summary for the backup console (real DB facts, no fabricated rows). */
+router.get('/cloud-backup/summary', asyncHandler(async (req, res) => {
+    const stats = await pool.query(
+        `SELECT pg_database_size(current_database()) AS db_bytes,
+                (SELECT count(*)::int FROM information_schema.tables WHERE table_schema='public') AS table_count,
+                (SELECT count(*)::int FROM patients WHERE deleted_at IS NULL) AS patient_count,
+                (SELECT count(*)::int FROM admissions WHERE status = 'Admitted') AS admitted_count`);
+    const s = stats.rows[0] || {};
+    res.json({
+        success: true,
+        message: 'Success',
+        data: [{
+            database_size_mb: Math.round((Number(s.db_bytes || 0) / (1024 * 1024)) * 100) / 100,
+            tables: Number(s.table_count || 0),
+            patients: Number(s.patient_count || 0),
+            admitted: Number(s.admitted_count || 0),
+        }],
+        summary: s,
+    });
+}));
+
+/** NEWS-2 early warning scores computed from each admitted patient's latest vitals. */
+router.get('/ews/scores', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT a.id AS admission_id, a.patient_id, p.name AS patient_name, a.ward, a.bed_number,
+                v.recorded_at, v.temperature, v.pulse, v.bp_systolic, v.bp_diastolic, v.spo2
+           FROM admissions a
+           JOIN patients p ON p.id = a.patient_id
+           LEFT JOIN LATERAL (
+                SELECT recorded_at, temperature, pulse, bp_systolic, bp_diastolic, spo2
+                  FROM vitals v
+                 WHERE v.admission_id = a.id
+                 ORDER BY v.recorded_at DESC LIMIT 1
+           ) v ON true
+          WHERE a.hospital_id = $1 AND a.status = 'Admitted'
+          ORDER BY a.admission_date DESC LIMIT 200`, [hid(req)]);
+
+    // NEWS-2 (Royal College of Physicians) scoring on the latest recorded vitals
+    const scores = rows.rows.map(r => {
+        let score = 0;
+        const spo2 = Number(r.spo2 || 0);
+        if (spo2 > 0) score += spo2 <= 91 ? 3 : spo2 <= 93 ? 2 : spo2 <= 95 ? 1 : 0;
+        const sys = Number(r.bp_systolic || 0);
+        if (sys > 0) score += sys <= 90 ? 3 : sys <= 100 ? 2 : sys <= 110 ? 1 : sys >= 220 ? 3 : 0;
+        const pulse = Number(r.pulse || 0);
+        if (pulse > 0) score += (pulse <= 40 || pulse >= 131) ? 3 : pulse >= 111 ? 2 : (pulse <= 50 || pulse >= 91) ? 1 : 0;
+        const temp = Number(r.temperature || 0);
+        if (temp > 0) score += temp <= 35 ? 3 : temp <= 36 ? 1 : temp >= 39.1 ? 2 : temp >= 38.1 ? 1 : 0;
+        const alert = score >= 7 ? 'CRITICAL' : score >= 5 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
+        return {
+            ...r,
+            news2: score,
+            alert,
+            recommendation: score >= 7 ? 'Emergency assessment, consider ICU outreach'
+                : score >= 5 ? 'Increase monitoring to hourly, inform charge nurse'
+                    : score >= 3 ? 'Inform ward doctor, recheck in 1 hour'
+                        : 'Continue routine ward monitoring',
+        };
+    }).sort((a, b) => b.news2 - a.news2);
+
+    dual(res, 'patients', scores, {
+        critical: scores.filter(s => s.alert === 'CRITICAL').length,
+        high: scores.filter(s => s.alert === 'HIGH').length,
+        medium: scores.filter(s => s.alert === 'MEDIUM').length,
+        avgNews2: scores.length ? Math.round((scores.reduce((t, s) => t + s.news2, 0) / scores.length) * 10) / 10 : 0,
+    });
+}));
+
 module.exports = router;

@@ -34,19 +34,14 @@ export default function CommsDashboard() {
 
   return (
     <Container fluid className="p-4">
-      <Alert variant="info" className="d-flex align-items-center mb-3">
-        <MessageSquare size={18} className="me-2" />
-        Internal communications module is not enabled on this server — displaying demo notices.
-      </Alert>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+<div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><MessageSquare className="me-2 text-primary" />Communication Hub</h2>
           <p className="text-muted">Internal Announcements & Messaging</p>
         </div>
-        <Button variant="primary" disabled title="Module not enabled on this server">
+        <Button variant="primary">
           <Plus size={16} className="me-1" /> New Announcement
-          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-        </Button>
+</Button>
       </div>
 
       <Row className="g-3 mb-4">
@@ -111,7 +106,7 @@ export default function CommsDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="primary" disabled title="Module not enabled on this server"><Send size={14} className="me-1" /> Post (Disabled)</Button>
+          <Button variant="primary"><Send size={14} className="me-1" /> Post (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

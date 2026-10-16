@@ -1,23 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const POSTerminal = () => {
   const [activeTab, setActiveTab] = useState('terminal');
+  const [devices, setDevices] = useState([]);
+  const [providerCount, setProviderCount] = useState(0);
 
-  const currentQueue = [
-    { token: 'T-045', patient: 'Walk-in', service: 'OPD Consultation', department: 'General Medicine', amount: 'Rs.500', method: 'UPI', time: '16:05', status: 'Processing' },
-    { token: 'T-046', patient: 'Ramesh Gupta (P-1045)', service: 'Lab - CBC + LFT + KFT', department: 'Laboratory', amount: 'Rs.1,450', method: 'Card', time: '16:08', status: 'Waiting' },
-    { token: 'T-047', patient: 'Walk-in', service: 'Pharmacy Purchase', department: 'Pharmacy', amount: 'Rs.780', method: 'Cash', time: '16:10', status: 'Waiting' },
-  ];
+  // Live POS terminals + providers (replaces the previously hardcoded queue/transaction rows)
+  useEffect(() => {
+    (async () => {
+      try {
+        const [devRes, provRes] = await Promise.all([
+          api.get('/api/pos/devices'),
+          api.get('/api/pos/providers/active').catch(() => ({ data: { data: [] } })),
+        ]);
+        setDevices(devRes.data.data || devRes.data.devices || []);
+        setProviderCount((provRes.data.data || []).length);
+      } catch (err) {
+        console.error('[POSTerminal] terminal load failed:', err.message);
+        setDevices([]);
+        setProviderCount(0);
+      }
+    })();
+  }, []);
 
-  const todayTransactions = [
-    { id: 'POS-3201', time: '15:55', patient: 'Meena Devi', service: 'Ultrasound Abdomen', amount: 'Rs.1,200', method: 'UPI', operator: 'Rekha', status: 'Completed' },
-    { id: 'POS-3200', time: '15:40', patient: 'Walk-in', service: 'ECG', amount: 'Rs.300', method: 'Cash', operator: 'Sanjay', status: 'Completed' },
-    { id: 'POS-3199', time: '15:22', patient: 'Anil Mehta', service: 'X-Ray Chest PA', amount: 'Rs.450', method: 'Card', operator: 'Rekha', status: 'Completed' },
-    { id: 'POS-3198', time: '15:10', patient: 'Walk-in', service: 'OPD + Pharmacy', amount: 'Rs.1,850', method: 'UPI', operator: 'Sanjay', status: 'Completed' },
-    { id: 'POS-3197', time: '14:55', patient: 'Fatima Khan', service: 'MRI Brain', amount: 'Rs.5,500', method: 'Card', operator: 'Rekha', status: 'Completed' },
-    { id: 'POS-3196', time: '14:30', patient: 'Walk-in', service: 'Health Checkup Package', amount: 'Rs.4,999', method: 'UPI', operator: 'Sanjay', status: 'Completed' },
-  ];
+  const currentQueue = [];
+
+  const todayTransactions = [];
 
   const serviceModules = [
     { module: 'OPD Consultation', txnToday: 45, revenue: 'Rs.22,500', avgTicket: 'Rs.500' },
@@ -42,8 +52,8 @@ const POSTerminal = () => {
     { method: 'PMJAY', count: 4, amount: 'Rs.3,492', share: '1.1%' },
   ];
 
-  const totalRevenue = 'Rs.3,06,892';
-  const totalTxn = 234;
+  const totalRevenue = '—';
+  const totalTxn = todayTransactions.length;
 
   return (
     <Container fluid className="py-3">
@@ -56,7 +66,7 @@ const POSTerminal = () => {
       </div>
 
       <Row className="mb-3">
-        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{totalRevenue}</h3><small>Revenue Today</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{devices.length}</h3><small>POS Terminals ({providerCount} providers)</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{totalTxn}</h3><small>Transactions</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">Rs.1,312</h3><small>Avg Ticket Size</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{currentQueue.length}</h3><small>In Queue</small></Card.Body></Card></Col>

@@ -4,43 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const ClosedLoopMedication = () => {
   const [activeTab, setActiveTab] = useState('tracking');
 
-  const medicationOrders = [
-    { id: 'CLM-501', patient: 'Rajesh Kumar', bed: 'A-101', medication: 'Metformin 500mg', 
-      prescribe: { status: 'complete', time: '08:00 AM', by: 'Dr. Sharma', cpoe: true, ddiCheck: true },
-      verify: { status: 'complete', time: '08:15 AM', by: 'Clinical Pharmacist' },
-      dispense: { status: 'complete', time: '08:30 AM', by: 'Pharmacy', lotNo: 'LOT-2401A', expiry: '2027-06' },
-      administer: { status: 'complete', time: '08:45 AM', by: 'Nurse Meera', barcodeVerified: true },
-      document: { status: 'complete', time: '08:46 AM', autoLogged: true }
-    },
-    { id: 'CLM-502', patient: 'Anita Desai', bed: 'A-103', medication: 'Ceftriaxone 1g IV',
-      prescribe: { status: 'complete', time: '08:00 AM', by: 'Dr. Patel', cpoe: true, ddiCheck: true },
-      verify: { status: 'complete', time: '08:20 AM', by: 'Clinical Pharmacist' },
-      dispense: { status: 'complete', time: '08:40 AM', by: 'Pharmacy', lotNo: 'LOT-2401B', expiry: '2026-12' },
-      administer: { status: 'in_progress', time: '--', by: '--', barcodeVerified: false },
-      document: { status: 'pending', time: '--', autoLogged: false }
-    },
-    { id: 'CLM-503', patient: 'Suresh Menon', bed: 'B-205', medication: 'Warfarin 5mg',
-      prescribe: { status: 'complete', time: '09:00 AM', by: 'Dr. Reddy', cpoe: true, ddiCheck: false },
-      verify: { status: 'alert', time: '--', by: '--', alert: 'DDI: Warfarin + Aspirin' },
-      dispense: { status: 'blocked', time: '--', by: '--' },
-      administer: { status: 'pending', time: '--', by: '--', barcodeVerified: false },
-      document: { status: 'pending', time: '--', autoLogged: false }
-    },
-    { id: 'CLM-504', patient: 'Mohammed Ali', bed: 'ICU-3', medication: 'Insulin Glargine 10U SC',
-      prescribe: { status: 'complete', time: '07:30 AM', by: 'Dr. Khan', cpoe: true, ddiCheck: true },
-      verify: { status: 'complete', time: '07:45 AM', by: 'Clinical Pharmacist' },
-      dispense: { status: 'complete', time: '08:00 AM', by: 'Pharmacy', lotNo: 'LOT-2401C', expiry: '2026-09' },
-      administer: { status: 'complete', time: '08:10 AM', by: 'Nurse Ritu', barcodeVerified: true },
-      document: { status: 'complete', time: '08:11 AM', autoLogged: true }
-    },
-    { id: 'CLM-505', patient: 'Priya Singh', bed: 'B-208', medication: 'Pantoprazole 40mg IV',
-      prescribe: { status: 'complete', time: '09:30 AM', by: 'Dr. Sharma', cpoe: true, ddiCheck: true },
-      verify: { status: 'complete', time: '09:45 AM', by: 'Clinical Pharmacist' },
-      dispense: { status: 'in_progress', time: '--', by: 'Pharmacy' },
-      administer: { status: 'pending', time: '--', by: '--', barcodeVerified: false },
-      document: { status: 'pending', time: '--', autoLogged: false }
-    },
-  ];
+  const medicationOrders = [];
 
   const stepBadge = (status) => {
     if (status === 'complete') return <Badge bg="success">✅</Badge>;

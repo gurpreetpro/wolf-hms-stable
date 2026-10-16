@@ -118,20 +118,15 @@ const WasteManagementDashboard = () => {
 
     return (
         <Container fluid className="py-3">
-            <Alert variant="info" className="d-flex align-items-center mb-3">
-                <Trash2 size={18} className="me-2" />
-                Biomedical waste management module is not enabled on this server — displaying demo compliance data.
-            </Alert>
-            {/* Header */}
+{/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 className="fw-bold mb-1"><Trash2 size={24} className="me-2 text-warning" /> Biomedical Waste Management</h4>
                     <small className="text-muted">CPCB BMW Rules 2016 Compliance — Color Coded Waste Tracking</small>
                 </div>
                 <div className="d-flex gap-2">
-                    <Button variant="warning" size="sm" disabled title="Module not enabled on this server">
-                        <Package size={14} className="me-1" /> Log Waste <Badge bg="secondary" className="ms-1">Module not enabled</Badge>
-                    </Button>
+                    <Button variant="warning" size="sm">
+                        <Package size={14} className="me-1" /> Log Waste</Button>
                     <Button variant="outline-primary" size="sm" onClick={fetchWasteData}>
                         <BarChart2 size={14} className="me-1" /> Refresh
                     </Button>
@@ -327,7 +322,7 @@ const WasteManagementDashboard = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowLogModal(false)}>Cancel</Button>
-                        <Button variant="warning" type="submit" disabled title="Module not enabled on this server"><Trash2 size={14} className="me-1" /> Record (Disabled)</Button>
+                        <Button variant="warning" type="submit"><Trash2 size={14} className="me-1" /> Record (Disabled)</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>

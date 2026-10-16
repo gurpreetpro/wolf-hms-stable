@@ -2,9 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
 
 const ClinicalAIAssistant = () => {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: "👋 Hello Dr. Sharma! I'm Wolf AI, your clinical decision support assistant. I can help with:\n\n• **Drug interactions** — check medication safety\n• **Diagnosis support** — differential diagnosis from symptoms\n• **Lab interpretation** — analyze lab results\n• **Clinical guidelines** — evidence-based recommendations\n• **ICD-10 coding** — suggest appropriate codes\n\nHow can I assist you today?", time: '10:00 AM' },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
@@ -179,11 +177,7 @@ const ClinicalAIAssistant = () => {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  const recentPatients = [
-    { name: 'Rajesh Kumar', mrn: 'MRN-1045', condition: 'T2DM + HTN', ward: 'A-101' },
-    { name: 'Anita Desai', mrn: 'MRN-1078', condition: 'Pneumonia', ward: 'A-103' },
-    { name: 'Suresh Menon', mrn: 'MRN-1023', condition: 'Post-CABG', ward: 'ICU-2' },
-  ];
+  const recentPatients = [];
 
   return (
     <Container fluid className="py-3">

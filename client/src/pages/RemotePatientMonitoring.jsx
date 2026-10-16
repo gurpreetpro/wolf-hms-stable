@@ -4,44 +4,9 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const RemotePatientMonitoring = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const monitoredPatients = [
-    {
-      id: 'RPM-01', patient: 'Rajesh Kumar', mrn: 'MRN-1045', condition: 'T2DM + HTN + CKD',
-      devices: ['Glucometer', 'BP Monitor', 'Weight Scale'],
-      vitals: { bp: '142/88', glucose: 186, hr: 82, weight: 78.5, spo2: 96, steps: 3200 },
-      alerts: 2, trend: 'Worsening', compliance: 78, lastSync: '10 min ago',
-      thresholds: { bp_high: '140/90', glucose_high: 180, glucose_low: 70 }
-    },
-    {
-      id: 'RPM-02', patient: 'Suresh Menon', mrn: 'MRN-1023', condition: 'Post-CABG + CHF',
-      devices: ['BP Monitor', 'Weight Scale', 'SpO2 Sensor'],
-      vitals: { bp: '118/72', glucose: null, hr: 76, weight: 82.1, spo2: 95, steps: 1800 },
-      alerts: 0, trend: 'Stable', compliance: 92, lastSync: '5 min ago',
-      thresholds: { bp_high: '130/80', weight_gain: '+2kg/week' }
-    },
-    {
-      id: 'RPM-03', patient: 'Anita Desai', mrn: 'MRN-1078', condition: 'COPD + Asthma',
-      devices: ['SpO2 Sensor', 'Peak Flow Meter', 'BP Monitor'],
-      vitals: { bp: '126/78', glucose: null, hr: 88, weight: 62.3, spo2: 91, steps: 1200, peakFlow: 280 },
-      alerts: 3, trend: 'Worsening', compliance: 65, lastSync: '25 min ago',
-      thresholds: { spo2_low: 92, peakFlow_low: 300 }
-    },
-    {
-      id: 'RPM-04', patient: 'Kavita Mehta', mrn: 'MRN-1067', condition: 'Gestational Diabetes',
-      devices: ['Glucometer', 'BP Monitor', 'Fetal Monitor'],
-      vitals: { bp: '110/70', glucose: 128, hr: 78, weight: 68.2, spo2: 98, steps: 4500, fetalHR: 142 },
-      alerts: 0, trend: 'Improving', compliance: 95, lastSync: '2 min ago',
-      thresholds: { glucose_high: 140, bp_high: '130/80' }
-    },
-  ];
+  const monitoredPatients = [];
 
-  const alertHistory = [
-    { time: '09:45 AM', patient: 'Rajesh Kumar', type: 'Blood Glucose', value: '186 mg/dL', threshold: '> 180', severity: 'Warning', action: 'SMS sent to patient + doctor notified' },
-    { time: '09:30 AM', patient: 'Anita Desai', type: 'SpO2', value: '91%', threshold: '< 92%', severity: 'Critical', action: 'Auto-call triggered + doctor alerted' },
-    { time: '09:15 AM', patient: 'Anita Desai', type: 'Peak Flow', value: '280 L/min', threshold: '< 300', severity: 'Warning', action: 'SMS reminder to use inhaler' },
-    { time: '08:50 AM', patient: 'Rajesh Kumar', type: 'Blood Pressure', value: '142/88', threshold: '> 140/90', severity: 'Warning', action: 'Logged for doctor review' },
-    { time: '08:00 AM', patient: 'Anita Desai', type: 'Missed Reading', value: 'No SpO2', threshold: 'Every 4h', severity: 'Info', action: 'Reminder SMS sent' },
-  ];
+  const alertHistory = [];
 
   const programMetrics = {
     totalPatients: 4, activeAlerts: 5, avgCompliance: 82.5,

@@ -13,13 +13,7 @@ const HIPAACompliance = () => {
     { name: 'Breach Notification', score: 95, items: 6, compliant: 6, findings: 0, status: 'Fully Compliant' },
   ];
 
-  const phiAccessLog = [
-    { time: '10:42 AM', user: 'Dr. Sharma', role: 'Physician', patient: 'Rajesh Kumar (MRN-1045)', action: 'Viewed Medical Record', ip: '192.168.1.45', justified: true },
-    { time: '10:38 AM', user: 'Nurse Priya', role: 'Nurse', patient: 'Anita Desai (MRN-1078)', action: 'Updated Vitals', ip: '192.168.1.52', justified: true },
-    { time: '10:15 AM', user: 'Admin Ravi', role: 'Admin', patient: 'Suresh Menon (MRN-1023)', action: 'Exported Lab Report', ip: '192.168.1.10', justified: true },
-    { time: '09:55 AM', user: 'Dr. Patel', role: 'Physician', patient: 'Kavita Mehta (MRN-1067)', action: 'Viewed Billing Record', ip: '192.168.1.48', justified: false },
-    { time: '09:30 AM', user: 'Receptionist Anil', role: 'Front Desk', patient: 'Mohammed Ali (MRN-1089)', action: 'Accessed Clinical Notes', ip: '192.168.1.22', justified: false },
-  ];
+  const phiAccessLog = [];
 
   const breachAlerts = [
     { id: 'BR-001', date: '2026-02-28', type: 'Unauthorized Access', severity: 'High', user: 'Receptionist Anil', details: 'Accessed clinical notes outside role scope', status: 'Under Investigation', action: 'Access revoked, HR notified' },

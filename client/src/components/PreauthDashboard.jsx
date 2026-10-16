@@ -37,17 +37,13 @@ const PreauthDashboard = () => {
             setStats(statsRes.data);
         } catch (error) {
             console.error('Error loading preauth data:', error);
-            // Mock data for demo
+            // No fabricated pre-auth counts: zeroed summary + empty request list.
             setStats({
-                counts: { total: 12, pending: 4, under_review: 3, approved: 4, denied: 1 },
-                amounts: { total_requested: 850000, total_approved: 620000, approval_rate: 83 },
-                avg_turnaround: 2
+                counts: { total: 0, pending: 0, under_review: 0, approved: 0, denied: 0 },
+                amounts: { total_requested: 0, total_approved: 0, approval_rate: 0 },
+                avg_turnaround: 0
             });
-            setRequests([
-                { id: 1, request_number: 'PA2412-ABC123', patient_name: 'Ramesh Kumar', procedure_name: 'Knee Replacement', requested_amount: 150000, status: 'Approved', approved_amount: 140000, provider_name: 'Star Health', created_at: new Date().toISOString() },
-                { id: 2, request_number: 'PA2412-DEF456', patient_name: 'Priya Singh', procedure_name: 'Cardiac Stent', requested_amount: 250000, status: 'Under Review', provider_name: 'ICICI Lombard', created_at: new Date().toISOString() },
-                { id: 3, request_number: 'PA2412-GHI789', patient_name: 'Suresh Reddy', procedure_name: 'Appendectomy', requested_amount: 45000, status: 'Pending', provider_name: 'Medi Assist', created_at: new Date().toISOString() }
-            ]);
+            setRequests([]);
         } finally {
             setLoading(false);
         }

@@ -529,4 +529,51 @@ VALUES
    '["CT brain within 20 minutes","NIHSS assessment","Thrombolysis window check","Stroke unit admission"]'::jsonb)
 ON CONFLICT (hospital_id, pathway_code) DO NOTHING;
 
+-- ---------------------------------------------------------------- Telehealth / ward passes / problems
+INSERT INTO telehealth_sessions (hospital_id, patient_id, doctor_id, session_type, scheduled_at, status, notes)
+SELECT 1, v.patient, (SELECT id FROM users WHERE username = 'doctor_demo'), v.kind, now() + v.in_min * INTERVAL '1 minute', v.status, v.notes
+  FROM (VALUES
+        ('e0000000-0000-4000-8000-000000000002'::uuid, 'Video Consultation', 20, 'Waiting',     'Follow-up after discharge — wound review'),
+        ('a0000000-0000-4000-8000-000000000002'::uuid, 'Video Consultation', 45, 'Waiting',     'Diabetes medication titration review'),
+        ('c0000000-0000-4000-8000-000000000004'::uuid, 'Video Consultation', -90, 'Completed',  'COPD review completed, inhaler technique corrected')
+       ) AS v(patient, kind, in_min, status, notes)
+ WHERE NOT EXISTS (SELECT 1 FROM telehealth_sessions t WHERE t.hospital_id = 1 AND t.patient_id = v.patient AND t.session_type = v.kind AND t.status = v.status);
+
+INSERT INTO ward_passes (hospital_id, patient_id, pass_type, purpose, escort_name, valid_from, valid_until, status, issued_by)
+SELECT 1, v.patient, v.kind, v.purpose, v.escort, now() - INTERVAL '2 hours', now() + v.hours * INTERVAL '1 hour', v.status, (SELECT id FROM users WHERE username = 'admin')
+  FROM (VALUES
+        ('d0000000-0000-4000-8000-000000000002'::uuid, 'Day Pass',     'Attend family function nearby',        'Ramesh Kulkarni (brother)', 3, 'Active'),
+        ('a0000000-0000-4000-8000-000000000004'::uuid, 'Short Leave',  'Bank work, returns before evening rounds', 'Self (ambulatory)',     1, 'Returned')
+       ) AS v(patient, kind, purpose, escort, hours, status)
+ WHERE NOT EXISTS (SELECT 1 FROM ward_passes w WHERE w.hospital_id = 1 AND w.patient_id = v.patient AND w.pass_type = v.kind);
+
+INSERT INTO patient_problems (hospital_id, patient_id, icd10_code, description, onset_date, status, recorded_by)
+SELECT 1, v.patient, v.icd, v.descr, CURRENT_DATE - v.days, v.status, (SELECT id FROM users WHERE username = 'doctor_demo')
+  FROM (VALUES
+        ('b0000000-0000-4000-8000-000000000001'::uuid, 'I48.0', 'Paroxysmal atrial fibrillation',           400, 'Active',   'Anticoagulation clinic follow-up'),
+        ('b0000000-0000-4000-8000-000000000001'::uuid, 'I10',   'Essential hypertension',                   900, 'Active',   'Controlled on dual therapy'),
+        ('d0000000-0000-4000-8000-000000000003'::uuid, 'N18.4', 'Chronic kidney disease stage 4',           600, 'Active',   'Nephrology co-management'),
+        ('d0000000-0000-4000-8000-000000000002'::uuid, 'K80.2', 'Cholelithiasis with cholecystitis',        120, 'Resolved', 'Laparoscopic cholecystectomy completed')
+       ) AS v(patient, icd, descr, days, status, notes)
+ WHERE NOT EXISTS (SELECT 1 FROM patient_problems pp WHERE pp.hospital_id = 1 AND pp.patient_id = v.patient AND pp.icd10_code = v.icd);
+
+-- ---------------------------------------------------------------- POS terminals (billing counter /billing)
+-- Providers must exist before devices (pos_devices.provider_id FK + JOIN on code).
+INSERT INTO pos_providers (code, name, website_url, support_email, support_phone, is_active, features)
+VALUES
+  ('pine_labs', 'Pine Labs',   'https://www.pinelabs.com', 'support@pinelabs.com', '+91 22 6666 0000', true, '{"upi":true,"card":true,"emi":true,"bharat_qr":true}'::jsonb),
+  ('mswipe',    'Mswipe',      'https://www.mswipe.com',   'care@mswipe.com',      '+91 22 6154 8888', true, '{"upi":true,"card":true,"emi":false,"bharat_qr":true}'::jsonb),
+  ('razorpay',  'Razorpay POS','https://razorpay.com/pos', 'support@razorpay.com', '+91 80 4666 3000', true, '{"upi":true,"card":true,"emi":true,"bharat_qr":true}'::jsonb)
+ON CONFLICT (code) DO UPDATE SET name = EXCLUDED.name, is_active = EXCLUDED.is_active;
+
+INSERT INTO pos_devices (device_id, device_name, provider_id, terminal_id, merchant_id, location, department, connection_type, status, hospital_id)
+SELECT v.device_id, v.device_name, p.id, v.terminal_id, v.merchant_id, v.location, v.department, 'cloud', 'active', 1
+  FROM (VALUES
+        ('DEV-DEMO-0001', 'Billing Counter 1 — Pine Labs', 'pine_labs', 'TID-4471029', 'MID-88123014', 'Billing Section, Ground Floor', 'Billing'),
+        ('DEV-DEMO-0002', 'Pharmacy Counter — Pine Labs',  'pine_labs', 'TID-4471030', 'MID-88123015', 'Pharmacy, Ground Floor',        'Pharmacy'),
+        ('DEV-DEMO-0003', 'Emergency Cashier — Mswipe',    'mswipe',    'TID-5590144', 'MID-99021188', 'Emergency Ward Reception',      'Emergency')
+       ) AS v(device_id, device_name, provider_code, terminal_id, merchant_id, location, department)
+  JOIN pos_providers p ON p.code = v.provider_code
+ WHERE NOT EXISTS (SELECT 1 FROM pos_devices d WHERE d.device_id = v.device_id);
+
 COMMIT;

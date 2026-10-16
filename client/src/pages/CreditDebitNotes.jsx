@@ -6,12 +6,7 @@ const CreditDebitNotes = () => {
     const [showNew, setShowNew] = useState(false);
     const [noteType, setNoteType] = useState('Credit');
 
-    const creditNotes = [
-        { id: 'CN-2026-0045', date: '2026-03-01', patient: 'Ramesh Kumar', invoice: 'INV-87234', amount: 4500, reason: 'Duplicate charge — Chest X-Ray', status: 'Approved', approvedBy: 'Dr. Finance Head' },
-        { id: 'CN-2026-0044', date: '2026-02-28', patient: 'Priya Sharma', invoice: 'INV-87198', amount: 12000, reason: 'Insurance adjustment — TPA rate difference', status: 'Approved', approvedBy: 'Billing Manager' },
-        { id: 'CN-2026-0043', date: '2026-02-27', patient: 'Suresh Mehta', invoice: 'INV-87156', amount: 2200, reason: 'Cancelled lab test — CBC Panel', status: 'Pending', approvedBy: '—' },
-        { id: 'CN-2026-0042', date: '2026-02-26', patient: 'Anita Reddy', invoice: 'INV-87101', amount: 8500, reason: 'Package rate correction — Normal delivery', status: 'Rejected', approvedBy: 'Rejected: insufficient docs' },
-    ];
+    const creditNotes = [];
 
     const debitNotes = [
         { id: 'DN-2026-0018', date: '2026-03-01', patient: 'Vikram Joshi', invoice: 'INV-87245', amount: 3200, reason: 'Additional medication charges', status: 'Approved', approvedBy: 'Billing Manager' },

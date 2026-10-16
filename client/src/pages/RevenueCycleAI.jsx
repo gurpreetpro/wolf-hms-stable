@@ -4,18 +4,9 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const RevenueCycleAI = () => {
   const [activeTab, setActiveTab] = useState('denials');
 
-  const denialPredictions = [
-    { id: 'CLM-8801', patient: 'Rajesh Kumar', payer: 'Star Health', amount: '₹2,45,000', procedure: 'CABG', denialRisk: 82, reason: 'Missing pre-auth for stent', suggestedAction: 'Attach pre-auth doc #PA-2401', expectedRecovery: '₹2,45,000', status: 'Pre-submission' },
-    { id: 'CLM-8802', patient: 'Anita Desai', payer: 'ICICI Lombard', amount: '₹78,000', procedure: 'Appendectomy', denialRisk: 35, reason: 'Coding issue — unspecified laterality', suggestedAction: 'Change K35.80 to K35.89', expectedRecovery: '₹78,000', status: 'Pre-submission' },
-    { id: 'CLM-8803', patient: 'Suresh Menon', payer: 'TATA AIG', amount: '₹1,85,000', procedure: 'Knee Replacement', denialRisk: 68, reason: 'Conservative treatment not documented', suggestedAction: 'Add 6-month physio records', expectedRecovery: '₹1,85,000', status: 'Pre-submission' },
-    { id: 'CLM-8804', patient: 'Priya Singh', payer: 'Bajaj Allianz', amount: '₹45,000', procedure: 'Chemotherapy', denialRisk: 12, reason: 'N/A — clean claim', suggestedAction: 'Submit as-is', expectedRecovery: '₹45,000', status: 'Ready' },
-  ];
+  const denialPredictions = [];
 
-  const deniedClaims = [
-    { id: 'CLM-8750', patient: 'Vikram Iyer', payer: 'Max Bupa', amount: '₹3,20,000', reason: 'Pre-existing condition exclusion', aiStrategy: 'Cite IRDAI circular 2024 — PED waiver after 4 years', successProb: 72, appealDraft: true },
-    { id: 'CLM-8765', patient: 'Lakshmi Nair', payer: 'New India', amount: '₹1,10,000', reason: 'Experimental treatment', aiStrategy: 'Attach WHO essential medicines list + 3 peer-reviewed studies', successProb: 58, appealDraft: true },
-    { id: 'CLM-8778', patient: 'Arun Das', payer: 'Oriental', amount: '₹55,000', reason: 'Duplicate claim', aiStrategy: 'Show different DOS and procedure codes', successProb: 91, appealDraft: true },
-  ];
+  const deniedClaims = [];
 
   const leakageDetection = [
     { category: 'Unbilled Procedures', count: 12, amount: '₹4,80,000', detail: 'OR procedures not linked to billing' },

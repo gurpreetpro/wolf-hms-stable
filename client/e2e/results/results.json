@@ -1,0 +1,532 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\playwright.config.js",
+    "rootDir": "C:/Users/HP/.gemini/antigravity/scratch/wolf-hms-stable/client/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/HP/.gemini/antigravity/scratch/wolf-hms-stable/client/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/HP/.gemini/antigravity/scratch/wolf-hms-stable/client/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e",
+        "snapshotDir": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 120000,
+        "use": {
+          "baseURL": "http://localhost:5173",
+          "headless": true,
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "video": "off",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "actionTimeout": 15000,
+          "navigationTimeout": 45000,
+          "channel": "msedge",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e/results/results.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "e2e/results/html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": true,
+      "timeout": 180000,
+      "stdout": "ignore",
+      "stderr": "pipe"
+    }
+  },
+  "suites": [
+    {
+      "title": "demo-rehearsal.spec.js",
+      "file": "demo-rehearsal.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Fast 4G dress rehearsal",
+          "file": "demo-rehearsal.spec.js",
+          "line": 26,
+          "column": 6,
+          "specs": [
+            {
+              "title": "app boots under Fast 4G, disabled modules stay neutral, budgets hold",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5517,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:25.723Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "653d3f46ae5eb5d245b7-db86241d8a462c582423",
+              "file": "demo-rehearsal.spec.js",
+              "line": 27,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "golden-clinical-journey.spec.js",
+      "file": "golden-clinical-journey.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Golden clinical journey",
+          "file": "golden-clinical-journey.spec.js",
+          "line": 35,
+          "column": 6,
+          "specs": [
+            {
+              "title": "1. Reception — login screen works, OPD queue loads, patient can be registered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2098,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:31.508Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "beef3ccf2da15a7615bf-9f69b8f8d62e85b5a953",
+              "file": "golden-clinical-journey.spec.js",
+              "line": 36,
+              "column": 5
+            },
+            {
+              "title": "2. Doctor OPD & AI safety — Warfarin chart + Ciprofloxacin interaction warning + diagnostics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                        "line": 0,
+                        "column": 0
+                      }
+                    },
+                    {
+                      "type": "ai-source",
+                      "description": "local interaction DB (offline fallback)"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1730,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:33.615Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                            "line": 0,
+                            "column": 0
+                          }
+                        },
+                        {
+                          "type": "ai-source",
+                          "description": "local interaction DB (offline fallback)"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "beef3ccf2da15a7615bf-f548c6efc249918c0aef",
+              "file": "golden-clinical-journey.spec.js",
+              "line": 63,
+              "column": 5
+            },
+            {
+              "title": "3. ICU telemetry — admitted patients render from /api/admissions?status=Admitted",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1211,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:35.353Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "beef3ccf2da15a7615bf-57d248a488e8017ed1b7",
+              "file": "golden-clinical-journey.spec.js",
+              "line": 91,
+              "column": 5
+            },
+            {
+              "title": "4. Lab & Radiology — pending worklists load and report views open",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1883,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:36.573Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "beef3ccf2da15a7615bf-057cb34e41628febf27e",
+              "file": "golden-clinical-journey.spec.js",
+              "line": 111,
+              "column": 5
+            },
+            {
+              "title": "5. Pharmacy & Billing — stock loads and the pending multi-item invoice is listed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1955,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:38.467Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "C:\\Users\\HP\\.gemini\\antigravity\\scratch\\wolf-hms-stable\\client\\e2e\\golden-clinical-journey.spec.js",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "beef3ccf2da15a7615bf-07d44e481cb9727aacf2",
+              "file": "golden-clinical-journey.spec.js",
+              "line": 134,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "socket-sync.spec.js",
+      "file": "socket-sync.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Multi-tab realtime sync",
+          "file": "socket-sync.spec.js",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "CODE BLUE broadcast reaches the nurse station under budget",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "socket-latency",
+                      "description": "broadcast 142ms / resolve 73ms (budget 300ms)"
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3045,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-15T13:22:40.442Z",
+                      "annotations": [
+                        {
+                          "type": "socket-latency",
+                          "description": "broadcast 142ms / resolve 73ms (budget 300ms)"
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7f1e692bd355e68d74a0-da2320012eb7959a255d",
+              "file": "socket-sync.spec.js",
+              "line": 24,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-15T13:22:24.157Z",
+    "duration": 19851.814,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

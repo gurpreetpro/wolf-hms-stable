@@ -4,14 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar
 const TrainingCompetency = () => {
   const [activeTab, setActiveTab] = useState('cme');
 
-  const cmeTracking = [
-    { name: 'Dr. Priya Sharma', dept: 'Cardiology', required: 30, earned: 28, remaining: 2, cycle: '2025-2027', status: 'On Track', lastActivity: 'Interventional Cardiology Workshop (8 credits)' },
-    { name: 'Dr. Rajesh Kumar', dept: 'Orthopedics', required: 30, earned: 30, remaining: 0, cycle: '2025-2027', status: 'Completed', lastActivity: 'Arthroplasty Masterclass (6 credits)' },
-    { name: 'Dr. Suresh Patel', dept: 'Emergency', required: 30, earned: 22, remaining: 8, cycle: '2025-2027', status: 'On Track', lastActivity: 'ATLS Recertification (16 credits)' },
-    { name: 'Nurse Anita Desai', dept: 'ICU', required: 20, earned: 18, remaining: 2, cycle: '2025-2026', status: 'On Track', lastActivity: 'Critical Care Nursing Update (4 credits)' },
-    { name: 'Dr. Meena Iyer', dept: 'Pediatrics', required: 30, earned: 12, remaining: 18, cycle: '2025-2027', status: 'Behind', lastActivity: 'Neonatal Resuscitation (4 credits)' },
-    { name: 'Pharm. Rekha Jain', dept: 'Pharmacy', required: 15, earned: 15, remaining: 0, cycle: '2025-2026', status: 'Completed', lastActivity: 'Clinical Pharmacy Conference (5 credits)' },
-  ];
+  const cmeTracking = [];
 
   const certifications = [
     { cert: 'BLS (Basic Life Support)', provider: 'AHA', staff: 230, total: 245, coverage: 93.9, validity: '2 years', nextBatch: '2026-04-15' },
@@ -23,13 +16,7 @@ const TrainingCompetency = () => {
     { cert: 'Hand Hygiene', provider: 'WHO', staff: 245, total: 245, coverage: 100, validity: '6 months', nextBatch: '2026-06-01' },
   ];
 
-  const assessments = [
-    { name: 'Dr. Priya Sharma', domain: 'Clinical Procedures', score: 95, grade: 'A+', date: '2026-01-15', next: '2027-01-15', status: 'Passed' },
-    { name: 'Nurse Anita Desai', domain: 'Critical Care Nursing', score: 88, grade: 'A', date: '2026-02-10', next: '2027-02-10', status: 'Passed' },
-    { name: 'Dr. Suresh Patel', domain: 'Emergency Protocols', score: 92, grade: 'A+', date: '2025-12-20', next: '2026-12-20', status: 'Passed' },
-    { name: 'Tech. Arun Nair', domain: 'Imaging Equipment', score: 85, grade: 'A', date: '2026-01-25', next: '2027-01-25', status: 'Passed' },
-    { name: 'Nurse Kavita Rao', domain: 'General Nursing', score: 78, grade: 'B+', date: '2026-02-05', next: '2026-08-05', status: 'Passed (Retest in 6mo)' },
-  ];
+  const assessments = [];
 
   const eLearning = [
     { course: 'HIPAA Privacy & Security', enrolled: 245, completed: 238, inProgress: 7, avgScore: 92, mandatory: true },

@@ -8,14 +8,7 @@ const CPOEDashboard = () => {
   const [orderSearch, setOrderSearch] = useState('');
   const [showSafetyAlert, setShowSafetyAlert] = useState(false);
 
-  const pendingOrders = [
-    { id: 'ORD-2401', patient: 'Rajesh Kumar', mrn: 'MRN-1045', type: 'Medication', order: 'Metformin 500mg BD', priority: 'Routine', status: 'Pending Verification', doctor: 'Dr. Sharma', time: '10:30 AM', safety: 'clear' },
-    { id: 'ORD-2402', patient: 'Anita Desai', mrn: 'MRN-1078', type: 'Lab', order: 'CBC + ESR + CRP', priority: 'Urgent', status: 'Pending Collection', doctor: 'Dr. Patel', time: '10:45 AM', safety: 'clear' },
-    { id: 'ORD-2403', patient: 'Suresh Menon', mrn: 'MRN-1023', type: 'Medication', order: 'Warfarin 5mg OD', priority: 'Routine', status: 'Safety Alert', doctor: 'Dr. Reddy', time: '11:00 AM', safety: 'warning' },
-    { id: 'ORD-2404', patient: 'Priya Singh', mrn: 'MRN-1056', type: 'Radiology', order: 'Chest X-Ray PA View', priority: 'Routine', status: 'Sent to Dept', doctor: 'Dr. Sharma', time: '11:15 AM', safety: 'clear' },
-    { id: 'ORD-2405', patient: 'Mohammed Ali', mrn: 'MRN-1089', type: 'Medication', order: 'Insulin Glargine 10U SC', priority: 'STAT', status: 'Pending Verification', doctor: 'Dr. Khan', time: '11:20 AM', safety: 'clear' },
-    { id: 'ORD-2406', patient: 'Lakshmi Nair', mrn: 'MRN-1034', type: 'Diet', order: 'Diabetic Diet 1800 Cal', priority: 'Routine', status: 'Active', doctor: 'Dr. Patel', time: '09:00 AM', safety: 'clear' },
-  ];
+  const pendingOrders = [];
 
   const safetyChecks = [
     { check: 'Drug-Drug Interaction', status: '⚠️ Warfarin + Aspirin (already prescribed)', severity: 'high', action: 'Increased bleeding risk — requires physician override' },
@@ -35,11 +28,7 @@ const CPOEDashboard = () => {
     { name: 'Stroke — Code Brain', orders: 9, lastUsed: '1d ago', category: 'Neurology' },
   ];
 
-  const recentOrders = [
-    { id: 'ORD-2398', patient: 'Vikram Iyer', order: 'Ceftriaxone 1g IV BD', status: 'Dispensed', time: '09:15 AM', verified: true },
-    { id: 'ORD-2399', patient: 'Preeti Joshi', order: 'ECG 12-Lead', status: 'Completed', time: '09:30 AM', verified: true },
-    { id: 'ORD-2400', patient: 'Arun Das', order: 'KFT + LFT', status: 'Results Ready', time: '08:45 AM', verified: true },
-  ];
+  const recentOrders = [];
 
   const priorityColor = (p) => p === 'STAT' ? 'danger' : p === 'Urgent' ? 'warning' : 'secondary';
   const statusColor = (s) => s === 'Safety Alert' ? 'danger' : s === 'Pending Verification' ? 'warning' : s === 'Active' ? 'success' : s === 'Sent to Dept' ? 'info' : 'primary';

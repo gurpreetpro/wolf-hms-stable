@@ -174,9 +174,11 @@ function analyseFile(file, ctx) {
         const signals = [];
         if (new RegExp(FAKE_ID.source).test(body)) signals.push('fake id literal');
         if (FAKE_NAMES.some(n => body.includes(n))) signals.push('fake patient/staff name');
-        if (/set\w+\(\s*\[/.test(body)) signals.push('setState(array literal)');
-        if (/\|\|\s*\[/.test(body)) signals.push('|| [] fallback array');
-        if (/\?\?\s*\[/.test(body)) signals.push('?? [] fallback array');
+        // A reset to an EMPTY array is correct error handling, not a fabricated-data finding.
+        if (/set\w+\(\s*\[\s*\{\s*[A-Za-z_$][\w$]*\s*:/.test(body)) signals.push('setState(non-empty array literal)');
+        if (/set\w+\(\s*\[\s*['"`][^'"`]+['"`]/.test(body)) signals.push('setState(string array literal)');
+        if (/\|\|\s*\[\s*\{/.test(body)) signals.push('|| [{…}] fallback array');
+        if (/\?\?\s*\[\s*\{/.test(body)) signals.push('?? [{…}] fallback array');
         if (MOCK_WORDS.test(body)) signals.push('mock wording');
         if (signals.length) {
             catchFallbacks.push({

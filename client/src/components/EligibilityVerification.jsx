@@ -31,12 +31,8 @@ const EligibilityVerification = ({ patientId, onVerified }) => {
             setProviders(provRes.data);
         } catch (error) {
             console.error('Error loading insurance data:', error);
-            // Mock data
-            setProviders([
-                { id: 1, name: 'Star Health Insurance', code: 'STAR' },
-                { id: 2, name: 'ICICI Lombard', code: 'ICICI' },
-                { id: 3, name: 'Medi Assist TPA', code: 'MEDI' }
-            ]);
+            // Never invent insurers — empty state instead of fabricated provider rows.
+            setProviders([]);
         } finally {
             setLoading(false);
         }

@@ -5,25 +5,11 @@ const BedTransferManager = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showRequest, setShowRequest] = useState(false);
 
-  const pendingTransfers = [
-    { id: 'TRF-301', patient: 'Ramesh Gupta (P-1045)', from: 'ICU Bed 3', to: 'Ward A - Bed 12', reason: 'Step-down: Stable vitals for 24h', requestedBy: 'Dr. Priya Sharma', time: '15:30', priority: 'High', status: 'Awaiting Approval' },
-    { id: 'TRF-302', patient: 'Meena Sharma (P-1023)', from: 'Ward A - Bed 8', to: 'ICU Bed 5', reason: 'Deterioration: SpO2 dropped to 88%', requestedBy: 'Nurse Kavita', time: '14:45', priority: 'Urgent', status: 'Doctor Review' },
-    { id: 'TRF-303', patient: 'Anil Mehta (P-1067)', from: 'Ward B - Bed 14', to: 'Ward A - Bed 3', reason: 'Patient request: closer to nursing station', requestedBy: 'Ward B Incharge', time: '13:20', priority: 'Low', status: 'Awaiting Approval' },
-  ];
+  const pendingTransfers = [];
 
-  const approvedTransfers = [
-    { id: 'TRF-298', patient: 'Vikram Singh (P-998)', from: 'ER Bay 4', to: 'Ward B - Bed 7', reason: 'ER to ward admission', approvedBy: 'Dr. Rajesh Kumar', approvedAt: '12:00', executedAt: '12:25', duration: '25 min' },
-    { id: 'TRF-297', patient: 'Fatima Khan (P-1012)', from: 'OT Recovery', to: 'Ward A - Bed 15', reason: 'Post-op recovery complete', approvedBy: 'Dr. Meena Iyer', approvedAt: '11:30', executedAt: '11:50', duration: '20 min' },
-    { id: 'TRF-296', patient: 'Suresh Patel (P-987)', from: 'Ward A - Bed 6', to: 'ICU Bed 1', reason: 'Post-cardiac arrest monitoring', approvedBy: 'Dr. Priya Sharma', approvedAt: '10:15', executedAt: '10:22', duration: '7 min' },
-  ];
+  const approvedTransfers = [];
 
-  const transferHistory = [
-    { id: 'TRF-295', patient: 'Neha Gupta (P-1034)', from: 'ICU', to: 'Ward B', date: '2026-03-01', reason: 'Step-down', status: 'Completed', duration: '15 min' },
-    { id: 'TRF-294', patient: 'Ravi Joshi (P-1001)', from: 'ER', to: 'OT-1', date: '2026-03-01', reason: 'Emergency surgery', status: 'Completed', duration: '8 min' },
-    { id: 'TRF-293', patient: 'Priya Sen (P-978)', from: 'Ward A', to: 'Ward B', date: '2026-03-01', reason: 'Isolation required', status: 'Completed', duration: '30 min' },
-    { id: 'TRF-292', patient: 'Amit Verma (P-1056)', from: 'NICU', to: 'Pediatrics', date: '2026-02-28', reason: 'Neonatal discharge', status: 'Completed', duration: '20 min' },
-    { id: 'TRF-291', patient: 'Rekha Jain (P-945)', from: 'Ward B', to: 'ICU', date: '2026-02-28', reason: 'Sepsis escalation', status: 'Completed', duration: '5 min' },
-  ];
+  const transferHistory = [];
 
   const availableBeds = [
     { ward: 'ICU', total: 12, occupied: 10, available: 2, beds: ['ICU-5', 'ICU-11'] },

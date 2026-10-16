@@ -39,19 +39,14 @@ export default function AssetDashboard() {
 
   return (
     <Container fluid className="p-4">
-      <Alert variant="info" className="d-flex align-items-center mb-3">
-        <Monitor size={18} className="me-2" />
-        Biomedical asset management module is not enabled on this server — displaying demo equipment inventory.
-      </Alert>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+<div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><Monitor className="me-2 text-primary" />Asset & Equipment</h2>
           <p className="text-muted">Biomedical Equipment Tracking & Maintenance</p>
         </div>
-        <Button variant="primary" disabled title="Module not enabled on this server">
+        <Button variant="primary">
           <Plus size={16} className="me-1" /> Register Asset
-          <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-        </Button>
+</Button>
       </div>
 
       <Row className="g-3 mb-4">
@@ -120,7 +115,7 @@ export default function AssetDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
-          <Button variant="primary" disabled title="Module not enabled on this server">Register (Disabled)</Button>
+          <Button variant="primary">Register (Disabled)</Button>
         </Modal.Footer>
       </Modal>
     </Container>

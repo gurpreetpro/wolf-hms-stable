@@ -1,25 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Form, Tabs, Tab, ListGroup, Alert } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const TelehealthConsole = () => {
   const [activeTab, setActiveTab] = useState('waitingroom');
   const [inCall, setInCall] = useState(false);
+  const [waitingRoom, setWaitingRoom] = useState([]);
+  const [todaySchedule, setTodaySchedule] = useState([]);
 
-  const waitingRoom = [
-    { id: 'TH-401', patient: 'Rajesh Kumar', mrn: 'MRN-1045', type: 'Follow-up', waitTime: '5 min', priority: 'Normal', complaint: 'Diabetes medication review', vitals: 'BP: 138/86, Sugar: 180 mg/dL' },
-    { id: 'TH-402', patient: 'Anita Desai', mrn: 'MRN-1078', type: 'Urgent', waitTime: '12 min', priority: 'High', complaint: 'Persistent cough with fever 3 days', vitals: 'Temp: 38.4C, SpO2: 94%' },
-    { id: 'TH-403', patient: 'Priya Singh', mrn: 'MRN-1056', type: 'New Consult', waitTime: '2 min', priority: 'Normal', complaint: 'Skin rash assessment', vitals: 'N/A' },
-  ];
-
-  const todaySchedule = [
-    { time: '09:00 AM', patient: 'Vikram Iyer', type: 'Follow-up', status: 'Completed', duration: '15 min' },
-    { time: '09:30 AM', patient: 'Lakshmi Nair', type: 'Review', status: 'Completed', duration: '12 min' },
-    { time: '10:00 AM', patient: 'Rajesh Kumar', type: 'Follow-up', status: 'In Waiting', duration: '--' },
-    { time: '10:30 AM', patient: 'Anita Desai', type: 'Urgent', status: 'In Waiting', duration: '--' },
-    { time: '11:00 AM', patient: 'Priya Singh', type: 'New Consult', status: 'In Waiting', duration: '--' },
-    { time: '11:30 AM', patient: 'Mohammed Ali', type: 'Follow-up', status: 'Scheduled', duration: '--' },
-    { time: '02:00 PM', patient: 'Kavita Mehta', type: 'Post-op Review', status: 'Scheduled', duration: '--' },
-  ];
+  // Live sessions from the telehealth module (no fabricated rows)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/telehealth/sessions');
+        const all = res.data.data || res.data.sessions || [];
+        setWaitingRoom(all.filter(s => s.status === 'Waiting'));
+        setTodaySchedule(all.filter(s => s.status !== 'Waiting'));
+      } catch (err) {
+        console.error('[TelehealthConsole] session load failed:', err.message);
+        setWaitingRoom([]);
+        setTodaySchedule([]);
+      }
+    })();
+  }, []);
 
   const ePrescriptionDrugs = [
     { drug: 'Azithromycin 500mg', dosage: '1-0-0', days: 5, instructions: 'Take on empty stomach' },
@@ -28,8 +31,12 @@ const TelehealthConsole = () => {
   ];
 
   const metrics = {
-    todayConsults: 7, completed: 2, avgDuration: '14 min',
-    satisfaction: 4.6, totalThisWeek: 34, noShowRate: '8%'
+    todayConsults: waitingRoom.length + todaySchedule.length,
+    completed: todaySchedule.length,
+    avgDuration: '—',
+    satisfaction: '—',
+    totalThisWeek: waitingRoom.length + todaySchedule.length,
+    noShowRate: '—'
   };
 
   return (

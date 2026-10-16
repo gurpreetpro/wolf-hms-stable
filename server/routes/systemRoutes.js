@@ -102,6 +102,9 @@ router.get('/health/obs', protect, authorize('super_admin', 'platform_owner', 'a
                 error: MetricsCollector.metrics.requests.error
             },
             errorRateWindow: MetricsCollector.getErrorRateWindow(15 * 60 * 1000),
+            slowQueriesLast15m: typeof MetricsCollector.getSlowQueriesLast15m === 'function' ? MetricsCollector.getSlowQueriesLast15m() : 0,
+            poolWaitingCount: dbPoolStats.waitingCount || 0,
+            topSlowEndpoints: typeof MetricsCollector.getTopSlowEndpoints === 'function' ? MetricsCollector.getTopSlowEndpoints(5) : [],
             activeSockets,
             dbPool: dbPoolStats
         });

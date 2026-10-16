@@ -5,24 +5,9 @@ const AuditTrail = () => {
   const [activeTab, setActiveTab] = useState('events');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const auditEvents = [
-    { id: 'AE-10045', timestamp: '2026-03-02 10:45:12', user: 'Dr. Sharma', role: 'Physician', module: 'EMR', action: 'UPDATE', resource: 'Patient Record (MRN-1045)', details: 'Modified medication list - added Metformin 500mg', ip: '192.168.1.45', session: 'S-8821' },
-    { id: 'AE-10044', timestamp: '2026-03-02 10:42:08', user: 'Nurse Priya', role: 'Nurse', module: 'Vitals', action: 'CREATE', resource: 'Vitals Entry (MRN-1078)', details: 'Recorded BP: 120/80, Temp: 37.2C, SpO2: 98%', ip: '192.168.1.52', session: 'S-8819' },
-    { id: 'AE-10043', timestamp: '2026-03-02 10:38:55', user: 'Admin Ravi', role: 'Admin', module: 'Reports', action: 'EXPORT', resource: 'Lab Report Bundle', details: 'Exported 15 lab reports for external audit', ip: '192.168.1.10', session: 'S-8815' },
-    { id: 'AE-10042', timestamp: '2026-03-02 10:30:22', user: 'Dr. Patel', role: 'Physician', module: 'Orders', action: 'CREATE', resource: 'Lab Order (MRN-1067)', details: 'Ordered CBC, RFT, LFT for pre-op assessment', ip: '192.168.1.48', session: 'S-8812' },
-    { id: 'AE-10041', timestamp: '2026-03-02 10:25:10', user: 'Pharmacist Deepa', role: 'Pharmacist', module: 'Pharmacy', action: 'DISPENSE', resource: 'Rx-4421 (MRN-1045)', details: 'Dispensed Metformin 500mg x 90 tabs', ip: '192.168.1.35', session: 'S-8810' },
-    { id: 'AE-10040', timestamp: '2026-03-02 10:20:05', user: 'System', role: 'System', module: 'Auth', action: 'LOGIN_FAIL', resource: 'User: unknown_user', details: 'Failed login attempt - invalid credentials (3rd attempt)', ip: '203.45.67.89', session: 'N/A' },
-    { id: 'AE-10039', timestamp: '2026-03-02 10:15:30', user: 'Billing Meena', role: 'Billing', module: 'Billing', action: 'UPDATE', resource: 'Invoice INV-2210', details: 'Applied insurance adjustment Rs.1,200', ip: '192.168.1.28', session: 'S-8808' },
-    { id: 'AE-10038', timestamp: '2026-03-02 10:10:18', user: 'Dr. Reddy', role: 'Physician', module: 'EMR', action: 'DELETE', resource: 'Clinical Note (MRN-1023)', details: 'Deleted draft note - replaced with final version', ip: '192.168.1.50', session: 'S-8805' },
-  ];
+  const auditEvents = [];
 
-  const userActivity = [
-    { user: 'Dr. Sharma', sessions: 12, actions: 145, lastActive: '10:45 AM', avgDuration: '6.2h', topModule: 'EMR', riskScore: 'Low' },
-    { user: 'Nurse Priya', sessions: 8, actions: 98, lastActive: '10:42 AM', avgDuration: '8.5h', topModule: 'Vitals', riskScore: 'Low' },
-    { user: 'Admin Ravi', sessions: 5, actions: 67, lastActive: '10:38 AM', avgDuration: '4.1h', topModule: 'Reports', riskScore: 'Medium' },
-    { user: 'Receptionist Anil', sessions: 3, actions: 42, lastActive: '09:30 AM', avgDuration: '3.8h', topModule: 'Registration', riskScore: 'High' },
-    { user: 'Dr. Patel', sessions: 10, actions: 132, lastActive: '10:30 AM', avgDuration: '7.0h', topModule: 'Orders', riskScore: 'Low' },
-  ];
+  const userActivity = [];
 
   const actionColor = (a) => {
     if (a === 'CREATE') return 'success';

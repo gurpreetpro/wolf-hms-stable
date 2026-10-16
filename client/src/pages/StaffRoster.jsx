@@ -4,31 +4,11 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Form, Progr
 const StaffRoster = () => {
   const [activeTab, setActiveTab] = useState('roster');
 
-  const todayRoster = [
-    { name: 'Dr. Priya Sharma', dept: 'Cardiology', role: 'Senior Consultant', shift: 'Morning (7AM-3PM)', status: 'On Duty', phone: '+91-98765-43210' },
-    { name: 'Dr. Rajesh Kumar', dept: 'Orthopedics', role: 'HOD', shift: 'Morning (7AM-3PM)', status: 'On Duty', phone: '+91-98765-43211' },
-    { name: 'Nurse Anita Desai', dept: 'ICU', role: 'Head Nurse', shift: 'Morning (7AM-3PM)', status: 'On Duty', phone: '+91-98765-43212' },
-    { name: 'Dr. Suresh Patel', dept: 'Emergency', role: 'Consultant', shift: 'Afternoon (3PM-11PM)', status: 'Upcoming', phone: '+91-98765-43213' },
-    { name: 'Nurse Kavita Rao', dept: 'General Ward', role: 'Staff Nurse', shift: 'Afternoon (3PM-11PM)', status: 'Upcoming', phone: '+91-98765-43214' },
-    { name: 'Dr. Meena Iyer', dept: 'Pediatrics', role: 'Consultant', shift: 'Night (11PM-7AM)', status: 'Off Duty', phone: '+91-98765-43215' },
-    { name: 'Tech. Arun Nair', dept: 'Radiology', role: 'Sr. Technician', shift: 'Morning (7AM-3PM)', status: 'On Duty', phone: '+91-98765-43216' },
-    { name: 'Dr. Fatima Khan', dept: 'OB-GYN', role: 'Consultant', shift: 'On Call (24h)', status: 'On Call', phone: '+91-98765-43217' },
-  ];
+  const todayRoster = [];
 
-  const leaveCalendar = [
-    { name: 'Dr. Anil Mehta', dept: 'Surgery', type: 'Annual Leave', from: '2026-03-05', to: '2026-03-10', days: 6, status: 'Approved', coverage: 'Dr. R. Kumar' },
-    { name: 'Nurse Priya S.', dept: 'ICU', type: 'Sick Leave', from: '2026-03-02', to: '2026-03-03', days: 2, status: 'Approved', coverage: 'Nurse K. Rao' },
-    { name: 'Dr. Vikram Singh', dept: 'Cardiology', type: 'CME Leave', from: '2026-03-08', to: '2026-03-09', days: 2, status: 'Approved', coverage: 'Dr. P. Sharma' },
-    { name: 'Tech. Ravi Joshi', dept: 'Lab', type: 'Personal Leave', from: '2026-03-04', to: '2026-03-04', days: 1, status: 'Pending', coverage: 'TBD' },
-    { name: 'Dr. Neha Gupta', dept: 'Dermatology', type: 'Maternity Leave', from: '2026-03-15', to: '2026-06-15', days: 90, status: 'Approved', coverage: 'Dr. S. Verma (Locum)' },
-  ];
+  const leaveCalendar = [];
 
-  const overtime = [
-    { name: 'Nurse Anita Desai', dept: 'ICU', regularHrs: 160, overtimeHrs: 24, totalHrs: 184, rate: 'Rs.350/hr', amount: 'Rs.8,400', month: 'Feb 2026' },
-    { name: 'Dr. Suresh Patel', dept: 'Emergency', regularHrs: 160, overtimeHrs: 32, totalHrs: 192, rate: 'Rs.800/hr', amount: 'Rs.25,600', month: 'Feb 2026' },
-    { name: 'Nurse Kavita Rao', dept: 'General Ward', regularHrs: 160, overtimeHrs: 18, totalHrs: 178, rate: 'Rs.300/hr', amount: 'Rs.5,400', month: 'Feb 2026' },
-    { name: 'Tech. Arun Nair', dept: 'Radiology', regularHrs: 160, overtimeHrs: 12, totalHrs: 172, rate: 'Rs.250/hr', amount: 'Rs.3,000', month: 'Feb 2026' },
-  ];
+  const overtime = [];
 
   return (
     <Container fluid className="py-3">

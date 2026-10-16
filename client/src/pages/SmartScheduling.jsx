@@ -4,27 +4,11 @@ import { Container, Row, Col, Card, Table, Badge, Button, Form, Tabs, Tab, Progr
 const SmartScheduling = () => {
   const [activeTab, setActiveTab] = useState('optimization');
 
-  const scheduleSuggestions = [
-    { id: 'SS-01', patient: 'Rajesh Kumar', type: 'Follow-up', currentSlot: 'Mon 10:00 AM', suggestedSlot: 'Tue 11:30 AM', reason: 'Doctor has 3 back-to-back complex cases Mon AM', confidence: 92, impact: 'Reduces wait by 25 min' },
-    { id: 'SS-02', patient: 'Anita Desai', type: 'Lab Review', currentSlot: 'Wed 09:00 AM', suggestedSlot: 'Wed 02:00 PM', reason: 'Lab results expected by 1 PM — avoid wasted visit', confidence: 88, impact: 'Prevents re-visit' },
-    { id: 'SS-03', patient: 'Priya Singh', type: 'Consultation', currentSlot: 'Thu 03:00 PM', suggestedSlot: 'Thu 10:00 AM', reason: 'Patient travel distance 45km — earlier slot reduces fatigue', confidence: 75, impact: 'Better patient experience' },
-    { id: 'SS-04', patient: 'Mohammed Ali', type: 'Dialysis', currentSlot: 'Fri 08:00 AM', suggestedSlot: 'No change', reason: 'Optimal slot — dialysis unit least busy', confidence: 95, impact: 'Already optimal' },
-  ];
+  const scheduleSuggestions = [];
 
-  const noShowPredictions = [
-    { patient: 'Vikram Iyer', appointment: 'Mon 11:00 AM', doctor: 'Dr. Patel', risk: 78, factors: ['3 prior no-shows', 'Distance > 30km', 'No reminder response'], action: 'Double-book slot' },
-    { patient: 'Lakshmi Nair', appointment: 'Tue 02:00 PM', doctor: 'Dr. Sharma', risk: 65, factors: ['1 prior no-show', 'Weather forecast: rain', 'Chronic condition — low urgency'], action: 'Send reminder 2h before' },
-    { patient: 'Arun Das', appointment: 'Wed 10:00 AM', doctor: 'Dr. Reddy', risk: 42, factors: ['New patient', 'Self-referral', 'No deposit paid'], action: 'Confirmation call' },
-    { patient: 'Kavita Mehta', appointment: 'Thu 09:30 AM', doctor: 'Dr. Khan', risk: 15, factors: ['Regular patient', 'Post-surgical follow-up', 'Deposit paid'], action: 'No action needed' },
-  ];
+  const noShowPredictions = [];
 
-  const doctorLoad = [
-    { doctor: 'Dr. Sharma', specialty: 'Medicine', scheduled: 24, capacity: 28, utilization: 86, overbookedSlots: 2, avgWait: '18 min' },
-    { doctor: 'Dr. Patel', specialty: 'Cardiology', scheduled: 18, capacity: 20, utilization: 90, overbookedSlots: 1, avgWait: '22 min' },
-    { doctor: 'Dr. Reddy', specialty: 'Surgery', scheduled: 12, capacity: 16, utilization: 75, overbookedSlots: 0, avgWait: '12 min' },
-    { doctor: 'Dr. Khan', specialty: 'Ortho', scheduled: 20, capacity: 22, utilization: 91, overbookedSlots: 3, avgWait: '28 min' },
-    { doctor: 'Dr. Gupta', specialty: 'Pediatrics', scheduled: 15, capacity: 24, utilization: 63, overbookedSlots: 0, avgWait: '8 min' },
-  ];
+  const doctorLoad = [];
 
   const weeklyMetrics = {
     totalAppointments: 342, noShowRate: 12.4, avgWaitTime: '19 min', utilizationRate: 81,

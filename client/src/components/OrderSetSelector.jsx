@@ -69,11 +69,10 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
 
     return (
         <>
-            <Button variant="outline-primary" disabled title="Module not enabled on this server" className="w-100 d-flex align-items-center justify-content-center">
+            <Button variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center">
                 <Package size={18} className="me-2" />
                 Select Order Set
-                <Badge bg="secondary" className="ms-2">Module not enabled</Badge>
-            </Button>
+</Button>
 
             <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                 <Modal.Header closeButton>

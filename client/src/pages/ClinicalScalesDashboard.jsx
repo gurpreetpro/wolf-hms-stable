@@ -4,15 +4,7 @@ import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab } from 'reac
 const ClinicalScalesDashboard = () => {
   const [activeTab, setActiveTab] = useState('active');
 
-  const activeAssessments = [
-    { patient: 'Ramesh Gupta (P-1045)', ward: 'ICU-3', scale: 'GCS', score: '8/15 (E2V2M4)', interpretation: 'Severe Brain Injury', trend: '↓ from 10', lastAssessed: '15:45', assessedBy: 'Nurse Anita', nextDue: '17:45', alert: true },
-    { patient: 'Meena Sharma (P-1023)', ward: 'Ward A-12', scale: 'NEWS-2', score: '7', interpretation: 'High Clinical Risk', trend: '↑ from 4', lastAssessed: '15:30', assessedBy: 'Nurse Kavita', nextDue: '16:30', alert: true },
-    { patient: 'Suresh Patel (P-987)', ward: 'ICU-1', scale: 'APACHE II', score: '22', interpretation: 'Predicted Mortality 40%', trend: '→ stable', lastAssessed: '14:00', assessedBy: 'Dr. Priya', nextDue: '20:00', alert: false },
-    { patient: 'Anil Mehta (P-1067)', ward: 'Ward B-14', scale: 'Braden', score: '12/23', interpretation: 'High Risk Pressure Injury', trend: '↓ from 14', lastAssessed: '14:30', assessedBy: 'Nurse Renu', nextDue: '20:30', alert: true },
-    { patient: 'Rajesh Kumar (P-956)', ward: 'PACU-2', scale: 'Aldrete', score: '7/10', interpretation: 'Not Ready for Discharge', trend: '↑ from 5', lastAssessed: '15:00', assessedBy: 'Nurse Maya', nextDue: '15:30', alert: false },
-    { patient: 'Lakshmi Devi (P-1078)', ward: 'Ward A-8', scale: 'Norton', score: '10/20', interpretation: 'Very High Risk Falls', trend: '→ stable', lastAssessed: '13:00', assessedBy: 'Nurse Pooja', nextDue: '19:00', alert: true },
-    { patient: 'Baby Arun (P-1089)', ward: 'NICU-4', scale: 'APGAR', score: '6 (1min) → 8 (5min)', interpretation: 'Normal Recovery', trend: '↑', lastAssessed: '12:30', assessedBy: 'Dr. Sunita', nextDue: 'N/A', alert: false },
-  ];
+  const activeAssessments = [];
 
   const scaleDefinitions = [
     { name: 'GCS (Glasgow Coma Scale)', range: '3-15', components: 'Eye (1-4) + Verbal (1-5) + Motor (1-6)', frequency: 'q2h in ICU, q4h in ward', thresholds: '≤8 Severe, 9-12 Moderate, 13-15 Mild', usage: 'Head injury, altered consciousness' },

@@ -1,8 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Form } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const CloudBackupConsole = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [dbSummary, setDbSummary] = useState({ database_size_mb: '—', tables: '—', patients: '—', admitted: '—' });
+
+  // Live data-integrity facts from the console endpoint (no fabricated backup rows)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/cloud-backup/summary');
+        const row = (res.data.data || [])[0] || (res.data.summary || {});
+        setDbSummary({
+          database_size_mb: row.database_size_mb != null ? row.database_size_mb : '—',
+          tables: row.tables != null ? row.tables : '—',
+          patients: row.patients != null ? row.patients : '—',
+          admitted: row.admitted != null ? row.admitted : '—',
+        });
+      } catch (err) {
+        console.error('[CloudBackupConsole] summary load failed:', err.message);
+        setDbSummary({ database_size_mb: '—', tables: '—', patients: '—', admitted: '—' });
+      }
+    })();
+  }, []);
 
   const backupHistory = [
     { id: 'BK-2026-090', type: 'Full', size: '2.4 GB', started: '02:00 AM', completed: '02:18 AM', duration: '18 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '30 days' },
@@ -51,11 +72,11 @@ const CloudBackupConsole = () => {
       </div>
 
       <Row className="mb-3">
-        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">90</h3><small>Backups (30d)</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">100%</h3><small>Success Rate</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">2.4 GB</h3><small>Latest Full Backup</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">18 min</h3><small>Latest Backup Duration</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-danger"><Card.Body><h3 style={{color:'#198754'}}>2.5h</h3><small>RTO Actual</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{dbSummary.tables}</h3><small>DB Tables</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{dbSummary.patients}</h3><small>Patients (live)</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">{dbSummary.database_size_mb} MB</h3><small>Database Size</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{dbSummary.admitted}</h3><small>Admitted Now</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-danger"><Card.Body><h3 style={{color:'#198754'}}>{'< 4h'}</h3><small>RTO Target</small></Card.Body></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-3">

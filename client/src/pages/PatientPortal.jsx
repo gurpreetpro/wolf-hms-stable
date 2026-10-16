@@ -10,11 +10,7 @@ const PatientPortal = () => {
     allergies: ['Penicillin', 'Sulfa drugs'], conditions: ['Type 2 Diabetes', 'Hypertension', 'CKD Stage 3']
   };
 
-  const upcomingAppointments = [
-    { id: 'APT-301', date: '2026-03-05', time: '10:00 AM', doctor: 'Dr. Sharma', dept: 'Medicine', type: 'Follow-up', status: 'Confirmed' },
-    { id: 'APT-302', date: '2026-03-12', time: '11:30 AM', doctor: 'Dr. Patel', dept: 'Cardiology', type: 'ECG Review', status: 'Pending' },
-    { id: 'APT-303', date: '2026-03-20', time: '09:00 AM', doctor: 'Dr. Reddy', dept: 'Nephrology', type: 'Lab Review', status: 'Confirmed' },
-  ];
+  const upcomingAppointments = [];
 
   const recentReports = [
     { id: 'RPT-501', date: '2026-02-28', name: 'Complete Blood Count', status: 'Ready', critical: false },
@@ -24,27 +20,11 @@ const PatientPortal = () => {
     { id: 'RPT-505', date: '2026-02-20', name: 'Chest X-Ray', status: 'Ready', critical: false },
   ];
 
-  const prescriptions = [
-    { drug: 'Metformin 500mg', dosage: '1-0-1', duration: '90 days', refills: 2, nextRefill: '2026-03-15', doctor: 'Dr. Sharma' },
-    { drug: 'Amlodipine 5mg', dosage: '0-0-1', duration: '90 days', refills: 1, nextRefill: '2026-04-01', doctor: 'Dr. Patel' },
-    { drug: 'Telmisartan 40mg', dosage: '1-0-0', duration: '90 days', refills: 2, nextRefill: '2026-03-15', doctor: 'Dr. Sharma' },
-    { drug: 'Atorvastatin 10mg', dosage: '0-0-1', duration: '60 days', refills: 0, nextRefill: 'Needs renewal', doctor: 'Dr. Patel' },
-  ];
+  const prescriptions = [];
 
-  const bills = [
-    { id: 'INV-2201', date: '2026-02-28', desc: 'OPD Consultation + Labs', total: 3500, paid: 3500, balance: 0, status: 'Paid' },
-    { id: 'INV-2198', date: '2026-02-15', desc: 'Cardiology Review + ECG', total: 2800, paid: 2800, balance: 0, status: 'Paid' },
-    { id: 'INV-2210', date: '2026-03-01', desc: 'Lab Tests (Lipid + RFT)', total: 1800, paid: 0, balance: 1800, status: 'Pending' },
-  ];
+  const bills = [];
 
-  const healthTimeline = [
-    { date: '2026-03-01', event: 'Lab tests ordered (Lipid Profile)', type: 'lab' },
-    { date: '2026-02-28', event: 'Follow-up with Dr. Sharma - medication adjusted', type: 'visit' },
-    { date: '2026-02-28', event: 'HbA1c result: 7.8% (Target < 7%)', type: 'result' },
-    { date: '2026-02-25', event: 'Renal Function Test - eGFR 48 (stable)', type: 'result' },
-    { date: '2026-02-15', event: 'Cardiology review - BP well controlled', type: 'visit' },
-    { date: '2026-02-01', event: 'Annual health checkup completed', type: 'visit' },
-  ];
+  const healthTimeline = [];
 
   return (
     <Container fluid className="py-3">

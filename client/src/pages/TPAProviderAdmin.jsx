@@ -17,12 +17,7 @@ const TPAProviderAdmin = () => {
     { code: 'RSBY', name: 'Rashtriya Swasthya Bima', type: 'Government', plansMapped: 1, patientsActive: 5, claimsThisMonth: 2, settlementRate: '75%', avgTAT: '90 days', apiStatus: 'Offline', lastSync: 'N/A' },
   ];
 
-  const eligibilityChecks = [
-    { patient: 'Ramesh Gupta (P-1045)', provider: 'Star Health', policyNo: 'SH-2026-78432', status: 'Eligible', coverage: 'Rs.5,00,000', copay: '10%', preExisting: '2yr waiting', checkedAt: '16:05' },
-    { patient: 'Meena Devi (P-1078)', provider: 'PMJAY', policyNo: 'PMJAY-MH-45678', status: 'Eligible', coverage: 'Rs.5,00,000', copay: '0%', preExisting: 'Covered', checkedAt: '15:30' },
-    { patient: 'Suresh Patel (P-987)', provider: 'ICICI Lombard', policyNo: 'IL-2025-99123', status: 'Not Eligible', coverage: '-', copay: '-', preExisting: 'Policy Expired', checkedAt: '14:20' },
-    { patient: 'Fatima Khan (P-1012)', provider: 'HDFC ERGO', policyNo: 'HE-2026-55789', status: 'Eligible', coverage: 'Rs.10,00,000', copay: '0%', preExisting: '4yr waiting', checkedAt: '13:10' },
-  ];
+  const eligibilityChecks = [];
 
   const pmjayBeneficiaries = [
     { name: 'Lakshmi Devi', hhid: 'RSBY-MH-2026-001234', aadhar: '****-****-5678', familySize: 5, eligCard: 'Golden Card', district: 'Pune', status: 'Verified', lastVerified: '2026-03-01' },
@@ -30,13 +25,7 @@ const TPAProviderAdmin = () => {
     { name: 'Kamla Bai', hhid: 'RSBY-MH-2026-009012', aadhar: '****-****-3456', familySize: 6, eligCard: 'Pending', district: 'Nagpur', status: 'OTP Sent', lastVerified: '-' },
   ];
 
-  const claimsStatus = [
-    { claimId: 'CLM-4521', patient: 'Vikram Singh', provider: 'Star Health', amount: 'Rs.1,20,000', submitted: '2026-02-20', status: 'Approved', approved: 'Rs.1,15,000', TAT: '10 days' },
-    { claimId: 'CLM-4520', patient: 'Priya Sen', provider: 'ICICI Lombard', amount: 'Rs.85,000', submitted: '2026-02-18', status: 'Under Review', approved: '-', TAT: '12 days' },
-    { claimId: 'CLM-4519', patient: 'Amit Verma', provider: 'PMJAY', amount: 'Rs.45,000', submitted: '2026-02-15', status: 'Approved', approved: 'Rs.45,000', TAT: '15 days' },
-    { claimId: 'CLM-4518', patient: 'Neha Sharma', provider: 'HDFC ERGO', amount: 'Rs.2,30,000', submitted: '2026-02-12', status: 'Partially Approved', approved: 'Rs.1,90,000', TAT: '18 days' },
-    { claimId: 'CLM-4517', patient: 'Rekha Jain', provider: 'Niva Bupa', amount: 'Rs.55,000', submitted: '2026-02-10', status: 'Denied', approved: 'Rs.0', TAT: '20 days' },
-  ];
+  const claimsStatus = [];
 
   return (
     <Container fluid className="py-3">

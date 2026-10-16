@@ -5,19 +5,9 @@ const SpecialistReferralManager = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [showRefer, setShowRefer] = useState(false);
 
-  const pendingReferrals = [
-    { id: 'REF-501', patient: 'Ramesh Gupta (P-1045)', from: 'Dr. Priya Sharma (Gen Medicine)', to: 'Dr. Amit Verma (Cardiology)', reason: 'Persistent arrhythmia, needs EP study evaluation', priority: 'Urgent', requested: '15:30', status: 'Pending Acceptance' },
-    { id: 'REF-502', patient: 'Meena Devi (P-1078)', from: 'Dr. Rajesh Kumar (OB/GYN)', to: 'Dr. Sunita Iyer (Neonatology)', reason: 'High-risk pregnancy — preterm labor signs at 32 weeks', priority: 'Urgent', requested: '14:45', status: 'Pending Acceptance' },
-    { id: 'REF-503', patient: 'Anil Mehta (P-1067)', from: 'Dr. Suresh Patel (Gen Surgery)', to: 'Dr. Rao (Gastroenterology)', reason: 'Pre-op endoscopy for suspected duodenal ulcer', priority: 'High', requested: '13:20', status: 'Scheduling' },
-    { id: 'REF-504', patient: 'Fatima Khan (P-1012)', from: 'Dr. Kavita (ER)', to: 'Dr. Mohan (Orthopedics)', reason: 'Comminuted fracture right tibia — needs surgical fixation', priority: 'High', requested: '12:00', status: 'Accepted' },
-  ];
+  const pendingReferrals = [];
 
-  const completedReferrals = [
-    { id: 'REF-498', patient: 'Vikram Singh (P-998)', from: 'ER', to: 'Cardiology', reason: 'STEMI evaluation', outcome: 'PTCA + Stenting done', duration: '2 days', satisfaction: '5/5' },
-    { id: 'REF-497', patient: 'Priya Sen (P-978)', from: 'Gen Medicine', to: 'Pulmonology', reason: 'Chronic cough 6 weeks', outcome: 'TB ruled out, Asthma diagnosed', duration: '3 days', satisfaction: '4/5' },
-    { id: 'REF-496', patient: 'Rekha Jain (P-945)', from: 'OB/GYN', to: 'Anesthesiology', reason: 'Pre-anesthetic checkup for LSCS', outcome: 'Cleared for spinal anesthesia', duration: '1 day', satisfaction: '5/5' },
-    { id: 'REF-495', patient: 'Suresh Patel (P-987)', from: 'Gen Medicine', to: 'Nephrology', reason: 'Elevated creatinine (3.2)', outcome: 'CKD Stage 3 — dialysis not yet needed', duration: '4 days', satisfaction: '4/5' },
-  ];
+  const completedReferrals = [];
 
   const specialists = [
     { name: 'Dr. Amit Verma', dept: 'Cardiology', specialization: 'Interventional', queue: 2, avgWait: '1.5 hrs', availability: 'Available', rating: '4.8/5' },
