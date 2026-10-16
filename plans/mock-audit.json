@@ -1,19 +1,18 @@
 {
   "summary": {
-    "generatedAt": "2026-10-16T10:39:33.258Z",
+    "generatedAt": "2026-10-16T10:57:44.413Z",
     "scannedFiles": 377,
     "filesWithFindings": 92,
     "counts": {
-      "DISCONNECTED": 7,
+      "DISCONNECTED": 6,
       "PURE_MOCK": 55,
-      "SILENT_FALLBACK": 19,
+      "SILENT_FALLBACK": 20,
       "BUCKET_C": 12,
       "PHASE_LEAK": 0
     },
     "disconnectedScreens": [
       "client/src/pages/CloudBackupConsole.jsx",
       "client/src/pages/EarlyWarningScore.jsx",
-      "client/src/pages/EmergencyCommandCenter.jsx",
       "client/src/pages/POSTerminal.jsx",
       "client/src/pages/ProblemListManager.jsx",
       "client/src/pages/TelehealthConsole.jsx",
@@ -91,8 +90,8 @@
       "client/src/components/OrderSetSelector.jsx"
     ],
     "backendMounts": 105,
-    "backendRouters": 132,
-    "backendControllers": 89
+    "backendRouters": 133,
+    "backendControllers": 90
   },
   "records": [
     {
@@ -1502,65 +1501,32 @@
         "/admin/emergency"
       ],
       "menuLabels": [],
-      "apiCallCount": 0,
-      "endpointsCalled": [],
+      "apiCallCount": 6,
+      "endpointsCalled": [
+        "/api/emergency/history",
+        "/api/emergency/config",
+        "/api/emergency/trigger",
+        "/api/emergency/resolve"
+      ],
       "bucketCRoutes": [],
       "bucketCLines": [],
-      "rowArrays": [
+      "rowArrays": [],
+      "useStateMock": [],
+      "fakeIds": [],
+      "fakeNames": [],
+      "staticKpi": [],
+      "catchFallbacks": [
         {
-          "name": "activeEmergencies",
-          "objects": 4,
-          "line": 8
-        },
-        {
-          "name": "recentResolved",
-          "objects": 4,
-          "line": 13
-        },
-        {
-          "name": "responseTeams",
-          "objects": 5,
-          "line": 21
-        },
-        {
-          "name": "alertConfig",
-          "objects": 5,
-          "line": 29
+          "line": 44,
+          "signals": [
+            "setState(array literal)"
+          ],
+          "snippet": "console.error('[EmergencyCommandCenter] load failed:', err.message); setError('Unable to load live emergency data. Please retry.'); setActiveEmergenci"
         }
       ],
-      "useStateMock": [],
-      "fakeIds": [
-        "EM-2026-041",
-        "P-1045",
-        "EM-2026-040",
-        "EM-2026-039",
-        "P-987",
-        "EM-2026-038",
-        "P-1023",
-        "EM-2026-037",
-        "P-1089",
-        "EM-2026-036"
-      ],
-      "fakeNames": [
-        "Ramesh Gupta",
-        "Anita Desai",
-        "Priya Sharma",
-        "Rajesh Kumar",
-        "Suresh Patel",
-        "Meena Sharma",
-        "Nurse Anita",
-        "Nurse Kavita",
-        "Dr. Priya",
-        "Baby Arun"
-      ],
-      "staticKpi": [
-        "2.5 min",
-        "96%"
-      ],
-      "catchFallbacks": [],
       "phaseLeaks": [],
       "mockWordLeaks": [],
-      "hasMockRows": true,
+      "hasMockRows": false,
       "domainKeyword": "emergency",
       "keyword": "emergency",
       "backend": {
@@ -1580,7 +1546,7 @@
         "endpointCount": 7
       },
       "kinds": [
-        "DISCONNECTED"
+        "SILENT_FALLBACK"
       ],
       "findings": 1
     },

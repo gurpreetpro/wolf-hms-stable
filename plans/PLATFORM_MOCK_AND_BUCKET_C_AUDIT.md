@@ -1,12 +1,12 @@
 # PLATFORM MOCK-DATA / "PHASE X" SUBTITLE / BUCKET C AUDIT
 
-**Generated:** 2026-10-16T10:39:33.258Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
+**Generated:** 2026-10-16T10:57:44.413Z  ·  **Mode:** READ-ONLY (no app controller or UI file was modified)
 **Scanner:** `scripts/qa/audit-mock-and-disabled-ui.js`  ·  **Raw data:** `plans/mock-audit.json`
 
 ## 0. Scope & method
 
 * Walked **377** files under `client/src/pages` and `client/src/components` (every `.jsx`/`.js`).
-* Cross-referenced against the live route registry (`client/src/App.jsx`) and the mounted backend surface: **105 `/api` prefixes**, **132 route files**, **89 controllers** (parsed from `server/server-cloud.js`).
+* Cross-referenced against the live route registry (`client/src/App.jsx`) and the mounted backend surface: **105 `/api` prefixes**, **133 route files**, **90 controllers** (parsed from `server/server-cloud.js`).
 * Bucket C seed list = `plans/bucket_c_routes.json` (20 frontend calls with no backend mount).
 * "Does the API work?" is answered from **local** evidence (`scripts/qa/500-hunter-report.json` + the QA-P2 heals). **Production was NOT probed — code freeze in force.**
 * Heuristics: hardcoded row arrays = `const x = [ {…}, {…} ]` with ≥2 object keys; empty-API screens = zero `api./axios./fetch(` matches; fake-data fingerprints = `EM-2026-d+`, `P-1045`, `MRN-d+`, `TRF-d+`, `CON-d+`, `CLM-d+`, plus a curated Indian-name dictionary (Ramesh Gupta, Anita Desai, Priya Sharma, …).
@@ -16,9 +16,9 @@
 
 | Class | Count | Meaning |
 |---|---|---|
-| **A — Disconnected** | **7** | mock UI + real backend already mounted |
+| **A — Disconnected** | **6** | mock UI + real backend already mounted |
 | **B — Pure static mock** | **55** | mock UI, no backend twin yet |
-| **C — Silent catch/state fallback** | **19** | API called, but fake data injected on failure/empty |
+| **C — Silent catch/state fallback** | **20** | API called, but fake data injected on failure/empty |
 | **D — Bucket C "Module not enabled"** | **12** | intentionally-disabled modules |
 | **E — Developer subtitle / mock wording** | **0** | visible "Phase N -- …"/"Mock"/"Demo Mode" text |
 | Files with ≥1 finding | **92 / 377** | |
@@ -29,31 +29,10 @@
 |---|---|---|---|---|
 | `client/src/pages/POSTerminal.jsx` | /admin/pos | 4 hardcoded row array(s): currentQueue, todayTransactions, serviceModules · IDs: P-1045 · Names: Ramesh Gupta, Anil Mehta | mount `/api/pos` · `server/routes/posRoutes.js` · `server/controllers/posController.js` · 29 endpoints | Low |
 | `client/src/pages/CloudBackupConsole.jsx` | /admin/cloud-backup | 4 hardcoded row array(s): backupHistory, schedule, drMetrics · static KPI: 90, 100%, 18 min | `server/routes/cloudBackupRoutes.js` · 10 endpoints | Low |
-| `client/src/pages/EmergencyCommandCenter.jsx` | /admin/emergency | 4 hardcoded row array(s): activeEmergencies, recentResolved, responseTeams · IDs: EM-2026-041, P-1045, EM-2026-040, EM-2026-039 · Names: Ramesh Gupta, Anita Desai, Priya Sharma, Rajesh Kumar · static KPI: 2.5 min, 96% | mount `/api/emergency` · `server/routes/emergencyRoutes.js` · `server/controllers/emergencyController.js` · 7 endpoints | Low |
 | `client/src/pages/ProblemListManager.jsx` | /admin/problem-list | 2 hardcoded row array(s): activeProblems, resolvedProblems · IDs: P-1045, P-1078, P-1067, P-998 · Names: Ramesh Gupta, Priya Sharma, Rajesh Kumar, Suresh Patel · static KPI: 8, 4, 3, 2 | `server/routes/problemListRoutes.js` · `server/controllers/problemListController.js` · 5 endpoints | Low |
 | `client/src/pages/TelehealthConsole.jsx` | /admin/telehealth | 3 hardcoded row array(s): waitingRoom, todaySchedule, ePrescriptionDrugs · IDs: MRN-1045, MRN-1078, MRN-1056 · Names: Anita Desai, Rajesh Kumar, Priya Singh, Mohammed Ali | mount `/api/telehealth` · `server/routes/telehealthRoutes.js` · 4 endpoints | Low |
 | `client/src/pages/WardPassManager.jsx` | /admin/ward-pass | 3 hardcoded row array(s): activePasses, returnedPasses, policies · IDs: P-1045, P-1023, P-1067, P-998 · Names: Ramesh Gupta, Priya Sharma, Suresh Patel, Meena Sharma · static KPI: 95% | `server/routes/wardPassRoutes.js` · `server/controllers/wardPassController.js` · 3 endpoints | Low |
 | `client/src/pages/EarlyWarningScore.jsx` | /admin/ews | 2 hardcoded row array(s): patients, escalationProtocol · IDs: MRN-1023, MRN-1045, MRN-1078, MRN-1056 · Names: Anita Desai, Rajesh Kumar, Priya Singh, Suresh Menon | mount `/api/reviews` · 0 endpoints | Med |
-
-### Table A.1 — `/admin/emergency` wiring plan (the reported production defect)
-
-* **File:** `client/src/pages/EmergencyCommandCenter.jsx` — **zero** API calls today; all four arrays are module-level constants (`activeEmergencies` L8-11, `recentResolved` L13-19, `responseTeams` L21-27, `alertConfig` L29-36).
-* **Leaked subtitle:** line 43 — `Phase 12 -- Code blue/red triggers, response teams, resolution tracking`.
-* **Hardcoded KPI cards:** lines 55-59 — `{activeEmergencies.length}`, `{recentResolved.length}`, `2.5 min`, `{responseTeams.length}`, `96%`.
-* **Dead buttons:** `Resolve` (L85) and `TRIGGER NOW` (L194) only call `setShowTrigger(false)` — no request is ever sent.
-
-**Wire it to (all already mounted under `/api/emergency`):**
-
-| UI element | Endpoint to call | Notes |
-|---|---|---|
-| Active Emergencies table | `GET /api/emergency/status` | returns `{ id, code, location, status, triggered_at, triggered_by }` — verified 200 locally after migration 310 |
-| Resolved Today table | `GET /api/emergency/history` | **MISSING** — must be added to `emergencyController.js` (query `emergency_logs WHERE status='Resolved' ORDER BY resolved_at DESC`) |
-| KPI cards | derived from the two lists + `AVG(resolved_at - triggered_at)` | `2.5 min` / `96%` have no source today |
-| TRIGGER EMERGENCY modal | `POST /api/emergency/trigger` | body `{ code: 'Blue'|'Red'|…, location, notes }` — controller normalises `Blue` → `CODE_BLUE` |
-| Resolve button | `POST /api/emergency/resolve` | body `{ id, resolution_notes }` (already emits `emergency_resolved` over Socket.IO) |
-| Response Teams / Alert Config tabs | `GET /api/emergency/config` | returns routing config; team rosters are not persisted yet |
-
-**Also remove:** the hardcoded subtitle (line 43) and the mock arrays; add a socket subscription to `emergency_broadcast` so the table updates without a refresh.
 
 ## Table B — Pure Static Mock Screens (no backend exists yet)
 
@@ -135,6 +114,7 @@
 | `client/src/components/settings/TOTPVerify.jsx` | /api/2fa/login-verify | 1 catch block(s): setState(array literal) | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/components/ShiftHandoverReport.jsx` | /api/nurse/shift-handover<br>/api/nurse/handover/notes<br>/api/nurse/handover/notes/${patient.admission_id} | 1 catch block(s): setState(array literal) | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/pages/AdminRecoveryConsole.jsx` | /api/admin/recovery/stats<br>/api/admin/recovery/patients<br>/api/admin/recovery/audit-logs | 1 catch block(s): \|\| [] fallback array · 1 useState([...]) seed with object literals | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
+| `client/src/pages/EmergencyCommandCenter.jsx` | /api/emergency/history<br>/api/emergency/config<br>/api/emergency/trigger | 1 catch block(s): setState(array literal) | FAILED 500 (missing emergency_logs columns) — FIXED locally in QA-P2 (migration 310) |
 | `client/src/pages/InsuranceCommandCenter.jsx` | — | 1 catch block(s): setState(array literal) | No explicit endpoint captured — inspect the catch source manually |
 | `client/src/pages/NeonatalDashboard.jsx` | /api/neonatal/babies<br>/api/neonatal/admit | 1 catch block(s): fake patient/staff name, setState(array literal) · names: Priya Sharma | Responds locally (2xx/4xx) — prod NOT probed (code freeze) |
 | `client/src/pages/PriceApprovals.jsx` | /api/pharmacy/price-requests<br>/api/lab/requests<br>/api/ward/requests | 1 catch block(s): setState(array literal), \|\| [] fallback array | FAILS locally: 500 UNKNOWN (records/columns absent) — prod NOT probed (code freeze) |
