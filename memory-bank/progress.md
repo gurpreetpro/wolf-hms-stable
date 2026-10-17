@@ -1,4 +1,11 @@
 ## ✅ Completed & Verified
+### GALAXY WAVES 1, 2 & 2B DEPLOYMENT (2026-10-17, Production VPS 185.213.27.158)
+- [x] **GitHub Push:** Pushed f41b95..b711204 to origin/main (Waves 1, 2, 2B UI wiring, mutations, E2E tests).
+- [x] **Delta Pack & Assets:** Deployed bundle index-CmiIAuQj.js and synced to client/dist/.
+- [x] **Schema & Types Alignment:** Converted icu_ventilator_logs.admission_id and icu_fluid_io_charting.admission_id to UUID; pre-created Wave 2 tables with UUID dmission_id.
+- [x] **Migrations 312 & 313:** Applied both migrations on wolf_hms_prod with zero errors.
+- [x] **ICU & Clinical Department Verifications:** Verified live API responses for /api/icu/ventilator-logs/:id, /api/icu/fluid-io/:id, /api/bed-transfers, /api/pathology/specimens, /api/cpoe/orders, /api/cdi/queries, /api/blood-bank/requests, /api/cloud-backup/runs, /api/quality/metrics (100% compliance).
+
 ### BUCKET-C BASELINES & DEMOCK ROLLOUT (2026-10-16, Production VPS 185.213.27.158)
 - [x] **Delta Deploy & Migration 311:** Deployed de-mocked bundle (`index-BGhCy1Hu.js`, `FloorPlanManager-880h6Q5q.js`), applied Migration 311 creating Bucket-C tables, restarted PM2 (`wolf-hms-api` online).
 - [x] **Bucket-C / Table-A Baseline Seeding:** Populated baseline rows on `wolf_hms_prod` (`hospital_id = 1`):

@@ -4,7 +4,18 @@
 
 ## Last Updated
 
-2026-10-16
+2026-10-17
+
+## Session 2026-10-17 — GALAXY WAVES 1, 2 & 2B DEPLOYMENT (Production VPS 185.213.27.158)
+- Pushed verified commits f41b95..b711204 to GitHub origin/main.
+- Packaged delta tarball containing Waves 1, 2, 2B server controllers, routes, migrations 312 & 313, seed SQL, and newly built frontend bundle index-CmiIAuQj.js.
+- Uploaded and extracted onto VPS /var/www/wolf-hms/ and synced assets to client/dist/.
+- Converted icu_ventilator_logs.admission_id and icu_fluid_io_charting.admission_id to UUID on wolf_hms_prod.
+- Pre-created Wave 2 tables (ed_transfers, clinical_orders, cdi_queries, med_reconciliation_items) with dmission_id UUID for UUID PK safety.
+- Ensured baseline patients and admitted ICU rows exist in dmissions for hospital_id = 1.
+- Applied Migration 312 (Ê_icu_telemetry_and_mutations_heal.sql) and Migration 313 (Ë_clinical_department_mutations.sql) with 0 errors.
+- Created lood_requests and lood_transfusions tables and seeded pending request.
+- Restarted PM2 wolf-hms-api (online & healthy). Verified ICU ventilator history, fluid I/O, bed transfers, specimens, CPOE orders, CDI queries, blood requests, backup runs, and quality metrics (100% on-target).
 
 ## Session 2026-10-16 — BUCKET-C BASELINE SEEDING & SCRATCH PURGE (Production VPS 185.213.27.158)
 - Populated newly created Migration-311 baseline tables on `wolf_hms_prod` (`hospital_id = 1`):
@@ -635,7 +646,7 @@ not hope. Production (`185.213.27.158`) was never touched — all work is local
 ## 2026-10-17 Wave-1 Remediation (ICU + interactions)
 - Migration 312 applied locally: icu_ventilator_logs += map_mmhg/sys_bp/dia_bp/temperature_c; backup_runs table; seeded vent + 2 fluid rows per admitted patient; one admission promoted to ICU Main.
 - icuController: normAdmissionId() (INTEGER local / UUID prod), quickAdmit(), new telemetry columns. POST /api/icu/quick-admit live.
-- ICUDashboard: 4 disabled guards removed, admission selector + quick-admit inside both modals, all 6 cards bound with '�'/'No telemetry', L438 leak rewritten. Audit: /icu = 0 findings.
+- ICUDashboard: 4 disabled guards removed, admission selector + quick-admit inside both modals, all 6 cards bound with '�'/'No telemetry', L438 leak rewritten. Audit: /icu = 0 findings.
 - Table-A (7) fully BOUND: POSTerminal, CloudBackupConsole (backup_runs + manifest download), ProblemListManager (POST/PUT/PATCH), TelehealthConsole (schedule + prescribe), WardPassManager (issue + PATCH return), EarlyWarningScore (log-vitals + NEWS-2), EmergencyCommandCenter (form onSubmit).
 - Bucket-C write wiring added: ambulance/dispatch, communications, laundry, staff roster, assets, quality metrics, clinical pathways (all via new bucketCActivationRoutes handlers).
 - TECH_LEAK 0/377. Total findings 240 -> 186. Jest 193 passed. Playwright 5/5. ICU write probe PASS (quick-admit 201 -> vent 201 -> fluid 201 -> balance).
