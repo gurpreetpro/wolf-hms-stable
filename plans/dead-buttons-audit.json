@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-17T13:55:52.448Z",
+  "generated_at": "2026-10-17T14:19:56.264Z",
   "scanned_files": 377,
   "counts": {
     "byClass": {
-      "1": 96,
+      "1": 84,
       "2": 37,
-      "3": 11,
+      "3": 9,
       "4": 36,
       "5": 0
     },
-    "total": 180,
-    "files_with_findings": 98
+    "total": 166,
+    "files_with_findings": 92
   },
   "classNames": {
     "1": "Dead Buttons / Phantom Modals",
@@ -287,17 +287,6 @@
       ]
     },
     {
-      "file": "client/src/components/MedicationReconciliation.jsx",
-      "findings": [
-        {
-          "kind": "CLOSE_ONLY_MODAL",
-          "line": 27,
-          "label": "Add Home Med <Plus size= className=\"me-1\" /> Add Home Med",
-          "detail": "opens showAddModal, file has no POST/PUT/PATCH/DELETE"
-        }
-      ]
-    },
-    {
       "file": "client/src/components/NursePatientProfile.jsx",
       "findings": [
         {
@@ -311,17 +300,6 @@
           "line": 399,
           "label": "24hr Fluid Balance:",
           "detail": "hardcoded numeric literal with unit in JSX text"
-        }
-      ]
-    },
-    {
-      "file": "client/src/components/OrderSetSelector.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 72,
-          "label": "Select Order Set <Package size= className=\"me-2\" /> Select Order Set",
-          "detail": "no onClick and not a submit button"
         }
       ]
     },
@@ -856,17 +834,6 @@
       ]
     },
     {
-      "file": "client/src/pages/AnatomicPathology.jsx",
-      "findings": [
-        {
-          "kind": "CLOSE_ONLY_MODAL",
-          "line": 25,
-          "label": "➕ New Specimen ➕ New Specimen",
-          "detail": "opens showNewCase, file has no POST/PUT/PATCH/DELETE"
-        }
-      ]
-    },
-    {
       "file": "client/src/pages/AuditTrail.jsx",
       "findings": [
         {
@@ -912,45 +879,6 @@
       ]
     },
     {
-      "file": "client/src/pages/BedTransferManager.jsx",
-      "findings": [
-        {
-          "kind": "CLOSE_ONLY_MODAL",
-          "line": 30,
-          "label": "+ New Transfer Request + New Transfer Request",
-          "detail": "opens showRequest, file has no POST/PUT/PATCH/DELETE"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 60,
-          "label": "Approve Approve",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 61,
-          "label": "Reject Reject",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "READ_ONLY_DASHBOARD",
-          "line": 30,
-          "label": "2 action button(s)",
-          "detail": "GETs=0, writes=0 — no mutation path exists",
-          "buttons": [
-            {
-              "line": 30,
-              "label": "+ New Transfer Request"
-            },
-            {
-              "line": 165,
-              "label": "Submit Request"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "file": "client/src/pages/BillingDashboard.jsx",
       "findings": [
         {
@@ -971,10 +899,10 @@
       "file": "client/src/pages/BloodBankDashboard.jsx",
       "findings": [
         {
-          "kind": "PHANTOM_MODAL",
-          "line": 563,
-          "label": "New Request <Plus size= className=\"me-1\" /> New Request",
-          "detail": "showRequestModal is set but never read — the click changes state that no JSX consumes"
+          "kind": "DEAD_FORM",
+          "line": 48,
+          "label": "submitBloodRequest()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
         }
       ]
     },
@@ -1027,60 +955,16 @@
       "file": "client/src/pages/CPOEDashboard.jsx",
       "findings": [
         {
-          "kind": "CLOSE_ONLY_MODAL",
-          "line": 44,
-          "label": "➕ New Order ➕ New Order",
-          "detail": "opens showOrderModal, file has no POST/PUT/PATCH/DELETE"
-        },
-        {
           "kind": "DEAD_NO_HANDLER",
-          "line": 45,
-          "label": "📋 Order Sets 📋 Order Sets",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 148,
+          "line": 193,
           "label": "Apply Apply",
           "detail": "no onClick and not a submit button"
         },
         {
           "kind": "DEAD_NO_HANDLER",
-          "line": 149,
+          "line": 194,
           "label": "Edit Edit",
           "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 212,
-          "label": "Submit Order Submit Order",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_FORM",
-          "line": 185,
-          "label": "Form without onSubmit",
-          "detail": "no onSubmit handler attached"
-        },
-        {
-          "kind": "READ_ONLY_DASHBOARD",
-          "line": 44,
-          "label": "3 action button(s)",
-          "detail": "GETs=0, writes=0 — no mutation path exists",
-          "buttons": [
-            {
-              "line": 44,
-              "label": "➕ New Order"
-            },
-            {
-              "line": 45,
-              "label": "📋 Order Sets"
-            },
-            {
-              "line": 212,
-              "label": "Submit Order"
-            }
-          ]
         }
       ]
     },
@@ -1126,17 +1010,6 @@
               "label": "+ New Assessment"
             }
           ]
-        }
-      ]
-    },
-    {
-      "file": "client/src/pages/ClosedLoopMedication.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 137,
-          "label": "Cancel Order Cancel Order",
-          "detail": "no onClick and not a submit button"
         }
       ]
     },
@@ -1421,17 +1294,6 @@
           "kind": "DEAD_NO_HANDLER",
           "line": 30,
           "label": "Generate Payslips Generate Payslips",
-          "detail": "no onClick and not a submit button"
-        }
-      ]
-    },
-    {
-      "file": "client/src/pages/PriorAuthDashboard.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 105,
-          "label": "📎 Upload Docs 📎 Upload Docs",
           "detail": "no onClick and not a submit button"
         }
       ]

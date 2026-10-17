@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
 import { Table, Button, Form, Modal, Badge } from 'react-bootstrap';
 import { ArrowRight, Plus, Trash2 } from 'lucide-react';
+import api from '../utils/axiosInstance';
 
-const MedicationReconciliation = ({ hospitalMeds = [] }) => {
-    const [homeMeds, setHomeMeds] = useState([
-        { drug: 'Metformin', dose: '500mg', freq: 'BID', last_taken: 'Yesterday' }
-    ]);
-
+const MedicationReconciliation = ({ hospitalMeds = [], patientId = null, admissionId = null }) => {
+    const [homeMeds, setHomeMeds] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newMed, setNewMed] = useState({ drug: '', dose: '', freq: '', last_taken: '' });
+    const [error, setError] = useState('');
 
-    const handleAddMed = () => {
-        setHomeMeds([...homeMeds, newMed]);
-        setNewMed({ drug: '', dose: '', freq: '', last_taken: '' });
-        setShowAddModal(false);
+    const handleAddMed = async () => {
+        try {
+            await api.post('/api/medication-reconciliation', {
+                patient_id: patientId,
+                admission_id: admissionId,
+                drug_name: newMed.drug,
+                dose: newMed.dose,
+                frequency: newMed.freq,
+                source: 'Home',
+                notes: newMed.last_taken ? `Last taken: ${newMed.last_taken}` : null,
+            });
+            setHomeMeds([...homeMeds, newMed]);
+            setNewMed({ drug: '', dose: '', freq: '', last_taken: '' });
+            setShowAddModal(false);
+            setError('');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Could not save the home medication.');
+        }
     };
 
     const handleDeleteMed = (idx) => {

@@ -641,3 +641,11 @@ not hope. Production (`185.213.27.158`) was never touched — all work is local
 - TECH_LEAK 0/377. Total findings 240 -> 186. Jest 193 passed. Playwright 5/5. ICU write probe PASS (quick-admit 201 -> vent 201 -> fluid 201 -> balance).
 - NOTE: local API must be started as server-cloud.js (server.js has visitor routes disabled -> zero-error trap 404s). Requires ADMIN_MIGRATE_SECRET in env.
 - Remaining: 102 Class-1 dead buttons elsewhere (CPOE/CDI/Radiology/BedTransfer), 36 static KPI literals, 37 soft DEAD_FORM.
+
+## 2026-10-17 Wave-2 (clinical departments)
+- Migration 313 applied: bed_transfers, pathology_specimens, cdi_queries, med_reconciliation_items, radiology_dicom_imports/annotations, revenue_appeals, clinical_orders (UUID-safe; legacy cpoe_orders.patient_id is INTEGER and cannot hold patients).
+- New endpoints: bed-transfers GET/POST/PATCH, pathology/specimens GET/POST, prior-auth/:id/attach, blood-bank/requests GET/POST, blood-bank/transfusions POST, radiology dicom-import + annotations, medication-reconciliation GET/POST, closed-loop-med GET + cancel, cpoe/orders GET/POST, cdi/queries GET/POST, revenue-ai/appeals POST. Route matrix 577 matched / 0 broken.
+- Client wired: BedTransferManager (full rewrite, live), AnatomicPathology (live specimens), PriorAuth (live list + attachments), BloodBank (request modal), MedicationReconciliation (POST), ClosedLoopMedication (live + cancel), OrderSetSelector (opens selector, no more 'not enabled' banner), CPOE new-order modal (POST /api/cpoe/orders).
+- E2E: golden journey test 3 now clicks + Add Hourly Entry, submits 250 mL IV / 100 mL urine, asserts POST 201 + ledger update. 5/5 pass.
+- Audit 180 -> 166 (Class 1 96 -> 84), TECH_LEAK 0, /icu 0.
+- Remaining Section-B gaps: RadiologyDashboard (3 buttons + form), CDIDashboard (5 findings), WardManagement/NursePatientProfile/Lab/BillingDashboard/BillingSettingsTab forms, RegistrationReceipt/InvoicePrint download, PatientLedger buttons.

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Form, Modal, Alert, Tabs, Tab, InputGroup, ListGroup, ProgressBar } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const CPOEDashboard = () => {
   const [activeTab, setActiveTab] = useState('newOrder');
@@ -7,6 +8,50 @@ const CPOEDashboard = () => {
   const [selectedOrderType, setSelectedOrderType] = useState('medication');
   const [orderSearch, setOrderSearch] = useState('');
   const [showSafetyAlert, setShowSafetyAlert] = useState(false);
+  const [admissions, setAdmissions] = useState([]);
+  const [orderMsg, setOrderMsg] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [orderForm, setOrderForm] = useState({
+    admission_id: '', patient_id: '', patient_name: '', medication: '', dose: '',
+    route: 'Oral', frequency: 'OD', priority: 'Routine', instructions: '',
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/api/admissions?status=Admitted');
+        setAdmissions(res.data?.data || res.data || []);
+      } catch (err) {
+        console.error('[CPOE] admission load failed:', err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, []);
+
+  const submitOrder = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const details = selectedOrderType === 'medication'
+        ? `${orderForm.medication} ${orderForm.dose} ${orderForm.route} ${orderForm.frequency}${orderForm.instructions ? ` - ${orderForm.instructions}` : ''}`
+        : `${selectedOrderType} order${orderForm.instructions ? ` - ${orderForm.instructions}` : ''}`;
+      await api.post('/api/cpoe/orders', {
+        patient_id: orderForm.patient_id || null,
+        admission_id: orderForm.admission_id || null,
+        patient_name: orderForm.patient_name || null,
+        order_type: selectedOrderType,
+        details: details.trim() || 'Clinical order',
+        priority: orderForm.priority,
+      });
+      setShowOrderModal(false);
+      setOrderForm({ admission_id: '', patient_id: '', patient_name: '', medication: '', dose: '', route: 'Oral', frequency: 'OD', priority: 'Routine', instructions: '' });
+      setOrderMsg('Order submitted to the clinical order engine.');
+    } catch (err) {
+      setOrderMsg(err.response?.data?.message || 'Could not submit the order.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const pendingOrders = [];
 
@@ -42,8 +87,8 @@ const CPOEDashboard = () => {
         </div>
         <div className="d-flex gap-2">
           <Button variant="primary" onClick={() => setShowOrderModal(true)}>➕ New Order</Button>
-          <Button variant="outline-success">📋 Order Sets</Button>
-          <Button variant="outline-info">📊 Analytics</Button>
+          <Button variant="outline-success" onClick={() => setActiveTab('orderSets')}>📋 Order Sets</Button>
+          <Button variant="outline-info" onClick={() => setActiveTab('safety')}>📊 Safety Analytics</Button>
         </div>
       </div>
 
@@ -182,34 +227,51 @@ const CPOEDashboard = () => {
       <Modal show={showOrderModal} onHide={() => setShowOrderModal(false)} size="lg">
         <Modal.Header closeButton><Modal.Title>➕ New Clinical Order</Modal.Title></Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={submitOrder}>
             <Row className="mb-3">
-              <Col md={6}><Form.Group><Form.Label>Patient</Form.Label><Form.Select><option>Select Patient...</option><option>Rajesh Kumar (MRN-1045)</option><option>Anita Desai (MRN-1078)</option></Form.Select></Form.Group></Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Patient</Form.Label>
+                  <Form.Select
+                    value={orderForm.admission_id}
+                    onChange={(e) => {
+                      const a = admissions.find(x => String(x.id) === e.target.value);
+                      setOrderForm({ ...orderForm, admission_id: e.target.value, patient_id: a?.patient_id || '', patient_name: a?.patient_name || '' });
+                    }}
+                    required
+                  >
+                    <option value="">Select Patient...</option>
+                    {admissions.map(a => (
+                      <option key={a.id} value={a.id}>{a.patient_name || a.patient_uhid || `Patient ${a.patient_id}`}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
               <Col md={6}><Form.Group><Form.Label>Order Type</Form.Label><Form.Select value={selectedOrderType} onChange={e => setSelectedOrderType(e.target.value)}><option value="medication">💊 Medication</option><option value="lab">🧪 Laboratory</option><option value="radiology">📷 Radiology</option><option value="diet">🍽️ Diet</option><option value="nursing">👩‍⚕️ Nursing</option></Form.Select></Form.Group></Col>
             </Row>
             {selectedOrderType === 'medication' && (
               <>
                 <Row className="mb-3">
-                  <Col md={6}><Form.Group><Form.Label>Medication</Form.Label><Form.Control placeholder="Type to search medications..." /></Form.Group></Col>
-                  <Col md={3}><Form.Group><Form.Label>Dose</Form.Label><Form.Control placeholder="500" /></Form.Group></Col>
+                  <Col md={6}><Form.Group><Form.Label>Medication</Form.Label><Form.Control value={orderForm.medication} onChange={e => setOrderForm({ ...orderForm, medication: e.target.value })} placeholder="Type to search medications..." required /></Form.Group></Col>
+                  <Col md={3}><Form.Group><Form.Label>Dose</Form.Label><Form.Control value={orderForm.dose} onChange={e => setOrderForm({ ...orderForm, dose: e.target.value })} placeholder="500" /></Form.Group></Col>
                   <Col md={3}><Form.Group><Form.Label>Unit</Form.Label><Form.Select><option>mg</option><option>ml</option><option>units</option><option>mcg</option></Form.Select></Form.Group></Col>
                 </Row>
                 <Row className="mb-3">
-                  <Col md={4}><Form.Group><Form.Label>Route</Form.Label><Form.Select><option>Oral</option><option>IV</option><option>IM</option><option>SC</option><option>Topical</option></Form.Select></Form.Group></Col>
-                  <Col md={4}><Form.Group><Form.Label>Frequency</Form.Label><Form.Select><option>OD</option><option>BD</option><option>TDS</option><option>QID</option><option>PRN</option><option>STAT</option></Form.Select></Form.Group></Col>
-                  <Col md={4}><Form.Group><Form.Label>Duration</Form.Label><Form.Control placeholder="5 days" /></Form.Group></Col>
+                  <Col md={4}><Form.Group><Form.Label>Route</Form.Label><Form.Select value={orderForm.route} onChange={e => setOrderForm({ ...orderForm, route: e.target.value })}><option>Oral</option><option>IV</option><option>IM</option><option>SC</option><option>Topical</option></Form.Select></Form.Group></Col>
+                  <Col md={4}><Form.Group><Form.Label>Frequency</Form.Label><Form.Select value={orderForm.frequency} onChange={e => setOrderForm({ ...orderForm, frequency: e.target.value })}><option>OD</option><option>BD</option><option>TDS</option><option>QID</option><option>PRN</option><option>STAT</option></Form.Select></Form.Group></Col>
+                  <Col md={4}><Form.Group><Form.Label>Duration</Form.Label><Form.Control value={orderForm.instructions} onChange={e => setOrderForm({ ...orderForm, instructions: e.target.value })} placeholder="5 days" /></Form.Group></Col>
                 </Row>
               </>
             )}
             <Row className="mb-3">
-              <Col md={6}><Form.Group><Form.Label>Priority</Form.Label><Form.Select><option>Routine</option><option>Urgent</option><option>STAT</option></Form.Select></Form.Group></Col>
-              <Col md={6}><Form.Group><Form.Label>Special Instructions</Form.Label><Form.Control placeholder="e.g., Give after meals" /></Form.Group></Col>
+              <Col md={6}><Form.Group><Form.Label>Priority</Form.Label><Form.Select value={orderForm.priority} onChange={e => setOrderForm({ ...orderForm, priority: e.target.value })}><option>Routine</option><option>Urgent</option><option>STAT</option></Form.Select></Form.Group></Col>
+              <Col md={6}><Form.Group><Form.Label>Special Instructions</Form.Label><Form.Control value={orderForm.instructions} onChange={e => setOrderForm({ ...orderForm, instructions: e.target.value })} placeholder="e.g., Give after meals" /></Form.Group></Col>
             </Row>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="outline-warning" onClick={() => setShowSafetyAlert(true)}>🛡️ Run Safety Check</Button>
-          <Button variant="primary">Submit Order</Button>
+          <Button variant="primary" onClick={submitOrder} disabled={busy}>{busy ? 'Submitting…' : 'Submit Order'}</Button>
         </Modal.Footer>
       </Modal>
     </Container>

@@ -88,7 +88,7 @@ test.describe('Golden clinical journey', () => {
         trap.assertClean('2b. AI interaction + diagnostics');
     });
 
-    test('3. ICU telemetry — admitted patients render from /api/admissions?status=Admitted', async ({ page }) => {
+    test('3. ICU telemetry — admitted patients render and hourly fluid I/O writes persist', async ({ page }) => {
         await page.goto('/icu');
         await expect(page.locator('body')).toBeVisible();
 
@@ -105,7 +105,43 @@ test.describe('Golden clinical journey', () => {
         expect(vent.status(), 'GET /api/icu/ventilator-logs/:id must not 5xx').toBeLessThan(500);
         const io = await api(page, 'get', `/api/icu/fluid-io/${data.admissionId}`);
         expect(io.status(), 'GET /api/icu/fluid-io/:id must not 5xx').toBeLessThan(500);
-        trap.assertClean('3. ICU dashboard');
+
+        // ---- Hourly fluid I/O write path (Wave-2 gate) ----
+        // The button must be clickable even before an admission is chosen (Wave-1 regression guard).
+        const addEntry = page.getByRole('button', { name: /Add Hourly Entry/i }).first();
+        await expect(addEntry, '+ Add Hourly Entry must be visible').toBeVisible();
+        await expect(addEntry, '+ Add Hourly Entry must not be disabled').toBeEnabled();
+        await addEntry.click();
+
+        const modal = page.locator('.modal-content').filter({ hasText: /Log Hourly Fluid Intake/i }).first();
+        await expect(modal, 'fluid I/O modal must open').toBeVisible();
+
+        // The modal carries its own patient/admission selector.
+        const admissionSelect = modal.locator('select').first();
+        if (await admissionSelect.count()) {
+            const current = await admissionSelect.inputValue();
+            if (!current) {
+                const option = admissionSelect.locator('option').nth(1);
+                await admissionSelect.selectOption(await option.getAttribute('value'));
+            }
+        }
+
+        // Field order in the modal: IV fluids, blood, oral, enteral, urine, drains, stool, emesis.
+        const numbers = modal.locator('input[type="number"]');
+        await numbers.nth(0).fill('250');
+        await numbers.nth(4).fill('100');
+
+        const [postRes] = await Promise.all([
+            page.waitForResponse(r => r.url().includes('/api/icu/fluid-io') && r.request().method() === 'POST', { timeout: 15000 }),
+            modal.getByRole('button', { name: /Save Hourly Entry/i }).click(),
+        ]);
+        expect(postRes.status(), 'POST /api/icu/fluid-io must return 201').toBe(201);
+
+        // The ledger re-fetches: the charted 250 mL intake is now visible and the net balance is rendered.
+        await expect(modal).toBeHidden({ timeout: 10000 });
+        await expect(page.locator('body')).toContainText('250');
+        await expect(page.locator('body')).toContainText(/NET BALANCE/i);
+        trap.assertClean('3. ICU fluid I/O write');
     });
 
     test('4. Lab & Radiology — pending worklists load and report views open', async ({ page }) => {

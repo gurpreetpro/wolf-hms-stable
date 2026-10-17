@@ -728,5 +728,252 @@ router.post('/pos/transactions', asyncHandler(async (req, res) => {
     ResponseHandler.success(res, out.rows[0], 'POS transaction recorded', 201);
 }));
 
+/* ==================== Wave-2 clinical department mutations ==================== */
+
+/* ------------------------------------------------------------ Bed transfers */
+router.get('/bed-transfers', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT id, patient_id, admission_id, patient_name, from_ward, from_bed, to_ward, to_bed,
+                reason, status, created_at, decided_at
+           FROM bed_transfers WHERE hospital_id = $1
+          ORDER BY (status = 'Requested') DESC, created_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'transfers', rows.rows);
+}));
+
+router.post('/bed-transfers', asyncHandler(async (req, res) => {
+    const { patient_id, admission_id, patient_name, from_ward, from_bed, to_ward, to_bed, reason } = req.body || {};
+    if (!to_ward) return ResponseHandler.error(res, 'to_ward is required', 400);
+    const out = await pool.query(
+        `INSERT INTO bed_transfers
+            (hospital_id, patient_id, admission_id, patient_name, from_ward, from_bed, to_ward, to_bed, reason, requested_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+        [hid(req), patient_id || null, admission_id || null, patient_name || null,
+         from_ward || null, from_bed || null, to_ward, to_bed || null, reason || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Bed transfer requested', 201);
+}));
+
+router.patch('/bed-transfers/:id/status', asyncHandler(async (req, res) => {
+    const status = (req.body && req.body.status) || 'Approved';
+    if (!['Approved', 'Rejected', 'Cancelled', 'Completed'].includes(status)) {
+        return ResponseHandler.error(res, 'status must be Approved|Rejected|Cancelled|Completed', 400);
+    }
+    const out = await pool.query(
+        `UPDATE bed_transfers
+            SET status = $3, decided_at = now(), updated_at = now(), approved_by = $4
+          WHERE id = $1 AND hospital_id = $2 RETURNING *`,
+        [req.params.id, hid(req), status, uid(req)]
+    );
+    if (!out.rowCount) return ResponseHandler.error(res, 'Transfer not found', 404);
+    ResponseHandler.success(res, out.rows[0], `Transfer ${status.toLowerCase()}`);
+}));
+
+/* -------------------------------------------------------- Pathology specimens */
+router.get('/pathology/specimens', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT id, specimen_no, patient_id, patient_name, site, specimen_type, priority, status,
+                collected_at, notes
+           FROM pathology_specimens WHERE hospital_id = $1
+          ORDER BY collected_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'specimens', rows.rows);
+}));
+
+router.post('/pathology/specimens', asyncHandler(async (req, res) => {
+    const { patient_id, patient_name, site, specimen_type, priority, notes } = req.body || {};
+    if (!site) return ResponseHandler.error(res, 'site is required', 400);
+    const specimenNo = `SPC-${Date.now().toString().slice(-7)}`;
+    const out = await pool.query(
+        `INSERT INTO pathology_specimens
+            (hospital_id, specimen_no, patient_id, patient_name, site, specimen_type, priority, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,COALESCE($7,'Routine'),$8) RETURNING *`,
+        [hid(req), specimenNo, patient_id || null, patient_name || null, site,
+         specimen_type || 'Biopsy', priority || null, notes || null]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Specimen logged', 201);
+}));
+
+/* ------------------------------------------------------- Prior-auth attachments */
+router.post('/prior-auth/:id/attach', asyncHandler(async (req, res) => {
+    const { name, reference, notes } = req.body || {};
+    if (!name) return ResponseHandler.error(res, 'name is required', 400);
+    const out = await pool.query(
+        `UPDATE prior_auth_requests
+            SET attachments = COALESCE(attachments, '[]'::jsonb) || $3::jsonb
+          WHERE id = $1 AND hospital_id = $2 RETURNING id, attachments`,
+        [req.params.id, hid(req), JSON.stringify([{ name, reference: reference || null, notes: notes || null, at: new Date().toISOString() }])]
+    );
+    if (!out.rowCount) return ResponseHandler.error(res, 'Prior-authorisation request not found', 404);
+    ResponseHandler.success(res, out.rows[0], 'Document attached');
+}));
+
+
+/* ------------------------------------------------------------- Blood bank */
+router.get('/blood-bank/requests', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT r.id, r.request_id, r.patient_id, p.name AS patient_name, r.blood_group_required,
+                r.units_required, r.units_issued, r.priority, r.indication, r.status, r.created_at
+           FROM blood_requests r
+           LEFT JOIN patients p ON p.id = r.patient_id
+          WHERE COALESCE(r.hospital_id, 1) = $1
+          ORDER BY r.created_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'requests', rows.rows);
+}));
+
+router.post('/blood-bank/requests', asyncHandler(async (req, res) => {
+    const { patient_id, blood_group_required, units_required, priority, indication, admission_id } = req.body || {};
+    if (!patient_id || !blood_group_required) {
+        return ResponseHandler.error(res, 'patient_id and blood_group_required are required', 400);
+    }
+    const out = await pool.query(
+        `INSERT INTO blood_requests
+            (request_id, patient_id, blood_group_required, units_required, priority, indication,
+             admission_id, requested_by, hospital_id, status)
+         VALUES ('BR-' || (EXTRACT(EPOCH FROM now())::bigint), $1, $2, COALESCE($3,1), COALESCE($4,'Routine'),
+                 $5, $6, $7, $8, 'Pending') RETURNING *`,
+        [patient_id, blood_group_required, units_required || 1, priority || null,
+         indication || null, admission_id || null, uid(req), hid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Blood request raised', 201);
+}));
+
+router.post('/blood-bank/transfusions', asyncHandler(async (req, res) => {
+    const { patient_id, request_id, unit_id, volume_transfused, notes } = req.body || {};
+    if (!patient_id) return ResponseHandler.error(res, 'patient_id is required', 400);
+    const out = await pool.query(
+        `INSERT INTO blood_transfusions
+            (transfusion_id, request_id, patient_id, unit_id, volume_transfused, start_time, notes, hospital_id)
+         VALUES ('TX-' || (EXTRACT(EPOCH FROM now())::bigint), $1, $2, $3, $4, now(), $5, $6) RETURNING *`,
+        [request_id || null, patient_id, unit_id || null, volume_transfused || null, notes || null, hid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Transfusion logged', 201);
+}));
+
+/* ------------------------------------------------ Radiology imports & annotations */
+router.post('/radiology/dicom-import', asyncHandler(async (req, res) => {
+    const { study_uid, modality, patient_id, file_name } = req.body || {};
+    const uidVal = study_uid || `1.2.826.0.1.3680043.8.498.${Date.now()}`;
+    const out = await pool.query(
+        `INSERT INTO radiology_dicom_imports (hospital_id, study_uid, modality, patient_id, file_name, imported_by)
+         VALUES ($1,$2,$3,$4,$5,$6)
+         ON CONFLICT (hospital_id, study_uid) DO UPDATE SET status = 'Imported'
+         RETURNING *`,
+        [hid(req), uidVal, modality || null, patient_id || null, file_name || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'DICOM study imported', 201);
+}));
+
+router.post('/radiology/annotations', asyncHandler(async (req, res) => {
+    const { study_uid, patient_id, annotations } = req.body || {};
+    if (!study_uid) return ResponseHandler.error(res, 'study_uid is required', 400);
+    const out = await pool.query(
+        `INSERT INTO radiology_annotations (hospital_id, study_uid, patient_id, annotations, created_by)
+         VALUES ($1,$2,$3,COALESCE($4::jsonb,'[]'::jsonb),$5) RETURNING *`,
+        [hid(req), study_uid, patient_id || null,
+         JSON.stringify(Array.isArray(annotations) ? annotations : []), uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Annotations saved', 201);
+}));
+
+/* ------------------------------------------------ Medication reconciliation */
+router.get('/medication-reconciliation', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT id, patient_id, admission_id, drug_name, dose, frequency, route, source, status, notes, created_at
+           FROM med_reconciliation_items WHERE hospital_id = $1
+          ORDER BY created_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'items', rows.rows);
+}));
+
+router.post('/medication-reconciliation', asyncHandler(async (req, res) => {
+    const { patient_id, admission_id, drug_name, dose, frequency, route, source, notes } = req.body || {};
+    if (!drug_name) return ResponseHandler.error(res, 'drug_name is required', 400);
+    const out = await pool.query(
+        `INSERT INTO med_reconciliation_items
+            (hospital_id, patient_id, admission_id, drug_name, dose, frequency, route, source, notes, recorded_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,COALESCE($8,'Home'),$9,$10) RETURNING *`,
+        [hid(req), patient_id || null, admission_id || null, drug_name, dose || null,
+         frequency || null, route || null, source || null, notes || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Home medication reconciled', 201);
+}));
+
+module.exports = router;
+
+
+/* ------------------------------------------------------ Closed-loop medication */
+router.get('/closed-loop-med', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT m.id, m.patient_id, p.name AS patient_name, m.drug_name, m.dosage, m.frequency, m.route, m.status, m.created_at
+           FROM medication_orders m
+           LEFT JOIN patients p ON p.id = m.patient_id
+          ORDER BY m.created_at DESC LIMIT 200`);
+    dual(res, 'orders', rows.rows);
+}));
+
+router.patch('/closed-loop-med/:id/cancel', asyncHandler(async (req, res) => {
+    const out = await pool.query(
+        `UPDATE medication_orders SET status = 'Cancelled' WHERE id = $1 RETURNING *`, [req.params.id]
+    );
+    if (!out.rowCount) return ResponseHandler.error(res, 'Medication order not found', 404);
+    ResponseHandler.success(res, out.rows[0], 'Medication order cancelled');
+}));
+
+/* ---------------------------------------------------------------- CPOE & CDI */
+router.get('/cpoe/orders', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT id, patient_id, admission_id, patient_name, order_type, details, priority, status, created_at
+           FROM clinical_orders WHERE hospital_id = $1
+          ORDER BY created_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'orders', rows.rows);
+}));
+
+router.post('/cpoe/orders', asyncHandler(async (req, res) => {
+    const { patient_id, admission_id, patient_name, order_type, details, priority } = req.body || {};
+    if (!order_type || !details) return ResponseHandler.error(res, 'order_type and details are required', 400);
+    const out = await pool.query(
+        `INSERT INTO clinical_orders
+            (hospital_id, patient_id, admission_id, patient_name, order_type, details, priority, ordered_by)
+         VALUES ($1,$2,$3,$4,$5,$6,COALESCE($7,'Routine'),$8) RETURNING *`,
+        [hid(req), patient_id || null, admission_id || null, patient_name || null,
+         order_type, details, priority || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Order submitted', 201);
+}));
+
+router.get('/cdi/queries', asyncHandler(async (req, res) => {
+    const rows = await pool.query(
+        `SELECT id, patient_id, admission_id, patient_name, query_type, query_text, severity, status,
+                physician_response, created_at
+           FROM cdi_queries WHERE hospital_id = $1
+          ORDER BY (status = 'Open') DESC, created_at DESC LIMIT 200`, [hid(req)]);
+    dual(res, 'queries', rows.rows);
+}));
+
+router.post('/cdi/queries', asyncHandler(async (req, res) => {
+    const { patient_id, admission_id, patient_name, query_type, query_text, severity } = req.body || {};
+    if (!query_text) return ResponseHandler.error(res, 'query_text is required', 400);
+    const out = await pool.query(
+        `INSERT INTO cdi_queries
+            (hospital_id, patient_id, admission_id, patient_name, query_type, query_text, severity, created_by)
+         VALUES ($1,$2,$3,$4,COALESCE($5,'Documentation'),$6,COALESCE($7,'Medium'),$8) RETURNING *`,
+        [hid(req), patient_id || null, admission_id || null, patient_name || null,
+         query_type || null, query_text, severity || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Physician query raised', 201);
+}));
+
+/* ------------------------------------------------ Revenue-cycle appeals */
+router.post('/revenue-ai/appeals', asyncHandler(async (req, res) => {
+    const { claim_ref, patient_name, payer, denial_reason, amount, appeal_text } = req.body || {};
+    if (!claim_ref) return ResponseHandler.error(res, 'claim_ref is required', 400);
+    const out = await pool.query(
+        `INSERT INTO revenue_appeals
+            (hospital_id, claim_ref, patient_name, payer, denial_reason, amount, appeal_text, submitted_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+        [hid(req), claim_ref, patient_name || null, payer || null, denial_reason || null,
+         amount || null, appeal_text || null, uid(req)]
+    );
+    ResponseHandler.success(res, out.rows[0], 'Appeal submitted', 201);
+}));
+
 module.exports = router;
 

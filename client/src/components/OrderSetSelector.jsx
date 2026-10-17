@@ -29,9 +29,10 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
     };
 
     const handleSetSelect = (set) => {
-        setSelectedSet(set);
+        const items = set.items || set.items_json || [];
+        setSelectedSet({ ...set, items_json: items });
         // Default select all items
-        setSelectedItems(set.items_json.map((_, idx) => idx));
+        setSelectedItems(items.map((_, idx) => idx));
     };
 
     const toggleItem = (idx) => {
@@ -69,7 +70,7 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
 
     return (
         <>
-            <Button variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center">
+            <Button variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center" onClick={fetchOrderSets}>
                 <Package size={18} className="me-2" />
                 Select Order Set
 </Button>
@@ -79,7 +80,6 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
                     <Modal.Title>Order Sets / Clinical Pathways</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="alert alert-info py-2 mb-3">Order sets and clinical pathway ordering are not enabled on this server.</div>
                     {loading ? <Spinner animation="border" className="d-block mx-auto" /> : (
                         <div className="d-flex" style={{ minHeight: '400px' }}>
                             {/* Left: List of Sets */}

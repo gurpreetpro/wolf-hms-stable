@@ -31,6 +31,31 @@ export default function BloodBankDashboard() {
     const [showDonorModal, setShowDonorModal] = useState(false);
     const [showCollectModal, setShowCollectModal] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
+    const [admissions, setAdmissions] = useState([]);
+    const [requestForm, setRequestForm] = useState({ admission_id: '', patient_id: '', blood_group_required: 'O+', units_required: 1, priority: 'Routine', indication: '' });
+
+    const openRequestModal = async () => {
+        setShowRequestModal(true);
+        try {
+            const res = await axiosInstance.get('/admissions?status=Admitted');
+            setAdmissions(res.data?.data || res.data || []);
+        } catch (err) {
+            console.error('[BloodBank] admission load failed:', err.message);
+            setAdmissions([]);
+        }
+    };
+
+    const submitBloodRequest = async (e) => {
+        e.preventDefault();
+        try {
+            await axiosInstance.post('/blood-bank/requests', requestForm);
+            setShowRequestModal(false);
+            setRequestForm({ admission_id: '', patient_id: '', blood_group_required: 'O+', units_required: 1, priority: 'Routine', indication: '' });
+            await fetchRequests();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Could not raise the blood request.');
+        }
+    };
     
     // Forms
     const [donorForm, setDonorForm] = useState({
@@ -560,7 +585,7 @@ export default function BloodBankDashboard() {
                     <Card className="border-0 shadow-sm">
                         <Card.Header className="bg-white d-flex justify-content-between align-items-center">
                             <h5 className="mb-0">Blood Requests</h5>
-                            <Button variant="danger" onClick={() => setShowRequestModal(true)}>
+                            <Button variant="danger" onClick={openRequestModal}>
                                 <Plus size={16} className="me-1" /> New Request
                             </Button>
                         </Card.Header>
@@ -810,6 +835,64 @@ export default function BloodBankDashboard() {
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowCollectModal(false)}>Cancel</Button>
                         <Button variant="danger" type="submit">Add Blood Unit</Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            <Modal show={showRequestModal} onHide={() => setShowRequestModal(false)} centered size="lg">
+                <Modal.Header closeButton className="bg-danger text-white"><Modal.Title>New Blood Request</Modal.Title></Modal.Header>
+                <Form onSubmit={submitBloodRequest}>
+                    <Modal.Body>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Admitted Patient</Form.Label>
+                            <Form.Select
+                                value={requestForm.admission_id}
+                                onChange={(e) => {
+                                    const a = admissions.find(x => String(x.id) === e.target.value);
+                                    setRequestForm({ ...requestForm, admission_id: e.target.value, patient_id: a?.patient_id || '' });
+                                }}
+                                required
+                            >
+                                <option value="">Select an admitted patient</option>
+                                {admissions.map(a => (
+                                    <option key={a.id} value={a.id}>
+                                        {a.patient_name || a.patient_uhid || `Patient ${a.patient_id}`} — {a.ward || 'Ward'} {a.bed_number || ''}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
+                        <Row>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Blood Group</Form.Label>
+                                    <Form.Select value={requestForm.blood_group_required} onChange={(e) => setRequestForm({ ...requestForm, blood_group_required: e.target.value })}>
+                                        {['A+','A-','B+','B-','O+','O-','AB+','AB-'].map(g => <option key={g} value={g}>{g}</option>)}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Units</Form.Label>
+                                    <Form.Control type="number" min="1" value={requestForm.units_required} onChange={(e) => setRequestForm({ ...requestForm, units_required: e.target.value })} required />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Priority</Form.Label>
+                                    <Form.Select value={requestForm.priority} onChange={(e) => setRequestForm({ ...requestForm, priority: e.target.value })}>
+                                        <option>Routine</option><option>Urgent</option><option>Emergency</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Indication</Form.Label>
+                            <Form.Control as="textarea" rows={2} value={requestForm.indication} onChange={(e) => setRequestForm({ ...requestForm, indication: e.target.value })} placeholder="Clinical indication for transfusion" />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowRequestModal(false)}>Cancel</Button>
+                        <Button variant="danger" type="submit">Raise Request</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>

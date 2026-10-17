@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Form, Button, Modal, ProgressBar, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -9,14 +9,56 @@ const PriorAuthDashboard = () => {
         patient: '', insurance: '', procedure: '', icd10: '', cpt: '', urgency: 'Standard', notes: ''
     });
 
-    const [authRequests] = useState([
-        { id: 'PA-2026-0451', patient: 'Ramesh K.', insurance: 'Star Health', procedure: 'MRI Brain with Contrast', cpt: '70553', status: 'Pending Review', submitted: '2026-03-02', urgency: 'Urgent', days: 0 },
-        { id: 'PA-2026-0450', patient: 'Priya S.', insurance: 'ICICI Lombard', procedure: 'Knee Arthroscopy', cpt: '29881', status: 'Approved', submitted: '2026-02-28', urgency: 'Standard', days: 2, approved_on: '2026-03-02' },
-        { id: 'PA-2026-0449', patient: 'Suresh M.', insurance: 'New India Assurance', procedure: 'CT Chest HRCT', cpt: '71260', status: 'Info Requested', submitted: '2026-02-27', urgency: 'Urgent', days: 3 },
-        { id: 'PA-2026-0448', patient: 'Anita R.', insurance: 'Bajaj Allianz', procedure: 'Coronary Angioplasty', cpt: '92928', status: 'Denied', submitted: '2026-02-25', urgency: 'Emergency', days: 5, denied_reason: 'Non-network provider' },
-        { id: 'PA-2026-0447', patient: 'Vikram J.', insurance: 'Max Bupa', procedure: 'Chemotherapy Cycle 3', cpt: '96413', status: 'Approved', submitted: '2026-02-24', urgency: 'Standard', days: 3, approved_on: '2026-02-27' },
-        { id: 'PA-2026-0446', patient: 'Meera L.', insurance: 'HDFC ERGO', procedure: 'Spinal Fusion L4-L5', cpt: '22612', status: 'Pending Review', submitted: '2026-03-01', urgency: 'Standard', days: 1 },
-    ]);
+    const [authRequests, setAuthRequests] = useState([]);
+    const [attachFor, setAttachFor] = useState(null);
+    const [attach, setAttach] = useState({ name: '', reference: '', notes: '' });
+    const [busy, setBusy] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const load = async () => {
+        try {
+            const res = await axios.get('/api/prior-auth/requests', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+            const rows = res.data.data || res.data.requests || [];
+            setAuthRequests(rows.map(r => ({
+                id: r.id,
+                ref: r.id,
+                patient: r.patient_number || r.patient_id || '—',
+                insurer: r.insurer || '—',
+                insurance: r.insurer || '—',
+                procedure: r.procedure_name || '—',
+                status: r.status || 'Submitted',
+                submitted: r.submitted_at ? String(r.submitted_at).slice(0, 10) : '—',
+                urgency: Number(r.estimated_cost) > 100000 ? 'Urgent' : 'Standard',
+                days: r.submitted_at ? Math.max(0, Math.floor((Date.now() - new Date(r.submitted_at).getTime()) / 86400000)) : 0,
+                attachments: r.attachments || [],
+            })));
+        } catch (err) {
+            console.error('[PriorAuth] load failed:', err.message);
+            setAuthRequests([]);
+            setMessage('Could not load prior-authorisation requests.');
+        }
+    };
+
+    useEffect(() => { load(); }, []);
+
+    const submitAttachment = async (e) => {
+        e.preventDefault();
+        if (!attachFor) return;
+        setBusy(true);
+        try {
+            await axios.post(`/api/prior-auth/${attachFor.id}/attach`, attach, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            });
+            setAttachFor(null);
+            setAttach({ name: '', reference: '', notes: '' });
+            await load();
+            setMessage('Supporting document attached to the request.');
+        } catch (err) {
+            setMessage(err.response?.data?.message || 'Could not attach the document.');
+        } finally {
+            setBusy(false);
+        }
+    };
 
     const kpis = {
         total: authRequests.length,
@@ -101,8 +143,8 @@ const PriorAuthDashboard = () => {
                                         <td><Badge bg={auth.days > 3 ? 'danger' : 'secondary'}>{auth.days}d</Badge></td>
                                         <td>{getStatusBadge(auth.status)}</td>
                                         <td>
-                                            <Button size="sm" variant="outline-primary" className="me-1">📞 Follow Up</Button>
-                                            {auth.status === 'Info Requested' && <Button size="sm" variant="warning">📎 Upload Docs</Button>}
+                                            <Button size="sm" variant="outline-primary" className="me-1" onClick={() => setAttachFor(auth)}>📞 Follow Up</Button>
+                                            {auth.status === 'Info Requested' && <Button size="sm" variant="warning" onClick={() => setAttachFor(auth)}>📎 Upload Docs</Button>}
                                         </td>
                                     </tr>
                                 ))}
@@ -253,6 +295,31 @@ const PriorAuthDashboard = () => {
             }
           }}>📤 Submit PA Request</Button>
                 </Modal.Footer>
+            </Modal>
+
+            <Modal show={!!attachFor} onHide={() => setAttachFor(null)} centered>
+                <Modal.Header closeButton><Modal.Title>Attach Document / Follow-up</Modal.Title></Modal.Header>
+                <Form onSubmit={submitAttachment}>
+                    <Modal.Body>
+                        <p className="small text-muted">Request #{attachFor?.id} — {attachFor?.procedure}</p>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Document Name</Form.Label>
+                            <Form.Control value={attach.name} onChange={(e) => setAttach({ ...attach, name: e.target.value })} placeholder="e.g. Discharge summary.pdf" required />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Reference / Link</Form.Label>
+                            <Form.Control value={attach.reference} onChange={(e) => setAttach({ ...attach, reference: e.target.value })} placeholder="Scan ID, TPA portal reference or URL" />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Follow-up Notes</Form.Label>
+                            <Form.Control as="textarea" rows={2} value={attach.notes} onChange={(e) => setAttach({ ...attach, notes: e.target.value })} />
+                        </Form.Group>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setAttachFor(null)}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={busy}>{busy ? 'Saving…' : 'Attach'}</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         </Container>
     );

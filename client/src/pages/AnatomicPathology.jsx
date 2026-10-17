@@ -1,11 +1,54 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Button, Modal, Form } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Badge, Tabs, Tab, Button, Modal, Form, Alert } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const AnatomicPathology = () => {
     const [activeTab, setActiveTab] = useState('cases');
     const [showNewCase, setShowNewCase] = useState(false);
+    const [cases, setCases] = useState([]);
+    const [form, setForm] = useState({ site: '', specimen_type: 'Biopsy', priority: 'Routine', notes: '' });
+    const [busy, setBusy] = useState(false);
+    const [message, setMessage] = useState('');
 
-    const cases = [];
+    const load = useCallback(async () => {
+        try {
+            const res = await api.get('/api/pathology/specimens');
+            const rows = res.data.data || res.data.specimens || [];
+            setCases(rows.map(s => ({
+                id: s.specimen_no,
+                patient: s.patient_name || s.patient_id || '—',
+                type: s.specimen_type || 'Biopsy',
+                specimen: s.specimen_type || 'Biopsy',
+                site: s.site || '—',
+                assigned: '—',
+                priority: s.priority || 'Routine',
+                tat: '—',
+                status: s.status || 'Collected',
+            })));
+        } catch (err) {
+            console.error('[AnatomicPathology] load failed:', err.message);
+            setCases([]);
+            setMessage('Could not load pathology specimens.');
+        }
+    }, []);
+
+    useEffect(() => { load(); }, [load]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        try {
+            await api.post('/api/pathology/specimens', form);
+            setShowNewCase(false);
+            setForm({ site: '', specimen_type: 'Biopsy', priority: 'Routine', notes: '' });
+            await load();
+            setMessage('Specimen logged and accessioned.');
+        } catch (err) {
+            setMessage(err.response?.data?.message || 'Could not log the specimen.');
+        } finally {
+            setBusy(false);
+        }
+    };
 
     const slides = [
         { id: 'SL-0891', caseId: 'PATH-2026-0120', stain: 'H&E', blocks: 4, status: 'Cut', quality: 'Good' },
@@ -22,8 +65,10 @@ const AnatomicPathology = () => {
         <Container className="py-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold">🔬 Anatomic Pathology</h3>
-                <Button variant="primary" onClick={() => setShowNewCase(true)}>➕ New Specimen</Button>
+                <Button variant="primary" onClick={() => { setMessage(''); setShowNewCase(true); }}>➕ New Specimen</Button>
             </div>
+
+            {message && <Alert variant="info" dismissible onClose={() => setMessage('')}>{message}</Alert>}
 
             <Row className="mb-4 g-3">
                 {[
@@ -92,19 +137,45 @@ const AnatomicPathology = () => {
 
             <Modal show={showNewCase} onHide={() => setShowNewCase(false)} size="lg">
                 <Modal.Header closeButton className="bg-primary text-white"><Modal.Title>🔬 Log New Specimen</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Row>
-                        <Col md={6}><Form.Group className="mb-3"><Form.Label>Patient</Form.Label><Form.Control placeholder="Search patient..." /></Form.Group></Col>
-                        <Col md={6}><Form.Group className="mb-3"><Form.Label>Specimen Type</Form.Label><Form.Select><option>Biopsy</option><option>Excision</option><option>Resection</option><option>FNAC</option><option>Frozen Section</option><option>Cytology</option></Form.Select></Form.Group></Col>
-                        <Col md={6}><Form.Group className="mb-3"><Form.Label>Specimen Description</Form.Label><Form.Control placeholder="e.g. Colon polyp, sigmoid" /></Form.Group></Col>
-                        <Col md={6}><Form.Group className="mb-3"><Form.Label>Anatomic Site</Form.Label><Form.Control placeholder="e.g. Sigmoid colon" /></Form.Group></Col>
-                        <Col md={4}><Form.Group className="mb-3"><Form.Label>Priority</Form.Label><Form.Select><option>Routine</option><option>Urgent</option><option>STAT (Frozen)</option></Form.Select></Form.Group></Col>
-                        <Col md={4}><Form.Group className="mb-3"><Form.Label>Requesting Dr</Form.Label><Form.Control placeholder="Surgeon name" /></Form.Group></Col>
-                        <Col md={4}><Form.Group className="mb-3"><Form.Label>Assign Pathologist</Form.Label><Form.Select><option>Dr. Mehra</option><option>Dr. Kapoor</option><option>Dr. Sharma</option></Form.Select></Form.Group></Col>
-                        <Col md={12}><Form.Group className="mb-3"><Form.Label>Clinical History</Form.Label><Form.Control as="textarea" rows={2} placeholder="Relevant clinical information..." /></Form.Group></Col>
-                    </Row>
-                </Modal.Body>
-                <Modal.Footer><Button variant="secondary" onClick={() => setShowNewCase(false)}>Cancel</Button><Button variant="primary" onClick={() => { alert('✅ Specimen logged'); setShowNewCase(false); }}>📥 Log Specimen</Button></Modal.Footer>
+                <Form onSubmit={handleSubmit}>
+                    <Modal.Body>
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Specimen Type</Form.Label>
+                                    <Form.Select value={form.specimen_type} onChange={(e) => setForm({ ...form, specimen_type: e.target.value })}>
+                                        <option>Biopsy</option><option>Excision</option><option>Resection</option>
+                                        <option>FNAC</option><option>Frozen Section</option><option>Cytology</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Anatomic Site</Form.Label>
+                                    <Form.Control value={form.site} onChange={(e) => setForm({ ...form, site: e.target.value })} placeholder="e.g. Sigmoid colon" required />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Priority</Form.Label>
+                                    <Form.Select value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
+                                        <option>Routine</option><option>Urgent</option><option>STAT</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={12}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Clinical History / Notes</Form.Label>
+                                    <Form.Control as="textarea" rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Relevant clinical information..." />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowNewCase(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit" disabled={busy}>{busy ? 'Saving…' : '📥 Log Specimen'}</Button>
+                    </Modal.Footer>
+                </Form>
             </Modal>
         </Container>
     );

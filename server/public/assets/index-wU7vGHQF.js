@@ -66955,9 +66955,27 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
   const [loading, setLoading] = reactExports.useState(false);
   const [selectedSet, setSelectedSet] = reactExports.useState(null);
   const [selectedItems, setSelectedItems] = reactExports.useState([]);
+  const fetchOrderSets = async () => {
+    setLoading(true);
+    setShowModal(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("/api/order-sets", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const rawData = res.data;
+      const sets = Array.isArray(rawData) ? rawData : rawData.data || [];
+      setOrderSets(sets);
+    } catch (err) {
+      console.error("Error fetching order sets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSetSelect = (set) => {
-    setSelectedSet(set);
-    setSelectedItems(set.items_json.map((_, idx) => idx));
+    const items = set.items || set.items_json || [];
+    setSelectedSet({ ...set, items_json: items });
+    setSelectedItems(items.map((_, idx) => idx));
   };
   const toggleItem = (idx) => {
     if (selectedItems.includes(idx)) {
@@ -66987,68 +67005,65 @@ const OrderSetSelector = ({ admissionId, patientId, onOrdersPlaced }) => {
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", className: "w-100 d-flex align-items-center justify-content-center", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", className: "w-100 d-flex align-items-center justify-content-center", onClick: fetchOrderSets, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { size: 18, className: "me-2" }),
       "Select Order Set"
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showModal, onHide: () => setShowModal(false), size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Order Sets / Clinical Pathways" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-info py-2 mb-3", children: "Order sets and clinical pathway ordering are not enabled on this server." }),
-        loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", className: "d-block mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex", style: { minHeight: "400px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-40 border-end pe-3", style: { minWidth: "250px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "text-muted mb-3", children: "Available Sets" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ListGroup$1, { variant: "flush", children: orderSets.map((set) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              ListGroup$1.Item,
-              {
-                action: true,
-                active: (selectedSet == null ? void 0 : selectedSet.id) === set.id,
-                onClick: () => handleSetSelect(set),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fw-bold", children: set.name }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: set.category })
-                ]
-              },
-              set.id
-            )) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", className: "d-block mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex", style: { minHeight: "400px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-40 border-end pe-3", style: { minWidth: "250px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "text-muted mb-3", children: "Available Sets" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ListGroup$1, { variant: "flush", children: orderSets.map((set) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            ListGroup$1.Item,
+            {
+              action: true,
+              active: (selectedSet == null ? void 0 : selectedSet.id) === set.id,
+              onClick: () => handleSetSelect(set),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fw-bold", children: set.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: set.category })
+              ]
+            },
+            set.id
+          )) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-60 ps-3 flex-grow-1", children: selectedSet ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-2", children: selectedSet.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted small", children: selectedSet.description }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h6", { className: "mt-4 mb-2", children: [
+            "Review Orders (",
+            selectedItems.length,
+            " selected)"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-60 ps-3 flex-grow-1", children: selectedSet ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-2", children: selectedSet.name }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted small", children: selectedSet.description }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h6", { className: "mt-4 mb-2", children: [
-              "Review Orders (",
-              selectedItems.length,
-              " selected)"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ListGroup$1, { children: selectedSet.items_json.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              ListGroup$1.Item,
-              {
-                className: "d-flex align-items-start",
-                onClick: () => toggleItem(idx),
-                action: true,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "me-3 pt-1", children: selectedItems.includes(idx) ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircleIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Square, { size: 18, className: "text-muted" }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-grow-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.type === "medication" ? item.drug_name : item.type === "lab" ? item.test_name : item.instruction || "Item" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: item.type.toUpperCase() })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { className: "text-muted d-block", children: [
-                      item.type === "medication" && `${item.dosage} ${item.frequency} for ${item.duration}`,
-                      item.type === "lab" && `Priority: ${item.priority}`,
-                      item.instruction
-                    ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ListGroup$1, { children: selectedSet.items_json.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            ListGroup$1.Item,
+            {
+              className: "d-flex align-items-start",
+              onClick: () => toggleItem(idx),
+              action: true,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "me-3 pt-1", children: selectedItems.includes(idx) ? /* @__PURE__ */ jsxRuntimeExports.jsx(CheckCircleIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(Square, { size: 18, className: "text-muted" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-grow-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.type === "medication" ? item.drug_name : item.type === "lab" ? item.test_name : item.instruction || "Item" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: item.type.toUpperCase() })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { className: "text-muted d-block", children: [
+                    item.type === "medication" && `${item.dosage} ${item.frequency} for ${item.duration}`,
+                    item.type === "lab" && `Priority: ${item.priority}`,
+                    item.instruction
                   ] })
-                ]
-              },
-              idx
-            )) })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-100 d-flex flex-column align-items-center justify-content-center text-muted", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { size: 48, className: "mb-3 opacity-25" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Select an order set from the list to view details" })
-          ] }) })
-        ] })
-      ] }),
+                ] })
+              ]
+            },
+            idx
+          )) })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-100 d-flex flex-column align-items-center justify-content-center text-muted", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { size: 48, className: "mb-3 opacity-25" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Select an order set from the list to view details" })
+        ] }) })
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowModal(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -67071,16 +67086,30 @@ const CheckCircleIcon = () => /* @__PURE__ */ jsxRuntimeExports.jsxs("svg", { wi
   /* @__PURE__ */ jsxRuntimeExports.jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }),
   /* @__PURE__ */ jsxRuntimeExports.jsx("polyline", { points: "22 4 12 14.01 9 11.01" })
 ] });
-const MedicationReconciliation = ({ hospitalMeds = [] }) => {
-  const [homeMeds, setHomeMeds] = reactExports.useState([
-    { drug: "Metformin", dose: "500mg", freq: "BID", last_taken: "Yesterday" }
-  ]);
+const MedicationReconciliation = ({ hospitalMeds = [], patientId = null, admissionId = null }) => {
+  const [homeMeds, setHomeMeds] = reactExports.useState([]);
   const [showAddModal, setShowAddModal] = reactExports.useState(false);
   const [newMed, setNewMed] = reactExports.useState({ drug: "", dose: "", freq: "", last_taken: "" });
-  const handleAddMed = () => {
-    setHomeMeds([...homeMeds, newMed]);
-    setNewMed({ drug: "", dose: "", freq: "", last_taken: "" });
-    setShowAddModal(false);
+  const [error, setError] = reactExports.useState("");
+  const handleAddMed = async () => {
+    var _a, _b;
+    try {
+      await api$1.post("/api/medication-reconciliation", {
+        patient_id: patientId,
+        admission_id: admissionId,
+        drug_name: newMed.drug,
+        dose: newMed.dose,
+        frequency: newMed.freq,
+        source: "Home",
+        notes: newMed.last_taken ? `Last taken: ${newMed.last_taken}` : null
+      });
+      setHomeMeds([...homeMeds, newMed]);
+      setNewMed({ drug: "", dose: "", freq: "", last_taken: "" });
+      setShowAddModal(false);
+      setError("");
+    } catch (err) {
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not save the home medication.");
+    }
   };
   const handleDeleteMed = (idx) => {
     setHomeMeds(homeMeds.filter((_, i) => i !== idx));
@@ -120244,6 +120273,31 @@ function BloodBankDashboard() {
   const [showDonorModal, setShowDonorModal] = reactExports.useState(false);
   const [showCollectModal, setShowCollectModal] = reactExports.useState(false);
   const [showRequestModal, setShowRequestModal] = reactExports.useState(false);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [requestForm, setRequestForm] = reactExports.useState({ admission_id: "", patient_id: "", blood_group_required: "O+", units_required: 1, priority: "Routine", indication: "" });
+  const openRequestModal = async () => {
+    var _a2;
+    setShowRequestModal(true);
+    try {
+      const res = await api$1.get("/admissions?status=Admitted");
+      setAdmissions(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || []);
+    } catch (err) {
+      console.error("[BloodBank] admission load failed:", err.message);
+      setAdmissions([]);
+    }
+  };
+  const submitBloodRequest = async (e3) => {
+    var _a2, _b;
+    e3.preventDefault();
+    try {
+      await api$1.post("/blood-bank/requests", requestForm);
+      setShowRequestModal(false);
+      setRequestForm({ admission_id: "", patient_id: "", blood_group_required: "O+", units_required: 1, priority: "Routine", indication: "" });
+      await fetchRequests();
+    } catch (err) {
+      alert(((_b = (_a2 = err.response) == null ? void 0 : _a2.data) == null ? void 0 : _b.message) || "Could not raise the blood request.");
+    }
+  };
   const [donorForm, setDonorForm] = reactExports.useState({
     name: "",
     phone: "",
@@ -120684,7 +120738,7 @@ function BloodBankDashboard() {
       ] }), children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-white d-flex justify-content-between align-items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-0", children: "Blood Requests" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", onClick: () => setShowRequestModal(true), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", onClick: openRequestModal, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
             " New Request"
           ] })
@@ -120936,6 +120990,63 @@ function BloodBankDashboard() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowCollectModal(false), children: "Cancel" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", children: "Add Blood Unit" })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showRequestModal, onHide: () => setShowRequestModal(false), centered: true, size: "lg", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, className: "bg-danger text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "New Blood Request" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitBloodRequest, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: requestForm.admission_id,
+                onChange: (e3) => {
+                  const a2 = admissions.find((x2) => String(x2.id) === e3.target.value);
+                  setRequestForm({ ...requestForm, admission_id: e3.target.value, patient_id: (a2 == null ? void 0 : a2.patient_id) || "" });
+                },
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.id, children: [
+                    a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                    " — ",
+                    a2.ward || "Ward",
+                    " ",
+                    a2.bed_number || ""
+                  ] }, a2.id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Blood Group" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Select, { value: requestForm.blood_group_required, onChange: (e3) => setRequestForm({ ...requestForm, blood_group_required: e3.target.value }), children: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((g2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g2, children: g2 }, g2)) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Units" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", min: "1", value: requestForm.units_required, onChange: (e3) => setRequestForm({ ...requestForm, units_required: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: requestForm.priority, onChange: (e3) => setRequestForm({ ...requestForm, priority: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Routine" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Urgent" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Emergency" })
+              ] })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Indication" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, value: requestForm.indication, onChange: (e3) => setRequestForm({ ...requestForm, indication: e3.target.value }), placeholder: "Clinical indication for transfusion" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowRequestModal(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", type: "submit", children: "Raise Request" })
         ] })
       ] })
     ] })
@@ -142769,14 +142880,56 @@ const PriorAuthDashboard = () => {
     urgency: "Standard",
     notes: ""
   });
-  const [authRequests] = reactExports.useState([
-    { id: "PA-2026-0451", patient: "Ramesh K.", insurance: "Star Health", procedure: "MRI Brain with Contrast", cpt: "70553", status: "Pending Review", submitted: "2026-03-02", urgency: "Urgent", days: 0 },
-    { id: "PA-2026-0450", patient: "Priya S.", insurance: "ICICI Lombard", procedure: "Knee Arthroscopy", cpt: "29881", status: "Approved", submitted: "2026-02-28", urgency: "Standard", days: 2, approved_on: "2026-03-02" },
-    { id: "PA-2026-0449", patient: "Suresh M.", insurance: "New India Assurance", procedure: "CT Chest HRCT", cpt: "71260", status: "Info Requested", submitted: "2026-02-27", urgency: "Urgent", days: 3 },
-    { id: "PA-2026-0448", patient: "Anita R.", insurance: "Bajaj Allianz", procedure: "Coronary Angioplasty", cpt: "92928", status: "Denied", submitted: "2026-02-25", urgency: "Emergency", days: 5, denied_reason: "Non-network provider" },
-    { id: "PA-2026-0447", patient: "Vikram J.", insurance: "Max Bupa", procedure: "Chemotherapy Cycle 3", cpt: "96413", status: "Approved", submitted: "2026-02-24", urgency: "Standard", days: 3, approved_on: "2026-02-27" },
-    { id: "PA-2026-0446", patient: "Meera L.", insurance: "HDFC ERGO", procedure: "Spinal Fusion L4-L5", cpt: "22612", status: "Pending Review", submitted: "2026-03-01", urgency: "Standard", days: 1 }
-  ]);
+  const [authRequests, setAuthRequests] = reactExports.useState([]);
+  const [attachFor, setAttachFor] = reactExports.useState(null);
+  const [attach, setAttach] = reactExports.useState({ name: "", reference: "", notes: "" });
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = async () => {
+    try {
+      const res = await axios.get("/api/prior-auth/requests", { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      const rows = res.data.data || res.data.requests || [];
+      setAuthRequests(rows.map((r2) => ({
+        id: r2.id,
+        ref: r2.id,
+        patient: r2.patient_number || r2.patient_id || "—",
+        insurer: r2.insurer || "—",
+        insurance: r2.insurer || "—",
+        procedure: r2.procedure_name || "—",
+        status: r2.status || "Submitted",
+        submitted: r2.submitted_at ? String(r2.submitted_at).slice(0, 10) : "—",
+        urgency: Number(r2.estimated_cost) > 1e5 ? "Urgent" : "Standard",
+        days: r2.submitted_at ? Math.max(0, Math.floor((Date.now() - new Date(r2.submitted_at).getTime()) / 864e5)) : 0,
+        attachments: r2.attachments || []
+      })));
+    } catch (err) {
+      console.error("[PriorAuth] load failed:", err.message);
+      setAuthRequests([]);
+      setMessage("Could not load prior-authorisation requests.");
+    }
+  };
+  reactExports.useEffect(() => {
+    load();
+  }, []);
+  const submitAttachment = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    if (!attachFor) return;
+    setBusy(true);
+    try {
+      await axios.post(`/api/prior-auth/${attachFor.id}/attach`, attach, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      setAttachFor(null);
+      setAttach({ name: "", reference: "", notes: "" });
+      await load();
+      setMessage("Supporting document attached to the request.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not attach the document.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const kpis = {
     total: authRequests.length,
     pending: authRequests.filter((a2) => a2.status === "Pending Review").length,
@@ -142845,8 +142998,8 @@ const PriorAuthDashboard = () => {
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(auth.status) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", className: "me-1", children: "📞 Follow Up" }),
-            auth.status === "Info Requested" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "warning", children: "📎 Upload Docs" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", className: "me-1", onClick: () => setAttachFor(auth), children: "📞 Follow Up" }),
+            auth.status === "Info Requested" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "warning", onClick: () => setAttachFor(auth), children: "📎 Upload Docs" })
           ] })
         ] }, auth.id)) })
       ] }) }) }),
@@ -142968,6 +143121,35 @@ const PriorAuthDashboard = () => {
             alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the prior-authorisation request.");
           }
         }, children: "📤 Submit PA Request" })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: !!attachFor, onHide: () => setAttachFor(null), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Attach Document / Follow-up" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitAttachment, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "small text-muted", children: [
+            "Request #",
+            attachFor == null ? void 0 : attachFor.id,
+            " — ",
+            attachFor == null ? void 0 : attachFor.procedure
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Document Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: attach.name, onChange: (e3) => setAttach({ ...attach, name: e3.target.value }), placeholder: "e.g. Discharge summary.pdf", required: true })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Reference / Link" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: attach.reference, onChange: (e3) => setAttach({ ...attach, reference: e3.target.value }), placeholder: "Scan ID, TPA portal reference or URL" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Follow-up Notes" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, value: attach.notes, onChange: (e3) => setAttach({ ...attach, notes: e3.target.value }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setAttachFor(null), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? "Saving…" : "Attach" })
+        ] })
       ] })
     ] })
   ] });
@@ -143552,7 +143734,50 @@ const PopulationHealth = () => {
 const AnatomicPathology = () => {
   const [activeTab, setActiveTab] = reactExports.useState("cases");
   const [showNewCase, setShowNewCase] = reactExports.useState(false);
-  const cases = [];
+  const [cases, setCases] = reactExports.useState([]);
+  const [form, setForm] = reactExports.useState({ site: "", specimen_type: "Biopsy", priority: "Routine", notes: "" });
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/pathology/specimens");
+      const rows = res.data.data || res.data.specimens || [];
+      setCases(rows.map((s2) => ({
+        id: s2.specimen_no,
+        patient: s2.patient_name || s2.patient_id || "—",
+        type: s2.specimen_type || "Biopsy",
+        specimen: s2.specimen_type || "Biopsy",
+        site: s2.site || "—",
+        assigned: "—",
+        priority: s2.priority || "Routine",
+        tat: "—",
+        status: s2.status || "Collected"
+      })));
+    } catch (err) {
+      console.error("[AnatomicPathology] load failed:", err.message);
+      setCases([]);
+      setMessage("Could not load pathology specimens.");
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    load();
+  }, [load]);
+  const handleSubmit = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      await api$1.post("/api/pathology/specimens", form);
+      setShowNewCase(false);
+      setForm({ site: "", specimen_type: "Biopsy", priority: "Routine", notes: "" });
+      await load();
+      setMessage("Specimen logged and accessioned.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not log the specimen.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const slides = [
     { id: "SL-0891", caseId: "PATH-2026-0120", stain: "H&E", blocks: 4, status: "Cut", quality: "Good" },
     { id: "SL-0890", caseId: "PATH-2026-0120", stain: "IHC - ER/PR", blocks: 2, status: "Staining", quality: "Pending" },
@@ -143565,8 +143790,12 @@ const AnatomicPathology = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold", children: "🔬 Anatomic Pathology" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowNewCase(true), children: "➕ New Specimen" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+        setMessage("");
+        setShowNewCase(true);
+      }, children: "➕ New Specimen" })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "mb-4 g-3", children: [
       { t: "Active Cases", v: cases.filter((c2) => c2.status !== "Finalized").length, c: "primary" },
       { t: "STAT Pending", v: cases.filter((c2) => c2.priority === "STAT").length, c: "danger" },
@@ -143644,61 +143873,40 @@ const AnatomicPathology = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showNewCase, onHide: () => setShowNewCase(false), size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, className: "bg-primary text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "🔬 Log New Specimen" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Search patient..." })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleSubmit, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Specimen Type" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.specimen_type, onChange: (e3) => setForm({ ...form, specimen_type: e3.target.value }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Biopsy" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Excision" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Resection" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "FNAC" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Frozen Section" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Cytology" })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Anatomic Site" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.site, onChange: (e3) => setForm({ ...form, site: e3.target.value }), placeholder: "e.g. Sigmoid colon", required: true })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.priority, onChange: (e3) => setForm({ ...form, priority: e3.target.value }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Routine" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Urgent" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "STAT" })
+            ] })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Clinical History / Notes" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, value: form.notes, onChange: (e3) => setForm({ ...form, notes: e3.target.value }), placeholder: "Relevant clinical information..." })
+          ] }) })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Specimen Type" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Biopsy" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Excision" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Resection" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "FNAC" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Frozen Section" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Cytology" })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Specimen Description" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "e.g. Colon polyp, sigmoid" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Anatomic Site" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "e.g. Sigmoid colon" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Routine" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Urgent" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "STAT (Frozen)" })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Requesting Dr" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Surgeon name" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Assign Pathologist" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Dr. Mehra" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Dr. Kapoor" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Dr. Sharma" })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 12, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Clinical History" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, placeholder: "Relevant clinical information..." })
-        ] }) })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNewCase(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
-          alert("✅ Specimen logged");
-          setShowNewCase(false);
-        }, children: "📥 Log Specimen" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNewCase(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? "Saving…" : "📥 Log Specimen" })
+        ] })
       ] })
     ] })
   ] });
@@ -145512,6 +145720,55 @@ const CPOEDashboard = () => {
   const [selectedOrderType, setSelectedOrderType] = reactExports.useState("medication");
   const [orderSearch, setOrderSearch] = reactExports.useState("");
   const [showSafetyAlert, setShowSafetyAlert] = reactExports.useState(false);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [orderMsg, setOrderMsg] = reactExports.useState("");
+  const [busy, setBusy] = reactExports.useState(false);
+  const [orderForm, setOrderForm] = reactExports.useState({
+    admission_id: "",
+    patient_id: "",
+    patient_name: "",
+    medication: "",
+    dose: "",
+    route: "Oral",
+    frequency: "OD",
+    priority: "Routine",
+    instructions: ""
+  });
+  reactExports.useEffect(() => {
+    (async () => {
+      var _a;
+      try {
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
+      } catch (err) {
+        console.error("[CPOE] admission load failed:", err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, []);
+  const submitOrder = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      const details = selectedOrderType === "medication" ? `${orderForm.medication} ${orderForm.dose} ${orderForm.route} ${orderForm.frequency}${orderForm.instructions ? ` - ${orderForm.instructions}` : ""}` : `${selectedOrderType} order${orderForm.instructions ? ` - ${orderForm.instructions}` : ""}`;
+      await api$1.post("/api/cpoe/orders", {
+        patient_id: orderForm.patient_id || null,
+        admission_id: orderForm.admission_id || null,
+        patient_name: orderForm.patient_name || null,
+        order_type: selectedOrderType,
+        details: details.trim() || "Clinical order",
+        priority: orderForm.priority
+      });
+      setShowOrderModal(false);
+      setOrderForm({ admission_id: "", patient_id: "", patient_name: "", medication: "", dose: "", route: "Oral", frequency: "OD", priority: "Routine", instructions: "" });
+      setOrderMsg("Order submitted to the clinical order engine.");
+    } catch (err) {
+      setOrderMsg(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the order.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const pendingOrders = [];
   const safetyChecks = [
     { check: "Drug-Drug Interaction", status: "⚠️ Warfarin + Aspirin (already prescribed)", severity: "high", action: "Increased bleeding risk — requires physician override" },
@@ -145540,8 +145797,8 @@ const CPOEDashboard = () => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowOrderModal(true), children: "➕ New Order" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-success", children: "📋 Order Sets" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", children: "📊 Analytics" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-success", onClick: () => setActiveTab("orderSets"), children: "📋 Order Sets" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", onClick: () => setActiveTab("safety"), children: "📊 Safety Analytics" })
       ] })
     ] }),
     showSafetyAlert && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "danger", dismissible: true, onClose: () => setShowSafetyAlert(false), children: [
@@ -145689,15 +145946,25 @@ const CPOEDashboard = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showOrderModal, onHide: () => setShowOrderModal(false), size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "➕ New Clinical Order" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitOrder, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Select Patient..." }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Rajesh Kumar (MRN-1045)" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Anita Desai (MRN-1078)" })
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: orderForm.admission_id,
+                onChange: (e3) => {
+                  const a2 = admissions.find((x2) => String(x2.id) === e3.target.value);
+                  setOrderForm({ ...orderForm, admission_id: e3.target.value, patient_id: (a2 == null ? void 0 : a2.patient_id) || "", patient_name: (a2 == null ? void 0 : a2.patient_name) || "" });
+                },
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select Patient..." }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: a2.id, children: a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}` }, a2.id))
+                ]
+              }
+            )
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Order Type" }),
@@ -145714,11 +145981,11 @@ const CPOEDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Medication" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Type to search medications..." })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: orderForm.medication, onChange: (e3) => setOrderForm({ ...orderForm, medication: e3.target.value }), placeholder: "Type to search medications...", required: true })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Dose" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "500" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: orderForm.dose, onChange: (e3) => setOrderForm({ ...orderForm, dose: e3.target.value }), placeholder: "500" })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Unit" }),
@@ -145733,7 +146000,7 @@ const CPOEDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Route" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: orderForm.route, onChange: (e3) => setOrderForm({ ...orderForm, route: e3.target.value }), children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Oral" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "IV" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "IM" }),
@@ -145743,7 +146010,7 @@ const CPOEDashboard = () => {
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Frequency" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: orderForm.frequency, onChange: (e3) => setOrderForm({ ...orderForm, frequency: e3.target.value }), children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "OD" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "BD" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "TDS" }),
@@ -145754,14 +146021,14 @@ const CPOEDashboard = () => {
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Duration" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "5 days" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: orderForm.instructions, onChange: (e3) => setOrderForm({ ...orderForm, instructions: e3.target.value }), placeholder: "5 days" })
             ] }) })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: orderForm.priority, onChange: (e3) => setOrderForm({ ...orderForm, priority: e3.target.value }), children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Routine" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Urgent" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "STAT" })
@@ -145769,13 +146036,13 @@ const CPOEDashboard = () => {
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Special Instructions" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "e.g., Give after meals" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: orderForm.instructions, onChange: (e3) => setOrderForm({ ...orderForm, instructions: e3.target.value }), placeholder: "e.g., Give after meals" })
           ] }) })
         ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-warning", onClick: () => setShowSafetyAlert(true), children: "🛡️ Run Safety Check" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Submit Order" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: submitOrder, disabled: busy, children: busy ? "Submitting…" : "Submit Order" })
       ] })
     ] })
   ] });
@@ -146352,7 +146619,43 @@ const EMARDashboard = () => {
 };
 const ClosedLoopMedication = () => {
   const [activeTab, setActiveTab] = reactExports.useState("tracking");
-  const medicationOrders = [];
+  const [medicationOrders, setMedicationOrders] = reactExports.useState([]);
+  const [busy, setBusy] = reactExports.useState(false);
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/closed-loop-med");
+      const rows = res.data.data || res.data.orders || [];
+      setMedicationOrders(rows.map((o) => ({
+        id: o.id,
+        medication: o.drug_name,
+        patient: o.patient_name || o.patient_id || "—",
+        bed: o.route || "—",
+        prescribe: { status: "complete" },
+        verify: { status: o.status === "Cancelled" ? "blocked" : "complete" },
+        dispense: { status: o.status === "Cancelled" ? "blocked" : "complete" },
+        administer: { status: o.status === "Cancelled" ? "pending" : "complete" },
+        document: { status: o.status === "Cancelled" ? "pending" : "complete" }
+      })));
+    } catch (err) {
+      console.error("[ClosedLoopMedication] load failed:", err.message);
+      setMedicationOrders([]);
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    load();
+  }, [load]);
+  const cancelOrder = async (order2) => {
+    var _a, _b;
+    setBusy(true);
+    try {
+      await api$1.patch(`/api/closed-loop-med/${order2.id}/cancel`, {});
+      await load();
+    } catch (err) {
+      alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not cancel the medication order.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const stepBadge = (status) => {
     if (status === "complete") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "✅" });
     if (status === "in_progress") return /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", children: "🔄" });
@@ -146379,7 +146682,7 @@ const ClosedLoopMedication = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "🔒 Closed-Loop Medication Management" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Prescribe → Verify → Dispense → Administer → Document" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", children: "📊 Chain Analytics" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", onClick: () => setActiveTab("chain-analytics"), children: "📊 Chain Analytics" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
@@ -146497,10 +146800,7 @@ const ClosedLoopMedication = () => {
               order2.verify.alert || "Blocked by safety system"
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", className: "me-2", children: "Override (MD)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-secondary", children: "Cancel Order" })
-          ] })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", className: "me-2", disabled: busy, onClick: () => cancelOrder(order2), children: "Cancel Order" }) })
         ] }) }, order2.id)),
         medicationOrders.filter((o) => o.verify.status === "alert" || o.dispense.status === "blocked").length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "success", children: "✅ No safety blocks — all medication chains are clear" })
       ] }) }) }),
@@ -150916,28 +151216,83 @@ const EmergencyCommandCenter = () => {
     ] })
   ] });
 };
+const emptyTransfer = { patient_id: "", admission_id: "", patient_name: "", from_ward: "", from_bed: "", to_ward: "ICU Main", to_bed: "", reason: "" };
 const BedTransferManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("pending");
   const [showRequest, setShowRequest] = reactExports.useState(false);
-  const pendingTransfers = [];
-  const approvedTransfers = [];
-  const transferHistory = [];
-  const availableBeds = [
-    { ward: "ICU", total: 12, occupied: 10, available: 2, beds: ["ICU-5", "ICU-11"] },
-    { ward: "Ward A", total: 30, occupied: 26, available: 4, beds: ["A-3", "A-12", "A-18", "A-27"] },
-    { ward: "Ward B", total: 25, occupied: 22, available: 3, beds: ["B-7", "B-14", "B-23"] },
-    { ward: "Pediatrics", total: 15, occupied: 11, available: 4, beds: ["P-2", "P-8", "P-12", "P-15"] },
-    { ward: "NICU", total: 8, occupied: 6, available: 2, beds: ["N-4", "N-7"] },
-    { ward: "Maternity", total: 10, occupied: 8, available: 2, beds: ["M-3", "M-9"] }
-  ];
+  const [transfers, setTransfers] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [form, setForm] = reactExports.useState(emptyTransfer);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/bed-transfers");
+      setTransfers(res.data.data || res.data.transfers || []);
+    } catch (err) {
+      console.error("[BedTransfer] load failed:", err.message);
+      setTransfers([]);
+      setMessage("Could not load bed transfers.");
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    load();
+    (async () => {
+      var _a;
+      try {
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
+      } catch (err) {
+        console.error("[BedTransfer] admission load failed:", err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, [load]);
+  const handleSubmit = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      await api$1.post("/api/bed-transfers", form);
+      setShowRequest(false);
+      setForm(emptyTransfer);
+      await load();
+      setMessage("Transfer request submitted for approval.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the transfer request.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const decide = async (transfer, status) => {
+    var _a, _b;
+    setBusy(true);
+    try {
+      await api$1.patch(`/api/bed-transfers/${transfer.id}/status`, { status });
+      await load();
+      setMessage(`Transfer #${transfer.id} ${status.toLowerCase()}.`);
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not update the transfer.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const pendingTransfers = transfers.filter((t2) => t2.status === "Requested");
+  const approvedTransfers = transfers.filter((t2) => t2.status === "Approved");
+  const history = transfers.filter((t2) => t2.status !== "Requested");
+  const fmt = (v2) => v2 ? String(v2).slice(0, 16).replace("T", " ") : "—";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Bed Transfer Manager" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Transfer requests, approvals, bed availability & history" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Transfer requests, approvals and history" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowRequest(true), children: "+ New Transfer Request" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+        setMessage("");
+        setShowRequest(true);
+      }, children: "+ New Transfer Request" })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: pendingTransfers.length }),
@@ -150945,15 +151300,15 @@ const BedTransferManager = () => {
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: approvedTransfers.length }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Executed Today" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Approved" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: "17" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Available Beds" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: admissions.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Admitted Patients" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: "18 min" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg Transfer Time" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: transfers.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Total Transfers" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
@@ -150967,63 +151322,63 @@ const BedTransferManager = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "From" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "To" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Reason" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Requested By" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Priority" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Requested" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Actions" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: pendingTransfers.map((t2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: t2.from }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "primary", children: t2.to }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.reason }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.requestedBy }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: t2.priority === "Urgent" ? "danger" : t2.priority === "High" ? "warning" : "info", children: t2.priority }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", text: "dark", children: t2.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", className: "me-1", children: "Approve" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", children: "Reject" })
-          ] })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          pendingTransfers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, className: "text-center text-muted py-4", children: "No pending transfer requests." }) }),
+          pendingTransfers.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient_name || t2.patient_id || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "secondary", children: [
+              t2.from_ward || "—",
+              " ",
+              t2.from_bed || ""
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "primary", children: [
+              t2.to_ward,
+              " ",
+              t2.to_bed || ""
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.reason || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: fmt(t2.created_at) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", text: "dark", children: t2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", className: "me-1", disabled: busy, onClick: () => decide(t2, "Approved"), children: "Approve" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", disabled: busy, onClick: () => decide(t2, "Rejected"), children: "Reject" })
+            ] })
+          ] }, t2.id))
+        ] })
       ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "executed", title: "Executed Today", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "approved", title: "Approved", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "From" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "To" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Reason" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Approved By" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Executed At" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Duration" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Decided" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: approvedTransfers.map((t2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.from }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.to }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.reason }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.approvedBy }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.executedAt }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: t2.duration }) })
-        ] }, i)) })
-      ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "beds", title: "Bed Availability", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Ward" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Total" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Occupied" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Available" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Available Bed IDs" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: availableBeds.map((b2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: b2.ward }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: b2.total }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: b2.occupied }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: b2.available }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: b2.beds.map((bed, j) => /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "outline-success", className: "me-1 border border-success text-success", children: bed }, j)) })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          approvedTransfers.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 6, className: "text-center text-muted py-4", children: "No approved transfers awaiting execution." }) }),
+          approvedTransfers.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.patient_name || t2.patient_id }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              t2.from_ward,
+              " ",
+              t2.from_bed
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              t2.to_ward,
+              " ",
+              t2.to_bed
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: fmt(t2.decided_at) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: t2.status }) })
+          ] }, t2.id))
+        ] })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "history", title: "Transfer History", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -151031,72 +151386,99 @@ const BedTransferManager = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "From" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "To" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Date" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Reason" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Duration" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Requested" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: transferHistory.map((h2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: h2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: h2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: h2.from }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: h2.to }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: h2.date }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: h2.reason }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: h2.duration }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: h2.status }) })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          history.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 7, className: "text-center text-muted py-4", children: "No transfer history yet." }) }),
+          history.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient_name || t2.patient_id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              t2.from_ward,
+              " ",
+              t2.from_bed
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              t2.to_ward,
+              " ",
+              t2.to_bed
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.reason || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: fmt(t2.created_at) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: t2.status === "Rejected" ? "danger" : "success", children: t2.status }) })
+          ] }, t2.id))
+        ] })
       ] }) }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showRequest, onHide: () => setShowRequest(false), centered: true, size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "New Transfer Request" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "text", placeholder: "Search patient..." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "From (Current Bed)" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "text", disabled: true, value: "Auto-populated from patient" })
-            ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleSubmit, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: form.admission_id,
+                onChange: (e3) => {
+                  const a2 = admissions.find((x2) => String(x2.id) === e3.target.value);
+                  setForm({
+                    ...form,
+                    admission_id: e3.target.value,
+                    patient_id: (a2 == null ? void 0 : a2.patient_id) || "",
+                    patient_name: (a2 == null ? void 0 : a2.patient_name) || "",
+                    from_ward: (a2 == null ? void 0 : a2.ward) || "",
+                    from_bed: (a2 == null ? void 0 : a2.bed_number) || ""
+                  });
+                },
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.id, children: [
+                    a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                    " — ",
+                    a2.ward || "Ward",
+                    " ",
+                    a2.bed_number || ""
+                  ] }, a2.id))
+                ]
+              }
+            )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "To (Target Ward)" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ICU" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "From" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: `${form.from_ward || "—"} ${form.from_bed || ""}`, disabled: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Target Ward" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.to_ward, onChange: (e3) => setForm({ ...form, to_ward: e3.target.value }), required: true, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "ICU Main" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Ward A" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Ward B" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Pediatrics" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "NICU" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Maternity" })
               ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Target Bed" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Select, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Auto-assign best available" }) })
-            ] })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.to_bed, onChange: (e3) => setForm({ ...form, to_bed: e3.target.value }), placeholder: "e.g. ICU-05 (blank = auto-assign)" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Reason" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.reason, onChange: (e3) => setForm({ ...form, reason: e3.target.value }), placeholder: "Clinical justification" })
+            ] }) })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Urgent" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "High" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Normal" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Low" })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Transfer Reason" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, placeholder: "Clinical justification for transfer..." })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowRequest(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Submit Request" })
         ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowRequest(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowRequest(false), children: "Submit Request" })
       ] })
     ] })
   ] });
@@ -154141,7 +154523,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-35Qt_xjD.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-QmKhBo-q.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),

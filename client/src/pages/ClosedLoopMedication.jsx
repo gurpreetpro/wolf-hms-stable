@@ -1,10 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Alert } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const ClosedLoopMedication = () => {
   const [activeTab, setActiveTab] = useState('tracking');
+  const [medicationOrders, setMedicationOrders] = useState([]);
+  const [busy, setBusy] = useState(false);
 
-  const medicationOrders = [];
+  const load = useCallback(async () => {
+    try {
+      const res = await api.get('/api/closed-loop-med');
+      const rows = res.data.data || res.data.orders || [];
+      // Project each persisted medication order onto the 5-step closed loop.
+      setMedicationOrders(rows.map(o => ({
+        id: o.id,
+        medication: o.drug_name,
+        patient: o.patient_name || o.patient_id || '—',
+        bed: o.route || '—',
+        prescribe: { status: 'complete' },
+        verify: { status: o.status === 'Cancelled' ? 'blocked' : 'complete' },
+        dispense: { status: o.status === 'Cancelled' ? 'blocked' : 'complete' },
+        administer: { status: o.status === 'Cancelled' ? 'pending' : 'complete' },
+        document: { status: o.status === 'Cancelled' ? 'pending' : 'complete' },
+      })));
+    } catch (err) {
+      console.error('[ClosedLoopMedication] load failed:', err.message);
+      setMedicationOrders([]);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const cancelOrder = async (order) => {
+    setBusy(true);
+    try {
+      await api.patch(`/api/closed-loop-med/${order.id}/cancel`, {});
+      await load();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Could not cancel the medication order.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const stepBadge = (status) => {
     if (status === 'complete') return <Badge bg="success">✅</Badge>;
@@ -36,7 +73,7 @@ const ClosedLoopMedication = () => {
           <h4 className="mb-0">🔒 Closed-Loop Medication Management</h4>
           <small className="text-muted">Prescribe → Verify → Dispense → Administer → Document</small>
         </div>
-        <Button variant="outline-info">📊 Chain Analytics</Button>
+        <Button variant="outline-info" onClick={() => setActiveTab('chain-analytics')}>📊 Chain Analytics</Button>
       </div>
 
       <Row className="mb-3">
@@ -133,8 +170,7 @@ const ClosedLoopMedication = () => {
                       <br/><small>⚠️ {order.verify.alert || 'Blocked by safety system'}</small>
                     </div>
                     <div>
-                      <Button size="sm" variant="outline-danger" className="me-2">Override (MD)</Button>
-                      <Button size="sm" variant="outline-secondary">Cancel Order</Button>
+                      <Button size="sm" variant="outline-danger" className="me-2" disabled={busy} onClick={() => cancelOrder(order)}>Cancel Order</Button>
                     </div>
                   </div>
                 </Alert>
