@@ -39,7 +39,7 @@ export default function CommsDashboard() {
           <h2 className="mb-1"><MessageSquare className="me-2 text-primary" />Communication Hub</h2>
           <p className="text-muted">Internal Announcements & Messaging</p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setShowNew(true)}>
           <Plus size={16} className="me-1" /> New Announcement
 </Button>
       </div>
@@ -106,7 +106,21 @@ export default function CommsDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="primary"><Send size={14} className="me-1" /> Post (Disabled)</Button>
+          <Button variant="primary" onClick={async () => {
+            try {
+              await api.post('/api/communications', {
+                channel: newMsg.type || 'Announcement',
+                subject: newMsg.title,
+                message: newMsg.body,
+                audience: newMsg.target,
+                status: 'Published',
+              });
+              setShowNew(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not post the announcement.');
+            }
+          }}><Send size={14} className="me-1" /> Post</Button>
         </Modal.Footer>
       </Modal>
     </Container>

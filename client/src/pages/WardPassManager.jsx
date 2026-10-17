@@ -1,28 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Modal, Form } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import api from '../utils/axiosInstance';
+
+const emptyPass = { patient_id: '', pass_type: 'Short leave', purpose: '', escort_name: '', valid_until: '' };
 
 const WardPassManager = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [showNew, setShowNew] = useState(false);
   const [activePasses, setActivePasses] = useState([]);
   const [returnedPasses, setReturnedPasses] = useState([]);
+  const [admissions, setAdmissions] = useState([]);
+  const [form, setForm] = useState(emptyPass);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
-  // Live ward passes (replaces the previously hardcoded pass rows)
+  const load = useCallback(async () => {
+    try {
+      const res = await api.get('/api/ward-pass/passes');
+      const all = res.data.data || res.data.passes || [];
+      setActivePasses(all.filter(p => p.status === 'Active'));
+      setReturnedPasses(all.filter(p => p.status !== 'Active'));
+    } catch (err) {
+      console.error('[WardPassManager] pass load failed:', err.message);
+      setActivePasses([]);
+      setReturnedPasses([]);
+      setError('Could not load ward passes.');
+    }
+  }, []);
+
   useEffect(() => {
+    load();
     (async () => {
       try {
-        const res = await api.get('/api/ward-pass/passes');
-        const all = res.data.data || res.data.passes || [];
-        setActivePasses(all.filter(p => p.status === 'Active'));
-        setReturnedPasses(all.filter(p => p.status !== 'Active'));
+        const res = await api.get('/api/admissions?status=Admitted');
+        setAdmissions(res.data?.data || res.data || []);
       } catch (err) {
-        console.error('[WardPassManager] pass load failed:', err.message);
-        setActivePasses([]);
-        setReturnedPasses([]);
+        console.error('[WardPassManager] admission load failed:', err.message);
+        setAdmissions([]);
       }
     })();
-  }, []);
+  }, [load]);
+
+  const handleIssue = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      await api.post('/api/ward-pass/passes', form);
+      setShowNew(false);
+      setForm(emptyPass);
+      await load();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not issue the ward pass.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const markReturned = async (pass) => {
+    setBusy(true);
+    setError('');
+    try {
+      await api.patch(`/api/ward-pass/passes/${pass.id}/return`, { return_vitals: 'Returned to ward — vitals checked by nursing' });
+      await load();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Could not mark the pass returned.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const totalPasses = activePasses.length + returnedPasses.length;
 
@@ -40,8 +86,10 @@ const WardPassManager = () => {
           <h4 className="mb-0">Ward Pass Manager</h4>
           <small className="text-muted">Temporary leave passes, escort tracking, return vitals, policies</small>
         </div>
-        <Button variant="primary" onClick={() => setShowNew(true)}>+ Issue Ward Pass</Button>
+        <Button variant="primary" onClick={() => { setError(''); setShowNew(true); }}>+ Issue Ward Pass</Button>
       </div>
+
+      {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
 
       <Row className="mb-3">
         <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{activePasses.length}</h3><small>Currently Out</small></Card.Body></Card></Col>
@@ -61,14 +109,14 @@ const WardPassManager = () => {
                 {activePasses.map((p) => (
                   <tr key={p.id}>
                     <td><code>{p.id}</code></td>
-                    <td><strong>{p.patient}</strong></td>
-                    <td><Badge bg="secondary">{p.ward}</Badge></td>
-                    <td><Badge bg="info">{p.type}</Badge></td>
-                    <td><small>{p.reason}</small></td>
-                    <td><small>{p.escortedBy}<br/>{p.contact}</small></td>
-                    <td className="text-danger fw-bold">{p.returnBy}</td>
-                    <td><small>{p.conditions}</small></td>
-                    <td><Button size="sm" variant="success">Mark Returned</Button></td>
+                    <td><strong>{p.patient_name || p.patient_id}</strong></td>
+                    <td><Badge bg="secondary">{p.pass_type}</Badge></td>
+                    <td><Badge bg="info">{p.pass_type}</Badge></td>
+                    <td><small>{p.purpose || '—'}</small></td>
+                    <td><small>{p.escort_name || '—'}</small></td>
+                    <td className="text-danger fw-bold">{p.valid_until ? String(p.valid_until).slice(0, 16).replace('T', ' ') : '—'}</td>
+                    <td><small>{p.return_vitals || 'Awaiting return'}</small></td>
+                    <td><Button size="sm" variant="success" disabled={busy} onClick={() => markReturned(p)}>Mark Returned</Button></td>
                   </tr>
                 ))}
               </tbody>
@@ -125,24 +173,64 @@ const WardPassManager = () => {
 
       <Modal show={showNew} onHide={() => setShowNew(false)} centered size="lg">
         <Modal.Header closeButton><Modal.Title>Issue Ward Pass</Modal.Title></Modal.Header>
-        <Modal.Body>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3"><Form.Label>Patient</Form.Label><Form.Control placeholder="Search admitted patient..." /></Form.Group>
-              <Form.Group className="mb-3"><Form.Label>Pass Type</Form.Label><Form.Select><option>Short Leave (4h)</option><option>Day Pass (8h)</option><option>Overnight (14h)</option><option>Extended (48h)</option></Form.Select></Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3"><Form.Label>Escort Name</Form.Label><Form.Control placeholder="Name & relationship" /></Form.Group>
-              <Form.Group className="mb-3"><Form.Label>Escort Contact</Form.Label><Form.Control placeholder="Phone number" /></Form.Group>
-            </Col>
-          </Row>
-          <Form.Group className="mb-3"><Form.Label>Reason</Form.Label><Form.Control as="textarea" rows={2} placeholder="Reason for leave..." /></Form.Group>
-          <Form.Group className="mb-3"><Form.Label>Special Conditions</Form.Label><Form.Control as="textarea" rows={2} placeholder="Medications, restrictions, care instructions..." /></Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="primary" onClick={() => setShowNew(false)}>Issue Pass</Button>
-        </Modal.Footer>
+        <Form onSubmit={handleIssue}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Admitted Patient</Form.Label>
+              <Form.Select
+                value={form.patient_id}
+                onChange={(e) => setForm({ ...form, patient_id: e.target.value })}
+                required
+              >
+                <option value="">Select an admitted patient</option>
+                {admissions.map(a => (
+                  <option key={a.id} value={a.patient_id}>
+                    {a.patient_name || a.patient_uhid || `Patient ${a.patient_id}`} — {a.ward || 'Ward'} {a.bed_number || ''}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Pass Type</Form.Label>
+                  <Form.Select value={form.pass_type} onChange={(e) => setForm({ ...form, pass_type: e.target.value })}>
+                    <option value="Short leave">Short Leave (4h)</option>
+                    <option value="Day pass">Day Pass (8h)</option>
+                    <option value="Overnight pass">Overnight (14h)</option>
+                    <option value="Extended leave">Extended (48h)</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Valid Until</Form.Label>
+                  <Form.Control type="datetime-local" value={form.valid_until} onChange={(e) => setForm({ ...form, valid_until: e.target.value })} required />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Escort Name</Form.Label>
+                  <Form.Control value={form.escort_name} onChange={(e) => setForm({ ...form, escort_name: e.target.value })} placeholder="Name & relationship" />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Reason / Conditions</Form.Label>
+                  <Form.Control value={form.purpose} onChange={(e) => setForm({ ...form, purpose: e.target.value })} placeholder="Reason for leave, medications, restrictions" />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={busy}>
+              {busy ? <Spinner animation="border" size="sm" /> : 'Issue Pass'}
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </Container>
   );

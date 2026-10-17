@@ -6,44 +6,53 @@ import api from '../utils/axiosInstance';
 export default function ClinicalPathwaysDashboard() {
   const [pathways, setPathways] = useState([]);
   const [activePatients, setActivePatients] = useState([]);
+  const [showEnroll, setShowEnroll] = useState(false);
+  const [form, setForm] = useState({ name: '', condition: '', pathway_code: '' });
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get('/api/clinical-pathways');
-        setPathways(res.data.pathways || []);
-        setActivePatients(res.data.patients || []);
-      } catch {
-        setPathways([
-          { id: 1, name: 'Elective Knee Replacement', category: 'Orthopedic', steps: 12, avgLOS: 5, active: 3, compliance: 92 },
-          { id: 2, name: 'Acute MI Protocol', category: 'Cardiology', steps: 8, avgLOS: 7, active: 2, compliance: 88 },
-          { id: 3, name: 'Normal Delivery Pathway', category: 'Obstetrics', steps: 10, avgLOS: 3, active: 5, compliance: 95 },
-          { id: 4, name: 'LSCS Recovery', category: 'Obstetrics', steps: 11, avgLOS: 5, active: 2, compliance: 90 },
-          { id: 5, name: 'Pneumonia (Community)', category: 'Medicine', steps: 7, avgLOS: 5, active: 4, compliance: 85 },
-          { id: 6, name: 'Diabetic Ketoacidosis', category: 'Emergency', steps: 9, avgLOS: 4, active: 1, compliance: 91 }
-        ]);
-        setActivePatients([
-          { id: 1, patient: 'Rajesh Kumar', pathway: 'Elective Knee Replacement', currentStep: 'Day 2: Physiotherapy Started', progress: 40, status: 'On Track', doctor: 'Dr. Vikram Singh' },
-          { id: 2, patient: 'Priya Sharma', pathway: 'Normal Delivery Pathway', currentStep: 'Day 1: Postpartum Care', progress: 30, status: 'On Track', doctor: 'Dr. Sunita Verma' },
-          { id: 3, patient: 'Anil Kumar', pathway: 'Acute MI Protocol', currentStep: 'Day 3: Cardiac Rehab', progress: 60, status: 'Delayed', doctor: 'Dr. Anil Kumar' },
-          { id: 4, patient: 'Meena Devi', pathway: 'Pneumonia (Community)', currentStep: 'Day 4: Antibiotic De-escalation', progress: 70, status: 'On Track', doctor: 'Dr. Sunita Verma' }
-        ]);
-      }
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    try {
+      const res = await api.get('/api/clinical-pathways');
+      setPathways(res.data.pathways || res.data.data || []);
+      setActivePatients(res.data.patients || []);
+    } catch (err) {
+      console.error('[ClinicalPathways] load failed:', err.message);
+      setPathways([]);
+      setActivePatients([]);
+      setMessage('Could not load clinical pathways.');
+    }
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleEnroll = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await api.post('/api/clinical-pathways', form);
+      setShowEnroll(false);
+      setForm({ name: '', condition: '', pathway_code: '' });
+      await fetchData();
+      setMessage('Clinical pathway saved. It is now available for enrolment.');
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not save the pathway.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <Container fluid className="p-4">
-      <Alert variant="info" className="d-flex align-items-center mb-3">
-        <GitBranch size={18} className="me-2" />
-        Clinical pathways module is not enabled on this server — displaying demo care protocols.
-      </Alert>
+      {message && <Alert variant="info" dismissible onClose={() => setMessage('')}>{message}</Alert>}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="mb-1"><GitBranch className="me-2 text-primary" />Clinical Pathways</h2>
           <p className="text-muted">Standardized Care Protocols & Progress Tracking</p>
         </div>
+        <Button variant="primary" onClick={() => { setMessage(''); setShowEnroll(true); }}>
+          <Plus size={16} className="me-1" /> Enroll Pathway
+        </Button>
       </div>
 
       <Row className="g-3 mb-4">
@@ -108,6 +117,38 @@ export default function ClinicalPathwaysDashboard() {
           </Card>
         </Tab>
       </Tabs>
+
+      <Modal show={showEnroll} onHide={() => setShowEnroll(false)} centered>
+        <Modal.Header closeButton><Modal.Title>Enroll Clinical Pathway</Modal.Title></Modal.Header>
+        <Form onSubmit={handleEnroll}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Pathway Name</Form.Label>
+              <Form.Control value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Pathway Code</Form.Label>
+                  <Form.Control value={form.pathway_code} onChange={(e) => setForm({ ...form, pathway_code: e.target.value })} placeholder="e.g. PW-AKI-01" />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Condition</Form.Label>
+                  <Form.Control value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })} placeholder="e.g. Acute Kidney Injury" />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowEnroll(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={busy}>
+              {busy ? 'Saving…' : 'Save Pathway'}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </Container>
   );
 }

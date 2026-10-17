@@ -1,0 +1,1795 @@
+{
+  "generated_at": "2026-10-17T13:55:52.448Z",
+  "scanned_files": 377,
+  "counts": {
+    "byClass": {
+      "1": 96,
+      "2": 37,
+      "3": 11,
+      "4": 36,
+      "5": 0
+    },
+    "total": 180,
+    "files_with_findings": 98
+  },
+  "classNames": {
+    "1": "Dead Buttons / Phantom Modals",
+    "2": "Unwired Forms",
+    "3": "Read-Only Dashboards",
+    "4": "Static JSX KPI literals",
+    "5": "Technical text leaks"
+  },
+  "icu": {
+    "file": "client/src/pages/clinical/ICUDashboard.jsx",
+    "buttons": [
+      {
+        "line": 440,
+        "label": "+ Add Hourly Entry",
+        "cause": "onClick={() => setShowIOModal(true)} is present and correct, but the same tag carries disabled={!selectedAdmissionId}. selectedAdmissionId is only seeded by the admissions auto-select at L80-82; when the admissions feed returns [] (prod has no admitted patients) the guard never flips and the button renders permanently disabled — present but unclickable."
+      },
+      {
+        "line": 454,
+        "label": "Record First Hourly Intake / Output",
+        "cause": "Identical disabled={!selectedAdmissionId} guard, and it lives inside the fluidLogs.length === 0 empty-state block — i.e. both entry points into the I/O modal are disabled at the exact moment the ledger is empty and a clinician most needs to chart."
+      }
+    ],
+    "modal": {
+      "line": 509,
+      "state": "showIOModal",
+      "submit": "handleIOSubmit (L150-172)"
+    },
+    "leak": {
+      "line": 438,
+      "text": "Automated rolling calculation feeding endpoint /api/icu/fluid-io"
+    },
+    "cards": [
+      {
+        "name": "MAP / BP",
+        "line": 325,
+        "rendered": "{latestVent ? '88' : '92'} mmHg",
+        "verdict": "STATIC — both ternary branches are string literals; no BP field is ever read. The sub-line 'Sys/Dia: 124/70' (L328) and badge 'Optimal' are literals too."
+      },
+      {
+        "name": "SpO2 Oxygen",
+        "line": 344,
+        "rendered": "{latestVent?.sp02 || 98}%",
+        "verdict": "BOUND with literal fallback — real column, but renders 98 whenever no ventilator row exists."
+      },
+      {
+        "name": "Core Temp",
+        "line": 363,
+        "rendered": "37.1 °C + 98.8 °F + Badge \"Afebrile\"",
+        "verdict": "STATIC — no binding at all, and icu_ventilator_logs has no temperature column."
+      },
+      {
+        "name": "Vent Mode",
+        "line": 382,
+        "rendered": "{latestVent?.ventilator_mode || 'SIMV-PC'} + RR: {… || 16} bpm",
+        "verdict": "BOUND with literal fallbacks."
+      },
+      {
+        "name": "PEEP / FiO2",
+        "line": 401,
+        "rendered": "{latestVent?.peep || 8} / {latestVent?.fio2 || 45}% + I:E {… || '1:2'}",
+        "verdict": "BOUND with literal fallbacks."
+      },
+      {
+        "name": "Tidal Volume",
+        "line": 420,
+        "rendered": "{latestVent?.tidal_volume || 450} mL + Peak {… || 22} cmH2O",
+        "verdict": "BOUND with literal fallbacks."
+      }
+    ],
+    "backend": [
+      {
+        "route": "POST /api/icu/fluid-io",
+        "file": "server/routes/icuRoutes.js:17",
+        "handler": "icuController.logFluidIO",
+        "auth": "protect + tenantResolver (server-cloud.js:381)"
+      },
+      {
+        "route": "GET /api/icu/fluid-io/:admissionId",
+        "file": "server/routes/icuRoutes.js:18",
+        "handler": "icuController.getFluidIOHistory",
+        "returns": "{ admission_id, logs[], summary_24h{total_24h_intake,total_24h_output,total_24h_balance}, latest_cumulative_balance_ml }"
+      },
+      {
+        "route": "POST /api/icu/ventilator-logs",
+        "file": "server/routes/icuRoutes.js:13",
+        "handler": "icuController.logVentilatorMetrics"
+      },
+      {
+        "route": "GET /api/icu/ventilator-logs/:admissionId",
+        "file": "server/routes/icuRoutes.js:14",
+        "handler": "icuController.getVentilatorHistory"
+      }
+    ],
+    "payload": "{\n  admission_id: <int>,                     // required — parseInt(selectedAdmissionId)\n  chart_time:   \"<ISO or datetime-local>\",  // optional — defaults to NOW()\n  iv_fluids_ml: 0, blood_products_ml: 0, oral_intake_ml: 0, enteral_feeding_ml: 0,\n  urine_output_ml: 0, drain_output_ml: 0, stool_output_ml: 0, emesis_ml: 0,\n  notes: \"\"                                 // optional\n}\n// server derives total_intake_ml / total_output_ml / hourly_balance_ml /\n// cumulative_balance_ml (previous cumulative + hourly) and stamps recorded_by + hospital_id."
+  },
+  "files": [
+    {
+      "file": "client/src/components/AdvancedReportsDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 77,
+          "label": "Export All <Download size= /> Export All",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 77,
+          "label": "1 action button(s)",
+          "detail": "GETs=3, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 77,
+              "label": "Export All"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/BloodRequestModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 69,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/CarePlanManager.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 174,
+          "label": "Assign Plan Assign Plan",
+          "detail": "renders but disabled when data missing: !selectedTemplate"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/DeviceSimulator.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 42,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/DischargeChecklist.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 86,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/DischargeSummary.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 515,
+          "label": "Download PDF <Download size= className=\"me-2\" /> Download PDF",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/DoctorOrdersPanel.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 161,
+          "label": "Unacknowledged for 10+ minutes!",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/DoctorScheduleManager.jsx",
+      "findings": [
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 108,
+          "label": "4 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 108,
+              "label": "Add Slot"
+            },
+            {
+              "line": 263,
+              "label": "Delete"
+            },
+            {
+              "line": 272,
+              "label": "Cancel"
+            },
+            {
+              "line": 275,
+              "label": "Schedule"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/FamilyProfilesTab.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 133,
+          "label": "+ Add Member + Add Member",
+          "detail": "opens showAddModal, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/IPDMedicationModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 608,
+          "label": "{submitting ? 'Ordering...' : Order Medication } {submitting ? 'Orderi",
+          "detail": "renders but disabled when data missing: !selectedDrug || !form.dosage || submitting || (hasHighSever"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/InstrumentManager.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 439,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 620,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/InvoicePrint.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 217,
+          "label": "Download <Download size= className=\"me-1\" />Download",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/LabReportPrint.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 281,
+          "label": "Normal",
+          "detail": "hardcoded clinical status token in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/MedicationReconciliation.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 27,
+          "label": "Add Home Med <Plus size= className=\"me-1\" /> Add Home Med",
+          "detail": "opens showAddModal, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/NursePatientProfile.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 424,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 399,
+          "label": "24hr Fluid Balance:",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/OrderSetSelector.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 72,
+          "label": "Select Order Set <Package size= className=\"me-2\" /> Select Order Set",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/PACForm.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 46,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/PatientAcuityBadge.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 70,
+          "label": "130 || hr",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/PaymentModal.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 291,
+          "label": "Expires in 30 minutes",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/PreOpBloodChecklist.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 76,
+          "label": "Create Blood Requirement Create Blood Requirement",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 132,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/ReferralNetwork.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 118,
+          "label": "New Referral <Send size= className=\"me-1\" /> New Referral",
+          "detail": "renders but disabled when data missing: !patient"
+        },
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 118,
+          "label": "New Referral <Send size= className=\"me-1\" /> New Referral",
+          "detail": "opens showModal, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/RefundConfirmationModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 43,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/RegistrationReceipt.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 292,
+          "label": "Download PDF <Download size= className=\"me-1\" />Download PDF",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 264,
+          "label": "Arrive 15 minutes before scheduled time",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/RescheduleModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 118,
+          "label": "{loading ? 'Processing...' : ( Confirm Reschedule )} {loading ? 'Proce",
+          "detail": "renders but disabled when data missing: !selectedDoctor || loading"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 77,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/RoundNoteQuickEntry.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 173,
+          "label": "{saving ? 'Saving...' : ( Log Round )} {saving ? 'Saving...' : ( <><Ch",
+          "detail": "renders but disabled when data missing: !selectedStatus || saving"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/ShiftHandoverReport.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 646,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/TransfusionMonitor.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 195,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 323,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/VisitorPassModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 47,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/billing/AdvancePaymentModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 314,
+          "label": "Record Advance <Check size= className=\"me-1\" /> Record Advance",
+          "detail": "renders but disabled when data missing: !selectedPatient || !form.amount"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 168,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/billing/BillingSettingsTab.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 541,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 588,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 652,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 708,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/billing/NewInvoiceModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 328,
+          "label": "Add <Plus size= /> Add",
+          "detail": "renders but disabled when data missing: !selectedService"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 350,
+          "label": "Add <Plus size= /> Add",
+          "detail": "renders but disabled when data missing: !selectedPackage"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 511,
+          "label": "{submitting ? : } Generate Invoice {submitting ? <Spinner size=\"sm\" />",
+          "detail": "renders but disabled when data missing: !selectedPatient || lineItems.length === 0 || submitting"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/billing/PatientLedger.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 63,
+          "label": "Cancel Cancel",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 64,
+          "label": "Confirm Payment Confirm Payment",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/billing/RefundModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 405,
+          "label": "Submit Refund Request <RotateCcw size= className=\"me-1\" /> Submit Refu",
+          "detail": "renders but disabled when data missing: !selectedInvoice || !form.amount || !form.reason"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 242,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/insurance/PMJAYAnalytics.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 190,
+          "label": "Export <Download size= className=\"me-1\" /> Export",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 271,
+          "label": "12% faster than avg",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/insurance/PMJAYClaimBuilder.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 666,
+          "label": "Download Claim Receipt <Download size= className=\"me-1\" /> Download Cl",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/lab/LabEntryForm.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 65,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/nursing/eMAR.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 81,
+          "label": "= 6 && hour",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 82,
+          "label": "= 11 && hour",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 83,
+          "label": "= 17 && hour",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 84,
+          "label": "= 21 || hour",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/pos/EMISelectionModal.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 194,
+          "label": "Confirm EMI <Check size= className=\"me-1\" /> Confirm EMI",
+          "detail": "renders but disabled when data missing: !selectedOffer"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 160,
+          "label": "0%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/radiology/OHIFViewer.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 134,
+          "label": "Zoom: 100%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/scc/MissionControl.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 29,
+          "label": "DISPATCH <Plus size= /> DISPATCH",
+          "detail": "opens show, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/AddGuardModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 22,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/DispatchModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 14,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/IncidentReportModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 22,
+          "label": "handleSubmit()",
+          "detail": "preventDefault + local state only (no api/axios/fetch call)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/dashboard/PatrolReportModal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 144,
+          "label": "<Download size= /> <span className=\"btn-en\"> </span>",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/dashboard/SecurityDashboardV2.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 581,
+          "label": "Upload & Align <Upload size= /> Upload & Align",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/security/studio/FloorPlanStudioModal.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 1060,
+          "label": "-2%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 1061,
+          "label": "-0.5%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 1062,
+          "label": "+0.5%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 1063,
+          "label": "+2%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/components/support/RemoteSupportModal.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 166,
+          "label": "✅ 60-minute session limit",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AdminSettings.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 76,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 208,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AnaesthesiaConsole.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 124,
+          "label": "Propofol 100mg IV",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 126,
+          "label": "Rocuronium 50mg IV",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 127,
+          "label": "Ephedrine 6mg IV",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AnaesthesiaDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 218,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 248,
+          "label": "Propofol (2mg/kg):",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 254,
+          "label": "Rocuronium (0.6mg/kg):",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AnatomicPathology.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 25,
+          "label": "➕ New Specimen ➕ New Specimen",
+          "detail": "opens showNewCase, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AuditTrail.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 35,
+          "label": "Export Audit Log Export Audit Log",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 142,
+          "label": "Verify Chain Integrity Verify Chain Integrity",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AuditTrailDashboard.jsx",
+      "findings": [
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 107,
+          "label": "1 action button(s)",
+          "detail": "GETs=2, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 107,
+              "label": "Export CSV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/AutoReorderEngine.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NOOP",
+          "line": 76,
+          "label": "📦 Order 📦 Order",
+          "detail": "no-op onClick (alert/toast only)"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/BedTransferManager.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 30,
+          "label": "+ New Transfer Request + New Transfer Request",
+          "detail": "opens showRequest, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 60,
+          "label": "Approve Approve",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 61,
+          "label": "Reject Reject",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 30,
+          "label": "2 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 30,
+              "label": "+ New Transfer Request"
+            },
+            {
+              "line": 165,
+              "label": "Submit Request"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/BillingDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 772,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 938,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/BloodBankDashboard.jsx",
+      "findings": [
+        {
+          "kind": "PHANTOM_MODAL",
+          "line": 563,
+          "label": "New Request <Plus size= className=\"me-1\" /> New Request",
+          "detail": "showRequestModal is set but never read — the click changes state that no JSX consumes"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/CDIDashboard.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 32,
+          "label": "➕ New Query ➕ New Query",
+          "detail": "opens showQueryModal, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 140,
+          "label": "Submit Query Submit Query",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 127,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 32,
+          "label": "2 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 32,
+              "label": "➕ New Query"
+            },
+            {
+              "line": 140,
+              "label": "Submit Query"
+            }
+          ]
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 113,
+          "label": "Target: 75%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/CPOEDashboard.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 44,
+          "label": "➕ New Order ➕ New Order",
+          "detail": "opens showOrderModal, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 45,
+          "label": "📋 Order Sets 📋 Order Sets",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 148,
+          "label": "Apply Apply",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 149,
+          "label": "Edit Edit",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 212,
+          "label": "Submit Order Submit Order",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 185,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 44,
+          "label": "3 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 44,
+              "label": "➕ New Order"
+            },
+            {
+              "line": 45,
+              "label": "📋 Order Sets"
+            },
+            {
+              "line": 212,
+              "label": "Submit Order"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/CSSDDashboard.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 180,
+          "label": "Starting standard gravity cycle (121°C, 30 min) for",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/ClinicalNLP.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 140,
+          "label": "vs. manual coding estimate ₹1,68,000 —",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/ClinicalScalesDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 36,
+          "label": "+ New Assessment + New Assessment",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 36,
+          "label": "1 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 36,
+              "label": "+ New Assessment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/ClosedLoopMedication.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 137,
+          "label": "Cancel Order Cancel Order",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/ConsentManagement.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 30,
+          "label": "+ New Consent + New Consent",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 93,
+          "label": "Send Renewal Send Renewal",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 118,
+          "label": "Edit Edit",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/Credentialing.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 22,
+          "label": "+ Add Credential + Add Credential",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/DietaryDashboard.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 166,
+          "label": "Current filters matched 0 records.",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/DoctorDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 1114,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 586,
+          "label": "Ex: \"Metformin 500mg BD for 1 month\"",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/EMARDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 146,
+          "label": "✅ Confirm Administration ✅ Confirm Administration",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 31,
+          "label": "2 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 31,
+              "label": "📊 MAR Report"
+            },
+            {
+              "line": 146,
+              "label": "✅ Confirm Administration"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/HIPAACompliance.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 41,
+          "label": "Generate Report Generate Report",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 52,
+          "label": "Benchmark: 90%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/HealthEducation.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 45,
+          "label": "+ Create Content + Create Content",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/InfectionControlDashboard.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 183,
+          "label": "≥80% Sensitive",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 184,
+          "label": "50-79% Intermediate",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/InsuranceCommandCenter.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 136,
+          "label": "Export <Download size= /> Export",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/IntegrationHub.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 45,
+          "label": "+ New Channel + New Channel",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/LabDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_FORM",
+          "line": 492,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/MultiPayerSplit.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 17,
+          "label": "➕ New Split Bill ➕ New Split Bill",
+          "detail": "opens showSplit, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/NABHCertification.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 77,
+          "label": "📄 Generate Report 📄 Generate Report",
+          "detail": "opens showEvidence, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PatientFeedback.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 36,
+          "label": "Send Survey Send Survey",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 37,
+          "label": "Export Report Export Report",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 54,
+          "label": "Promoters (9-10):",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 58,
+          "label": "Detractors (0-6):",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PatientPortal.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 38,
+          "label": "Download Health Summary Download Health Summary",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 136,
+          "label": "Download PDF Download PDF",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 186,
+          "label": "Pay Now Pay Now",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PatientSafetyDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 146,
+          "label": "Submit Report Submit Report",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 131,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 37,
+          "label": "2 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 37,
+              "label": "🚨 Report Incident"
+            },
+            {
+              "line": 146,
+              "label": "Submit Report"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PayrollIntegration.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 30,
+          "label": "Generate Payslips Generate Payslips",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PriorAuthDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 105,
+          "label": "📎 Upload Docs 📎 Upload Docs",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/ProcurementDashboard.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 36,
+          "label": "➕ New Purchase Order ➕ New Purchase Order",
+          "detail": "opens showNewPO, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 63,
+          "label": "📦 New PO 📦 New PO",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 36,
+          "label": "3 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 36,
+              "label": "➕ New Purchase Order"
+            },
+            {
+              "line": 63,
+              "label": "📦 New PO"
+            },
+            {
+              "line": 91,
+              "label": "📤 Create PO"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/PublicReportView.jsx",
+      "findings": [
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 43,
+          "label": "Normal",
+          "detail": "hardcoded clinical status token in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/RadiologyDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 376,
+          "label": "🔗 DICOM Import 🔗 DICOM Import",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 377,
+          "label": "📤 Export DICOM 📤 Export DICOM",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 471,
+          "label": "💾 Save Annotations 💾 Save Annotations",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 560,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 422,
+          "label": "Zoom: 100%",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/RegulatoryReporting.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 48,
+          "label": "Generate NABH Report Generate NABH Report",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 164,
+          "label": "Download Download",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/RevenueCycleAI.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 69,
+          "label": "Fix & Submit Fix & Submit",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 93,
+          "label": "📤 Submit Appeal 📤 Submit Appeal",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/SpecialistReferralManager.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 30,
+          "label": "+ New Referral + New Referral",
+          "detail": "opens showRefer, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 57,
+          "label": "Schedule Schedule",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "READ_ONLY_DASHBOARD",
+          "line": 30,
+          "label": "2 action button(s)",
+          "detail": "GETs=0, writes=0 — no mutation path exists",
+          "buttons": [
+            {
+              "line": 30,
+              "label": "+ New Referral"
+            },
+            {
+              "line": 130,
+              "label": "Submit Referral"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/StaffRoster.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 21,
+          "label": "+ Create Shift + Create Shift",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 22,
+          "label": "Export Roster Export Roster",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/TPAProviderAdmin.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 37,
+          "label": "+ Add Provider + Add Provider",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 109,
+          "label": "Send OTP Send OTP",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 110,
+          "label": "Verify Verify",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/TrainingCompetency.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 37,
+          "label": "+ Schedule Training + Schedule Training",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/TransitionPlanner.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 20,
+          "label": "+ Create Plan + Create Plan",
+          "detail": "no onClick and not a submit button"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 75,
+          "label": "Discharge Now Discharge Now",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/VisitorManagement.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 72,
+          "label": "Log New Visitor <LogIn size= className=\"me-2\" /> Log New Visitor",
+          "detail": "opens showModal, file has no POST/PUT/PATCH/DELETE"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/WardManagement.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 618,
+          "label": "Assign Beds <UserCheck size= className=\"me-2\" /> Assign Beds",
+          "detail": "renders but disabled when data missing: !selectedNurse || selectedBeds.length === 0"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 1004,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "DEAD_FORM",
+          "line": 1207,
+          "label": "Form without onSubmit",
+          "detail": "no onSubmit handler attached"
+        },
+        {
+          "kind": "STATIC_JSX_KPI",
+          "line": 1159,
+          "label": "24-hour cycle",
+          "detail": "hardcoded numeric literal with unit in JSX text"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/WhiteLabelSaaS.jsx",
+      "findings": [
+        {
+          "kind": "CLOSE_ONLY_MODAL",
+          "line": 39,
+          "label": "➕ New Tenant ➕ New Tenant",
+          "detail": "opens showNewTenant, file has no POST/PUT/PATCH/DELETE"
+        },
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 100,
+          "label": "📁 Upload 📁 Upload",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/WorkforceAnalytics.jsx",
+      "findings": [
+        {
+          "kind": "DEAD_NO_HANDLER",
+          "line": 50,
+          "label": "Download Report Download Report",
+          "detail": "no onClick and not a submit button"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/clinical/DentalDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 451,
+          "label": "New Visit <Plus size= /> New Visit",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 461,
+          "label": "Lab Order <FlaskConical size= /> Lab Order",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 471,
+          "label": "Log Procedure <DollarSign size= /> Log Procedure",
+          "detail": "renders but disabled when data missing: !activeVisit"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 827,
+          "label": "New Lab Order <Plus size= /> New Lab Order",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/clinical/OphthalmologyDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 312,
+          "label": "New Visit <Plus size= /> New Visit",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 314,
+          "label": "Log Procedure <DollarSign size= /> Log Procedure",
+          "detail": "renders but disabled when data missing: !activeVisit"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 388,
+          "label": "New Biometry <Plus size= /> New Biometry",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        }
+      ]
+    },
+    {
+      "file": "client/src/pages/clinical/OrthopedicDashboard.jsx",
+      "findings": [
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 248,
+          "label": "New Visit <Plus size= /> New Visit",
+          "detail": "renders but disabled when data missing: !selectedPatient"
+        },
+        {
+          "kind": "DISABLED_ACTION",
+          "line": 250,
+          "label": "Log Procedure <DollarSign size= /> Log Procedure",
+          "detail": "renders but disabled when data missing: !activeVisit"
+        }
+      ]
+    }
+  ]
+}

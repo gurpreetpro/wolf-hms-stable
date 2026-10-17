@@ -125,7 +125,7 @@ const WasteManagementDashboard = () => {
                     <small className="text-muted">CPCB BMW Rules 2016 Compliance — Color Coded Waste Tracking</small>
                 </div>
                 <div className="d-flex gap-2">
-                    <Button variant="warning" size="sm">
+                    <Button variant="warning" size="sm" onClick={() => setShowLogModal(true)}>
                         <Package size={14} className="me-1" /> Log Waste</Button>
                     <Button variant="outline-primary" size="sm" onClick={fetchWasteData}>
                         <BarChart2 size={14} className="me-1" /> Refresh
@@ -322,7 +322,7 @@ const WasteManagementDashboard = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setShowLogModal(false)}>Cancel</Button>
-                        <Button variant="warning" type="submit"><Trash2 size={14} className="me-1" /> Record (Disabled)</Button>
+                        <Button variant="warning" type="submit"><Trash2 size={14} className="me-1" /> Record Waste Entry</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>

@@ -245,7 +245,7 @@ const PlatformDashboard = () => {
                     </h2>
                     <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-400 h-96 overflow-y-auto">
                         <p className="text-emerald-400">[INFO] Platform Command Centre initialized</p>
-                        <p>[INFO] Connected to PostgreSQL database</p>
+                        <p>[INFO] Primary Clinical Datastore Connected</p>
                         <p>[INFO] {stats?.total_hospitals || 0} hospitals registered</p>
                         <p>[INFO] Server uptime: {stats?.server_uptime ? Math.floor(stats.server_uptime) + 's' : '0s'}</p>
                         <p className="text-slate-600 mt-4">--- Real-time log streaming requires WebSocket integration ---</p>

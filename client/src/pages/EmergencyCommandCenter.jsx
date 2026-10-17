@@ -205,7 +205,7 @@ const EmergencyCommandCenter = () => {
           <Card>
             <Card.Body>
               {alertConfig.length === 0 ? (
-                <Alert variant="secondary" className="mb-0">No alert routing configuration returned by /api/emergency/config.</Alert>
+                <Alert variant="secondary" className="mb-0">No custom alert routing rules configured for this facility.</Alert>
               ) : (
                 <Table bordered hover responsive>
                   <thead className="table-dark">
@@ -234,7 +234,7 @@ const EmergencyCommandCenter = () => {
           <Modal.Title>Trigger Emergency</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={(e) => { e.preventDefault(); triggerEmergency(); }}>
             <Form.Group className="mb-3">
               <Form.Label>Emergency Type</Form.Label>
               <Form.Select value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })}>

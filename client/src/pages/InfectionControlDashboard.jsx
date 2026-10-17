@@ -245,7 +245,20 @@ const InfectionControlDashboard = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowReportModal(false)}>Cancel</Button>
-                    <Button variant="danger">Submit Report (Disabled)</Button>
+                    <Button variant="danger" onClick={async () => {
+            try {
+              await api.post('/api/infection-control/report', {
+                hai_type: reportForm.type,
+                ward: reportForm.ward,
+                organism: reportForm.organism,
+                notes: reportForm.notes,
+              });
+              setShowReportModal(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not submit the HAI report.');
+            }
+          }}>Submit Report</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

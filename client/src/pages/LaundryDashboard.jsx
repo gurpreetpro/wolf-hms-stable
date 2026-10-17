@@ -53,7 +53,7 @@ export default function LaundryDashboard() {
           <h2 className="mb-1"><Shirt className="me-2 text-info" />Laundry Management</h2>
           <p className="text-muted">Hospital Linen & Laundry Tracking System</p>
         </div>
-        <Button variant="info">
+        <Button variant="info" onClick={() => setShowNew(true)}>
           <Plus size={16} className="me-1" /> New Laundry Order
 </Button>
       </div>
@@ -164,7 +164,21 @@ export default function LaundryDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNew(false)}>Cancel</Button>
-          <Button variant="info">Submit Order (Disabled)</Button>
+          <Button variant="info" onClick={async () => {
+            try {
+              await api.post('/api/laundry/orders', {
+                order_no: `LND-${Date.now().toString().slice(-6)}`,
+                department: newOrder.ward || null,
+                item_type: newOrder.items || null,
+                quantity: Number(newOrder.weight) || 0,
+                notes: newOrder.priority ? `Priority: ${newOrder.priority}` : null,
+              });
+              setShowNew(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not submit the laundry order.');
+            }
+          }}>Submit Order</Button>
         </Modal.Footer>
       </Modal>
     </Container>

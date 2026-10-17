@@ -20753,12 +20753,12 @@ const ThemeProvider = ({ children }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext$1.Provider, { value: { theme, toggleTheme, isDark }, children });
 };
 const API_BASE_URL = "";
-const api = axios.create({
+const api$1 = axios.create({
   baseURL: API_BASE_URL,
   timeout: 3e4
   // Increased timeout for slow cold starts
 });
-api.interceptors.request.use(
+api$1.interceptors.request.use(
   (config2) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -20768,7 +20768,7 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-api.interceptors.response.use(
+api$1.interceptors.response.use(
   (response) => response,
   async (error) => {
     var _a, _b;
@@ -20791,7 +20791,7 @@ api.interceptors.response.use(
         const delay = Math.pow(2, originalRequest._retryCount) * 500;
         console.log(`Retrying request (${originalRequest._retryCount}/3) in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
-        return api(originalRequest);
+        return api$1(originalRequest);
       }
     }
     return Promise.reject(error);
@@ -20889,7 +20889,7 @@ const HospitalProfileProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-      const response = await api.get("/api/settings/hospital-profile", {
+      const response = await api$1.get("/api/settings/hospital-profile", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const profileData = response.data.data || response.data;
@@ -28692,7 +28692,7 @@ const SystemStatusProvider = ({ children }) => {
   }, []);
   const activateLockdown = async () => {
     try {
-      await api.post("/api/security/lockdown", { enabled: true });
+      await api$1.post("/api/security/lockdown", { enabled: true });
       setSystemStatus("LOCKDOWN");
     } catch (err) {
       console.error("Failed to activate lockdown", err);
@@ -28700,7 +28700,7 @@ const SystemStatusProvider = ({ children }) => {
   };
   const liftLockdown = async () => {
     try {
-      await api.post("/api/security/lockdown", { enabled: false });
+      await api$1.post("/api/security/lockdown", { enabled: false });
       setSystemStatus("NORMAL");
     } catch (err) {
       console.error("Failed to lift lockdown", err);
@@ -31786,7 +31786,7 @@ const Login = () => {
     setError("");
     try {
       console.log("Login attempt payload:", { username, password });
-      const res = await api.post(
+      const res = await api$1.post(
         "/api/auth/login",
         { username, password },
         { headers: { "Content-Type": "application/json" } }
@@ -32496,7 +32496,7 @@ const SecuritySetup = () => {
         return;
       }
       const user = JSON.parse(userStr);
-      await api.post("/api/auth/setup-security", {
+      await api$1.post("/api/auth/setup-security", {
         username: user.username,
         questions: [formData.q1, formData.q2, formData.q3],
         answers: [formData.a1, formData.a2, formData.a3]
@@ -34535,7 +34535,7 @@ const TopNav = () => {
   const handlePanicTrigger = async () => {
     setPanicLoading(true);
     try {
-      await api.post("/api/alerts/duress", {
+      await api$1.post("/api/alerts/duress", {
         location: location2.pathname
       });
       setShowPanicModal(false);
@@ -63422,7 +63422,7 @@ const AdmissionModal = ({ show, onHide: onHide2, patient, onAdmit }) => {
     const fetchWards = async () => {
       if (!show) return;
       try {
-        const res = await api.get("/api/ward/wards");
+        const res = await api$1.get("/api/ward/wards");
         const data = getListData(res);
         if (data.length === 0) {
           setError("Status: Loaded 0 wards (Server returned empty list)");
@@ -63448,7 +63448,7 @@ const AdmissionModal = ({ show, onHide: onHide2, patient, onAdmit }) => {
       setBedNumber("");
       try {
         if (!ward) return;
-        const res = await api.get(`/api/admissions/available-beds?ward=${ward}`);
+        const res = await api$1.get(`/api/admissions/available-beds?ward=${ward}`);
         const beds = getListData(res);
         setAvailableBeds(beds);
       } catch (err) {
@@ -63477,7 +63477,7 @@ const AdmissionModal = ({ show, onHide: onHide2, patient, onAdmit }) => {
     setLoading(true);
     const patientUUID = patient.patient_id || patient.id;
     try {
-      const res = await api.post("/api/admissions/admit", {
+      const res = await api$1.post("/api/admissions/admit", {
         patient_id: patientUUID,
         ward,
         bed_number: bedNumber
@@ -69069,7 +69069,7 @@ const IPDBloodRequestModal = ({ show, onHide: onHide2, patient, admissionId, onS
     try {
       setFetchingStock(true);
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/blood-bank/inventory", {
+      const res = await api$1.get("/api/blood-bank/inventory", {
         headers: { Authorization: `Bearer ${token}` },
         params: { blood_group: bloodGroup }
       });
@@ -69092,7 +69092,7 @@ const IPDBloodRequestModal = ({ show, onHide: onHide2, patient, admissionId, onS
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/blood-bank/requests", {
+      await api$1.post("/api/blood-bank/requests", {
         patient_id: (patient == null ? void 0 : patient.id) || (patient == null ? void 0 : patient.patient_id),
         admission_id: admissionId,
         blood_group_required: form.blood_group,
@@ -69995,22 +69995,22 @@ const aiService = {
   // ============================================
   // Drug Interaction Check
   checkDrugInteractions: async (medications) => {
-    const response = await api.post("/api/ai/drug-check", { medications });
+    const response = await api$1.post("/api/ai/drug-check", { medications });
     return response.data;
   },
   // Symptom Analysis
   analyzeSymptoms: async (symptoms, patientInfo = {}) => {
-    const response = await api.post("/api/ai/symptoms", { symptoms, ...patientInfo });
+    const response = await api$1.post("/api/ai/symptoms", { symptoms, ...patientInfo });
     return response.data;
   },
   // Lab Analysis
   analyzeLabResults: async (results, context2 = {}) => {
-    const response = await api.post("/api/ai/lab-analysis", { results, ...context2 });
+    const response = await api$1.post("/api/ai/lab-analysis", { results, ...context2 });
     return response.data;
   },
   // Drug Interaction Check (alternative)
   checkInteractions: async (currentDrugs, newDrug) => {
-    const response = await api.post("/api/ai/check-interactions", { currentDrugs, newDrug });
+    const response = await api$1.post("/api/ai/check-interactions", { currentDrugs, newDrug });
     return response.data;
   },
   // ============================================
@@ -70023,7 +70023,7 @@ const aiService = {
    * @returns {Object} { patient, dataPoints, aiSummary, generatedAt }
    */
   getPatientSummary: async (patientId) => {
-    const response = await api.get(`/api/ai/patient/${patientId}/summary`);
+    const response = await api$1.get(`/api/ai/patient/${patientId}/summary`);
     return response.data;
   },
   /**
@@ -70032,7 +70032,7 @@ const aiService = {
    * @returns {Object} { interpretation, significance, causes, followupTests }
    */
   getLabInsights: async (labId) => {
-    const response = await api.get(`/api/ai/lab/${labId}/insights`);
+    const response = await api$1.get(`/api/ai/lab/${labId}/insights`);
     return response.data;
   },
   /**
@@ -70041,7 +70041,7 @@ const aiService = {
    * @returns {Object} { trend, concerns, warnings, recommendedFrequency }
    */
   getVitalsTrend: async (admissionId) => {
-    const response = await api.get(`/api/ai/admission/${admissionId}/vitals-trend`);
+    const response = await api$1.get(`/api/ai/admission/${admissionId}/vitals-trend`);
     return response.data;
   },
   /**
@@ -70050,7 +70050,7 @@ const aiService = {
    * @returns {Object} { interactions, contraindications, warnings }
    */
   checkMedicationSafety: async (medications) => {
-    const response = await api.post("/api/ai/medication-check", { medications });
+    const response = await api$1.post("/api/ai/medication-check", { medications });
     return response.data;
   }
 };
@@ -74434,7 +74434,7 @@ const PMJAYVerificationModal = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post("/tpa/pmjay/beneficiary/search", {
+      const response = await api$1.post("/tpa/pmjay/beneficiary/search", {
         searchType,
         searchValue: searchValue.replace(/-/g, "")
       });
@@ -74466,7 +74466,7 @@ const PMJAYVerificationModal = ({
     setLoading(true);
     setError(null);
     try {
-      await api.post("/tpa/pmjay/beneficiary/send-otp", {
+      await api$1.post("/tpa/pmjay/beneficiary/send-otp", {
         aadhaarNumber: searchValue.replace(/-/g, "")
       });
       setOtpSent(true);
@@ -74497,7 +74497,7 @@ const PMJAYVerificationModal = ({
     setLoading(true);
     setError(null);
     try {
-      await api.post("/tpa/pmjay/beneficiary/verify", {
+      await api$1.post("/tpa/pmjay/beneficiary/verify", {
         pmjayId: beneficiary.pmjayId,
         aadhaarNumber: searchValue.replace(/-/g, ""),
         otp: otpValue
@@ -74886,7 +74886,7 @@ const PMJAYPackageSelector = ({
   }, [show, diagnosis]);
   const fetchSpecialties = async () => {
     try {
-      const res = await api.get("/pmjay/hbp/specialties");
+      const res = await api$1.get("/pmjay/hbp/specialties");
       if (res.data.success) {
         setSpecialties(res.data.data || []);
       }
@@ -74907,7 +74907,7 @@ const PMJAYPackageSelector = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/pmjay/hbp/packages?specialty=${specialtyCode}`);
+      const res = await api$1.get(`/pmjay/hbp/packages?specialty=${specialtyCode}`);
       if (res.data.success) {
         setPackages(res.data.data || []);
       }
@@ -74922,7 +74922,7 @@ const PMJAYPackageSelector = ({
     if (query.length < 2) return;
     setLoading(true);
     try {
-      const res = await api.get(`/pmjay/hbp/packages?search=${encodeURIComponent(query)}`);
+      const res = await api$1.get(`/pmjay/hbp/packages?search=${encodeURIComponent(query)}`);
       if (res.data.success) {
         setPackages(res.data.data || []);
       }
@@ -74934,7 +74934,7 @@ const PMJAYPackageSelector = ({
   };
   const fetchSuggestions = async (diagnosisText) => {
     try {
-      const res = await api.post("/pmjay/hbp/suggest-package", { diagnosis: diagnosisText });
+      const res = await api$1.post("/pmjay/hbp/suggest-package", { diagnosis: diagnosisText });
       if (res.data.success) {
         setSuggestions(res.data.data || []);
       }
@@ -74945,7 +74945,7 @@ const PMJAYPackageSelector = ({
   const fetchPackageDetails = async (packageCode) => {
     setLoading(true);
     try {
-      const res = await api.get(`/pmjay/hbp/packages/${packageCode}?tier=${cityTier}`);
+      const res = await api$1.get(`/pmjay/hbp/packages/${packageCode}?tier=${cityTier}`);
       if (res.data.success) {
         setSelectedPackage(res.data.data);
         setStep("details");
@@ -75424,39 +75424,39 @@ const PMJAYPackageCard = ({
 const govtSchemeService = {
   // ===== Package & Rate Lookup =====
   getPackages: async (scheme, params = {}) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/packages`, { params });
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/packages`, { params });
     return response.data;
   },
   getPackageRate: async (scheme, code, hospitalConfig = {}) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/packages/${code}`, { params: hospitalConfig });
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/packages/${code}`, { params: hospitalConfig });
     return response.data;
   },
   searchPackages: async (scheme, search, limit = 20) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/packages`, { params: { search, limit } });
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/packages`, { params: { search, limit } });
     return response.data;
   },
   getSpecialties: async (scheme) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/specialties`);
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/specialties`);
     return response.data;
   },
   getModifiers: async (scheme) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/modifiers`);
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/modifiers`);
     return response.data;
   },
   getStats: async (scheme) => {
-    const response = await api.get(`/api/govt-schemes/${scheme}/stats`);
+    const response = await api$1.get(`/api/govt-schemes/${scheme}/stats`);
     return response.data;
   },
   // ===== Claim Calculation =====
   calculateClaim: async (scheme, procedures, hospitalConfig) => {
-    const response = await api.post(`/api/govt-schemes/${scheme}/calculate-claim`, {
+    const response = await api$1.post(`/api/govt-schemes/${scheme}/calculate-claim`, {
       procedures,
       hospitalConfig
     });
     return response.data;
   },
   compareRates: async (scheme, packageSuffix, hospitalConfig) => {
-    const response = await api.post(`/api/govt-schemes/${scheme}/compare-rates`, {
+    const response = await api$1.post(`/api/govt-schemes/${scheme}/compare-rates`, {
       packageSuffix,
       hospitalConfig
     });
@@ -75464,33 +75464,33 @@ const govtSchemeService = {
   },
   // ===== Ward Entitlement =====
   getWardEntitlement: async (basicPay) => {
-    const response = await api.get(`/api/govt-schemes/ward-entitlement/${basicPay}`);
+    const response = await api$1.get(`/api/govt-schemes/ward-entitlement/${basicPay}`);
     return response.data;
   },
   // ===== Beneficiary Management =====
   registerBeneficiary: async (data) => {
-    const response = await api.post("/api/govt-schemes/beneficiaries/register", data);
+    const response = await api$1.post("/api/govt-schemes/beneficiaries/register", data);
     return response.data;
   },
   verifyBeneficiary: async (beneficiaryId) => {
-    const response = await api.post("/api/govt-schemes/beneficiaries/verify", { beneficiaryId });
+    const response = await api$1.post("/api/govt-schemes/beneficiaries/verify", { beneficiaryId });
     return response.data;
   },
   searchBeneficiaries: async (scheme, query) => {
-    const response = await api.get("/api/govt-schemes/beneficiaries/search", { params: { scheme, q: query } });
+    const response = await api$1.get("/api/govt-schemes/beneficiaries/search", { params: { scheme, q: query } });
     return response.data;
   },
   getPatientSchemes: async (patientId) => {
-    const response = await api.get(`/api/govt-schemes/beneficiaries/patient/${patientId}`);
+    const response = await api$1.get(`/api/govt-schemes/beneficiaries/patient/${patientId}`);
     return response.data;
   },
   // ===== Empanelment =====
   getEmpanelment: async () => {
-    const response = await api.get("/api/govt-schemes/empanelment");
+    const response = await api$1.get("/api/govt-schemes/empanelment");
     return response.data;
   },
   updateEmpanelment: async (data) => {
-    const response = await api.post("/api/govt-schemes/empanelment", data);
+    const response = await api$1.post("/api/govt-schemes/empanelment", data);
     return response.data;
   }
 };
@@ -75785,7 +75785,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
   const fetchExistingABHA = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/abdm/abha/patient/${patient.patient_id}`);
+      const res = await api$1.get(`/abdm/abha/patient/${patient.patient_id}`);
       if (res.data && res.data.abha_number) {
         setExistingABHA(res.data);
       } else {
@@ -75817,7 +75817,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
     setError(null);
     setVerificationResult(null);
     try {
-      const res = await api.post("/abdm/abha/verify", { abha_number: abhaNumber });
+      const res = await api$1.post("/abdm/abha/verify", { abha_number: abhaNumber });
       setVerificationResult(res.data);
     } catch (err) {
       setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Verification failed");
@@ -75833,7 +75833,7 @@ const ABHALinker = ({ show, onHide: onHide2, patient, onABHALinked }) => {
     setLinking(true);
     setError(null);
     try {
-      await api.post(`/abdm/abha/link/${patient.patient_id}`, {
+      await api$1.post(`/abdm/abha/link/${patient.patient_id}`, {
         abha_number: abhaNumber,
         profile: verificationResult.profile
       });
@@ -76011,7 +76011,7 @@ const ConsentManager = ({ patientId, abhaNumber }) => {
   const fetchConsents = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/abdm/consent/patient/${patientId}`);
+      const res = await api$1.get(`/abdm/consent/patient/${patientId}`);
       setConsents(res.data.consents || []);
     } catch (err) {
       console.error("Fetch consents error:", err);
@@ -76165,7 +76165,7 @@ const NewConsentModal = ({ show, onHide: onHide2, patientId, abhaNumber, onCreat
     setLoading(true);
     setError(null);
     try {
-      await api.post("/abdm/consent", {
+      await api$1.post("/abdm/consent", {
         patient_id: patientId,
         abha_number: abhaNumber,
         purpose: (_a = purposes.find((p2) => p2.code === formData.purpose)) == null ? void 0 : _a.label,
@@ -77939,7 +77939,7 @@ const WoundAssessmentTab = ({ admissionId, patientId }) => {
   const fetchWounds = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await api.get(`/api/nurse/wounds/${admissionId}`, {
+      const res = await api$1.get(`/api/nurse/wounds/${admissionId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setWounds(res.data.wounds || []);
@@ -77953,7 +77953,7 @@ const WoundAssessmentTab = ({ admissionId, patientId }) => {
     e3.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/wounds", {
+      await api$1.post("/api/nurse/wounds", {
         admission_id: admissionId,
         patient_id: patientId,
         ...woundForm
@@ -78145,7 +78145,7 @@ const FallRiskAssessmentTab = ({ admissionId, patientId }) => {
   const fetchAssessments = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await api.get(`/api/nurse/fall-risk/${admissionId}`, {
+      const res = await api$1.get(`/api/nurse/fall-risk/${admissionId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAssessments(res.data.assessments || []);
@@ -78169,7 +78169,7 @@ const FallRiskAssessmentTab = ({ admissionId, patientId }) => {
     const score2 = calculateScore();
     const { level } = getRiskLevel(score2);
     try {
-      await api.post("/api/nurse/fall-risk", {
+      await api$1.post("/api/nurse/fall-risk", {
         admission_id: admissionId,
         patient_id: patientId,
         score: score2,
@@ -80543,7 +80543,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
       }
     };
     const carePlanRes = await safeCall(
-      () => api.get(`/api/nurse/care-plan/${admission.admission_id}`, { headers }),
+      () => api$1.get(`/api/nurse/care-plan/${admission.admission_id}`, { headers }),
       { data: { carePlan: null } },
       "CarePlan"
     );
@@ -80558,49 +80558,49 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
       });
     }
     const painRes = await safeCall(
-      () => api.get(`/api/nurse/pain/${admission.admission_id}`, { headers }),
+      () => api$1.get(`/api/nurse/pain/${admission.admission_id}`, { headers }),
       { data: { painScores: [] } },
       "PainScores"
     );
     const painData = getData(painRes);
     setPainScores((painData == null ? void 0 : painData.painScores) || []);
     const fluidRes = await safeCall(
-      () => api.get(`/api/nurse/fluid-balance/${admission.admission_id}`, { headers }),
+      () => api$1.get(`/api/nurse/fluid-balance/${admission.admission_id}`, { headers }),
       { data: { entries: [], intake: 0, output: 0, netBalance: 0 } },
       "FluidBalance"
     );
     const fluidData = getData(fluidRes);
     setFluidBalance((fluidData == null ? void 0 : fluidData.entries) ? fluidData : { entries: [], intake: 0, output: 0, netBalance: 0 });
     const ivRes = await safeCall(
-      () => api.get(`/api/nurse/iv-line/${admission.admission_id}`, { headers }),
+      () => api$1.get(`/api/nurse/iv-line/${admission.admission_id}`, { headers }),
       { data: { ivLines: [] } },
       "IVLines"
     );
     const ivData = getData(ivRes);
     setIvLines((ivData == null ? void 0 : ivData.ivLines) || []);
     const medsRes = await safeCall(
-      () => api.get(`/api/clinical/tasks?admission_id=${admission.admission_id}`, { headers }),
+      () => api$1.get(`/api/clinical/tasks?admission_id=${admission.admission_id}`, { headers }),
       { data: [] },
       "Medications"
     );
     const medsData = getData(medsRes);
     setMedications(Array.isArray(medsData) ? medsData.filter((t2) => t2.type === "Medication") : []);
     const vitalsRes = await safeCall(
-      () => api.get(`/api/clinical/vitals/${admission.patient_id}`, { headers }),
+      () => api$1.get(`/api/clinical/vitals/${admission.patient_id}`, { headers }),
       { data: [] },
       "Vitals"
     );
     const vitalsData = getData(vitalsRes);
     setVitalsHistory(Array.isArray(vitalsData) ? vitalsData : []);
     const labsRes = await safeCall(
-      () => api.get(`/api/lab/patient/${admission.patient_id}`, { headers }),
+      () => api$1.get(`/api/lab/patient/${admission.patient_id}`, { headers }),
       { data: [] },
       "Labs"
     );
     const labsData = getData(labsRes);
     setLabResults(Array.isArray(labsData) ? labsData : []);
     const consCatalogRes = await safeCall(
-      () => api.get("/api/ward/consumables", { headers }),
+      () => api$1.get("/api/ward/consumables", { headers }),
       { data: [] },
       "ConsumablesCatalog"
     );
@@ -80608,7 +80608,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     setConsumablesList(Array.isArray(catalogData) ? catalogData.filter((c2) => c2.active !== false) : []);
     if (admission.admission_id) {
       const consUsageRes = await safeCall(
-        () => api.get(`/api/nurse/consumables/${admission.admission_id}`, { headers }),
+        () => api$1.get(`/api/nurse/consumables/${admission.admission_id}`, { headers }),
         { data: { consumables: [] } },
         "ConsumablesUsage"
       );
@@ -80616,7 +80616,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
       setPatientConsumables((usageData == null ? void 0 : usageData.consumables) || []);
     }
     const servCatalogRes = await safeCall(
-      () => api.get("/api/ward/charges", { headers }),
+      () => api$1.get("/api/ward/charges", { headers }),
       { data: [] },
       "ServicesCatalog"
     );
@@ -80624,7 +80624,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     setServicesList(Array.isArray(servCatalogData) ? servCatalogData : []);
     if (admission.admission_id) {
       const servUsageRes = await safeCall(
-        () => api.get(`/api/nurse/services/${admission.admission_id}`, { headers }),
+        () => api$1.get(`/api/nurse/services/${admission.admission_id}`, { headers }),
         { data: { services: [] } },
         "ServicesUsage"
       );
@@ -80636,12 +80636,12 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     const token = localStorage.getItem("token");
     try {
       if (carePlan) {
-        await api.put(`/api/nurse/care-plan/${carePlan.id}`, {
+        await api$1.put(`/api/nurse/care-plan/${carePlan.id}`, {
           ...carePlanForm,
           status: "Active"
         }, { headers: { Authorization: `Bearer ${token}` } });
       } else {
-        await api.post("/api/nurse/care-plan", {
+        await api$1.post("/api/nurse/care-plan", {
           admission_id: admission.admission_id,
           patient_id: admission.patient_id,
           ...carePlanForm
@@ -80664,7 +80664,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     setGeneratingAI(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.post("/api/ai/care-plan", {
+      const res = await api$1.post("/api/ai/care-plan", {
         diagnosis: currentDiagnosis,
         age: admission.age,
         gender: admission.gender,
@@ -80691,7 +80691,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     e3.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/pain", {
+      await api$1.post("/api/nurse/pain", {
         admission_id: admission.admission_id,
         patient_id: admission.patient_id,
         ...painForm
@@ -80708,7 +80708,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     e3.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/fluid-balance", {
+      await api$1.post("/api/nurse/fluid-balance", {
         admission_id: admission.admission_id,
         patient_id: admission.patient_id,
         ...fluidForm
@@ -80725,7 +80725,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     e3.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/iv-line", {
+      await api$1.post("/api/nurse/iv-line", {
         admission_id: admission.admission_id,
         patient_id: admission.patient_id,
         ...ivForm
@@ -80741,7 +80741,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
   const handleRemoveIV = async (id2) => {
     const token = localStorage.getItem("token");
     try {
-      await api.put(`/api/nurse/iv-line/${id2}/remove`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await api$1.put(`/api/nurse/iv-line/${id2}/remove`, {}, { headers: { Authorization: `Bearer ${token}` } });
       fetchData();
       alert("IV line removed");
     } catch (err) {
@@ -80754,7 +80754,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     if (!consumableForm.consumable_id) return;
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/consumables", {
+      await api$1.post("/api/nurse/consumables", {
         admission_id: admission.admission_id,
         patient_id: admission.patient_id,
         ...consumableForm
@@ -80772,7 +80772,7 @@ const NursePatientProfile = ({ show, onHide: onHide2, admission }) => {
     if (!serviceForm.service_id) return;
     const token = localStorage.getItem("token");
     try {
-      await api.post("/api/nurse/services", {
+      await api$1.post("/api/nurse/services", {
         admission_id: admission.admission_id,
         service_id: serviceForm.service_id,
         quantity: serviceForm.quantity,
@@ -82421,7 +82421,7 @@ const DeviceSimulator = () => {
   const handleSend = async () => {
     setSending(true);
     try {
-      await api.post("/api/devices/ingest", {
+      await api$1.post("/api/devices/ingest", {
         deviceId,
         type,
         value: value2,
@@ -82504,7 +82504,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const res = await api.get(`/api/nurse/shift-handover?ward=${wardFilter}&shift=${shiftType}`, {
+      const res = await api$1.get(`/api/nurse/shift-handover?ward=${wardFilter}&shift=${shiftType}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReportData(res.data);
@@ -82532,7 +82532,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
     setSavingSbar(true);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/nurse/handover/notes", {
+      await api$1.post("/api/nurse/handover/notes", {
         admission_id: selectedPatient.admission_id,
         patient_id: selectedPatient.patient_id,
         shift_date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
@@ -82555,7 +82555,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
     setLoadingHistory(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/nurse/handover/notes/${patient.admission_id}`, {
+      const res = await api$1.get(`/api/nurse/handover/notes/${patient.admission_id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setHistoryNotes(((_a2 = res.data) == null ? void 0 : _a2.notes) || []);
@@ -82572,7 +82572,7 @@ const ShiftHandoverReport = ({ show, onHide: onHide2, wardFilter = "All" }) => {
     }
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/nurse/handover/readback", {
+      await api$1.post("/api/nurse/handover/readback", {
         incoming_nurse_name: incomingNurseName.trim(),
         ward: wardFilter,
         shift_type: shiftType
@@ -83226,7 +83226,7 @@ const PharmacyRequestModal = ({ show, onHide: onHide2, admissions = [] }) => {
         scheduled_time: (/* @__PURE__ */ new Date()).toISOString(),
         notes: `Priority: ${priority}. Requested by Nurse.`
       };
-      await api.post("/api/clinical/tasks", taskPayload, {
+      await api$1.post("/api/clinical/tasks", taskPayload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStatus({ type: "success", msg: "Request sent to Pharmacy successfully!" });
@@ -83358,7 +83358,7 @@ const HousekeepingRequestModal = ({ show, onHide: onHide2, defaultLocation = "" 
     setStatus(null);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/housekeeping", {
+      await api$1.post("/api/housekeeping", {
         type,
         location: location2,
         description,
@@ -83487,7 +83487,7 @@ const DietaryRequestModal = ({ show, onHide: onHide2, patients, wardId }) => {
     setSuccess(false);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/dietary", {
+      await api$1.post("/api/dietary", {
         ...formData,
         ward: wardId || "General Ward"
         // Fallback if not provided
@@ -83701,7 +83701,7 @@ const DoctorOrdersPanel = ({ wardFilter = "All", onOrderComplete }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/clinical/tasks", {
+      const res = await api$1.get("/api/clinical/tasks", {
         headers: { Authorization: `Bearer ${token}` },
         params: { status: "Pending" }
       });
@@ -83730,7 +83730,7 @@ const DoctorOrdersPanel = ({ wardFilter = "All", onOrderComplete }) => {
     try {
       setAcknowledging(taskId);
       const token = localStorage.getItem("token");
-      await api.post(
+      await api$1.post(
         "/api/clinical/tasks/acknowledge",
         { task_id: taskId },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -83749,7 +83749,7 @@ const DoctorOrdersPanel = ({ wardFilter = "All", onOrderComplete }) => {
     try {
       setCompleting(taskId);
       const token = localStorage.getItem("token");
-      await api.post(
+      await api$1.post(
         "/api/clinical/tasks/complete",
         { task_id: taskId },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -84200,8 +84200,8 @@ const WardDashboard = () => {
     setFetchError(null);
     try {
       const [wardRes, safetyRes] = await Promise.all([
-        api.get("/api/nurse/ward-overview", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/api/ward-access/stats", { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { data: { by_admission: [] } } }))
+        api$1.get("/api/nurse/ward-overview", { headers: { Authorization: `Bearer ${token}` } }),
+        api$1.get("/api/ward-access/stats", { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { data: { by_admission: [] } } }))
       ]);
       console.log("Ward Data Fetched:", wardRes.data);
       setAdmissions(wardRes.data.data.admissions || []);
@@ -84225,7 +84225,7 @@ const WardDashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-      const res = await api.get(`/api/roster/my-assignments?date=${today}`, {
+      const res = await api$1.get(`/api/roster/my-assignments?date=${today}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const payload = ((_a = res.data) == null ? void 0 : _a.data) ?? res.data;
@@ -84239,7 +84239,7 @@ const WardDashboard = () => {
   const fetchActiveEmergency = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/emergency/status", {
+      const res = await api$1.get("/api/emergency/status", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data && res.data.data) {
@@ -84269,7 +84269,7 @@ const WardDashboard = () => {
         emergencySound.stop();
       } catch (e3) {
       }
-      await api.post("/api/emergency/resolve", { id: targetId, event_id: targetId }, {
+      await api$1.post("/api/emergency/resolve", { id: targetId, event_id: targetId }, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (err) {
@@ -84337,7 +84337,7 @@ ${data.type}: ${data.value}`;
     const admission = filteredAdmissions.find((a2) => a2.patient_name === selectedPatient);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/clinical/vitals", {
+      await api$1.post("/api/clinical/vitals", {
         admission_id: (admission == null ? void 0 : admission.admission_id) || (selectedAdmission == null ? void 0 : selectedAdmission.id),
         patient_id: (admission == null ? void 0 : admission.patient_id) || (selectedAdmission == null ? void 0 : selectedAdmission.patient_id),
         bp: vitals.bp,
@@ -84349,7 +84349,7 @@ ${data.type}: ${data.value}`;
       });
       if (medications.length > 0) {
         for (const med of medications) {
-          await api.post("/api/clinical/tasks", {
+          await api$1.post("/api/clinical/tasks", {
             admission_id: (admission == null ? void 0 : admission.admission_id) || (selectedAdmission == null ? void 0 : selectedAdmission.id),
             type: "PRN Medication",
             description: `${med.name} - ${med.reason} (Route: ${med.route})`,
@@ -84413,7 +84413,7 @@ ${data.type}: ${data.value}`;
     var _a, _b;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.post("/api/emergency/dispatch", {
+      const res = await api$1.post("/api/emergency/dispatch", {
         code,
         location: selectedWard === "All" ? "Ward A" : selectedWard
       }, {
@@ -85372,7 +85372,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/insurance/providers");
+      const res = await api$1.get("/api/insurance/providers");
       setProviders(res.data.providers || []);
     } catch (err) {
       console.error("Fetch providers error:", err);
@@ -85389,7 +85389,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
     setError(null);
     setVerificationResult(null);
     try {
-      const res = await api.post("/api/insurance/verify", {
+      const res = await api$1.post("/api/insurance/verify", {
         provider_id: formData.provider_id,
         policy_number: formData.policy_number
       });
@@ -85413,7 +85413,7 @@ const InsuranceVerifier = ({ show, onHide: onHide2, patient, onInsuranceLinked }
         policy_number: formData.policy_number,
         ...verificationResult.policyDetails
       };
-      await api.post(`/api/insurance/patient/${patient.patient_id}/link`, insuranceData);
+      await api$1.post(`/api/insurance/patient/${patient.patient_id}/link`, insuranceData);
       setSuccess("Insurance linked successfully!");
       setTimeout(() => {
         onInsuranceLinked && onInsuranceLinked();
@@ -85604,7 +85604,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
     setError(null);
     try {
       const payAmount = parseFloat(amount) || balance;
-      const orderRes = await api.post("/api/payments/orders", {
+      const orderRes = await api$1.post("/api/payments/orders", {
         invoice_id: invoice.id,
         amount: payAmount,
         patient_id: invoice.patient_id
@@ -85634,7 +85634,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
   };
   const verifyPayment = async (response) => {
     try {
-      await api.post("/api/payments/verify", {
+      await api$1.post("/api/payments/verify", {
         razorpay_order_id: response.razorpay_order_id,
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature
@@ -85655,7 +85655,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/payments/qr/${invoice.id}`);
+      const res = await api$1.get(`/payments/qr/${invoice.id}`);
       setQrData(res.data);
       setLoading(false);
     } catch (err) {
@@ -85667,7 +85667,7 @@ const PaymentModal = ({ show, onHide: onHide2, invoice, onPaymentSuccess }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post("/api/payments/link", {
+      const res = await api$1.post("/api/payments/link", {
         invoice_id: invoice.id,
         amount: parseFloat(amount) || balance
       });
@@ -85962,7 +85962,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
   const fetchDoctors = async () => {
     try {
       console.log("Fetching doctors...");
-      const res = await api.get("/api/auth/users");
+      const res = await api$1.get("/api/auth/users");
       console.log("Users response:", res.data);
       const rawList = res.data.data || res.data;
       const userList = Array.isArray(rawList) ? rawList : [];
@@ -86042,7 +86042,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
     setSearchStatus("searching");
     setError("");
     try {
-      const res = await api.get(`/api/patients/search?q=${uidSearch}`);
+      const res = await api$1.get(`/api/patients/search?q=${uidSearch}`);
       const patients = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       const patientList = Array.isArray(patients) ? patients : [];
       if (patientList.length > 0) {
@@ -86125,7 +86125,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
     setAiTriageLoading(true);
     setError("");
     try {
-      const res = await api.post("/api/ai/triage", { complaint: formData.complaint });
+      const res = await api$1.post("/api/ai/triage", { complaint: formData.complaint });
       setAiTriageResult(res.data);
       const suggestedDoc = doctors.find((d2) => {
         var _a2, _b2;
@@ -86151,7 +86151,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("idCard", ocrFile);
-      const res = await api.post("/api/ai/extract-id", formDataUpload, {
+      const res = await api$1.post("/api/ai/extract-id", formDataUpload, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data) {
@@ -86199,7 +86199,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
       if (isExistingPatient && foundPatientId) {
         payload.patient_id = foundPatientId;
       }
-      const res = await api.post("/api/opd/register", payload);
+      const res = await api$1.post("/api/opd/register", payload);
       const responseData = res.data.data || res.data;
       const apiPatient = responseData.patient || {};
       const apiVisit = responseData.visit || {};
@@ -86237,7 +86237,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
       const hasVitals = Object.values(vitalsData).some((val) => val !== "");
       if (hasVitals && ((_a2 = res.data.patient) == null ? void 0 : _a2.id)) {
         try {
-          await api.post("/api/clinical/vitals", {
+          await api$1.post("/api/clinical/vitals", {
             patient_id: res.data.patient.id,
             admission_id: null,
             ...vitalsData
@@ -86253,7 +86253,7 @@ const PatientRegistrationModal = ({ show, onHide: onHide2, onRegister, existingP
           docFormData.append("patient_id", res.data.patient.id);
           docFormData.append("document_type", docType);
           docFormData.append("document", selectedFile);
-          await api.post("/api/opd/upload-document", docFormData, {
+          await api$1.post("/api/opd/upload-document", docFormData, {
             headers: { "Content-Type": "multipart/form-data" }
           });
           console.log("Document uploaded successfully");
@@ -86914,7 +86914,7 @@ const EditPatientModal = ({ show, onHide: onHide2, patient, onSave }) => {
     setError("");
     setLoading(true);
     try {
-      const res = await api.put(`/api/patients/${patient.id}`, {
+      const res = await api$1.put(`/api/patients/${patient.id}`, {
         name: formData.name,
         age: parseInt(formData.age),
         gender: formData.gender,
@@ -94281,11 +94281,11 @@ const PatientProfileModal = ({ show, onHide: onHide2, patientId, visitId }) => {
     try {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
-      const patientRes = await api.get(`/api/patients/${patientId}`, { headers });
+      const patientRes = await api$1.get(`/api/patients/${patientId}`, { headers });
       setPatient(patientRes.data.data || patientRes.data);
-      const visitsRes = await api.get(`/api/patients/${patientId}/visits`, { headers });
+      const visitsRes = await api$1.get(`/api/patients/${patientId}/visits`, { headers });
       setVisits(visitsRes.data.data || visitsRes.data || []);
-      const paymentsRes = await api.get(`/api/patients/${patientId}/payments`, { headers });
+      const paymentsRes = await api$1.get(`/api/patients/${patientId}/payments`, { headers });
       setPayments(paymentsRes.data.data || paymentsRes.data || []);
     } catch (err) {
       console.error("Error fetching patient data:", err);
@@ -94474,7 +94474,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
   const fetchProviders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/preauth/providers", {
+      const res = await api$1.get("/api/preauth/providers", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProviders(res.data.data || res.data || []);
@@ -94493,7 +94493,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
   const fetchPatientInsurance = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/preauth/patient/${patientId}/insurance`, {
+      const res = await api$1.get(`/api/preauth/patient/${patientId}/insurance`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = res.data.data || res.data;
@@ -94518,7 +94518,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
     setVerificationResult(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.post("/api/preauth/verify-eligibility", {
+      const res = await api$1.post("/api/preauth/verify-eligibility", {
         patient_id: patientId,
         provider_id: formData.provider_id,
         policy_number: formData.policy_number,
@@ -94526,7 +94526,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
       }, { headers: { Authorization: `Bearer ${token}` } });
       setVerificationResult(res.data.data || res.data);
       if (!patientInsurance) {
-        await api.post("/api/preauth/patient/insurance", {
+        await api$1.post("/api/preauth/patient/insurance", {
           patient_id: patientId,
           ...formData
         }, { headers: { Authorization: `Bearer ${token}` } });
@@ -94554,7 +94554,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/preauth/patient/insurance", {
+      await api$1.post("/api/preauth/patient/insurance", {
         patient_id: patientId,
         ...formData
       }, { headers: { Authorization: `Bearer ${token}` } });
@@ -94571,7 +94571,7 @@ const InsuranceVerificationModal = ({ show, onHide: onHide2, patientId, patientN
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/preauth/request", {
+      await api$1.post("/api/preauth/request", {
         patient_id: patientId,
         insurance_id: patientInsurance == null ? void 0 : patientInsurance.id,
         ...preauthForm
@@ -94861,7 +94861,7 @@ const VisitorPassModal = ({ show, onHide: onHide2 }) => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await api.post("/api/security/visitors/check-in", formData);
+      await api$1.post("/api/security/visitors/check-in", formData);
       setSuccessMsg("Visitor Pass Issued & Synced to Security!");
       setTimeout(() => {
         setSuccessMsg("");
@@ -95022,7 +95022,7 @@ const ABHAScanner = ({ show, onHide: onHide2, onAutoFill }) => {
     setError(null);
     setProfile(null);
     try {
-      const res = await api.post("/api/reception/abha/init-verify", {
+      const res = await api$1.post("/api/reception/abha/init-verify", {
         abha_number: abhaNumber
       });
       const data = ((_a = res.data) == null ? void 0 : _a.data) || res.data;
@@ -95303,7 +95303,7 @@ const RapidTriageRegistration = ({ show, onHide: onHide2, onTriageRegistered }) 
         is_mlc: isMLC,
         notes: notes.trim() || null
       };
-      const res = await api.post("/api/reception/rapid-triage", payload);
+      const res = await api$1.post("/api/reception/rapid-triage", payload);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data;
       setSuccess(data);
       onTriageRegistered && onTriageRegistered(data);
@@ -96650,7 +96650,7 @@ const LabQueueTab = ({ queue, fetchQueue, fetchStats, onUploadClick }) => {
     try {
       setCollectingId(requestId);
       const token = localStorage.getItem("token");
-      const res = await api.post(`/api/lab/collect/${requestId}`, {}, {
+      const res = await api$1.post(`/api/lab/collect/${requestId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert(`✅ Sample collected! Barcode: ${res.data.barcode}`);
@@ -97834,7 +97834,7 @@ const LabEntryForm = ({ selectedRequest, onSave }) => {
     setLoadingParams(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/lab-params/parameters/${encodeURIComponent(testName)}`, {
+      const res = await api$1.get(`/api/lab-params/parameters/${encodeURIComponent(testName)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const params = res.data.map((p2) => ({
@@ -97912,7 +97912,7 @@ const TATAnalyticsChart = () => {
   const fetchTATData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/analytics/tat", {
+      const res = await api$1.get("/api/lab/analytics/tat", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data);
@@ -98040,7 +98040,7 @@ const CriticalAlertWidget = ({ onAlertCount }) => {
   const fetchAlerts = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/critical-alerts/pending", {
+      const res = await api$1.get("/api/lab/critical-alerts/pending", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAlerts(res.data);
@@ -98059,7 +98059,7 @@ const CriticalAlertWidget = ({ onAlertCount }) => {
   const acknowledgeAlert = async (id2) => {
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/api/lab/critical-alerts/${id2}/acknowledge`, {}, {
+      await api$1.post(`/api/lab/critical-alerts/${id2}/acknowledge`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchAlerts();
@@ -98180,7 +98180,7 @@ const ReagentInventory = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/reagents", {
+      const res = await api$1.get("/api/lab/reagents", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setReagents(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
@@ -98196,7 +98196,7 @@ const ReagentInventory = () => {
     setShowForecastModal(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/lab/reagents/${reagentId}/forecast`, {
+      const res = await api$1.get(`/api/lab/reagents/${reagentId}/forecast`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setForecastData(((_a = res.data) == null ? void 0 : _a.data) || res.data);
@@ -98209,11 +98209,11 @@ const ReagentInventory = () => {
     try {
       const token = localStorage.getItem("token");
       if (editingReagent) {
-        await api.put(`/api/lab/reagents/${editingReagent.id}`, formData, {
+        await api$1.put(`/api/lab/reagents/${editingReagent.id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await api.post("/api/lab/reagents", formData, {
+        await api$1.post("/api/lab/reagents", formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -98587,7 +98587,7 @@ const QCDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/qc/materials", {
+      const res = await api$1.get("/api/lab/qc/materials", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const materialsData = Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || [];
@@ -98606,7 +98606,7 @@ const QCDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/lab/qc/results/${materialId}`, {
+      const res = await api$1.get(`/api/lab/qc/results/${materialId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const results = Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || [];
@@ -98619,7 +98619,7 @@ const QCDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/qc/violations", {
+      const res = await api$1.get("/api/lab/qc/violations", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setViolations(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
@@ -98631,7 +98631,7 @@ const QCDashboard = () => {
     if (!selectedViolation) return;
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/api/lab/qc/violations/${selectedViolation.id}/acknowledge`, {
+      await api$1.post(`/api/lab/qc/violations/${selectedViolation.id}/acknowledge`, {
         notes: ackNotes
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -98654,7 +98654,7 @@ const QCDashboard = () => {
   const handleAddResult = async () => {
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/lab/qc/results", {
+      await api$1.post("/api/lab/qc/results", {
         qc_material_id: selectedMaterial.id,
         value: parseFloat(newValue)
       }, {
@@ -98946,8 +98946,8 @@ const LabRevenueChart = () => {
     try {
       const token = localStorage.getItem("token");
       const [revenueRes, workloadRes] = await Promise.all([
-        api.get("/api/lab/analytics/revenue", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/api/lab/analytics/workload", { headers: { Authorization: `Bearer ${token}` } })
+        api$1.get("/api/lab/analytics/revenue", { headers: { Authorization: `Bearer ${token}` } }),
+        api$1.get("/api/lab/analytics/workload", { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setData(revenueRes.data);
       setWorkload(workloadRes.data);
@@ -99108,7 +99108,7 @@ const InstrumentManager = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/instruments", {
+      const res = await api$1.get("/api/instruments", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setInstruments(Array.isArray(res.data) ? res.data : ((_a2 = res.data) == null ? void 0 : _a2.data) || []);
@@ -99120,7 +99120,7 @@ const InstrumentManager = () => {
   const fetchDriverRegistry = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/instruments/registry", {
+      const res = await api$1.get("/api/instruments/registry", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDriverRegistry(res.data || { data: [], byManufacturer: {} });
@@ -99132,7 +99132,7 @@ const InstrumentManager = () => {
     var _a2;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/instruments/live-results", {
+      const res = await api$1.get("/api/instruments/live-results", {
         headers: { Authorization: `Bearer ${token}` }
       });
       setLiveData(((_a2 = res.data) == null ? void 0 : _a2.data) || []);
@@ -99145,7 +99145,7 @@ const InstrumentManager = () => {
     setTelemetryLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/instruments/${id2}/logs`, {
+      const res = await api$1.get(`/api/instruments/${id2}/logs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTelemetryLogs(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || []);
@@ -99159,7 +99159,7 @@ const InstrumentManager = () => {
     setCalibrationsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/instruments/${id2}/calibrations`, {
+      const res = await api$1.get(`/api/instruments/${id2}/calibrations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCalibrations(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || []);
@@ -99173,7 +99173,7 @@ const InstrumentManager = () => {
     if (!selectedInstrument) return;
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/api/instruments/${selectedInstrument.id}/calibrations`, calibrationForm, {
+      await api$1.post(`/api/instruments/${selectedInstrument.id}/calibrations`, calibrationForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowNewCalibrationForm(false);
@@ -99235,7 +99235,7 @@ const InstrumentManager = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/instruments", {
+      await api$1.post("/api/instruments", {
         name: connectionConfig.name,
         manufacturer: selectedDriver.manufacturer,
         model: selectedDriver.model,
@@ -99261,7 +99261,7 @@ const InstrumentManager = () => {
     if (!window.confirm("Delete this instrument?")) return;
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`/api/instruments/${id2}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api$1.delete(`/api/instruments/${id2}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchInstruments();
     } catch (err) {
       console.error("Delete error:", err);
@@ -99271,7 +99271,7 @@ const InstrumentManager = () => {
     var _a2, _b2;
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/api/instruments/${id2}/start`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await api$1.post(`/api/instruments/${id2}/start`, {}, { headers: { Authorization: `Bearer ${token}` } });
       fetchInstruments();
     } catch (err) {
       alert("Failed to start: " + (((_b2 = (_a2 = err.response) == null ? void 0 : _a2.data) == null ? void 0 : _b2.message) || err.message));
@@ -99280,7 +99280,7 @@ const InstrumentManager = () => {
   const stopInstrument = async (id2) => {
     try {
       const token = localStorage.getItem("token");
-      await api.post(`/api/instruments/${id2}/stop`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await api$1.post(`/api/instruments/${id2}/stop`, {}, { headers: { Authorization: `Bearer ${token}` } });
       fetchInstruments();
     } catch (err) {
       console.error("Stop error:", err);
@@ -99735,11 +99735,11 @@ const LabTestParamsAdmin = () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       const [paramsRes, mappingsRes, catsRes, deltaRulesRes, testTypesRes] = await Promise.all([
-        api.get("/api/lab-params/parameters", { headers }),
-        api.get("/api/lab-params/mappings", { headers }),
-        api.get("/api/lab-params/categories", { headers }),
-        api.get("/api/lab-params/delta-rules", { headers }).catch(() => ({ data: [] })),
-        api.get("/api/lab/test-types", { headers }).catch(() => ({ data: [] }))
+        api$1.get("/api/lab-params/parameters", { headers }),
+        api$1.get("/api/lab-params/mappings", { headers }),
+        api$1.get("/api/lab-params/categories", { headers }),
+        api$1.get("/api/lab-params/delta-rules", { headers }).catch(() => ({ data: [] })),
+        api$1.get("/api/lab/test-types", { headers }).catch(() => ({ data: [] }))
       ]);
       const paramsData = paramsRes.data.flat ? paramsRes.data : ((_a2 = paramsRes.data) == null ? void 0 : _a2.data) || { grouped: {}, flat: [] };
       setParameters(paramsData);
@@ -99792,9 +99792,9 @@ const LabTestParamsAdmin = () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       if (editingParam) {
-        await api.put(`/api/lab-params/parameters/${editingParam.id}`, paramForm, { headers });
+        await api$1.put(`/api/lab-params/parameters/${editingParam.id}`, paramForm, { headers });
       } else {
-        await api.post("/api/lab-params/parameters", paramForm, { headers });
+        await api$1.post("/api/lab-params/parameters", paramForm, { headers });
       }
       setShowParamModal(false);
       loadData();
@@ -99807,7 +99807,7 @@ const LabTestParamsAdmin = () => {
     if (!window.confirm("Delete this parameter?")) return;
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`/api/lab-params/parameters/${id2}`, {
+      await api$1.delete(`/api/lab-params/parameters/${id2}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       loadData();
@@ -99818,7 +99818,7 @@ const LabTestParamsAdmin = () => {
   const saveMapping = async () => {
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/lab-params/mappings", mappingForm, {
+      await api$1.post("/api/lab-params/mappings", mappingForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShowMappingModal(false);
@@ -99832,7 +99832,7 @@ const LabTestParamsAdmin = () => {
     if (!window.confirm("Delete this mapping?")) return;
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`/api/lab-params/mappings/${id2}`, {
+      await api$1.delete(`/api/lab-params/mappings/${id2}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       loadData();
@@ -99862,9 +99862,9 @@ const LabTestParamsAdmin = () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       if (editingDeltaRule) {
-        await api.put(`/api/lab-params/delta-rules/${editingDeltaRule.id}`, deltaForm, { headers });
+        await api$1.put(`/api/lab-params/delta-rules/${editingDeltaRule.id}`, deltaForm, { headers });
       } else {
-        await api.post("/api/lab-params/delta-rules", deltaForm, { headers });
+        await api$1.post("/api/lab-params/delta-rules", deltaForm, { headers });
       }
       setShowDeltaModal(false);
       loadData();
@@ -99878,7 +99878,7 @@ const LabTestParamsAdmin = () => {
     try {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
-      await api.delete(`/api/lab-params/delta-rules/${id2}`, { headers });
+      await api$1.delete(`/api/lab-params/delta-rules/${id2}`, { headers });
       loadData();
     } catch (err) {
       console.error("Delete delta rule error:", err);
@@ -100283,8 +100283,8 @@ const LabPackageBuilder = () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       const [pkgRes, testRes] = await Promise.all([
-        api.get("/api/lab/packages", { headers }),
-        api.get("/api/lab/test-types", { headers })
+        api$1.get("/api/lab/packages", { headers }),
+        api$1.get("/api/lab/test-types", { headers })
       ]);
       setPackages(Array.isArray(pkgRes.data) ? pkgRes.data : ((_a = pkgRes.data) == null ? void 0 : _a.data) || []);
       setTestTypes(Array.isArray(testRes.data) ? testRes.data : ((_b = testRes.data) == null ? void 0 : _b.data) || []);
@@ -100314,7 +100314,7 @@ const LabPackageBuilder = () => {
     setEditingPackage(pkg);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/lab/package/${pkg.id}/full`, {
+      const res = await api$1.get(`/api/lab/package/${pkg.id}/full`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setFormData({
@@ -100340,10 +100340,10 @@ const LabPackageBuilder = () => {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
       if (editingPackage) {
-        await api.put(`/api/lab/packages/${editingPackage.id}`, formData, { headers });
+        await api$1.put(`/api/lab/packages/${editingPackage.id}`, formData, { headers });
         setSuccess("Package updated successfully");
       } else {
-        await api.post("/api/lab/packages", formData, { headers });
+        await api$1.post("/api/lab/packages", formData, { headers });
         setSuccess("Package created successfully");
       }
       setShowModal(false);
@@ -100357,7 +100357,7 @@ const LabPackageBuilder = () => {
     if (!window.confirm(`Delete package "${pkg.name}"?`)) return;
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`/api/lab/packages/${pkg.id}`, {
+      await api$1.delete(`/api/lab/packages/${pkg.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSuccess("Package deleted");
@@ -100586,7 +100586,7 @@ const LabDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/queue", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api$1.get("/api/lab/queue", { headers: { Authorization: `Bearer ${token}` } });
       setQueue(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error(err);
@@ -100597,7 +100597,7 @@ const LabDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/stats", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api$1.get("/api/lab/stats", { headers: { Authorization: `Bearer ${token}` } });
       setStats(((_a = res.data) == null ? void 0 : _a.data) || res.data || { completed_today: 0, samples_collected: 0, avg_turnaround_hours: 0 });
     } catch (err) {
       console.error(err);
@@ -100607,7 +100607,7 @@ const LabDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/history", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api$1.get("/api/lab/history", { headers: { Authorization: `Bearer ${token}` } });
       setLabHistory(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("History fetch error:", err);
@@ -100617,7 +100617,7 @@ const LabDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/packages", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api$1.get("/api/lab/packages", { headers: { Authorization: `Bearer ${token}` } });
       setPackages(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Packages fetch error:", err);
@@ -100627,7 +100627,7 @@ const LabDashboard = () => {
     var _a;
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/lab/tests", { headers: { Authorization: `Bearer ${token}` } });
+      const res = await api$1.get("/api/lab/tests", { headers: { Authorization: `Bearer ${token}` } });
       setAllTests(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("All tests fetch error:", err);
@@ -100642,7 +100642,7 @@ const LabDashboard = () => {
   const handleSubmitPriceRequest = async () => {
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/lab/change-request", {
+      await api$1.post("/api/lab/change-request", {
         request_type: "PRICE_CHANGE",
         test_id: selectedTestForChange.id,
         new_price: parseFloat(newPrice),
@@ -100687,7 +100687,7 @@ const LabDashboard = () => {
         formData.append("file", selectedFile);
         formData.append("patient_name", (selectedRequest == null ? void 0 : selectedRequest.patient_name) || "");
         try {
-          const parserRes = await api.post("/api/lab/parse-result", formData, {
+          const parserRes = await api$1.post("/api/lab/parse-result", formData, {
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data"
@@ -100718,7 +100718,7 @@ Do you want to override this warning and upload the results anyway?`
           return;
         }
       }
-      await api.post("/api/lab/upload-result", {
+      await api$1.post("/api/lab/upload-result", {
         request_id: selectedRequest.id,
         result_json: parsed
       }, { headers: { Authorization: `Bearer ${token}` } });
@@ -100912,7 +100912,7 @@ Do you want to override this warning and upload the results anyway?`
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-end mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", onClick: async () => {
             try {
-              const res = await api.get("/instruments");
+              const res = await api$1.get("/instruments");
               setConnectedInstruments(Array.isArray(res.data) ? res.data : []);
             } catch (e3) {
               console.error(e3);
@@ -100991,7 +100991,7 @@ Do you want to override this warning and upload the results anyway?`
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAddTestModal(false), children: "Cancel" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: async () => {
           try {
-            await api.post("/lab/tests", newTestData);
+            await api$1.post("/lab/tests", newTestData);
             setShowAddTestModal(false);
             setNewTestData({ name: "", category: "", price: "", sample_type: "" });
             fetchAllTests();
@@ -101032,7 +101032,7 @@ const AddDrugModal = ({ show, onHide: onHide2, refreshData }) => {
     setError(null);
     setSuccess(null);
     try {
-      await api.post("/api/pharmacy/inventory", formData);
+      await api$1.post("/api/pharmacy/inventory", formData);
       setSuccess("Drug added successfully!");
       refreshData();
       setTimeout(() => {
@@ -101136,7 +101136,7 @@ const ProcurementDashboard$1 = ({ inventory }) => {
   const fetchSuppliers = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/suppliers");
+      const res = await api$1.get("/api/pharmacy/suppliers");
       const data = Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || [];
       setSuppliers(data);
       if (data.length > 0) setSelectedSupplier(data[0].id);
@@ -101147,7 +101147,7 @@ const ProcurementDashboard$1 = ({ inventory }) => {
   const fetchPurchaseOrders = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/purchase-orders");
+      const res = await api$1.get("/api/pharmacy/purchase-orders");
       setPurchaseOrders(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("PO fetch failed", err);
@@ -101184,7 +101184,7 @@ const ProcurementDashboard$1 = ({ inventory }) => {
         expected_delivery_date: deliveryDate,
         notes: "Generated from Dashboard"
       };
-      await api.post("/api/pharmacy/purchase-orders", payload);
+      await api$1.post("/api/pharmacy/purchase-orders", payload);
       setMessage({ type: "success", text: "Purchase Order Created Successfully!" });
       setItems([{ inventory_item_id: "", item_name: "", quantity: 1, unit_price: 0 }]);
       setRefreshTrigger((prev2) => prev2 + 1);
@@ -101194,7 +101194,7 @@ const ProcurementDashboard$1 = ({ inventory }) => {
   };
   const receiveStock = async (poId) => {
     try {
-      await api.post("/api/pharmacy/purchase-orders/receive", { po_id: poId });
+      await api$1.post("/api/pharmacy/purchase-orders/receive", { po_id: poId });
       setMessage({ type: "success", text: "Stock Received & Inventory Updated!" });
       setRefreshTrigger((prev2) => prev2 + 1);
     } catch (err) {
@@ -101340,10 +101340,10 @@ const PharmacyReports = () => {
   reactExports.useEffect(() => {
     const fetchData = async () => {
       try {
-        const abcRes = await api.get("/api/pharmacy/reports/abc");
+        const abcRes = await api$1.get("/api/pharmacy/reports/abc");
         setAbcStats(abcRes.data.stats);
         setTotalValue(abcRes.data.totalValue);
-        const expiryRes = await api.get("/api/pharmacy/reports/expiry");
+        const expiryRes = await api$1.get("/api/pharmacy/reports/expiry");
         setExpiryList(expiryRes.data);
       } catch (error) {
         console.error("Report fetch failed", error);
@@ -101589,7 +101589,7 @@ const RefundModal$1 = ({ show, onHide: onHide2, transaction, refreshData }) => {
       return;
     }
     try {
-      await api.post("/api/pharmacy/refund", {
+      await api$1.post("/api/pharmacy/refund", {
         invoice_item_id: transaction.id,
         return_quantity: quantity,
         reason
@@ -101662,7 +101662,7 @@ const PharmacyIPDOrdersPanel = ({ onOrderComplete }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/clinical/tasks", {
+      const res = await api$1.get("/api/clinical/tasks", {
         headers: { Authorization: `Bearer ${token}` },
         params: { status: "Pending" }
       });
@@ -101686,7 +101686,7 @@ const PharmacyIPDOrdersPanel = ({ onOrderComplete }) => {
     try {
       setProcessing(taskId);
       const token = localStorage.getItem("token");
-      await api.post(
+      await api$1.post(
         "/api/clinical/tasks/complete",
         { task_id: taskId, notes: "Dispensed by pharmacy" },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -101804,7 +101804,7 @@ const PharmacyDashboard = () => {
   const fetchInventory = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/inventory");
+      const res = await api$1.get("/api/pharmacy/inventory");
       setInventory(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error(err);
@@ -101813,7 +101813,7 @@ const PharmacyDashboard = () => {
   const fetchPrescriptionQueue = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/queue");
+      const res = await api$1.get("/api/pharmacy/queue");
       setPrescriptions(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error(err);
@@ -101822,7 +101822,7 @@ const PharmacyDashboard = () => {
   const fetchHeatmap = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/heatmap");
+      const res = await api$1.get("/api/pharmacy/heatmap");
       setHeatmapData(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Heatmap fetch error:", err);
@@ -101831,7 +101831,7 @@ const PharmacyDashboard = () => {
   const fetchForecast = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/forecast");
+      const res = await api$1.get("/api/pharmacy/forecast");
       setForecastData(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Forecast fetch error:", err);
@@ -101840,7 +101840,7 @@ const PharmacyDashboard = () => {
   const fetchRecentDispenses = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/dispenses/recent");
+      const res = await api$1.get("/api/pharmacy/dispenses/recent");
       setRecentDispenses(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error(err);
@@ -101880,7 +101880,7 @@ const PharmacyDashboard = () => {
   };
   const handleDispense = async (force = false) => {
     try {
-      await api.post("/api/pharmacy/dispense", {
+      await api$1.post("/api/pharmacy/dispense", {
         patient_id: null,
         // Basic dispense doesn't link to patient yet in UI, assume ad-hoc or future V2 links this
         item: selectedItem.name,
@@ -101909,7 +101909,7 @@ const PharmacyDashboard = () => {
   const handleProcessPrescription = async (item, force = false) => {
     var _a, _b;
     try {
-      await api.post("/api/pharmacy/process-prescription", {
+      await api$1.post("/api/pharmacy/process-prescription", {
         task_id: item.id,
         force
       });
@@ -101953,7 +101953,7 @@ const PharmacyDashboard = () => {
     }
     setRequestingPrice(true);
     try {
-      await api.post("/api/pharmacy/request-price-change", {
+      await api$1.post("/api/pharmacy/request-price-change", {
         item_id: selectedItem.id,
         new_price: parseFloat(newPrice),
         notes: priceNote
@@ -103999,7 +103999,7 @@ const AdvancePaymentModal = ({ show, onHide: onHide2, patientId, patientName, on
     }
     setSearching(true);
     try {
-      const res = await api.get(`/api/patients/search?q=${encodeURIComponent(term)}`);
+      const res = await api$1.get(`/api/patients/search?q=${encodeURIComponent(term)}`);
       setSearchResults(((_a = res.data) == null ? void 0 : _a.slice(0, 5)) || []);
     } catch (err) {
       console.error("Patient search error:", err);
@@ -104294,7 +104294,7 @@ const RefundModal = ({ show, onHide: onHide2, invoice, onSuccess }) => {
     }
     setSearching(true);
     try {
-      const res = await api.get("/api/finance/invoices");
+      const res = await api$1.get("/api/finance/invoices");
       const invoices = res.data || [];
       const filtered = invoices.filter(
         (inv) => {
@@ -104689,7 +104689,7 @@ const NewInvoiceModal = ({ show, onHide: onHide2, onSuccess }) => {
         console.error(e3);
         setDiscounts([]);
       }
-      api.get("/api/insurance/providers").then((res) => {
+      api$1.get("/api/insurance/providers").then((res) => {
         var _a;
         return setInsuranceProviders(((_a = res.data) == null ? void 0 : _a.providers) || []);
       }).catch((err) => console.error("Error fetching insurance providers:", err));
@@ -104704,7 +104704,7 @@ const NewInvoiceModal = ({ show, onHide: onHide2, onSuccess }) => {
     }
     setSearching(true);
     try {
-      const res = await api.get(`/api/patients/search?q=${encodeURIComponent(term)}`);
+      const res = await api$1.get(`/api/patients/search?q=${encodeURIComponent(term)}`);
       setSearchResults(((_a = res.data) == null ? void 0 : _a.slice(0, 5)) || []);
     } catch (err) {
       console.error("Patient search error:", err);
@@ -104828,7 +104828,7 @@ const NewInvoiceModal = ({ show, onHide: onHide2, onSuccess }) => {
           total_price: item.total
         }))
       };
-      await api.post("/api/finance/generate", invoiceData);
+      await api$1.post("/api/finance/generate", invoiceData);
       setSuccess("Invoice created successfully!");
       setTimeout(() => {
         setSuccess("");
@@ -105667,7 +105667,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
   const loadPosDevices = async () => {
     var _a2;
     try {
-      const res = await api.get("/api/pos/devices");
+      const res = await api$1.get("/api/pos/devices");
       const devices = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setPosDevices(devices.filter((d2) => d2.status === "active"));
     } catch (err) {
@@ -105692,7 +105692,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
     setPosTimeElapsed(0);
     setError("");
     try {
-      const res = await api.post("/api/pos/payment/initiate", {
+      const res = await api$1.post("/api/pos/payment/initiate", {
         deviceId: parseInt(selectedDevice),
         invoiceId: invoice.id,
         amount: parseFloat(paymentDetails.amount),
@@ -105728,7 +105728,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
         return;
       }
       try {
-        const res = await api.get(`/api/pos/payment/${txnId}/status`);
+        const res = await api$1.get(`/api/pos/payment/${txnId}/status`);
         const status = ((_b = (_a2 = res.data) == null ? void 0 : _a2.data) == null ? void 0 : _b.status) || ((_c = res.data) == null ? void 0 : _c.status);
         if (status === "success" || status === "completed") {
           clearInterval(interval);
@@ -105759,7 +105759,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
     }
     if (posTransactionId) {
       try {
-        await api.post(`/api/pos/payment/${posTransactionId}/cancel`);
+        await api$1.post(`/api/pos/payment/${posTransactionId}/cancel`);
       } catch (err) {
         console.error("Cancel error:", err);
       }
@@ -105792,7 +105792,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
     if (!invoiceId) return;
     setLoadingItems(true);
     try {
-      const res = await api.get(`/api/finance/invoices/${invoiceId}/items`);
+      const res = await api$1.get(`/api/finance/invoices/${invoiceId}/items`);
       setInvoiceItems(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || []);
     } catch (err) {
       console.error("Error fetching invoice items:", err);
@@ -105853,7 +105853,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
     setSubmitting(true);
     setError("");
     try {
-      const response = await api.post(`/api/finance/invoices/${invoice.id}/payments`, {
+      const response = await api$1.post(`/api/finance/invoices/${invoice.id}/payments`, {
         amount: parseFloat(paymentDetails.amount),
         payment_method: paymentMethod,
         reference_number: getReference(),
@@ -105914,7 +105914,7 @@ const PaymentConfirmationModal = ({ show, onHide: onHide2, invoice, onSuccess })
             console.error("Error parsing hospital_settings", e3);
           }
           const hospitalName = hospitalSettings.name || "Hospital";
-          await api.post("/api/sms/payment-confirmation", {
+          await api$1.post("/api/sms/payment-confirmation", {
             patient_name: invoice.patient_name,
             patient_phone: invoice.patient_phone,
             invoice_id: invoice.id,
@@ -106417,7 +106417,7 @@ const LabPaymentsTab = () => {
   const fetchPendingPayments = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/api/lab/pending-payments");
+      const response = await api$1.get("/api/lab/pending-payments");
       setPendingPayments(response.data);
       setError("");
     } catch (err) {
@@ -106451,7 +106451,7 @@ const LabPaymentsTab = () => {
     }
     setProcessing(true);
     try {
-      await api.post(`/api/lab/payment/${selectedOrder.id}`, {
+      await api$1.post(`/api/lab/payment/${selectedOrder.id}`, {
         payment_method: paymentMethod,
         amount: parseFloat(paymentDetails.amount),
         transaction_ref: paymentDetails.reference || null,
@@ -106636,14 +106636,14 @@ const BillingLeakageTracker = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const labsRes = await api.get("/api/lab/completed", {
+      const labsRes = await api$1.get("/api/lab/completed", {
         headers: { Authorization: `Bearer ${token}` },
         params: { billed: false }
       }).catch(() => ({ data: [] }));
-      const medsRes = await api.get("/api/pharmacy/dispenses/unbilled", {
+      const medsRes = await api$1.get("/api/pharmacy/dispenses/unbilled", {
         headers: { Authorization: `Bearer ${token}` }
       }).catch(() => ({ data: [] }));
-      const servicesRes = await api.get("/api/clinical/tasks", {
+      const servicesRes = await api$1.get("/api/clinical/tasks", {
         headers: { Authorization: `Bearer ${token}` },
         params: { status: "Completed", billed: false }
       }).catch(() => ({ data: [] }));
@@ -106681,7 +106681,7 @@ const BillingLeakageTracker = () => {
   const handleAddToBill = async (item, type) => {
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/billing/add-item", {
+      await api$1.post("/api/billing/add-item", {
         item_id: item.id,
         item_type: type,
         patient_id: item.patient_id,
@@ -106888,8 +106888,8 @@ const BillingQueueTab = ({ onInvoiceCreated }) => {
       if (filters.status) params.append("status", filters.status);
       if (filters.charge_type) params.append("charge_type", filters.charge_type);
       const [chargesRes, summaryRes] = await Promise.all([
-        api.get(`/api/charges?${params.toString()}`),
-        api.get("/api/charges/summary")
+        api$1.get(`/api/charges?${params.toString()}`),
+        api$1.get("/api/charges/summary")
       ]);
       const chargesData = ((_a = chargesRes.data) == null ? void 0 : _a.data) || chargesRes.data;
       setCharges((chargesData == null ? void 0 : chargesData.charges) || []);
@@ -106952,7 +106952,7 @@ const BillingQueueTab = ({ onInvoiceCreated }) => {
     }
     try {
       setCreatingInvoice(true);
-      const response = await api.post("/api/charges/invoice", {
+      const response = await api$1.post("/api/charges/invoice", {
         charge_ids: selectedCharges,
         create_new_invoice: true
       });
@@ -106975,7 +106975,7 @@ const BillingQueueTab = ({ onInvoiceCreated }) => {
     var _a, _b;
     if (!cancellingCharge) return;
     try {
-      await api.post(`/api/charges/${cancellingCharge.id}/cancel`, {
+      await api$1.post(`/api/charges/${cancellingCharge.id}/cancel`, {
         reason: cancelReason || "Cancelled by billing staff"
       });
       setSuccessMessage("Charge cancelled successfully");
@@ -107318,7 +107318,7 @@ const AgedTrialBalance = () => {
   const fetchATB = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/finance/reports/atb");
+      const res = await api$1.get("/api/finance/reports/atb");
       setData(res.data);
       if (res.data["90+"].count > 0) setActiveBucket("90+");
       else if (res.data["61-90"].count > 0) setActiveBucket("61-90");
@@ -107437,7 +107437,7 @@ const DailyRevenueReport = () => {
   const fetchReport = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/api/finance/reports/daily-revenue", {
+      const res = await api$1.get("/api/finance/reports/daily-revenue", {
         params: dateRange
       });
       setData(res.data);
@@ -107594,9 +107594,9 @@ const AdvancedReportsDashboard = () => {
     setLoading(true);
     try {
       const [deptRes, payerRes, trendRes] = await Promise.all([
-        api.get("/api/finance/reports/department-revenue"),
-        api.get("/api/finance/reports/payer-analysis"),
-        api.get("/api/finance/reports/revenue-trend")
+        api$1.get("/api/finance/reports/department-revenue"),
+        api$1.get("/api/finance/reports/payer-analysis"),
+        api$1.get("/api/finance/reports/revenue-trend")
       ]);
       setDepartmentData(deptRes.data);
       setPayerData(payerRes.data);
@@ -107769,7 +107769,7 @@ const BillingDashboard = () => {
   const fetchBillingData = reactExports.useCallback(async () => {
     var _a2;
     try {
-      const invoicesRes = await api.get("/api/finance/invoices");
+      const invoicesRes = await api$1.get("/api/finance/invoices");
       const allInvoices = ((_a2 = invoicesRes.data) == null ? void 0 : _a2.data) || [];
       setInvoices(allInvoices);
       const today = (/* @__PURE__ */ new Date()).toDateString();
@@ -107816,7 +107816,7 @@ const BillingDashboard = () => {
     setLoadingItems(true);
     setShowPatientModal(true);
     try {
-      const res = await api.get(`/api/finance/invoices/${invoice.id}/items`);
+      const res = await api$1.get(`/api/finance/invoices/${invoice.id}/items`);
       setInvoiceItems(((_a2 = res.data) == null ? void 0 : _a2.data) || []);
     } catch (err) {
       console.error("Error fetching invoice items:", err);
@@ -107827,7 +107827,7 @@ const BillingDashboard = () => {
   const handlePaymentSubmit = async () => {
     var _a2, _b, _c, _d, _e;
     try {
-      const response = await api.post(`/api/finance/invoices/${selectedInvoice.id}/pay`, {
+      const response = await api$1.post(`/api/finance/invoices/${selectedInvoice.id}/pay`, {
         amount: parseFloat(paymentForm.amount),
         payment_mode: paymentForm.mode,
         reference_number: paymentForm.reference
@@ -107867,7 +107867,7 @@ const BillingDashboard = () => {
     setLoadingItems(true);
     setShowInvoicePrint(true);
     try {
-      const res = await api.get(`/api/finance/invoices/${invoice.id}/items`);
+      const res = await api$1.get(`/api/finance/invoices/${invoice.id}/items`);
       setInvoiceItems(((_a2 = res.data) == null ? void 0 : _a2.data) || []);
     } catch (err) {
       console.error("Error fetching invoice items:", err);
@@ -108823,7 +108823,7 @@ const ClinicalModal = ({ show, onHide: onHide2, bed }) => {
     var _a;
     if (!(bed == null ? void 0 : bed.admission_id)) return;
     try {
-      const res = await api.get(`/api/ward/vitals/${bed.admission_id}`);
+      const res = await api$1.get(`/api/ward/vitals/${bed.admission_id}`);
       setVitalsList(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error(err);
@@ -108832,7 +108832,7 @@ const ClinicalModal = ({ show, onHide: onHide2, bed }) => {
   const fetchEMAR = reactExports.useCallback(async () => {
     if (!(bed == null ? void 0 : bed.admission_id)) return;
     try {
-      const res = await api.get(`/api/ward/emar/${bed.admission_id}`);
+      const res = await api$1.get(`/api/ward/emar/${bed.admission_id}`);
       setEmarData(res.data.data || res.data || { prescription: null, logs: [] });
     } catch (err) {
       console.error(err);
@@ -108847,7 +108847,7 @@ const ClinicalModal = ({ show, onHide: onHide2, bed }) => {
   const handleSaveVitals = async (e3) => {
     e3.preventDefault();
     try {
-      await api.post("/api/ward/vitals", {
+      await api$1.post("/api/ward/vitals", {
         admission_id: bed.admission_id,
         patient_id: bed.patient_id,
         ...vitalsForm
@@ -108871,7 +108871,7 @@ const ClinicalModal = ({ show, onHide: onHide2, bed }) => {
   const handleSaveEMAR = async (e3) => {
     e3.preventDefault();
     try {
-      await api.post("/api/ward/emar", {
+      await api$1.post("/api/ward/emar", {
         admission_id: bed.admission_id,
         patient_id: bed.patient_id,
         ...emarForm
@@ -109123,11 +109123,11 @@ const WardManagement = () => {
     setError(null);
     try {
       const [wardsRes, bedsRes, consRes, chargesRes, eqRes] = await Promise.all([
-        api.get("/api/ward/wards"),
-        api.get("/api/ward/beds"),
-        api.get("/api/ward/consumables"),
-        api.get("/api/ward/charges"),
-        api.get("/api/equipment/types").catch(() => ({ data: [] }))
+        api$1.get("/api/ward/wards"),
+        api$1.get("/api/ward/beds"),
+        api$1.get("/api/ward/consumables"),
+        api$1.get("/api/ward/charges"),
+        api$1.get("/api/equipment/types").catch(() => ({ data: [] }))
       ]);
       const getListData = (res) => {
         var _a2;
@@ -109151,7 +109151,7 @@ const WardManagement = () => {
   };
   const fetchNurses = async () => {
     try {
-      const res = await api.get("/api/roster/nurses");
+      const res = await api$1.get("/api/roster/nurses");
       setNurses(res.data.data || res.data || []);
     } catch (err) {
       console.error("Failed to fetch nurses:", err);
@@ -109160,7 +109160,7 @@ const WardManagement = () => {
   const fetchRoster = async () => {
     if (!rosterWard) return;
     try {
-      const res = await api.get(`/api/roster/roster?ward_id=${rosterWard}&date=${selectedDate}`);
+      const res = await api$1.get(`/api/roster/roster?ward_id=${rosterWard}&date=${selectedDate}`);
       setRoster(res.data.data || res.data || []);
     } catch (err) {
       console.error("Failed to fetch roster:", err);
@@ -109181,7 +109181,7 @@ const WardManagement = () => {
       return;
     }
     try {
-      await api.post("/api/roster/assign", {
+      await api$1.post("/api/roster/assign", {
         nurse_id: selectedNurse,
         ward_id: rosterWard,
         shift_type: selectedShift,
@@ -109218,7 +109218,7 @@ const WardManagement = () => {
   const handleRequestSubmit = async () => {
     var _a2, _b;
     try {
-      await api.post("/api/ward/change-request", {
+      await api$1.post("/api/ward/change-request", {
         request_type: requestType,
         item_type: itemType,
         item_id: requestItem == null ? void 0 : requestItem.id,
@@ -109248,9 +109248,9 @@ const WardManagement = () => {
     e3.preventDefault();
     try {
       if (editingWard) {
-        await api.put(`/api/ward/wards/${editingWard.id}`, wardForm);
+        await api$1.put(`/api/ward/wards/${editingWard.id}`, wardForm);
       } else {
-        await api.post("/api/ward/wards", wardForm);
+        await api$1.post("/api/ward/wards", wardForm);
       }
       setShowWardModal(false);
       fetchData();
@@ -109262,7 +109262,7 @@ const WardManagement = () => {
     var _a2, _b;
     if (!window.confirm("Are you sure you want to delete this ward?")) return;
     try {
-      await api.delete(`/api/ward/wards/${id2}`);
+      await api$1.delete(`/api/ward/wards/${id2}`);
       fetchData();
     } catch (err) {
       alert(((_b = (_a2 = err.response) == null ? void 0 : _a2.data) == null ? void 0 : _b.error) || "Failed to delete ward");
@@ -109284,9 +109284,9 @@ const WardManagement = () => {
     e3.preventDefault();
     try {
       if (editingBed) {
-        await api.put(`/api/ward/beds/${editingBed.id}`, bedForm);
+        await api$1.put(`/api/ward/beds/${editingBed.id}`, bedForm);
       } else {
-        await api.post("/api/ward/beds", bedForm);
+        await api$1.post("/api/ward/beds", bedForm);
       }
       setShowBedModal(false);
       fetchData();
@@ -109298,7 +109298,7 @@ const WardManagement = () => {
     var _a2, _b;
     if (!window.confirm("Are you sure you want to delete this bed?")) return;
     try {
-      await api.delete(`/api/ward/beds/${id2}`);
+      await api$1.delete(`/api/ward/beds/${id2}`);
       fetchData();
     } catch (err) {
       alert(((_b = (_a2 = err.response) == null ? void 0 : _a2.data) == null ? void 0 : _b.error) || "Failed to delete bed");
@@ -109320,7 +109320,7 @@ const WardManagement = () => {
     const targetBedNum = (_b = beds.find((b2) => b2.id == transferTargetBed)) == null ? void 0 : _b.bed_number;
     if (!targetWardName || !targetBedNum) return;
     try {
-      await api.post("/api/admissions/transfer", {
+      await api$1.post("/api/admissions/transfer", {
         admission_id: transferFromBed.admission_id,
         to_ward: targetWardName,
         to_bed: targetBedNum
@@ -109808,7 +109808,7 @@ const WardManagement = () => {
                       var _a2, _b;
                       if (window.confirm(`Request to delete "${eq2.name}"? Admin approval required.`)) {
                         try {
-                          await api.post(`/api/equipment/types/${eq2.id}/request-delete`);
+                          await api$1.post(`/api/equipment/types/${eq2.id}/request-delete`);
                           alert("Delete request submitted for admin approval");
                         } catch (err) {
                           alert(((_b = (_a2 = err.response) == null ? void 0 : _a2.data) == null ? void 0 : _b.error) || "Failed to submit request");
@@ -110037,10 +110037,10 @@ const WardManagement = () => {
         e3.preventDefault();
         try {
           if (editingEquipment) {
-            await api.post(`/api/equipment/types/${editingEquipment.id}/request-edit`, equipmentForm);
+            await api$1.post(`/api/equipment/types/${editingEquipment.id}/request-edit`, equipmentForm);
             alert("Edit request submitted for admin approval");
           } else {
-            await api.post("/api/equipment/types/request-add", equipmentForm);
+            await api$1.post("/api/equipment/types/request-add", equipmentForm);
             alert("Add request submitted for admin approval");
           }
           setShowEquipmentModal(false);
@@ -110178,7 +110178,7 @@ const WardManagement = () => {
                 return;
               }
               try {
-                await api.post("/api/equipment/assign", {
+                await api$1.post("/api/equipment/assign", {
                   admission_id: assignEquipmentBed.admission_id,
                   patient_id: assignEquipmentBed.patient_id,
                   bed_id: assignEquipmentBed.id,
@@ -111042,7 +111042,7 @@ function BillingWorkspace({ invoiceId, onSave, onClose }) {
   const fetchInvoiceData = async () => {
     setLoading(true);
     try {
-      const response = await api.get(`/finance/invoice/${invoiceId}/split`);
+      const response = await api$1.get(`/finance/invoice/${invoiceId}/split`);
       setInvoice(response.data.invoice);
       setLineItems(response.data.items || []);
       setSplitEntries(response.data.splits || []);
@@ -111123,7 +111123,7 @@ function BillingWorkspace({ invoiceId, onSave, onClose }) {
   };
   const handleRunAudit = async () => {
     try {
-      const response = await api.post("/finance/invoice/audit", {
+      const response = await api$1.post("/finance/invoice/audit", {
         invoiceId,
         items: splitEntries,
         totalAmount: totals.insurance
@@ -111147,7 +111147,7 @@ function BillingWorkspace({ invoiceId, onSave, onClose }) {
     setSaving(true);
     setMessage({ type: "", text: "" });
     try {
-      await api.post(`/finance/invoice/${invoiceId}/split`, {
+      await api$1.post(`/finance/invoice/${invoiceId}/split`, {
         splits: splitEntries,
         totals: {
           insuranceShare: totals.insurance,
@@ -111424,8 +111424,8 @@ function InsuranceCommandCenter() {
     setLoading(true);
     try {
       const [statsRes, claimsRes] = await Promise.all([
-        api.get("/finance/insurance/stats"),
-        api.get("/finance/insurance/claims")
+        api$1.get("/finance/insurance/stats"),
+        api$1.get("/finance/insurance/claims")
       ]);
       setStats(statsRes.data);
       setClaims(claimsRes.data.claims || []);
@@ -111678,9 +111678,9 @@ const ClaimsDashboard = () => {
     setLoading(true);
     try {
       const [claimsRes, statsRes, codesRes] = await Promise.all([
-        api.get("/api/insurance/claims/pending"),
-        api.get("/api/insurance/claims/stats"),
-        api.get("/api/insurance/denial-codes")
+        api$1.get("/api/insurance/claims/pending"),
+        api$1.get("/api/insurance/claims/stats"),
+        api$1.get("/api/insurance/denial-codes")
       ]);
       setClaims(claimsRes.data.claims || []);
       setStats(statsRes.data);
@@ -111718,7 +111718,7 @@ const ClaimsDashboard = () => {
   });
   const handleViewClaim = async (claimNumber) => {
     try {
-      const res = await api.get(`/api/insurance/claims/${claimNumber}`);
+      const res = await api$1.get(`/api/insurance/claims/${claimNumber}`);
       setSelectedClaim(res.data);
       setShowClaimModal(true);
     } catch (error) {
@@ -111973,10 +111973,10 @@ const PreauthDashboard = () => {
   const loadData = async () => {
     try {
       const [requestsRes, statsRes] = await Promise.all([
-        api.get("/api/preauth/requests", {
+        api$1.get("/api/preauth/requests", {
           params: filterStatus ? { status: filterStatus } : {}
         }),
-        api.get("/api/preauth/stats")
+        api$1.get("/api/preauth/stats")
       ]);
       setRequests(requestsRes.data);
       setStats(statsRes.data);
@@ -112010,7 +112010,7 @@ const PreauthDashboard = () => {
   };
   const handleUpdateStatus = async (newStatus, data) => {
     try {
-      await api.put(`/api/preauth/request/${selectedRequest.id}/status`, {
+      await api$1.put(`/api/preauth/request/${selectedRequest.id}/status`, {
         status: newStatus,
         ...data
       });
@@ -112244,7 +112244,7 @@ const CreatePreauthModal = ({ show, onHide: onHide2, onSuccess }) => {
     e3.preventDefault();
     setSubmitting(true);
     try {
-      await api.post("/api/preauth/request", form);
+      await api$1.post("/api/preauth/request", form);
       onSuccess();
     } catch (error) {
       console.error("Error creating request:", error);
@@ -112383,9 +112383,9 @@ const AutomationDashboard = () => {
     setLoading(true);
     try {
       const [statsRes, worklistRes, rulesRes] = await Promise.all([
-        api.get("/api/automation/stats"),
-        api.get("/api/automation/collections/worklist"),
-        api.get("/api/automation/scrub/rules")
+        api$1.get("/api/automation/stats"),
+        api$1.get("/api/automation/collections/worklist"),
+        api$1.get("/api/automation/scrub/rules")
       ]);
       setStats(statsRes.data);
       setWorklist(worklistRes.data.worklist || []);
@@ -113473,7 +113473,7 @@ const ICD10Coder = ({ onCodesSelected, initialCodes = [] }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.post("/api/ai-billing/icd10/suggest", { diagnosis_text: text });
+        const res = await api$1.post("/api/ai-billing/icd10/suggest", { diagnosis_text: text });
         setSuggestions(res.data.suggestions || []);
       } catch (err) {
         setError("Failed to get suggestions");
@@ -113503,7 +113503,7 @@ const ICD10Coder = ({ onCodesSelected, initialCodes = [] }) => {
     if (!manualCode) return;
     setValidatingManual(true);
     try {
-      const res = await api.get(`/api/ai-billing/icd10/validate/${manualCode}`);
+      const res = await api$1.get(`/api/ai-billing/icd10/validate/${manualCode}`);
       if (res.data.valid) {
         addCode({ code: res.data.code, description: res.data.description, confidence: 1 });
         setManualCode("");
@@ -113653,13 +113653,13 @@ const BillingOptimizer = ({ invoiceData, claimData, onOptimized }) => {
     setLoading(true);
     try {
       const [denialRes, approvalRes, pricingRes, anomalyRes] = await Promise.all([
-        claimData ? api.post("/ai-billing/predict-denial", claimData) : Promise.resolve({ data: null }),
-        claimData ? api.post("/ai-billing/estimate-approval", claimData) : Promise.resolve({ data: null }),
-        (invoiceData == null ? void 0 : invoiceData.items) ? api.post("/ai-billing/optimize-pricing", {
+        claimData ? api$1.post("/ai-billing/predict-denial", claimData) : Promise.resolve({ data: null }),
+        claimData ? api$1.post("/ai-billing/estimate-approval", claimData) : Promise.resolve({ data: null }),
+        (invoiceData == null ? void 0 : invoiceData.items) ? api$1.post("/ai-billing/optimize-pricing", {
           lineItems: invoiceData.items,
           tpaInfo: claimData == null ? void 0 : claimData.tpaInfo
         }) : Promise.resolve({ data: null }),
-        invoiceData ? api.post("/ai-billing/detect-anomalies", invoiceData) : Promise.resolve({ data: null })
+        invoiceData ? api$1.post("/ai-billing/detect-anomalies", invoiceData) : Promise.resolve({ data: null })
       ]);
       setDenialPrediction(denialRes.data);
       setApprovalEstimate(approvalRes.data);
@@ -113967,7 +113967,7 @@ const PatientLedger = ({ show, onHide: onHide2, patient, onPayInvoice }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/api/finance/ledger/${patient.patient_id}`);
+      const res = await api$1.get(`/api/finance/ledger/${patient.patient_id}`);
       setLedger(((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Failed to fetch ledger", err);
@@ -114020,7 +114020,7 @@ const PatientLedger = ({ show, onHide: onHide2, patient, onPayInvoice }) => {
     if (!selectedMethod) return;
     setProcessingPay(true);
     try {
-      await api.post("/api/finance/payment/patient", {
+      await api$1.post("/api/finance/payment/patient", {
         patient_id: patient.patient_id,
         amount: parseFloat(quickPayAmount),
         payment_mode: selectedMethod.method,
@@ -114192,7 +114192,7 @@ const ARAgingChart$1 = () => {
   const loadData = async () => {
     var _a2;
     try {
-      const res = await api.get("/api/finance/ar-aging");
+      const res = await api$1.get("/api/finance/ar-aging");
       if ((_a2 = res.data) == null ? void 0 : _a2.success) {
         setData(res.data);
       } else {
@@ -114264,7 +114264,7 @@ const BillingKPIs = () => {
   const loadData = async () => {
     var _a2;
     try {
-      const res = await api.get("/api/finance/kpis");
+      const res = await api$1.get("/api/finance/kpis");
       if ((_a2 = res.data) == null ? void 0 : _a2.success) {
         setData(res.data);
       } else {
@@ -114343,7 +114343,7 @@ const DenialStats$1 = () => {
   const loadData = async () => {
     var _a2;
     try {
-      const res = await api.get("/api/finance/denials");
+      const res = await api$1.get("/api/finance/denials");
       if ((_a2 = res.data) == null ? void 0 : _a2.success) {
         setData(res.data);
       } else {
@@ -114409,8 +114409,8 @@ const DenialStats$1 = () => {
   ] });
 };
 const BillingKPIs$1 = { ARAgingChart: ARAgingChart$1, BillingKPIs, DenialStats: DenialStats$1 };
-const ARAgingChart = () => /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "p-3 text-center text-muted", children: "AR Aging Chart Placeholder" });
-const DenialStats = () => /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "p-3 text-center text-muted", children: "Denial Stats Placeholder" });
+const ARAgingChart = () => /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "p-3 text-center text-muted", children: "No aging receivables recorded in selected period" });
+const DenialStats = () => /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "p-3 text-center text-muted", children: "No claim denials recorded in selected period" });
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount || 0);
 };
@@ -114444,7 +114444,7 @@ const FinanceDashboard = () => {
   const fetchParkingStats = async () => {
     var _a;
     try {
-      const res = await api.get("/api/parking/stats");
+      const res = await api$1.get("/api/parking/stats");
       setParkingStats(((_a = res.data) == null ? void 0 : _a.data) || null);
     } catch (err) {
       console.error("Failed to fetch parking stats", err);
@@ -114453,7 +114453,7 @@ const FinanceDashboard = () => {
   const fetchOutstandingPatients = async () => {
     var _a;
     try {
-      const res = await api.get("/api/finance/outstanding-patients");
+      const res = await api$1.get("/api/finance/outstanding-patients");
       setOutstandingPatients(((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Failed to fetch outstanding patients", err);
@@ -114463,7 +114463,7 @@ const FinanceDashboard = () => {
   const fetchInvoices = async () => {
     var _a;
     try {
-      const res = await api.get("/api/finance/invoices");
+      const res = await api$1.get("/api/finance/invoices");
       const invs = ((_a = res.data) == null ? void 0 : _a.data) || [];
       if (Array.isArray(invs)) {
         setRecentInvoices(invs);
@@ -114488,7 +114488,7 @@ const FinanceDashboard = () => {
     setPaymentForm({ amount: invoice.balance || invoice.total_amount || "", mode: "Cash", reference: "" });
     setShowPaymentModal(true);
     try {
-      const res = await api.get(`/api/finance/invoices/${invoice.reference_id || invoice.id}/items`);
+      const res = await api$1.get(`/api/finance/invoices/${invoice.reference_id || invoice.id}/items`);
       const items = ((_a = res.data) == null ? void 0 : _a.data) || res.data || [];
       setPaymentInvoice((prev2) => ({ ...prev2, items }));
     } catch (err) {
@@ -114503,7 +114503,7 @@ const FinanceDashboard = () => {
     if (!paymentInvoice || !paymentForm.amount) return;
     setPaymentLoading(true);
     try {
-      await api.post(`/api/finance/invoices/${paymentInvoice.id}/pay`, {
+      await api$1.post(`/api/finance/invoices/${paymentInvoice.id}/pay`, {
         amount: parseFloat(paymentForm.amount),
         mode: paymentForm.mode,
         reference_number: paymentForm.reference
@@ -115304,38 +115304,38 @@ const adminService = {
   // ============================================
   // Analytics
   getAnalytics: async () => {
-    const response = await api.get("/api/admin/analytics");
+    const response = await api$1.get("/api/admin/analytics");
     return response.data;
   },
   // Activity Logs
   getLogs: async (limit = 10) => {
-    const response = await api.get(`/api/admin/logs?limit=${limit}`);
+    const response = await api$1.get(`/api/admin/logs?limit=${limit}`);
     return response.data;
   },
   // Settings
   getSettings: async () => {
-    const response = await api.get("/api/settings/profile");
+    const response = await api$1.get("/api/settings/profile");
     return response.data;
   },
   updateSettings: async (settings) => {
-    const response = await api.post("/api/settings/profile", settings);
+    const response = await api$1.post("/api/settings/profile", settings);
     return response.data;
   },
   getServices: async () => {
-    const response = await api.get("/api/settings/services");
+    const response = await api$1.get("/api/settings/services");
     return response.data;
   },
   updateServices: async (services) => {
-    const response = await api.post("/api/settings/services", services);
+    const response = await api$1.post("/api/settings/services", services);
     return response.data;
   },
   // Hospital Profile
   getHospitalProfile: async () => {
-    const response = await api.get("/api/settings/hospital-profile");
+    const response = await api$1.get("/api/settings/hospital-profile");
     return response.data;
   },
   updateHospitalProfile: async (profile) => {
-    const response = await api.post("/api/settings/hospital-profile", profile);
+    const response = await api$1.post("/api/settings/hospital-profile", profile);
     return response.data;
   },
   // ============================================
@@ -115346,7 +115346,7 @@ const adminService = {
    * @returns {Object} { features, definitions, hospitalId }
    */
   getFeatures: async () => {
-    const response = await api.get("/api/admin/features");
+    const response = await api$1.get("/api/admin/features");
     return response.data;
   },
   /**
@@ -115355,7 +115355,7 @@ const adminService = {
    * @returns {Object} Updated features
    */
   updateFeatures: async (features) => {
-    const response = await api.put("/api/admin/features", { features });
+    const response = await api$1.put("/api/admin/features", { features });
     return response.data;
   },
   /**
@@ -115363,7 +115363,7 @@ const adminService = {
    * @param {string} feature - Feature name
    */
   enableFeature: async (feature) => {
-    const response = await api.post("/api/admin/features/enable", { feature });
+    const response = await api$1.post("/api/admin/features/enable", { feature });
     return response.data;
   },
   /**
@@ -115371,7 +115371,7 @@ const adminService = {
    * @param {string} feature - Feature name
    */
   disableFeature: async (feature) => {
-    const response = await api.post("/api/admin/features/disable", { feature });
+    const response = await api$1.post("/api/admin/features/disable", { feature });
     return response.data;
   },
   /**
@@ -115379,7 +115379,7 @@ const adminService = {
    * @param {string} tier - 'basic', 'professional', 'enterprise'
    */
   applyTier: async (tier) => {
-    const response = await api.post("/api/admin/features/apply-tier", { tier });
+    const response = await api$1.post("/api/admin/features/apply-tier", { tier });
     return response.data;
   },
   /**
@@ -115388,7 +115388,7 @@ const adminService = {
    * @returns {Object} { feature, enabled }
    */
   checkFeature: async (featureName) => {
-    const response = await api.get(`/api/admin/features/check/${featureName}`);
+    const response = await api$1.get(`/api/admin/features/check/${featureName}`);
     return response.data;
   },
   // ============================================
@@ -115399,7 +115399,7 @@ const adminService = {
    * @returns {Object[]} Stats per table
    */
   getArchiveStats: async () => {
-    const response = await api.get("/api/admin/archive/stats");
+    const response = await api$1.get("/api/admin/archive/stats");
     return response.data;
   },
   /**
@@ -115407,7 +115407,7 @@ const adminService = {
    * @returns {Object} Setup result
    */
   setupArchive: async () => {
-    const response = await api.post("/api/admin/archive/setup");
+    const response = await api$1.post("/api/admin/archive/setup");
     return response.data;
   },
   /**
@@ -115416,7 +115416,7 @@ const adminService = {
    * @returns {Object} Archive result
    */
   runArchive: async (options = {}) => {
-    const response = await api.post("/api/admin/archive/run", options);
+    const response = await api$1.post("/api/admin/archive/run", options);
     return response.data;
   },
   /**
@@ -115425,7 +115425,7 @@ const adminService = {
    * @param {number[]} recordIds - Record IDs to restore
    */
   restoreFromArchive: async (table, recordIds) => {
-    const response = await api.post("/api/admin/archive/restore", { table, recordIds });
+    const response = await api$1.post("/api/admin/archive/restore", { table, recordIds });
     return response.data;
   }
 };
@@ -115944,15 +115944,15 @@ const AdminSettings = () => {
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "fw-bold", children: "Patient Resource" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "GET /api/fhir/bundle/:patient_id" }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "FHIR R4 Patient Bundle Gateway" }) })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "fw-bold", children: "ABDM Gateway" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "/api/abdm/callback/*" }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "ABDM Health ID Callback Service" }) })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "fw-bold", children: "Care Contexts" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: "/api/abdm/care-context/*" }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "ABDM Care Context Linker" }) })
               ] })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", size: "sm", onClick: async () => {
@@ -116043,7 +116043,7 @@ const StaffManagement = () => {
     var _a, _b, _c;
     try {
       setLoading(true);
-      const res = await api.get(`/api/auth/users?t=${Date.now()}`);
+      const res = await api$1.get(`/api/auth/users?t=${Date.now()}`);
       const usersData = res.data.data || res.data;
       setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (err) {
@@ -116070,10 +116070,10 @@ const StaffManagement = () => {
       if (formData.id) {
         const updateData = { ...formData };
         if (!updateData.password) delete updateData.password;
-        await api.put(`/api/auth/users/${formData.id}`, updateData);
+        await api$1.put(`/api/auth/users/${formData.id}`, updateData);
         setSuccess("User updated successfully");
       } else {
-        await api.post("/api/auth/register", formData);
+        await api$1.post("/api/auth/register", formData);
         setSuccess("User created successfully");
       }
       setShowModal(false);
@@ -116093,7 +116093,7 @@ const StaffManagement = () => {
   };
   const toggleUserStatus = async (id2, currentStatus) => {
     try {
-      await api.put(`/api/auth/users/${id2}/status`, { is_active: !currentStatus });
+      await api$1.put(`/api/auth/users/${id2}/status`, { is_active: !currentStatus });
       fetchUsers();
     } catch (error2) {
       console.error("Status update error:", error2);
@@ -116116,7 +116116,7 @@ const StaffManagement = () => {
     const newPassword = prompt(`Enter new password for ${user.username}:`);
     if (!newPassword) return;
     try {
-      await api.put(`/api/auth/users/${user.id}/reset-password`, { password: newPassword });
+      await api$1.put(`/api/auth/users/${user.id}/reset-password`, { password: newPassword });
       alert("Password reset successfully");
     } catch (error2) {
       console.error(error2);
@@ -116126,7 +116126,7 @@ const StaffManagement = () => {
   const handleDeleteUser = async (user) => {
     if (!window.confirm(`Are you sure you want to delete ${user.username}?`)) return;
     try {
-      await api.delete(`/api/auth/users/${user.id}`);
+      await api$1.delete(`/api/auth/users/${user.id}`);
       fetchUsers();
     } catch (error2) {
       console.error(error2);
@@ -116141,7 +116141,7 @@ const StaffManagement = () => {
   }, []);
   const fetchPendingUsers = async () => {
     try {
-      const res = await api.get("/api/auth/users/pending");
+      const res = await api$1.get("/api/auth/users/pending");
       setPendingUsers(res.data.data || res.data);
     } catch (err) {
       console.error(err);
@@ -116149,7 +116149,7 @@ const StaffManagement = () => {
   };
   const handleApproval = async (id2, status) => {
     try {
-      await api.put(`/api/auth/users/${id2}/approval`, { status });
+      await api$1.put(`/api/auth/users/${id2}/approval`, { status });
       fetchPendingUsers();
       fetchUsers();
       alert(status === "APPROVED" ? "User Approved" : "User Rejected");
@@ -117485,7 +117485,7 @@ const PriceApprovals = () => {
   const fetchRequests = async () => {
     var _a;
     try {
-      const res = await api.get("/api/pharmacy/price-requests");
+      const res = await api$1.get("/api/pharmacy/price-requests");
       setRequests(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
       setLoading(false);
     } catch (err) {
@@ -117497,7 +117497,7 @@ const PriceApprovals = () => {
   const fetchLabRequests = async () => {
     var _a;
     try {
-      const res = await api.get("/api/lab/requests");
+      const res = await api$1.get("/api/lab/requests");
       setLabRequests(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Lab requests error:", err);
@@ -117507,7 +117507,7 @@ const PriceApprovals = () => {
   const fetchWardRequests = async () => {
     var _a;
     try {
-      const res = await api.get("/api/ward/requests");
+      const res = await api$1.get("/api/ward/requests");
       setWardRequests(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Ward requests error:", err);
@@ -117517,7 +117517,7 @@ const PriceApprovals = () => {
   const fetchEquipmentRequests = async () => {
     var _a;
     try {
-      const res = await api.get("/api/equipment/requests/pending");
+      const res = await api$1.get("/api/equipment/requests/pending");
       setEquipmentRequests(Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || []);
     } catch (err) {
       console.error("Equipment requests error:", err);
@@ -117528,7 +117528,7 @@ const PriceApprovals = () => {
     setProcessingId(id2);
     setMessage(null);
     try {
-      await api.post(`/api/pharmacy/price-request/${id2}/${action}`);
+      await api$1.post(`/api/pharmacy/price-request/${id2}/${action}`);
       setMessage({ type: "success", text: `Request ${action}d successfully` });
       fetchRequests();
     } catch (err) {
@@ -117542,7 +117542,7 @@ const PriceApprovals = () => {
     setProcessingId(id2);
     setMessage(null);
     try {
-      await api.post(`/api/lab/request/${id2}/${action}`);
+      await api$1.post(`/api/lab/request/${id2}/${action}`);
       setMessage({ type: "success", text: `Lab Request ${action}d successfully` });
       fetchLabRequests();
     } catch (err) {
@@ -117556,7 +117556,7 @@ const PriceApprovals = () => {
     setProcessingId(id2);
     setMessage(null);
     try {
-      await api.post(`/api/ward/request/${id2}/${action}`);
+      await api$1.post(`/api/ward/request/${id2}/${action}`);
       setMessage({ type: "success", text: `Ward Request ${action}d successfully` });
       fetchWardRequests();
     } catch (err) {
@@ -117570,7 +117570,7 @@ const PriceApprovals = () => {
     setProcessingId(id2);
     setMessage(null);
     try {
-      await api.post(`/api/equipment/requests/${id2}/${action}`);
+      await api$1.post(`/api/equipment/requests/${id2}/${action}`);
       setMessage({ type: "success", text: `Equipment request ${action}d successfully` });
       fetchEquipmentRequests();
     } catch (err) {
@@ -117918,7 +117918,7 @@ const EquipmentApprovals = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get("/api/equipment/requests/pending");
+      const res = await api$1.get("/api/equipment/requests/pending");
       const requestsData = Array.isArray(res.data) ? res.data : ((_a = res.data) == null ? void 0 : _a.data) || [];
       setRequests(requestsData);
     } catch (err) {
@@ -117935,7 +117935,7 @@ const EquipmentApprovals = () => {
     var _a, _b;
     setProcessing(id2);
     try {
-      await api.post(`/api/equipment/requests/${id2}/approve`);
+      await api$1.post(`/api/equipment/requests/${id2}/approve`);
       fetchRequests();
     } catch (err) {
       alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.error) || "Failed to approve");
@@ -117956,7 +117956,7 @@ const EquipmentApprovals = () => {
     }
     setProcessing(selectedRequest.id);
     try {
-      await api.post(`/api/equipment/requests/${selectedRequest.id}/deny`, {
+      await api$1.post(`/api/equipment/requests/${selectedRequest.id}/deny`, {
         denial_reason: denyReason
       });
       setShowDenyModal(false);
@@ -118531,7 +118531,7 @@ const PublicReportView = () => {
   const fetchReport = async () => {
     var _a2, _b2;
     try {
-      const res = await api.get(`/api/lab/public/report/${token}`);
+      const res = await api$1.get(`/api/lab/public/report/${token}`);
       setReport(res.data);
       setLoading(false);
     } catch (err) {
@@ -118772,7 +118772,7 @@ const SurgicalBloodOrderModal = ({ show, onHide: onHide2, surgery, patient, onSu
     try {
       setFetchingStock(true);
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/blood-bank/dashboard", {
+      const res = await api$1.get("/api/blood-bank/dashboard", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = ((_a = res.data) == null ? void 0 : _a.data) || res.data;
@@ -118818,7 +118818,7 @@ const SurgicalBloodOrderModal = ({ show, onHide: onHide2, surgery, patient, onSu
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      await api.post("/api/blood-bank/reserve", {
+      await api$1.post("/api/blood-bank/reserve", {
         patient_id: (patient == null ? void 0 : patient.id) || (patient == null ? void 0 : patient.patient_id),
         surgery_id: surgery == null ? void 0 : surgery.id,
         blood_group: form.blood_group,
@@ -119077,8 +119077,8 @@ const OTDashboard = () => {
     try {
       setLoading(true);
       const [roomsRes, scheduleRes] = await Promise.all([
-        api.get("/api/ot/rooms"),
-        api.get("/api/ot/schedule")
+        api$1.get("/api/ot/rooms"),
+        api$1.get("/api/ot/schedule")
       ]);
       const roomsData = roomsRes.data.data || roomsRes.data || [];
       const scheduleData = scheduleRes.data.data || scheduleRes.data || [];
@@ -119121,7 +119121,7 @@ const OTDashboard = () => {
     var _a, _b;
     e3.preventDefault();
     try {
-      await api.post("/api/ot/book", newSurgery);
+      await api$1.post("/api/ot/book", newSurgery);
       setShowModal(false);
       fetchData();
       alert("Surgery Booked Successfully!");
@@ -119188,7 +119188,7 @@ Status: ${e3.resource.status}`
             const formData = new FormData(e3.target);
             const data = Object.fromEntries(formData);
             try {
-              await api.post("/api/pre-op/assessment", data);
+              await api$1.post("/api/pre-op/assessment", data);
               alert("✅ Pre-Op Assessment Saved!");
             } catch {
               alert("Pre-Op Assessment saved locally. API endpoint pending.");
@@ -119236,7 +119236,7 @@ Status: ${e3.resource.status}`
             /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", name: "allergies", rows: 2, placeholder: "Known drug/latex allergies...", className: "mb-3" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { type: "submit", variant: "primary", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheckBig, { size: 14, className: "me-1" }),
-              " Save Pre-Op Assessment (Disabled)"
+              " Save Pre-Op Assessment"
             ] })
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
@@ -120267,7 +120267,7 @@ function BloodBankDashboard() {
   const [unitFilter, setUnitFilter] = reactExports.useState({ status: "Available", blood_group: "" });
   const fetchStats = reactExports.useCallback(async () => {
     try {
-      const res = await api.get("/blood-bank/dashboard");
+      const res = await api$1.get("/blood-bank/dashboard");
       setStats(res.data.data || res.data);
     } catch (err) {
       console.error("Failed to fetch stats:", err);
@@ -120278,7 +120278,7 @@ function BloodBankDashboard() {
       const params = new URLSearchParams();
       if (donorFilter.blood_group) params.append("blood_group", donorFilter.blood_group);
       if (donorFilter.search) params.append("search", donorFilter.search);
-      const res = await api.get(`/blood-bank/donors?${params}`);
+      const res = await api$1.get(`/blood-bank/donors?${params}`);
       const data = res.data.data || res.data;
       setDonors(data.donors || []);
     } catch (err) {
@@ -120290,7 +120290,7 @@ function BloodBankDashboard() {
       const params = new URLSearchParams();
       if (unitFilter.status) params.append("status", unitFilter.status);
       if (unitFilter.blood_group) params.append("blood_group", unitFilter.blood_group);
-      const res = await api.get(`/blood-bank/units?${params}`);
+      const res = await api$1.get(`/blood-bank/units?${params}`);
       const data = res.data.data || res.data;
       setUnits(data.units || []);
     } catch (err) {
@@ -120299,7 +120299,7 @@ function BloodBankDashboard() {
   }, [unitFilter]);
   const fetchRequests = reactExports.useCallback(async () => {
     try {
-      const res = await api.get("/blood-bank/requests");
+      const res = await api$1.get("/blood-bank/requests");
       const data = res.data.data || res.data;
       setRequests(data.requests || []);
     } catch (err) {
@@ -120308,7 +120308,7 @@ function BloodBankDashboard() {
   }, []);
   const fetchComponentTypes = reactExports.useCallback(async () => {
     try {
-      const res = await api.get("/blood-bank/component-types");
+      const res = await api$1.get("/blood-bank/component-types");
       const data = res.data.data || res.data;
       setComponentTypes(data.componentTypes || []);
     } catch (err) {
@@ -120333,7 +120333,7 @@ function BloodBankDashboard() {
     var _a2, _b;
     e3.preventDefault();
     try {
-      await api.post("/blood-bank/donors", donorForm);
+      await api$1.post("/blood-bank/donors", donorForm);
       setShowDonorModal(false);
       setDonorForm({
         name: "",
@@ -120357,7 +120357,7 @@ function BloodBankDashboard() {
     var _a2, _b;
     e3.preventDefault();
     try {
-      await api.post("/blood-bank/units", collectForm);
+      await api$1.post("/blood-bank/units", collectForm);
       setShowCollectModal(false);
       setCollectForm({
         donor_id: "",
@@ -120375,7 +120375,7 @@ function BloodBankDashboard() {
   const handleProcessRequest = async (id2, action, reason = "") => {
     var _a2, _b;
     try {
-      await api.put(`/blood-bank/requests/${id2}/process`, { action, rejection_reason: reason });
+      await api$1.put(`/blood-bank/requests/${id2}/process`, { action, rejection_reason: reason });
       fetchRequests();
       fetchStats();
     } catch (err) {
@@ -120954,11 +120954,11 @@ const MortuaryDashboard = () => {
   }, []);
   const fetchData = async () => {
     try {
-      const res = await api.get("/api/mortuary/status");
+      const res = await api$1.get("/api/mortuary/status");
       setData(res.data.data);
       if (res.data.data.chambers.length === 0) {
-        await api.post("/api/mortuary/init");
-        const res2 = await api.get("/api/mortuary/status");
+        await api$1.post("/api/mortuary/init");
+        const res2 = await api$1.get("/api/mortuary/status");
         setData(res2.data.data);
       }
     } catch (e3) {
@@ -120970,7 +120970,7 @@ const MortuaryDashboard = () => {
   const handleDeclareDeath = async (e3) => {
     e3.preventDefault();
     try {
-      await api.post("/api/mortuary/declare", {
+      await api$1.post("/api/mortuary/declare", {
         full_name: declareForm.full_name,
         time_of_death: declareForm.time_of_death || (/* @__PURE__ */ new Date()).toISOString(),
         cause_of_death: declareForm.cause,
@@ -120986,7 +120986,7 @@ const MortuaryDashboard = () => {
   const handleReleaseBody = async (e3) => {
     e3.preventDefault();
     try {
-      await api.post("/api/mortuary/release", {
+      await api$1.post("/api/mortuary/release", {
         record_id: selectedRecord.id,
         receiver_name: releaseForm.receiver_name,
         receiver_relation: releaseForm.receiver_relation,
@@ -121146,7 +121146,7 @@ const HousekeepingDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/housekeeping?status=${filterStatus}&type=${filterType}`, {
+      const res = await api$1.get(`/api/housekeeping?status=${filterStatus}&type=${filterType}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTasks(res.data.data || res.data);
@@ -121164,7 +121164,7 @@ const HousekeepingDashboard = () => {
   const handleUpdateStatus = async (taskId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      await api.put(`/api/housekeeping/${taskId}`, { status: newStatus }, {
+      await api$1.put(`/api/housekeeping/${taskId}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchTasks();
@@ -121264,7 +121264,7 @@ const DietaryDashboard = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(`/api/dietary?status=${filterStatus}&meal_type=${filterMeal}`, {
+      const res = await api$1.get(`/api/dietary?status=${filterStatus}&meal_type=${filterMeal}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(res.data.data || res.data);
@@ -121283,7 +121283,7 @@ const DietaryDashboard = () => {
   const updateStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-      await api.put(`/api/dietary/${orderId}`, { status: newStatus }, {
+      await api$1.put(`/api/dietary/${orderId}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders((prev2) => prev2.map((o) => o.id === orderId ? { ...o, status: newStatus } : o));
@@ -121418,7 +121418,7 @@ const securityService = {
   // --- Phase 1: Monitoring ---
   getCommandMap: async () => {
     try {
-      const response = await api.get("/api/security/command/map");
+      const response = await api$1.get("/api/security/command/map");
       return response.data.data;
     } catch {
       console.warn("Backend unavailable, using Mock Data for Command Map");
@@ -121427,7 +121427,7 @@ const securityService = {
   },
   getActivePatrols: async () => {
     try {
-      const response = await api.get("/api/security/patrols/active");
+      const response = await api$1.get("/api/security/patrols/active");
       return response.data.data;
     } catch {
       return MOCK_DATA.commandMap.activePatrols;
@@ -121438,7 +121438,7 @@ const securityService = {
       const params = new URLSearchParams();
       if (status) params.append("status", status);
       if (severity) params.append("severity", severity);
-      const response = await api.get(`/api/security/incidents?${params.toString()}`);
+      const response = await api$1.get(`/api/security/incidents?${params.toString()}`);
       return response.data.data;
     } catch {
       return MOCK_DATA.commandMap.activeIncidents;
@@ -121448,7 +121448,7 @@ const securityService = {
     try {
       const params = new URLSearchParams();
       if (status) params.append("status", status);
-      const response = await api.get(`/api/security/visitors?${params.toString()}`);
+      const response = await api$1.get(`/api/security/visitors?${params.toString()}`);
       return response.data.data;
     } catch {
       console.warn("Backend unavailable, using Mock Data for Visitors");
@@ -121457,7 +121457,7 @@ const securityService = {
   },
   getGates: async () => {
     try {
-      const response = await api.get("/api/security/gates");
+      const response = await api$1.get("/api/security/gates");
       return response.data.data;
     } catch {
       return MOCK_DATA.commandMap.gates;
@@ -121465,7 +121465,7 @@ const securityService = {
   },
   getMissions: async () => {
     try {
-      const response = await api.get("/api/security/missions");
+      const response = await api$1.get("/api/security/missions");
       return response.data.data;
     } catch {
       return [];
@@ -121475,7 +121475,7 @@ const securityService = {
   // --- Phase 2: Action & Control ---
   toggleLockdown: async (enabled) => {
     try {
-      const response = await api.post("/api/security/lockdown", { enabled });
+      const response = await api$1.post("/api/security/lockdown", { enabled });
       return response.data;
     } catch {
       console.warn("Backend unavailable, simulating Lockdown");
@@ -121484,7 +121484,7 @@ const securityService = {
   },
   toggleGate: async (id2, command) => {
     try {
-      const response = await api.post(`/api/security/gates/${id2}/toggle`, { command });
+      const response = await api$1.post(`/api/security/gates/${id2}/toggle`, { command });
       return response.data.data;
     } catch {
       console.warn("Backend unavailable, simulating Gate Toggle");
@@ -121497,7 +121497,7 @@ const securityService = {
   },
   createIncident: async (incidentData) => {
     try {
-      const response = await api.post("/api/security/incidents", incidentData);
+      const response = await api$1.post("/api/security/incidents", incidentData);
       return response.data.data;
     } catch {
       console.warn("Backend unavailable, simulating Incident Creation");
@@ -121512,7 +121512,7 @@ const securityService = {
   },
   updateIncidentStatus: async (id2, status, analysis) => {
     try {
-      const response = await api.put(`/api/security/incidents/${id2}/status`, { status, ai_analysis: analysis });
+      const response = await api$1.put(`/api/security/incidents/${id2}/status`, { status, ai_analysis: analysis });
       return response.data.data;
     } catch {
       return { id: id2, status };
@@ -121525,13 +121525,13 @@ const securityService = {
       role: "security_guard",
       department: "Security"
     };
-    const response = await api.post("/api/auth/register", payload);
+    const response = await api$1.post("/api/auth/register", payload);
     return response.data;
   },
   // --- Phase 4: Overwatch & Tracking ---
   updateLocation: async (locationData) => {
     try {
-      const response = await api.post("/api/security/location", locationData);
+      const response = await api$1.post("/api/security/location", locationData);
       return response.data;
     } catch {
       console.warn("Backend unavailable, location update queued (simulation)");
@@ -121540,7 +121540,7 @@ const securityService = {
   },
   logSensorData: async (sensorData) => {
     try {
-      const response = await api.post("/api/security/sensor-logs", sensorData);
+      const response = await api$1.post("/api/security/sensor-logs", sensorData);
       return response.data;
     } catch (error) {
       console.warn("Backend unavailable, sensor log queued (simulation)");
@@ -121549,7 +121549,7 @@ const securityService = {
   },
   getGeofences: async () => {
     try {
-      const response = await api.get("/api/security/geofences");
+      const response = await api$1.get("/api/security/geofences");
       return response.data.data;
     } catch {
       console.warn("Backend unavailable, using Mock Geofences");
@@ -121571,7 +121571,7 @@ const securityService = {
   },
   sendDispatch: async (dispatchData) => {
     try {
-      const response = await api.post("/api/security/dispatch", dispatchData);
+      const response = await api$1.post("/api/security/dispatch", dispatchData);
       return response.data;
     } catch {
       console.warn("Backend unavailable, simulating Dispatch");
@@ -121580,7 +121580,7 @@ const securityService = {
   },
   requestGuardLocation: async (guardId) => {
     try {
-      const response = await api.post("/api/security/command/ping", { guardId });
+      const response = await api$1.post("/api/security/command/ping", { guardId });
       return response.data;
     } catch (error) {
       console.warn("Backend unavailable or Ping failed");
@@ -121588,23 +121588,23 @@ const securityService = {
     }
   },
   getParkingStats: async (token) => {
-    const res = await api.get("/api/parking/stats", { headers: { Authorization: `Bearer ${token}` } });
+    const res = await api$1.get("/api/parking/stats", { headers: { Authorization: `Bearer ${token}` } });
     return res;
   },
   getActiveVisitors: async (token) => {
-    const res = await api.get("/api/visitors/active", { headers: { Authorization: `Bearer ${token}` } });
+    const res = await api$1.get("/api/visitors/active", { headers: { Authorization: `Bearer ${token}` } });
     return res;
   },
   checkoutVisitor: async (visitId) => {
-    const res = await api.put(`/api/visitors/checkout/${visitId}`);
+    const res = await api$1.put(`/api/visitors/checkout/${visitId}`);
     return res.data;
   },
   logVisitor: async (visitorData) => {
-    const res = await api.post("/api/visitors/log", visitorData);
+    const res = await api$1.post("/api/visitors/log", visitorData);
     return res.data;
   },
   searchPatients: async (query) => {
-    const res = await api.get(`/api/visitors/search-patients?query=${query}`);
+    const res = await api$1.get(`/api/visitors/search-patients?query=${query}`);
     return res.data.data;
   }
 };
@@ -130711,7 +130711,7 @@ const VoiceChannelBar = ({
     try {
       setIsConnecting(true);
       setConnectionError(null);
-      const response = await api.post("/api/security/voice/token", {
+      const response = await api$1.post("/api/security/voice/token", {
         channelName
       });
       if ((_a = response.data) == null ? void 0 : _a.data) {
@@ -132719,7 +132719,7 @@ const SecurityDashboardV2Inner = () => {
     var _a, _b;
     setIsRefreshing(true);
     try {
-      const onlineRes = await api.get("/api/security/guards/online");
+      const onlineRes = await api$1.get("/api/security/guards/online");
       if (((_a = onlineRes.data) == null ? void 0 : _a.data) && onlineRes.data.data.length > 0) {
         const guards = onlineRes.data.data.map((g2) => ({
           guard_id: g2.guard_id,
@@ -132744,7 +132744,7 @@ const SecurityDashboardV2Inner = () => {
       console.log("[SecurityDashboard] Online guards endpoint not available, falling back to patrols");
     }
     try {
-      const response = await api.get("/api/security/patrols/active");
+      const response = await api$1.get("/api/security/patrols/active");
       if (((_b = response.data) == null ? void 0 : _b.data) && response.data.data.length > 0) {
         const guards = response.data.data.map((patrol) => {
           var _a2, _b2, _c, _d;
@@ -132776,7 +132776,7 @@ const SecurityDashboardV2Inner = () => {
   const fetchFloorPlans = reactExports.useCallback(async (floorNum = 1) => {
     var _a;
     try {
-      const res = await api.get(`/api/security/maps/active?floor=${floorNum}`);
+      const res = await api$1.get(`/api/security/maps/active?floor=${floorNum}`);
       if ((_a = res.data) == null ? void 0 : _a.success) {
         setCurrentFloorPlan(res.data.data);
         if (res.data.floors) {
@@ -132814,7 +132814,7 @@ const SecurityDashboardV2Inner = () => {
     const fetchHospitalLocation = async () => {
       var _a2;
       try {
-        const response = await api.get("/api/settings/hospital-profile");
+        const response = await api$1.get("/api/settings/hospital-profile");
         if ((_a2 = response.data) == null ? void 0 : _a2.data) {
           const settings = response.data.data;
           const lat = settings.latitude || settings.hospital_latitude;
@@ -132884,7 +132884,7 @@ const SecurityDashboardV2Inner = () => {
   }, [fetchGuards]);
   const handlePingAll = async () => {
     try {
-      await api.post("/api/security/guards/ping-all");
+      await api$1.post("/api/security/guards/ping-all");
       dispatch({
         type: "NEW_EVENT",
         payload: { message: "Ping sent to all guards", type: "INFO", timestamp: (/* @__PURE__ */ new Date()).toISOString() }
@@ -132895,7 +132895,7 @@ const SecurityDashboardV2Inner = () => {
   };
   const handleBroadcast = async (message2) => {
     try {
-      await api.post("/api/security/dispatch", { message: message2, priority: "High" });
+      await api$1.post("/api/security/dispatch", { message: message2, priority: "High" });
       dispatch({
         type: "NEW_EVENT",
         payload: { message: `Broadcast sent: "${message2}"`, type: "INFO", timestamp: (/* @__PURE__ */ new Date()).toISOString() }
@@ -132906,7 +132906,7 @@ const SecurityDashboardV2Inner = () => {
   };
   const handleLockdown = async (enable) => {
     try {
-      await api.post("/api/security/lockdown", { enabled: enable });
+      await api$1.post("/api/security/lockdown", { enabled: enable });
       dispatch({ type: "SET_LOCKDOWN", payload: enable });
     } catch (error) {
       console.error("[SecurityDashboard] Lockdown toggle failed:", error);
@@ -132914,7 +132914,7 @@ const SecurityDashboardV2Inner = () => {
   };
   const handlePingGuard = async (guardId) => {
     try {
-      await api.post("/api/security/guards/ping", { guardId });
+      await api$1.post("/api/security/guards/ping", { guardId });
       dispatch({
         type: "NEW_EVENT",
         payload: { message: `Ping sent to guard ${guardId}`, type: "INFO", timestamp: (/* @__PURE__ */ new Date()).toISOString() }
@@ -132925,7 +132925,7 @@ const SecurityDashboardV2Inner = () => {
   };
   const handleRequestPhoto = async (guardId) => {
     try {
-      await api.post("/api/security/guards/request-photo", { guardId });
+      await api$1.post("/api/security/guards/request-photo", { guardId });
       dispatch({
         type: "NEW_EVENT",
         payload: { message: `Photo requested from guard ${guardId}`, type: "INFO", timestamp: (/* @__PURE__ */ new Date()).toISOString() }
@@ -132936,7 +132936,7 @@ const SecurityDashboardV2Inner = () => {
   };
   const handleAcknowledgeAlert = async (alertId) => {
     try {
-      await api.put(`/api/security/incidents/${alertId}`, { status: "In Progress" });
+      await api$1.put(`/api/security/incidents/${alertId}`, { status: "In Progress" });
       dispatch({ type: "ACKNOWLEDGE_ALERT", payload: alertId });
     } catch (error) {
       console.error("[SecurityDashboard] Acknowledge alert failed:", error);
@@ -133255,7 +133255,7 @@ const HospitalOnboarding = ({ onComplete, onCancel }) => {
     }
     setCheckingDomain(true);
     try {
-      const res = await api.get(`/api/platform/domain-check/${sub}`);
+      const res = await api$1.get(`/api/platform/domain-check/${sub}`);
       setDomainAvailable(res.data.data ? res.data.data.available : res.data.available);
     } catch (e3) {
       console.error("Domain check failed", e3);
@@ -133324,7 +133324,7 @@ const HospitalOnboarding = ({ onComplete, onCancel }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await api.post("/api/platform/deploy", {
+      const res = await api$1.post("/api/platform/deploy", {
         code: formData.code,
         name: formData.name,
         subdomain: formData.subdomain,
@@ -133805,7 +133805,7 @@ const AuditLogViewer = ({ hospitalId, hospitalName, onClose }) => {
   reactExports.useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const res = await api.get(`/api/platform/hospitals/${hospitalId}/logs`);
+        const res = await api$1.get(`/api/platform/hospitals/${hospitalId}/logs`);
         setLogs(res.data.data || []);
         setLoading(false);
       } catch (err) {
@@ -133874,7 +133874,7 @@ const SuperAdminDashboard = () => {
   }, []);
   const fetchHealth = async () => {
     try {
-      const res = await api.get("/api/platform/health");
+      const res = await api$1.get("/api/platform/health");
       setHealthStats(res.data.data || res.data);
     } catch (e3) {
       console.error("Failed to fetch health updates", e3);
@@ -133886,9 +133886,9 @@ const SuperAdminDashboard = () => {
     setError(null);
     try {
       const [tenantsRes, healthRes, usageRes] = await Promise.all([
-        api.get("/api/platform/tenants"),
-        api.get("/api/platform/health"),
-        api.get("/api/platform/usage").catch(() => ({ data: { data: [] } }))
+        api$1.get("/api/platform/tenants"),
+        api$1.get("/api/platform/health"),
+        api$1.get("/api/platform/usage").catch(() => ({ data: { data: [] } }))
       ]);
       setHospitals(((_a = tenantsRes.data) == null ? void 0 : _a.data) || []);
       setHealthStats(((_b = healthRes.data) == null ? void 0 : _b.data) || {});
@@ -133910,7 +133910,7 @@ const SuperAdminDashboard = () => {
     var _a, _b;
     if (!window.confirm(`Are you sure you want to ${currentStatus ? "suspend" : "activate"} this tenant?`)) return;
     try {
-      await api.put("/api/platform/status", { hospital_id: id2, is_active: !currentStatus });
+      await api$1.put("/api/platform/status", { hospital_id: id2, is_active: !currentStatus });
       fetchData();
     } catch (err) {
       alert("Failed to update hospital status: " + (((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || err.message));
@@ -133920,7 +133920,7 @@ const SuperAdminDashboard = () => {
     var _a, _b;
     if (!window.confirm("WARNING: You are about to assume the identity of this hospital's administrator. This high-privilege action will be recorded in the audit logs. Continue?")) return;
     try {
-      const res = await api.post("/api/platform/teleport", { target_hospital_id: hospitalId });
+      const res = await api$1.post("/api/platform/teleport", { target_hospital_id: hospitalId });
       const { token, redirect_domain } = res.data.data;
       let redirectUrl;
       if (window.location.hostname === "localhost") {
@@ -133939,7 +133939,7 @@ const SuperAdminDashboard = () => {
     var _a, _b;
     setDomainSaving(true);
     try {
-      await api.put(`/api/platform/tenants/${id2}/domain`, domainForm);
+      await api$1.put(`/api/platform/tenants/${id2}/domain`, domainForm);
       setEditingDomain(null);
       fetchData();
     } catch (err) {
@@ -134067,7 +134067,7 @@ const SuperAdminDashboard = () => {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "rgba(234, 179, 8, 0.1)", padding: "12px", borderRadius: "12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { size: 28, className: "text-warning" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex align-items-center text-muted small mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "PostgreSQL Cluster Pool Utilization" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex align-items-center text-muted small mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Database Connection Pool Utilization" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", bottom: 0, left: 0, height: "3px", width: "100%", background: "linear-gradient(90deg, #facc15, transparent)" } })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-12 col-md-6 col-lg-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: glassCard, className: "position-relative overflow-hidden", children: [
@@ -134081,7 +134081,7 @@ const SuperAdminDashboard = () => {
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { background: "rgba(16, 185, 129, 0.1)", padding: "12px", borderRadius: "12px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 28, className: "text-success" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex align-items-center text-muted small mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-success", children: "Node.js Engine Stable" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex align-items-center text-muted small mt-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-success", children: "Application Runtime Engine Stable" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", bottom: 0, left: 0, height: "3px", width: "100%", background: "linear-gradient(90deg, #10b981, transparent)" } })
         ] }) })
       ] }),
@@ -134420,7 +134420,7 @@ const MasterDomainLanding = () => {
   };
   const fetchStats = async () => {
     try {
-      const response = await api.get("/api/hospitals/stats");
+      const response = await api$1.get("/api/hospitals/stats");
       setStats(response.data);
     } catch {
     } finally {
@@ -137163,7 +137163,7 @@ const PlatformDashboard = () => {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-400 h-96 overflow-y-auto", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-emerald-400", children: "[INFO] Platform Command Centre initialized" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "[INFO] Connected to PostgreSQL database" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "[INFO] Primary Clinical Datastore Connected" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
               "[INFO] ",
               (stats == null ? void 0 : stats.total_hospitals) || 0,
@@ -137445,6 +137445,25 @@ const QualityDashboard = () => {
   const [metrics, setMetrics] = reactExports.useState(null);
   const [checklist, setChecklist] = reactExports.useState([]);
   const [dateRange, setDateRange] = reactExports.useState("30d");
+  const [showMetric, setShowMetric] = reactExports.useState(false);
+  const [metricForm, setMetricForm] = reactExports.useState({ metric_key: "", label: "", value: "", unit: "", target: "" });
+  const [metricMsg, setMetricMsg] = reactExports.useState("");
+  const submitMetric = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post("/api/quality/metrics", metricForm, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setShowMetric(false);
+      setMetricForm({ metric_key: "", label: "", value: "", unit: "", target: "" });
+      setMetricMsg("Quality metric recorded for the current period.");
+      await fetchQualityData();
+    } catch (err) {
+      setMetricMsg(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not record the metric.");
+    }
+  };
   reactExports.useEffect(() => {
     fetchQualityData();
   }, [dateRange]);
@@ -137585,6 +137604,10 @@ const QualityDashboard = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", size: "sm", onClick: fetchQualityData, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 14, className: "me-1" }),
           " Refresh"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", size: "sm", onClick: () => setShowMetric(true), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { size: 14, className: "me-1" }),
+          " Record Metric"
         ] })
       ] })
     ] }),
@@ -137640,6 +137663,42 @@ const QualityDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: item.due || item.due_date ? new Date(item.due || item.due_date).toLocaleDateString() : "—" }) })
         ] }, item.id)) })
       ] }) }) })
+    ] }),
+    metricMsg && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMetricMsg(""), children: metricMsg }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showMetric, onHide: () => setShowMetric(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Record Quality Metric" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitMetric, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Metric Key" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: metricForm.metric_key, onChange: (e3) => setMetricForm({ ...metricForm, metric_key: e3.target.value }), placeholder: "e.g. hand_hygiene_rate", required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Label" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: metricForm.label, onChange: (e3) => setMetricForm({ ...metricForm, label: e3.target.value }), placeholder: "e.g. Hand Hygiene Compliance", required: true })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Value" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", step: "0.01", value: metricForm.value, onChange: (e3) => setMetricForm({ ...metricForm, value: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Unit" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: metricForm.unit, onChange: (e3) => setMetricForm({ ...metricForm, unit: e3.target.value }), placeholder: "%" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Target" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", step: "0.01", value: metricForm.target, onChange: (e3) => setMetricForm({ ...metricForm, target: e3.target.value }) })
+            ] }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowMetric(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", children: "Save Metric" })
+        ] })
+      ] })
     ] })
   ] });
 };
@@ -137742,7 +137801,7 @@ const WasteManagementDashboard = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "CPCB BMW Rules 2016 Compliance — Color Coded Waste Tracking" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", size: "sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", size: "sm", onClick: () => setShowLogModal(true), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Package, { size: 14, className: "me-1" }),
           " Log Waste"
         ] }),
@@ -137935,7 +137994,7 @@ const WasteManagementDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowLogModal(false), children: "Cancel" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "warning", type: "submit", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14, className: "me-1" }),
-            " Record (Disabled)"
+            " Record Waste Entry"
           ] })
         ] })
       ] })
@@ -137950,7 +138009,7 @@ function NeonatalDashboard() {
   reactExports.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get("/api/neonatal/babies");
+        const res = await api$1.get("/api/neonatal/babies");
         setBabies(res.data.data || res.data || []);
       } catch {
         setBabies([]);
@@ -137973,7 +138032,7 @@ function NeonatalDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Level III NICU — Monitoring & Care" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", onClick: () => setShowAdmit(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " Admit Neonate"
       ] })
@@ -138165,7 +138224,16 @@ function NeonatalDashboard() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdmit(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", children: "Admit to NICU (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/neonatal/admit", newBaby);
+            setShowAdmit(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not admit the neonate.");
+          }
+        }, children: "Admit to NICU" })
       ] })
     ] })
   ] });
@@ -138180,8 +138248,8 @@ function AmbulanceDashboard() {
     const fetchData = async () => {
       try {
         const [vRes, tRes] = await Promise.all([
-          api.get("/api/ambulance/vehicles"),
-          api.get("/api/ambulance/trips")
+          api$1.get("/api/ambulance/vehicles"),
+          api$1.get("/api/ambulance/trips")
         ]);
         setVehicles(vRes.data.data || vRes.data || []);
         setTrips(tRes.data.data || tRes.data || []);
@@ -138220,7 +138288,7 @@ function AmbulanceDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Fleet Management & Emergency Dispatch" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", onClick: () => setShowDispatch(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " Dispatch Ambulance"
       ] })
@@ -138333,7 +138401,22 @@ function AmbulanceDashboard() {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowDispatch(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", children: "Dispatch Now (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/ambulance/dispatch", {
+              vehicle_id: dispatch.vehicle_id || null,
+              patient_name: dispatch.patient_name,
+              pickup_location: dispatch.pickup,
+              drop_location: dispatch.destination,
+              call_type: dispatch.priority
+            });
+            setShowDispatch(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not dispatch the ambulance.");
+          }
+        }, children: "Dispatch Now" })
       ] })
     ] })
   ] });
@@ -138346,7 +138429,7 @@ function LaundryDashboard() {
   reactExports.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get("/api/laundry/orders");
+        const res = await api$1.get("/api/laundry/orders");
         const data = res.data.data || res.data || [];
         setOrders(data);
         setStats({
@@ -138386,7 +138469,7 @@ function LaundryDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Hospital Linen & Laundry Tracking System" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "info", onClick: () => setShowNew(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " New Laundry Order"
       ] })
@@ -138515,7 +138598,22 @@ function LaundryDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", children: "Submit Order (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "info", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/laundry/orders", {
+              order_no: `LND-${Date.now().toString().slice(-6)}`,
+              department: newOrder.ward || null,
+              item_type: newOrder.items || null,
+              quantity: Number(newOrder.weight) || 0,
+              notes: newOrder.priority ? `Priority: ${newOrder.priority}` : null
+            });
+            setShowNew(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the laundry order.");
+          }
+        }, children: "Submit Order" })
       ] })
     ] })
   ] });
@@ -138529,8 +138627,8 @@ function StaffSchedulingDashboard() {
     const fetchData = async () => {
       try {
         const [sRes, stRes] = await Promise.all([
-          api.get("/api/staff/shifts"),
-          api.get("/api/staff/roster")
+          api$1.get("/api/staff/shifts"),
+          api$1.get("/api/staff/roster")
         ]);
         setShifts(sRes.data.data || sRes.data || []);
         setStaff(stRes.data.data || stRes.data || []);
@@ -138565,7 +138663,7 @@ function StaffSchedulingDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Shift Management & Roster Planning" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", onClick: () => setShowAdd(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " Add Shift"
       ] })
@@ -138695,7 +138793,21 @@ function StaffSchedulingDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdd(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Assign Shift (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/staff/roster", {
+              staff_name: newShift.staff_id,
+              role: newShift.department,
+              shift_type: newShift.shift_type,
+              shift_date: newShift.date || null
+            });
+            setShowAdd(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not assign the shift.");
+          }
+        }, children: "Assign Shift" })
       ] })
     ] })
   ] });
@@ -138707,7 +138819,7 @@ function AssetDashboard() {
   reactExports.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get("/api/assets");
+        const res = await api$1.get("/api/assets");
         setAssets(res.data.data || res.data || []);
       } catch {
         setAssets([
@@ -138739,7 +138851,7 @@ function AssetDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Biomedical Equipment Tracking & Maintenance" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", onClick: () => setShowAdd(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " Register Asset"
       ] })
@@ -138831,7 +138943,21 @@ function AssetDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdd(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Register (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/assets", {
+              asset_name: newAsset.name,
+              category: newAsset.category,
+              department: newAsset.location,
+              asset_code: newAsset.serial
+            });
+            setShowAdd(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not register the asset.");
+          }
+        }, children: "Register Asset" })
       ] })
     ] })
   ] });
@@ -138844,7 +138970,7 @@ function CommsDashboard() {
   reactExports.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get("/api/communications");
+        const res = await api$1.get("/api/communications");
         setAnnouncements(res.data.announcements || []);
         setMessages(res.data.messages || []);
       } catch {
@@ -138872,7 +138998,7 @@ function CommsDashboard() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Internal Announcements & Messaging" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", onClick: () => setShowNew(true), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
         " New Announcement"
       ] })
@@ -138965,9 +139091,24 @@ function CommsDashboard() {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", onClick: async () => {
+          var _a, _b;
+          try {
+            await api$1.post("/api/communications", {
+              channel: newMsg.type || "Announcement",
+              subject: newMsg.title,
+              message: newMsg.body,
+              audience: newMsg.target,
+              status: "Published"
+            });
+            setShowNew(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not post the announcement.");
+          }
+        }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { size: 14, className: "me-1" }),
-          " Post (Disabled)"
+          " Post"
         ] })
       ] })
     ] })
@@ -138976,43 +139117,59 @@ function CommsDashboard() {
 function ClinicalPathwaysDashboard() {
   const [pathways, setPathways] = reactExports.useState([]);
   const [activePatients, setActivePatients] = reactExports.useState([]);
+  const [showEnroll, setShowEnroll] = reactExports.useState(false);
+  const [form, setForm] = reactExports.useState({ name: "", condition: "", pathway_code: "" });
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const fetchData = async () => {
+    try {
+      const res = await api$1.get("/api/clinical-pathways");
+      setPathways(res.data.pathways || res.data.data || []);
+      setActivePatients(res.data.patients || []);
+    } catch (err) {
+      console.error("[ClinicalPathways] load failed:", err.message);
+      setPathways([]);
+      setActivePatients([]);
+      setMessage("Could not load clinical pathways.");
+    }
+  };
   reactExports.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get("/api/clinical-pathways");
-        setPathways(res.data.pathways || []);
-        setActivePatients(res.data.patients || []);
-      } catch {
-        setPathways([
-          { id: 1, name: "Elective Knee Replacement", category: "Orthopedic", steps: 12, avgLOS: 5, active: 3, compliance: 92 },
-          { id: 2, name: "Acute MI Protocol", category: "Cardiology", steps: 8, avgLOS: 7, active: 2, compliance: 88 },
-          { id: 3, name: "Normal Delivery Pathway", category: "Obstetrics", steps: 10, avgLOS: 3, active: 5, compliance: 95 },
-          { id: 4, name: "LSCS Recovery", category: "Obstetrics", steps: 11, avgLOS: 5, active: 2, compliance: 90 },
-          { id: 5, name: "Pneumonia (Community)", category: "Medicine", steps: 7, avgLOS: 5, active: 4, compliance: 85 },
-          { id: 6, name: "Diabetic Ketoacidosis", category: "Emergency", steps: 9, avgLOS: 4, active: 1, compliance: 91 }
-        ]);
-        setActivePatients([
-          { id: 1, patient: "Rajesh Kumar", pathway: "Elective Knee Replacement", currentStep: "Day 2: Physiotherapy Started", progress: 40, status: "On Track", doctor: "Dr. Vikram Singh" },
-          { id: 2, patient: "Priya Sharma", pathway: "Normal Delivery Pathway", currentStep: "Day 1: Postpartum Care", progress: 30, status: "On Track", doctor: "Dr. Sunita Verma" },
-          { id: 3, patient: "Anil Kumar", pathway: "Acute MI Protocol", currentStep: "Day 3: Cardiac Rehab", progress: 60, status: "Delayed", doctor: "Dr. Anil Kumar" },
-          { id: 4, patient: "Meena Devi", pathway: "Pneumonia (Community)", currentStep: "Day 4: Antibiotic De-escalation", progress: 70, status: "On Track", doctor: "Dr. Sunita Verma" }
-        ]);
-      }
-    };
     fetchData();
   }, []);
+  const handleEnroll = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      await api$1.post("/api/clinical-pathways", form);
+      setShowEnroll(false);
+      setForm({ name: "", condition: "", pathway_code: "" });
+      await fetchData();
+      setMessage("Clinical pathway saved. It is now available for enrolment.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not save the pathway.");
+    } finally {
+      setBusy(false);
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "p-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex align-items-center mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(GitBranch, { size: 18, className: "me-2" }),
-      "Clinical pathways module is not enabled on this server — displaying demo care protocols."
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-between align-items-center mb-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(GitBranch, { className: "me-2 text-primary" }),
-        "Clinical Pathways"
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "mb-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(GitBranch, { className: "me-2 text-primary" }),
+          "Clinical Pathways"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Standardized Care Protocols & Progress Tracking" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted", children: "Standardized Care Protocols & Progress Tracking" })
-    ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", onClick: () => {
+        setMessage("");
+        setShowEnroll(true);
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16, className: "me-1" }),
+        " Enroll Pathway"
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "border-0 bg-primary bg-opacity-10 text-center p-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold text-primary", children: pathways.length }),
@@ -139089,6 +139246,31 @@ function ClinicalPathwaysDashboard() {
           ] }, p2.id)) })
         ] }) })
       ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showEnroll, onHide: () => setShowEnroll(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Enroll Clinical Pathway" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleEnroll, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Pathway Name" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.name, onChange: (e3) => setForm({ ...form, name: e3.target.value }), required: true })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Pathway Code" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.pathway_code, onChange: (e3) => setForm({ ...form, pathway_code: e3.target.value }), placeholder: "e.g. PW-AKI-01" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Condition" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.condition, onChange: (e3) => setForm({ ...form, condition: e3.target.value }), placeholder: "e.g. Acute Kidney Injury" })
+            ] }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowEnroll(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? "Saving…" : "Save Pathway" })
+        ] })
+      ] })
     ] })
   ] });
 }
@@ -139283,7 +139465,21 @@ const InfectionControlDashboard = () => {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowReportModal(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", children: "Submit Report (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", onClick: async () => {
+          var _a, _b;
+          try {
+            await api.post("/api/infection-control/report", {
+              hai_type: reportForm.type,
+              ward: reportForm.ward,
+              organism: reportForm.organism,
+              notes: reportForm.notes
+            });
+            setShowReportModal(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the HAI report.");
+          }
+        }, children: "Submit Report" })
       ] })
     ] })
   ] });
@@ -139305,6 +139501,7 @@ const ICUDashboard = () => {
   });
   const [showVentModal, setShowVentModal] = reactExports.useState(false);
   const [showIOModal, setShowIOModal] = reactExports.useState(false);
+  const [quickAdmitting, setQuickAdmitting] = reactExports.useState(false);
   const [ventForm, setVentForm] = reactExports.useState({
     ventilator_mode: "SIMV-PC",
     peep: 8,
@@ -139314,7 +139511,11 @@ const ICUDashboard = () => {
     peak_pressure: 22,
     plateau_pressure: 18,
     sp02: 98,
-    ie_ratio: "1:2"
+    ie_ratio: "1:2",
+    map_mmhg: 88,
+    sys_bp: 122,
+    dia_bp: 74,
+    temperature_c: 37
   });
   const [ioForm, setIoForm] = reactExports.useState({
     chart_time: (/* @__PURE__ */ new Date()).toISOString().slice(0, 16),
@@ -139335,7 +139536,7 @@ const ICUDashboard = () => {
     var _a2;
     setLoading(true);
     try {
-      const res = await api.get("/api/admissions?status=Admitted");
+      const res = await api$1.get("/api/admissions?status=Admitted");
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       const icuList = data.filter(
         (a2) => a2.ward && a2.ward.toUpperCase().includes("ICU") || a2.bed_number && a2.bed_number.toUpperCase().includes("ICU")
@@ -139357,11 +139558,11 @@ const ICUDashboard = () => {
     var _a2, _b2, _c, _d, _e, _f;
     if (!admissionId) return;
     try {
-      const ventRes = await api.get(`/api/icu/ventilator-logs/${admissionId}`);
+      const ventRes = await api$1.get(`/api/icu/ventilator-logs/${admissionId}`);
       if ((_a2 = ventRes.data) == null ? void 0 : _a2.success) {
         setVentLogs(((_b2 = ventRes.data.data) == null ? void 0 : _b2.logs) || []);
       }
-      const ioRes = await api.get(`/api/icu/fluid-io/${admissionId}`);
+      const ioRes = await api$1.get(`/api/icu/fluid-io/${admissionId}`);
       if ((_c = ioRes.data) == null ? void 0 : _c.success) {
         setFluidLogs(((_d = ioRes.data.data) == null ? void 0 : _d.logs) || []);
         setFluidSummary({
@@ -139380,6 +139581,25 @@ const ICUDashboard = () => {
       fetchAdmissionTelemetry(selectedAdmissionId);
     }
   }, [selectedAdmissionId, admissions, fetchAdmissionTelemetry]);
+  const handleQuickAdmit = async () => {
+    var _a2, _b2, _c, _d, _e;
+    setQuickAdmitting(true);
+    setError(null);
+    try {
+      const res = await api$1.post("/api/icu/quick-admit", { ward: "ICU Main" });
+      const adm = ((_b2 = (_a2 = res.data) == null ? void 0 : _a2.data) == null ? void 0 : _b2.admission) || ((_c = res.data) == null ? void 0 : _c.admission);
+      await fetchICUAdmissions();
+      if (adm == null ? void 0 : adm.id) {
+        setSelectedAdmissionId(String(adm.id));
+        setSelectedAdmission(adm);
+        setSuccessMsg(`ICU patient admitted (admission #${adm.id}). Chart the first hour below.`);
+      }
+    } catch (err) {
+      setError(((_e = (_d = err.response) == null ? void 0 : _d.data) == null ? void 0 : _e.message) || "Quick-admit failed. Please retry.");
+    } finally {
+      setQuickAdmitting(false);
+    }
+  };
   const handleVentSubmit = async (e3) => {
     var _a2, _b2, _c;
     e3.preventDefault();
@@ -139391,7 +139611,7 @@ const ICUDashboard = () => {
         admission_id: parseInt(selectedAdmissionId),
         ...ventForm
       };
-      const res = await api.post("/api/icu/ventilator-logs", payload);
+      const res = await api$1.post("/api/icu/ventilator-logs", payload);
       if ((_a2 = res.data) == null ? void 0 : _a2.success) {
         setSuccessMsg("Ventilator telemetry logged successfully!");
         setShowVentModal(false);
@@ -139414,7 +139634,7 @@ const ICUDashboard = () => {
         admission_id: parseInt(selectedAdmissionId),
         ...ioForm
       };
-      const res = await api.post("/api/icu/fluid-io", payload);
+      const res = await api$1.post("/api/icu/fluid-io", payload);
       if ((_a2 = res.data) == null ? void 0 : _a2.success) {
         setSuccessMsg("Fluid I/O entry charted successfully!");
         setShowIOModal(false);
@@ -139427,6 +139647,17 @@ const ICUDashboard = () => {
     }
   };
   const latestVent = ventLogs.length > 0 ? ventLogs[0] : null;
+  const hasTelemetry = !!latestVent;
+  const mapSysDia = (latestVent == null ? void 0 : latestVent.sys_bp) && (latestVent == null ? void 0 : latestVent.dia_bp) ? `${latestVent.sys_bp}/${latestVent.dia_bp}` : "—";
+  const tempC = (latestVent == null ? void 0 : latestVent.temperature_c) != null ? Number(latestVent.temperature_c) : null;
+  const tempF = tempC != null ? Math.round((tempC * 9 / 5 + 32) * 10) / 10 : null;
+  const mapBadge = hasTelemetry ? "Optimal" : "No telemetry";
+  const spo2Badge = hasTelemetry ? "Normal" : "No telemetry";
+  const tempBadge = tempC == null ? "No telemetry" : tempC >= 38.1 ? "Febrile" : "Afebrile";
+  const ventBadge = hasTelemetry ? "Active" : "No telemetry";
+  const peepBadge = hasTelemetry ? "PEEP cmH2O" : "No telemetry";
+  const tidalBadge = hasTelemetry ? "Targeted" : "No telemetry";
+  const waveformLabel = hasTelemetry ? "Good" : "—";
   const netBalance = fluidSummary.latest_cumulative_balance_ml;
   let volumeStatus = { bg: "success", text: "Euvolemic / Stable Balance", icon: CircleCheck };
   if (netBalance > 1500) {
@@ -139472,11 +139703,11 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 15 }),
           " Refresh"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", size: "sm", onClick: () => setShowIOModal(true), disabled: !selectedAdmissionId, className: "d-flex align-items-center gap-1 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "primary", size: "sm", onClick: () => setShowIOModal(true), className: "d-flex align-items-center gap-1 shadow-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 15 }),
           " Log Hourly I/O"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", size: "sm", onClick: () => setShowVentModal(true), disabled: !selectedAdmissionId, className: "d-flex align-items-center gap-1 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "danger", size: "sm", onClick: () => setShowVentModal(true), className: "d-flex align-items-center gap-1 shadow-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Wind, { size: 15 }),
           " Log Vent Telemetry"
         ] })
@@ -139563,13 +139794,16 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Heart, { size: 18, className: "text-danger" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fs-3 fw-bold text-dark mb-1", children: [
-          latestVent ? "88" : "92",
+          (latestVent == null ? void 0 : latestVent.map_mmhg) ?? "—",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fs-6 text-muted font-monospace", children: "mmHg" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Sys/Dia: 124/70" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "px-2 py-1", children: "Optimal" })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "Sys/Dia: ",
+            mapSysDia
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: hasTelemetry ? "success" : "secondary", className: "px-2 py-1", children: mapBadge })
         ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, xl: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm rounded-3 h-100 bg-white border-start border-4 border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-3", children: [
@@ -139578,12 +139812,15 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 18, className: "text-primary" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fs-3 fw-bold text-dark mb-1", children: [
-          (latestVent == null ? void 0 : latestVent.sp02) || 98,
+          (latestVent == null ? void 0 : latestVent.sp02) ?? "—",
           "%"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Waveform: Good" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "primary", className: "px-2 py-1", children: "Normal" })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "Waveform: ",
+            waveformLabel
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: hasTelemetry ? "primary" : "secondary", className: "px-2 py-1", children: spo2Badge })
         ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, xl: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm rounded-3 h-100 bg-white border-start border-4 border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-3", children: [
@@ -139592,12 +139829,13 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Thermometer, { size: 18, className: "text-warning" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fs-3 fw-bold text-dark mb-1", children: [
-          "37.1 ",
+          tempC ?? "—",
+          " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fs-6 text-muted", children: "°C" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "98.8 °F" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "px-2 py-1", children: "Afebrile" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tempF != null ? `${tempF} °F` : "—" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: tempC == null ? "secondary" : tempC >= 38.1 ? "danger" : "success", className: "px-2 py-1", children: tempBadge })
         ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, xl: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm rounded-3 h-100 bg-white border-start border-4 border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-3", children: [
@@ -139605,14 +139843,14 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-uppercase text-muted fw-bold small", children: "Vent Mode" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Wind, { size: 18, className: "text-info" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fs-4 fw-bold text-dark mb-1 text-truncate", children: (latestVent == null ? void 0 : latestVent.ventilator_mode) || "SIMV-PC" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fs-4 fw-bold text-dark mb-1 text-truncate", children: (latestVent == null ? void 0 : latestVent.ventilator_mode) ?? "—" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
             "RR: ",
-            (latestVent == null ? void 0 : latestVent.respiratory_rate) || 16,
+            (latestVent == null ? void 0 : latestVent.respiratory_rate) ?? "—",
             " bpm"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", className: "px-2 py-1", children: "Active" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: hasTelemetry ? "info" : "secondary", className: "px-2 py-1", children: ventBadge })
         ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, xl: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm rounded-3 h-100 bg-white border-start border-4 border-secondary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-3", children: [
@@ -139621,20 +139859,20 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, className: "text-secondary" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fs-3 fw-bold text-dark mb-1", children: [
-          (latestVent == null ? void 0 : latestVent.peep) || 8,
+          (latestVent == null ? void 0 : latestVent.peep) ?? "—",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "fs-6 text-muted", children: [
             "/ ",
-            (latestVent == null ? void 0 : latestVent.fio2) || 45,
+            (latestVent == null ? void 0 : latestVent.fio2) ?? "—",
             "%"
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
             "I:E Ratio: ",
-            (latestVent == null ? void 0 : latestVent.ie_ratio) || "1:2"
+            (latestVent == null ? void 0 : latestVent.ie_ratio) ?? "—"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "dark", className: "px-2 py-1", children: "PEEP cmH2O" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: hasTelemetry ? "dark" : "secondary", className: "px-2 py-1", children: peepBadge })
         ] })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, xl: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "border-0 shadow-sm rounded-3 h-100 bg-white border-start border-4 border-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-3", children: [
@@ -139643,17 +139881,17 @@ const ICUDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { size: 18, className: "text-dark" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fs-3 fw-bold text-dark mb-1", children: [
-          (latestVent == null ? void 0 : latestVent.tidal_volume) || 450,
+          (latestVent == null ? void 0 : latestVent.tidal_volume) ?? "—",
           " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fs-6 text-muted", children: "mL" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "small text-muted d-flex align-items-center justify-content-between", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
             "Peak: ",
-            (latestVent == null ? void 0 : latestVent.peak_pressure) || 22,
+            (latestVent == null ? void 0 : latestVent.peak_pressure) ?? "—",
             " cmH2O"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", className: "px-2 py-1", children: "Targeted" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: hasTelemetry ? "secondary" : "secondary", className: "px-2 py-1", children: tidalBadge })
         ] })
       ] }) }) })
     ] }),
@@ -139664,9 +139902,9 @@ const ICUDashboard = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 20, className: "me-2 text-primary" }),
             " Hourly Fluid Intake & Output Ledger"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted small mb-0", children: "Automated rolling calculation feeding endpoint /api/icu/fluid-io" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted small mb-0", children: "Rolling 24-hour fluid intake and output balance, auto-calculated per charted hour." })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", size: "sm", onClick: () => setShowIOModal(true), disabled: !selectedAdmissionId, className: "d-flex align-items-center gap-1 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", size: "sm", onClick: () => setShowIOModal(true), className: "d-flex align-items-center gap-1 shadow-sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 15 }),
           " Add Hourly Entry"
         ] })
@@ -139677,7 +139915,7 @@ const ICUDashboard = () => {
       ] }) : fluidLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5 text-muted", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Droplet, { size: 36, className: "mb-2 opacity-50 text-secondary" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "No hourly fluid entries logged yet for this admission." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "link", size: "sm", onClick: () => setShowIOModal(true), disabled: !selectedAdmissionId, children: "Record First Hourly Intake / Output" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "link", size: "sm", onClick: () => setShowIOModal(true), children: "Record First Hourly Intake / Output" })
       ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { responsive: true, hover: true, className: "align-middle mb-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-light text-muted uppercase font-monospace small", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "ps-4", children: "Time" }),
@@ -139729,6 +139967,13 @@ const ICUDashboard = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleIOSubmit, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { className: "p-4", children: [
+          admissions.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex justify-content-between align-items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "No active ICU admissions." }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "small", children: "Admit a patient now to chart the first hour of fluid intake / output." })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", onClick: handleQuickAdmit, disabled: quickAdmitting, children: quickAdmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "+ Quick-Admit ICU Patient" })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small fw-bold", children: "Chart Timestamp" }),
@@ -139743,8 +139988,24 @@ const ICUDashboard = () => {
               )
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small fw-bold", children: "Admission ID" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "text", value: `Admission #${selectedAdmissionId}`, disabled: true })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small fw-bold", children: "Patient / Admission" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Form$1.Select,
+                {
+                  value: selectedAdmissionId,
+                  onChange: (e3) => setSelectedAdmissionId(e3.target.value),
+                  required: true,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "-- Select ICU Patient / Bed --" }),
+                    admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.id, children: [
+                      "Bed ",
+                      a2.bed_number || "N/A",
+                      " — ",
+                      a2.patient_name || a2.patient_uhid || `Admission #${a2.id}`
+                    ] }, a2.id))
+                  ]
+                }
+              )
             ] }) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold text-primary border-bottom pb-2 mb-3", children: "💧 Fluid Intakes (mL)" }),
@@ -139803,6 +140064,36 @@ const ICUDashboard = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleVentSubmit, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { className: "p-4", children: [
+          admissions.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", className: "d-flex justify-content-between align-items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "No active ICU admissions." }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "small", children: "Quick-admit a patient to record ventilator telemetry." })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", size: "sm", onClick: handleQuickAdmit, disabled: quickAdmitting, children: quickAdmitting ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "+ Quick-Admit ICU Patient" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small fw-bold", children: "Patient / Admission" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: selectedAdmissionId,
+                onChange: (e3) => setSelectedAdmissionId(e3.target.value),
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "-- Select ICU Patient / Bed --" }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.id, children: [
+                    "Bed ",
+                    a2.bed_number || "N/A",
+                    " — ",
+                    a2.patient_name || a2.patient_uhid || `Admission #${a2.id}`,
+                    " (",
+                    a2.ward || "ICU",
+                    ")"
+                  ] }, a2.id))
+                ]
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-3", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small fw-bold", children: "Ventilator Mode" }),
@@ -139839,6 +140130,24 @@ const ICUDashboard = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small", children: "Plateau Press (cmH2O)" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: ventForm.plateau_pressure, onChange: (e3) => setVentForm({ ...ventForm, plateau_pressure: e3.target.value }) })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3 mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small", children: "MAP (mmHg)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: ventForm.map_mmhg, onChange: (e3) => setVentForm({ ...ventForm, map_mmhg: e3.target.value }) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small", children: "Systolic BP (mmHg)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: ventForm.sys_bp, onChange: (e3) => setVentForm({ ...ventForm, sys_bp: e3.target.value }) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small", children: "Diastolic BP (mmHg)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: ventForm.dia_bp, onChange: (e3) => setVentForm({ ...ventForm, dia_bp: e3.target.value }) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "small", children: "Core Temp (°C)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", step: "0.1", value: ventForm.temperature_c, onChange: (e3) => setVentForm({ ...ventForm, temperature_c: e3.target.value }) })
             ] }) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-3", children: [
@@ -139966,7 +140275,7 @@ const DentalDashboard = () => {
   const fetchPatients = reactExports.useCallback(async () => {
     var _a2;
     try {
-      const res = await api.get("/api/patients?limit=60");
+      const res = await api$1.get("/api/patients?limit=60");
       const list = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setPatients(Array.isArray(list) ? list.slice(0, 60) : []);
     } catch (err) {
@@ -139977,7 +140286,7 @@ const DentalDashboard = () => {
     var _a2;
     if (!patientId) return;
     try {
-      const res = await api.get(`/api/dental/visits?patient_id=${patientId}`);
+      const res = await api$1.get(`/api/dental/visits?patient_id=${patientId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setVisits(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -139988,7 +140297,7 @@ const DentalDashboard = () => {
     var _a2;
     if (!visitId) return;
     try {
-      const res = await api.get(`/api/dental/procedures?visit_id=${visitId}`);
+      const res = await api$1.get(`/api/dental/procedures?visit_id=${visitId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setProceduresLog(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -140000,7 +140309,7 @@ const DentalDashboard = () => {
     var _a2;
     if (!patientId) return;
     try {
-      const res = await api.get(`/api/dental/lab-orders?patient_id=${patientId}`);
+      const res = await api$1.get(`/api/dental/lab-orders?patient_id=${patientId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setLabOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -140072,7 +140381,7 @@ const DentalDashboard = () => {
         notes: visitForm.notes,
         odontogram: odontogramData
       };
-      const res = await api.post("/api/dental/visits", payload);
+      const res = await api$1.post("/api/dental/visits", payload);
       showToast("Dental visit created successfully!");
       setShowVisitModal(false);
       setVisitForm({ patient_id: "", chief_complaint: "", diagnosis: "", treatment_plan: "", notes: "" });
@@ -140122,7 +140431,7 @@ const DentalDashboard = () => {
         discount: procDiscount,
         notes: procNotes
       };
-      const res = await api.post("/api/dental/procedures", payload);
+      const res = await api$1.post("/api/dental/procedures", payload);
       const newProc = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data;
       setProceduresLog((prev2) => [newProc, ...prev2]);
       showToast(`Procedure ${selectedProcCode} logged successfully!`);
@@ -140156,7 +140465,7 @@ const DentalDashboard = () => {
         due_date: labForm.due_date,
         preferred_lab: labForm.preferred_lab
       };
-      const res = await api.post("/api/dental/lab-orders", payload);
+      const res = await api$1.post("/api/dental/lab-orders", payload);
       showToast("Lab order created successfully!");
       setShowLabModal(false);
       setLabForm({ restoration_type: "PFM Crown", shade: "A2", teeth: [], lab_instructions: "", due_date: "", preferred_lab: "" });
@@ -141014,7 +141323,7 @@ const OphthalmologyDashboard = () => {
   const fetchPatients = reactExports.useCallback(async () => {
     var _a2;
     try {
-      const res = await api.get("/api/patients?limit=60");
+      const res = await api$1.get("/api/patients?limit=60");
       const list = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setPatients(Array.isArray(list) ? list.slice(0, 60) : []);
     } catch (err) {
@@ -141025,7 +141334,7 @@ const OphthalmologyDashboard = () => {
     var _a2;
     if (!patientId) return;
     try {
-      const res = await api.get(`/api/ophthalmology/visits?patient_id=${patientId}`);
+      const res = await api$1.get(`/api/ophthalmology/visits?patient_id=${patientId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setVisits(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141036,7 +141345,7 @@ const OphthalmologyDashboard = () => {
     var _a2;
     if (!visitId) return;
     try {
-      const res = await api.get(`/api/ophthalmology/procedures?visit_id=${visitId}`);
+      const res = await api$1.get(`/api/ophthalmology/procedures?visit_id=${visitId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setProceduresLog(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141048,7 +141357,7 @@ const OphthalmologyDashboard = () => {
     var _a2;
     if (!patientId) return;
     try {
-      const res = await api.get(`/api/ophthalmology/biometry?patient_id=${patientId}`);
+      const res = await api$1.get(`/api/ophthalmology/biometry?patient_id=${patientId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setBiometryRecords(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141102,7 +141411,7 @@ const OphthalmologyDashboard = () => {
     setSubmitting(true);
     try {
       const payload = { patient_id: selectedPatient.id, ...visitForm };
-      const res = await api.post("/api/ophthalmology/visits", payload);
+      const res = await api$1.post("/api/ophthalmology/visits", payload);
       showToast("Ophthalmology visit created successfully!");
       setShowVisitModal(false);
       setActiveVisit(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data);
@@ -141122,7 +141431,7 @@ const OphthalmologyDashboard = () => {
     setSubmitting(true);
     try {
       const payload = { visit_id: activeVisit.id, ...procForm };
-      const res = await api.post("/api/ophthalmology/procedures", payload);
+      const res = await api$1.post("/api/ophthalmology/procedures", payload);
       setProceduresLog((prev2) => {
         var _a3;
         return [((_a3 = res.data) == null ? void 0 : _a3.data) || res.data, ...prev2];
@@ -141145,7 +141454,7 @@ const OphthalmologyDashboard = () => {
     setSubmitting(true);
     try {
       const payload = { patient_id: selectedPatient.id, ...biometryForm };
-      const res = await api.post("/api/ophthalmology/biometry", payload);
+      const res = await api$1.post("/api/ophthalmology/biometry", payload);
       setBiometryRecords((prev2) => {
         var _a3;
         return [((_a3 = res.data) == null ? void 0 : _a3.data) || res.data, ...prev2];
@@ -141722,7 +142031,7 @@ const OrthopedicDashboard = () => {
   const fetchPatients = reactExports.useCallback(async () => {
     var _a2;
     try {
-      const res = await api.get("/api/patients?limit=60");
+      const res = await api$1.get("/api/patients?limit=60");
       const list = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setPatients(Array.isArray(list) ? list.slice(0, 60) : []);
     } catch (err) {
@@ -141733,7 +142042,7 @@ const OrthopedicDashboard = () => {
     var _a2;
     if (!patientId) return;
     try {
-      const res = await api.get(`/api/orthopedic/visits?patient_id=${patientId}`);
+      const res = await api$1.get(`/api/orthopedic/visits?patient_id=${patientId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setVisits(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141744,7 +142053,7 @@ const OrthopedicDashboard = () => {
     var _a2;
     if (!visitId) return;
     try {
-      const res = await api.get(`/api/orthopedic/procedures?visit_id=${visitId}`);
+      const res = await api$1.get(`/api/orthopedic/procedures?visit_id=${visitId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setProceduresLog(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141755,7 +142064,7 @@ const OrthopedicDashboard = () => {
   const fetchImplants = reactExports.useCallback(async () => {
     var _a2;
     try {
-      const res = await api.get("/api/orthopedic/implants?limit=60");
+      const res = await api$1.get("/api/orthopedic/implants?limit=60");
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setImplants(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141766,7 +142075,7 @@ const OrthopedicDashboard = () => {
     var _a2;
     if (!visitId) return;
     try {
-      const res = await api.get(`/api/orthopedic/physio-orders?visit_id=${visitId}`);
+      const res = await api$1.get(`/api/orthopedic/physio-orders?visit_id=${visitId}`);
       const data = ((_a2 = res.data) == null ? void 0 : _a2.data) || res.data || [];
       setPhysioOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -141815,7 +142124,7 @@ const OrthopedicDashboard = () => {
     setSubmitting(true);
     try {
       const payload = { patient_id: selectedPatient.id, ...visitForm };
-      const res = await api.post("/api/orthopedic/visits", payload);
+      const res = await api$1.post("/api/orthopedic/visits", payload);
       showToast("Orthopedic visit created successfully!");
       setShowVisitModal(false);
       setActiveVisit(((_a2 = res.data) == null ? void 0 : _a2.data) || res.data);
@@ -141835,7 +142144,7 @@ const OrthopedicDashboard = () => {
     setSubmitting(true);
     try {
       const payload = { visit_id: activeVisit.id, ...procForm };
-      const res = await api.post("/api/orthopedic/procedures", payload);
+      const res = await api$1.post("/api/orthopedic/procedures", payload);
       setProceduresLog((prev2) => {
         var _a3;
         return [((_a3 = res.data) == null ? void 0 : _a3.data) || res.data, ...prev2];
@@ -141857,7 +142166,7 @@ const OrthopedicDashboard = () => {
     }
     setSubmitting(true);
     try {
-      const res = await api.post("/api/orthopedic/implants", implantForm);
+      const res = await api$1.post("/api/orthopedic/implants", implantForm);
       setImplants((prev2) => {
         var _a3;
         return [((_a3 = res.data) == null ? void 0 : _a3.data) || res.data, ...prev2];
@@ -142493,7 +142802,7 @@ const PriorAuthDashboard = () => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { className: "py-4", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "fw-bold", children: "📋 Prior Authorization Management" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "➕ New PA Request" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowNewAuth(true), children: "➕ New PA Request" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { className: "mb-4 g-3", children: [
       { title: "Total Requests", value: kpis.total, color: "primary" },
@@ -142643,7 +142952,22 @@ const PriorAuthDashboard = () => {
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNewAuth(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "📤 Submit PA Request (Disabled)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: async () => {
+          var _a, _b;
+          try {
+            await api.post("/api/prior-auth/submit", {
+              patient_number: authForm.patient,
+              procedure_name: authForm.procedure,
+              diagnosis: authForm.diagnosis,
+              estimated_cost: authForm.amount,
+              insurer: authForm.insurer
+            });
+            setShowNewAuth(false);
+            window.location.reload();
+          } catch (err) {
+            alert(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not submit the prior-authorisation request.");
+          }
+        }, children: "📤 Submit PA Request" })
       ] })
     ] })
   ] });
@@ -144232,7 +144556,7 @@ function InsuranceVault() {
   }, [activeProvider, integrations]);
   const fetchIntegrations = async () => {
     try {
-      const response = await api.get("/admin/vault/integrations");
+      const response = await api$1.get("/admin/vault/integrations");
       setIntegrations(response.data.integrations || []);
     } catch (error) {
       console.error("Failed to fetch integrations:", error);
@@ -144263,7 +144587,7 @@ function InsuranceVault() {
     setLoading(true);
     setMessage({ type: "", text: "" });
     try {
-      const response = await api.post("/admin/vault/save", {
+      const response = await api$1.post("/admin/vault/save", {
         providerCode: activeProvider,
         clientId: formData.clientId,
         clientSecret: formData.clientSecret,
@@ -144288,7 +144612,7 @@ function InsuranceVault() {
     setTestingConnection(true);
     setMessage({ type: "", text: "" });
     try {
-      const response = await api.post("/admin/vault/test", { providerCode: activeProvider });
+      const response = await api$1.post("/admin/vault/test", { providerCode: activeProvider });
       if (response.data.success) setMessage({ type: "success", text: `Connection Active: ${response.data.message}` });
       else setMessage({ type: "error", text: `Connection Failed: ${response.data.error}` });
     } catch (error) {
@@ -146603,22 +146927,47 @@ const SmartScheduling = () => {
     ] })
   ] });
 };
+const emptyVitals = { admission_id: "", temperature: "", pulse: "", bp_systolic: "", bp_diastolic: "", spo2: "" };
 const EarlyWarningScore = () => {
   const [activeTab, setActiveTab] = reactExports.useState("monitoring");
   const [patients, setPatients] = reactExports.useState([]);
   const [scoringError, setScoringError] = reactExports.useState("");
-  reactExports.useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/api/ews/scores");
-        setPatients(res.data.data || res.data.patients || []);
-      } catch (err) {
-        console.error("[EarlyWarningScore] score load failed:", err.message);
-        setPatients([]);
-        setScoringError("Unable to load live vitals for NEWS-2 scoring. Please refresh.");
-      }
-    })();
+  const [showVitals, setShowVitals] = reactExports.useState(false);
+  const [vitals, setVitals] = reactExports.useState(emptyVitals);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [lastResult2, setLastResult] = reactExports.useState(null);
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/ews/scores");
+      setPatients(res.data.data || res.data.patients || []);
+      setScoringError("");
+    } catch (err) {
+      console.error("[EarlyWarningScore] score load failed:", err.message);
+      setPatients([]);
+      setScoringError("Unable to load live vitals for NEWS-2 scoring. Please refresh.");
+    }
   }, []);
+  reactExports.useEffect(() => {
+    load();
+  }, [load]);
+  const handleLogVitals = async (e3) => {
+    var _a, _b, _c;
+    e3.preventDefault();
+    setBusy(true);
+    setScoringError("");
+    try {
+      const res = await api$1.post("/api/ews/log-vitals", vitals);
+      setLastResult(((_a = res.data) == null ? void 0 : _a.data) || null);
+      setShowVitals(false);
+      setVitals(emptyVitals);
+      await load();
+    } catch (err) {
+      setScoringError(((_c = (_b = err.response) == null ? void 0 : _b.data) == null ? void 0 : _c.message) || "Could not log vitals.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const alertColor = (a2) => a2 === "CRITICAL" ? "danger" : a2 === "HIGH" ? "warning" : "success";
   const scoreColor = (s2) => s2 >= 7 ? "danger" : s2 >= 5 ? "warning" : s2 >= 1 ? "info" : "success";
   const escalationProtocol = [
     { score: "0-4", level: "Low", response: "Routine ward monitoring", frequency: "q4-6h", team: "Ward nurse" },
@@ -146636,9 +146985,9 @@ const EarlyWarningScore = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "⚠️ Early Warning Score (NEWS-2) Dashboard" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "ML-augmented patient deterioration prediction" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Server-scored NEWS-2 from each admitted patient's most recent vitals" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2 align-items-center", children: [
         metrics.critical > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "danger", className: "p-2 fs-6", children: [
           "🚨 ",
           metrics.critical,
@@ -146648,8 +146997,20 @@ const EarlyWarningScore = () => {
           "⚠️ ",
           metrics.high,
           " HIGH"
-        ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+          setVitals(emptyVitals);
+          setShowVitals(true);
+        }, children: "+ Log Vitals & Recalculate NEWS-2" })
       ] })
+    ] }),
+    scoringError && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "warning", dismissible: true, onClose: () => setScoringError(""), children: scoringError }),
+    lastResult2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: alertColor(lastResult2.alert), dismissible: true, onClose: () => setLastResult(null), children: [
+      "Vitals logged. Recalculated NEWS-2 = ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: lastResult2.news2 }),
+      " (",
+      lastResult2.alert,
+      ")."
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
@@ -146667,13 +147028,6 @@ const EarlyWarningScore = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: metrics.avgNEWS2 }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg NEWS-2" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-success", children: [
-          metrics.predictionAccuracy,
-          "%"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "AI Accuracy" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
@@ -146694,41 +147048,34 @@ const EarlyWarningScore = () => {
         ] }, p2.bed)),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Bed" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Bed / Ward" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "HR" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Pulse" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "BP" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "RR" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Temp" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "SpO2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "GCS" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "NEWS-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Trend" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "AI Prediction" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Alert" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Recommended Action" })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: patients.sort((a2, b2) => b2.news2 - a2.news2).map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: p2.news2 >= 7 ? "table-danger" : p2.news2 >= 5 ? "table-warning" : "", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.bed }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-              p2.patient,
-              /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: p2.mrn })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: p2.hr > 100 ? "text-danger fw-bold" : "", children: p2.hr }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: parseInt(p2.bp) < 100 ? "text-danger fw-bold" : "", children: p2.bp }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: p2.rr > 24 ? "text-danger fw-bold" : "", children: p2.rr }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: p2.temp > 38.5 ? "text-danger fw-bold" : "", children: [
-              p2.temp,
-              "°C"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: p2.spo2 < 92 ? "text-danger fw-bold" : "", children: [
-              p2.spo2,
-              "%"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.gcs }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: scoreColor(p2.news2), className: "fs-6", children: p2.news2 }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: p2.trend.includes("↑") ? "text-danger fw-bold fs-5" : "text-success", children: p2.trend }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { maxWidth: 200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.prediction }) })
-          ] }, p2.bed)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+            patients.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center text-muted py-4", children: "No admitted patients with recorded vitals yet. Use “+ Log Vitals & Recalculate NEWS-2”." }) }),
+            [...patients].sort((a2, b2) => b2.news2 - a2.news2).map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: p2.news2 >= 7 ? "table-danger" : p2.news2 >= 5 ? "table-warning" : "", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.bed_number || "—" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: p2.ward || "" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.patient_name || p2.patient_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.pulse != null ? p2.pulse : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.bp_systolic && p2.bp_diastolic ? `${p2.bp_systolic}/${p2.bp_diastolic}` : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.temperature != null ? `${p2.temperature} °C` : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: p2.spo2 != null ? `${p2.spo2}%` : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: scoreColor(p2.news2), className: "fs-6", children: p2.news2 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: alertColor(p2.alert), children: p2.alert }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { maxWidth: 240 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.recommendation }) })
+            ] }, p2.admission_id))
+          ] })
         ] }) }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "protocol", title: "📋 Escalation Protocol", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
@@ -146750,28 +147097,84 @@ const EarlyWarningScore = () => {
           ] }, i)) })
         ] })
       ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "analytics", title: "📈 Prediction Analytics", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "text-center", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-success", children: [
-            metrics.predictionAccuracy,
-            "%"
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "analytics", title: "📈 Score Distribution", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "text-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-primary", children: metrics.totalMonitored }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Admitted Patients Scored" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "AI Prediction Accuracy" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { now: metrics.predictionAccuracy, variant: "success", className: "mt-2" })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-danger", children: metrics.critical }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Critical (NEWS-2 ≥ 7)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-warning", children: metrics.high }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "High (NEWS-2 5-6)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-info", children: metrics.avgNEWS2 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Average NEWS-2" })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-primary", children: metrics.codeBluesAvoided }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Code Blues Avoided (30d)" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted mb-0 small", children: "Scores are recomputed server-side from each admission's latest recorded vitals. Logging new vitals from the button above immediately recalculates the score and the escalation band." })
+      ] }) }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showVitals, onHide: () => setShowVitals(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Log Vitals & Recalculate NEWS-2" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleLogVitals, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: vitals.admission_id,
+                onChange: (e3) => setVitals({ ...vitals, admission_id: e3.target.value }),
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+                  patients.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: p2.admission_id, children: [
+                    p2.patient_name || p2.patient_id,
+                    " — ",
+                    p2.ward || "Ward",
+                    " ",
+                    p2.bed_number || ""
+                  ] }, p2.admission_id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Temperature (°C)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", step: "0.1", value: vitals.temperature, onChange: (e3) => setVitals({ ...vitals, temperature: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Pulse (bpm)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: vitals.pulse, onChange: (e3) => setVitals({ ...vitals, pulse: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "SpO2 (%)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: vitals.spo2, onChange: (e3) => setVitals({ ...vitals, spo2: e3.target.value }), required: true })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Systolic BP (mmHg)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: vitals.bp_systolic, onChange: (e3) => setVitals({ ...vitals, bp_systolic: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Diastolic BP (mmHg)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", value: vitals.bp_diastolic, onChange: (e3) => setVitals({ ...vitals, bp_diastolic: e3.target.value }), required: true })
+            ] }) })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-warning", children: metrics.rrTriggers }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Rapid Response Triggers" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 3, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-info", children: "4.2h" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg Early Detection Lead" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowVitals(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Save Vitals & Recalculate" })
         ] })
-      ] }) }) }) })
+      ] })
     ] })
   ] });
 };
@@ -147277,224 +147680,288 @@ const PatientPortal = () => {
     ] })
   ] });
 };
+const emptySession = { patient_id: "", session_type: "Video Consultation", scheduled_at: "" };
 const TelehealthConsole = () => {
   const [activeTab, setActiveTab] = reactExports.useState("waitingroom");
-  const [inCall, setInCall] = reactExports.useState(false);
-  const [waitingRoom, setWaitingRoom] = reactExports.useState([]);
-  const [todaySchedule, setTodaySchedule] = reactExports.useState([]);
+  const [sessions, setSessions] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [selected, setSelected] = reactExports.useState(null);
+  const [showSchedule, setShowSchedule] = reactExports.useState(false);
+  const [newSession, setNewSession] = reactExports.useState(emptySession);
+  const [notes, setNotes] = reactExports.useState("");
+  const [drugs, setDrugs] = reactExports.useState([]);
+  const [drugDraft, setDrugDraft] = reactExports.useState({ drug: "", dosage: "", days: "" });
+  const [investigation, setInvestigation] = reactExports.useState("");
+  const [investigations, setInvestigations] = reactExports.useState([]);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/telehealth/sessions");
+      setSessions(res.data.data || res.data.sessions || []);
+    } catch (err) {
+      console.error("[TelehealthConsole] session load failed:", err.message);
+      setSessions([]);
+      setMessage("Could not load telehealth sessions.");
+    }
+  }, []);
   reactExports.useEffect(() => {
+    load();
     (async () => {
+      var _a;
       try {
-        const res = await api.get("/api/telehealth/sessions");
-        const all3 = res.data.data || res.data.sessions || [];
-        setWaitingRoom(all3.filter((s2) => s2.status === "Waiting"));
-        setTodaySchedule(all3.filter((s2) => s2.status !== "Waiting"));
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
       } catch (err) {
-        console.error("[TelehealthConsole] session load failed:", err.message);
-        setWaitingRoom([]);
-        setTodaySchedule([]);
+        console.error("[TelehealthConsole] admission load failed:", err.message);
+        setAdmissions([]);
       }
     })();
-  }, []);
-  const ePrescriptionDrugs = [
-    { drug: "Azithromycin 500mg", dosage: "1-0-0", days: 5, instructions: "Take on empty stomach" },
-    { drug: "Paracetamol 650mg", dosage: "1-1-1", days: 3, instructions: "After food, SOS for fever > 100F" },
-    { drug: "Cetirizine 10mg", dosage: "0-0-1", days: 5, instructions: "At bedtime" }
-  ];
+  }, [load]);
+  const selectSession = (session) => {
+    setSelected(session);
+    setNotes(session.notes || "");
+    setDrugs([]);
+    setInvestigations([]);
+    setActiveTab("consult");
+  };
+  const handleSchedule = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      await api$1.post("/api/telehealth/sessions", newSession);
+      setShowSchedule(false);
+      setNewSession(emptySession);
+      await load();
+      setMessage("Telehealth session scheduled.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not schedule the session.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const saveNotes = async () => {
+    var _a, _b;
+    if (!selected) return;
+    setBusy(true);
+    try {
+      await api$1.patch(`/api/telehealth/sessions/${selected.id}/prescribe`, {
+        notes: [notes, ...investigations.map((i) => `Investigation ordered: ${i}`)].join("\n"),
+        drugs
+      });
+      await load();
+      setMessage("Consultation notes saved to the session.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not save the notes.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const sendPrescription = async () => {
+    var _a, _b;
+    if (!selected) return;
+    setBusy(true);
+    try {
+      await api$1.patch(`/api/telehealth/sessions/${selected.id}/prescribe`, { notes, drugs });
+      await load();
+      setMessage(`E-prescription with ${drugs.length} drug(s) sent to the patient.`);
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not send the e-prescription.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const addDrug = () => {
+    if (!drugDraft.drug) return;
+    setDrugs([...drugs, { ...drugDraft, days: Number(drugDraft.days) || 1 }]);
+    setDrugDraft({ drug: "", dosage: "", days: "" });
+  };
+  const addInvestigation = () => {
+    if (!investigation.trim()) return;
+    setInvestigations([...investigations, investigation.trim()]);
+    setInvestigation("");
+  };
+  const waitingRoom = sessions.filter((s2) => s2.status === "Waiting");
+  const schedule = sessions.filter((s2) => s2.status !== "Waiting");
+  const fmt = (v2) => v2 ? String(v2).slice(0, 16).replace("T", " ") : "—";
   const metrics = {
-    todayConsults: waitingRoom.length + todaySchedule.length,
-    completed: todaySchedule.length,
-    avgDuration: "—",
-    satisfaction: "—",
-    totalThisWeek: waitingRoom.length + todaySchedule.length,
-    noShowRate: "—"
+    total: sessions.length,
+    completed: schedule.filter((s2) => s2.status === "Completed").length,
+    waiting: waitingRoom.length
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Telehealth Console" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Video consultation & virtual care platform" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Video consultation scheduling, charting and e-prescribing" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", className: "p-2 fs-6", children: "Camera Ready" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", className: "p-2 fs-6", children: "HIPAA Secure" })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+        setMessage("");
+        setShowSchedule(true);
+      }, children: "+ Schedule Session" })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: metrics.todayConsults }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Today" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: metrics.total }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Sessions" })
+      ] }) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: metrics.waiting }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Waiting Room" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: metrics.completed }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Completed" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: metrics.avgDuration }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg Duration" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-warning", children: [
-          metrics.satisfaction,
-          "/5"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Satisfaction" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: metrics.noShowRate }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "No-Show Rate" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Tab$1, { eventKey: "waitingroom", title: "Virtual Waiting Room", children: [
-        waitingRoom.filter((w2) => w2.priority === "High").map((w2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "danger", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "URGENT:" }),
-          " ",
-          w2.patient,
-          " -- ",
-          w2.complaint,
-          " | Vitals: ",
-          w2.vitals,
-          " | Waiting: ",
-          w2.waitTime,
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "danger", className: "ms-3", onClick: () => setInCall(true), children: "Start Call Now" })
-        ] }, w2.id)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { children: waitingRoom.map((w2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: `mb-3 ${w2.priority === "High" ? "border-danger" : "border-primary"}`, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: w2.priority === "High" ? "bg-danger text-white" : "bg-primary text-white", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: w2.patient }),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "light", text: "dark", children: w2.mrn })
-          ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Tab$1, { eventKey: "waitingroom", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        "Waiting Room ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "warning", text: "dark", children: metrics.waiting })
+      ] }), children: [
+        waitingRoom.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "light", className: "border", children: [
+          "No patients are waiting. Use ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "+ Schedule Session" }),
+          " to book a consultation."
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Row, { children: waitingRoom.map((s2) => /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3 border-warning", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { className: "bg-warning text-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: s2.patient_name || s2.patient_id }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-1", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Type:" }),
               " ",
-              w2.type
+              s2.session_type
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Complaint:" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Scheduled:" }),
               " ",
-              w2.complaint
+              fmt(s2.scheduled_at)
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Vitals:" }),
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: w2.vitals })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Waiting:" }),
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: parseInt(w2.waitTime) > 10 ? "danger" : "success", children: w2.waitTime })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-grid gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: () => setInCall(true), children: "Start Video Call" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", size: "sm", children: "View History" })
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: () => selectSession(s2), children: "Open Consultation" })
           ] })
-        ] }) }, w2.id)) })
+        ] }) }, s2.id)) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "videocall", title: "Video Call", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: !inCall ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-5", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-muted", children: "No Active Call" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Select a patient from the waiting room to start a video consultation" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "lg", onClick: () => setInCall(true), children: "Start Demo Call" })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { backgroundColor: "#1a1a2e", borderRadius: 12, height: 400, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center text-white", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: 120, height: 120, borderRadius: "50%", backgroundColor: "#0d6efd", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3rem", margin: "0 auto 15px" }, children: "R" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { children: "Rajesh Kumar" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "Connected - 03:24" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { position: "absolute", bottom: 15, right: 15, width: 150, height: 100, backgroundColor: "#16213e", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-white", children: "Dr. Sharma (You)" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { position: "absolute", bottom: 15, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 10 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "light", className: "rounded-circle", style: { width: 50, height: 50 }, children: "Mic" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "light", className: "rounded-circle", style: { width: 50, height: 50 }, children: "Cam" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "light", className: "rounded-circle", style: { width: 50, height: 50 }, children: "Share" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "danger", className: "rounded-circle", style: { width: 50, height: 50 }, onClick: () => setInCall(false), children: "End" })
-          ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "schedule", title: "Schedule", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Scheduled" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Action" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 4, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Patient Quick Info" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          schedule.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5, className: "text-center text-muted py-4", children: "No scheduled sessions." }) }),
+          schedule.map((s2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: s2.patient_name || s2.patient_id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: s2.session_type }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: fmt(s2.scheduled_at) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: s2.status === "Completed" ? "success" : "secondary", children: s2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", onClick: () => selectSession(s2), children: "Open" }) })
+          ] }, s2.id))
+        ] })
+      ] }) }) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "consult", title: "Consultation", children: !selected ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "light", className: "border", children: "Select a session from the waiting room or schedule." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 7, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+              "Consultation — ",
+              selected.patient_name || selected.patient_id
+            ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Name:" }),
-                " Rajesh Kumar"
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Clinical Notes" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 5, value: notes, onChange: (e3) => setNotes(e3.target.value), placeholder: "History, examination, assessment, plan..." })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Age:" }),
-                " 58 yrs | B+"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Allergies:" }),
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: "Penicillin" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Vitals (reported):" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-                "BP: 138/86 | Sugar: 180"
-              ] })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: saveNotes, disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Save Notes" })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Quick Notes" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Investigations" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 4, placeholder: "Type consultation notes..." }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", size: "sm", className: "mt-2 w-100", children: "Save Notes" })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2 mb-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: investigation, onChange: (e3) => setInvestigation(e3.target.value), placeholder: "e.g. CBC, Chest X-ray" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", onClick: addInvestigation, children: "+ Add Investigation" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "mb-0", children: [
+                investigations.map((i, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: i }, idx)),
+                investigations.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("li", { className: "text-muted", children: "No investigations ordered." })
+              ] })
             ] })
           ] })
-        ] })
-      ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "eprescription", title: "E-Prescription", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-3", children: "Generate E-Prescription" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "info", children: [
-          "Patient: ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Rajesh Kumar (MRN-1045)" }),
-          " | Consultation: Telehealth Follow-up"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Drug" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Dosage (M-A-N)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Days" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Instructions" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Remove" })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ePrescriptionDrugs.map((d2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: d2.drug }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: d2.dosage }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: d2.days }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: d2.instructions }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", children: "X" }) })
-          ] }, i)) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", children: "+ Add Drug" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", children: "+ Add Investigation" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", className: "ms-auto", children: "Send E-Prescription to Patient" })
-        ] })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "schedule", title: "Today Schedule", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Time" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Duration" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Action" })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: todaySchedule.map((s2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: s2.status === "In Waiting" ? "table-warning" : s2.status === "Completed" ? "table-success" : "", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: s2.time }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: s2.patient }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: s2.type }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: s2.status === "Completed" ? "success" : s2.status === "In Waiting" ? "warning" : "info", children: s2.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: s2.duration }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            s2.status === "In Waiting" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", children: "Join" }),
-            s2.status === "Completed" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", children: "Notes" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 5, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Header, { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "E-Prescription" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { size: "sm", bordered: true, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Drug" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Dosage" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Days" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("th", {})
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+                drugs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 4, className: "text-center text-muted", children: "No drugs added." }) }),
+                drugs.map((d2, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: d2.drug }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: d2.dosage }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: d2.days }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-danger", onClick: () => setDrugs(drugs.filter((_, i) => i !== idx)), children: "X" }) })
+                ] }, idx))
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "g-2 mb-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { size: "sm", placeholder: "Drug", value: drugDraft.drug, onChange: (e3) => setDrugDraft({ ...drugDraft, drug: e3.target.value }) }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { size: "sm", placeholder: "1-0-1", value: drugDraft.dosage, onChange: (e3) => setDrugDraft({ ...drugDraft, dosage: e3.target.value }) }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { size: "sm", type: "number", placeholder: "Days", value: drugDraft.days, onChange: (e3) => setDrugDraft({ ...drugDraft, days: e3.target.value }) }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", onClick: addDrug, children: "+ Add Drug" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", className: "ms-auto", onClick: sendPrescription, disabled: busy || drugs.length === 0, children: "Send E-Prescription to Patient" })
+            ] })
           ] })
-        ] }, i)) })
-      ] }) }) }) })
+        ] }) })
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showSchedule, onHide: () => setShowSchedule(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Schedule Telehealth Session" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleSchedule, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: newSession.patient_id, onChange: (e3) => setNewSession({ ...newSession, patient_id: e3.target.value }), required: true, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+              admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.patient_id, children: [
+                a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                " — ",
+                a2.ward || "Ward",
+                " ",
+                a2.bed_number || ""
+              ] }, a2.id))
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Session Type" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: newSession.session_type, onChange: (e3) => setNewSession({ ...newSession, session_type: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Video Consultation" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Tele-ICU Review" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Follow-up" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Second Opinion" })
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Scheduled At" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "datetime-local", value: newSession.scheduled_at, onChange: (e3) => setNewSession({ ...newSession, scheduled_at: e3.target.value }), required: true })
+            ] }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowSchedule(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Schedule" })
+        ] })
+      ] })
     ] })
   ] });
 };
@@ -149019,7 +149486,7 @@ const IntegrationHub = () => {
           totalMsgsToday.toLocaleString(),
           " msgs today"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", children: "+ New Endpoint" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-primary", children: "+ New Channel" })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
@@ -149047,7 +149514,7 @@ const IntegrationHub = () => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "endpoints", title: "Integration Endpoints", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Endpoint" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Integration Channel" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Standard" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
@@ -149069,7 +149536,7 @@ const IntegrationHub = () => {
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "api", title: "API Gateway", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Endpoint" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Service Route" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Method" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Calls (24h)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Avg Latency" }),
@@ -149371,7 +149838,7 @@ const PerformanceMonitoring = () => {
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "api", title: "API Performance", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Endpoint" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Service Route" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Avg (ms)" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "P50" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "P95" }),
@@ -150216,8 +150683,8 @@ const EmergencyCommandCenter = () => {
     try {
       setError("");
       const [histRes, cfgRes] = await Promise.all([
-        api.get("/api/emergency/history"),
-        api.get("/api/emergency/config").catch(() => ({ data: { data: [] } }))
+        api$1.get("/api/emergency/history"),
+        api$1.get("/api/emergency/config").catch(() => ({ data: { data: [] } }))
       ]);
       const payload = histRes.data.data || histRes.data || {};
       setActiveEmergencies(Array.isArray(payload.active) ? payload.active : []);
@@ -150255,7 +150722,7 @@ const EmergencyCommandCenter = () => {
     var _a, _b;
     setSaving(true);
     try {
-      await api.post("/api/emergency/trigger", {
+      await api$1.post("/api/emergency/trigger", {
         code: form.code,
         location: form.location,
         notes: form.notes
@@ -150273,7 +150740,7 @@ const EmergencyCommandCenter = () => {
   const resolveEmergency = async (id2) => {
     var _a, _b;
     try {
-      await api.post("/api/emergency/resolve", { id: id2, resolution_notes: "Resolved from Emergency Command Center" });
+      await api$1.post("/api/emergency/resolve", { id: id2, resolution_notes: "Resolved from Emergency Command Center" });
       await load();
     } catch (err) {
       console.error("[EmergencyCommandCenter] resolve failed:", err.message);
@@ -150383,7 +150850,7 @@ const EmergencyCommandCenter = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: r2.resolution_notes || "—" }) })
         ] }, r2.id)) })
       ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "config", title: "Alert Configuration", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: alertConfig.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "secondary", className: "mb-0", children: "No alert routing configuration returned by /api/emergency/config." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "config", title: "Alert Configuration", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: alertConfig.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "secondary", className: "mb-0", children: "No custom alert routing rules configured for this facility." }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Code" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Description" }),
@@ -150402,7 +150869,10 @@ const EmergencyCommandCenter = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showTrigger, onHide: () => setShowTrigger(false), centered: true, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, className: "bg-danger text-white", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Trigger Emergency" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: (e3) => {
+        e3.preventDefault();
+        triggerEmergency();
+      }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Emergency Type" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.code, onChange: (e3) => setForm({ ...form, code: e3.target.value }), children: [
@@ -150678,7 +151148,7 @@ const TreatmentPackageManager = () => {
   const fetchPackages = reactExports.useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/treatment-packages");
+      const res = await api$1.get("/treatment-packages");
       setPackages(res.data || []);
     } catch (err) {
       console.error("[PackageManager] Fetch error:", err);
@@ -150712,7 +151182,7 @@ const TreatmentPackageManager = () => {
         gst_percent: parseFloat(formData.gst_percent) || 0,
         inclusions: formData.inclusions
       };
-      await api.post("/treatment-packages", payload);
+      await api$1.post("/treatment-packages", payload);
       setShowCreateModal(false);
       setFormData({ ...EMPTY_PACKAGE });
       fetchPackages();
@@ -150727,7 +151197,7 @@ const TreatmentPackageManager = () => {
     var _a2, _b;
     setSaving(true);
     try {
-      await api.post("/treatment-packages/assign", assignData);
+      await api$1.post("/treatment-packages/assign", assignData);
       setShowAssignModal(false);
       setAssignData({ patient_id: "", admission_id: "", package_id: "", discount_percent: 0, advance_paid: 0, notes: "" });
       alert("Package assigned successfully!");
@@ -150741,7 +151211,7 @@ const TreatmentPackageManager = () => {
   const handleDeletePkg = async (id2) => {
     if (!window.confirm("Deactivate this package?")) return;
     try {
-      await api.delete(`/treatment-packages/${id2}`);
+      await api$1.delete(`/treatment-packages/${id2}`);
       fetchPackages();
     } catch (err) {
       alert("Error deactivating: " + err.message);
@@ -151367,31 +151837,72 @@ const TPAProviderAdmin = () => {
 const CloudBackupConsole = () => {
   const [activeTab, setActiveTab] = reactExports.useState("overview");
   const [dbSummary, setDbSummary] = reactExports.useState({ database_size_mb: "—", tables: "—", patients: "—", admitted: "—" });
-  reactExports.useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get("/api/cloud-backup/summary");
-        const row = (res.data.data || [])[0] || (res.data.summary || {});
-        setDbSummary({
-          database_size_mb: row.database_size_mb != null ? row.database_size_mb : "—",
-          tables: row.tables != null ? row.tables : "—",
-          patients: row.patients != null ? row.patients : "—",
-          admitted: row.admitted != null ? row.admitted : "—"
-        });
-      } catch (err) {
-        console.error("[CloudBackupConsole] summary load failed:", err.message);
-        setDbSummary({ database_size_mb: "—", tables: "—", patients: "—", admitted: "—" });
-      }
-    })();
+  const [runs, setRuns] = reactExports.useState([]);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/cloud-backup/summary");
+      const row = (res.data.data || [])[0] || (res.data.summary || {});
+      setDbSummary({
+        database_size_mb: row.database_size_mb != null ? row.database_size_mb : "—",
+        tables: row.tables != null ? row.tables : "—",
+        patients: row.patients != null ? row.patients : "—",
+        admitted: row.admitted != null ? row.admitted : "—"
+      });
+    } catch (err) {
+      console.error("[CloudBackupConsole] summary load failed:", err.message);
+      setDbSummary({ database_size_mb: "—", tables: "—", patients: "—", admitted: "—" });
+    }
+    try {
+      const res = await api$1.get("/api/cloud-backup/runs");
+      setRuns(res.data.data || res.data.runs || []);
+    } catch (err) {
+      console.error("[CloudBackupConsole] run history load failed:", err.message);
+      setRuns([]);
+    }
   }, []);
-  const backupHistory = [
-    { id: "BK-2026-090", type: "Full", size: "2.4 GB", started: "02:00 AM", completed: "02:18 AM", duration: "18 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "30 days" },
-    { id: "BK-2026-089", type: "Incremental", size: "340 MB", started: "14:00 PM", completed: "14:04 PM", duration: "4 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "7 days" },
-    { id: "BK-2026-088", type: "Incremental", size: "280 MB", started: "08:00 AM", completed: "08:03 AM", duration: "3 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "7 days" },
-    { id: "BK-2026-087", type: "Full", size: "2.3 GB", started: "02:00 AM (Mar 1)", completed: "02:17 AM", duration: "17 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "30 days" },
-    { id: "BK-2026-086", type: "Incremental", size: "420 MB", started: "14:00 PM (Mar 1)", completed: "14:05 PM", duration: "5 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "7 days" },
-    { id: "BK-2026-085", type: "Full", size: "2.3 GB", started: "02:00 AM (Feb 28)", completed: "02:16 AM", duration: "16 min", encryption: "AES-256", storage: "Google Cloud Storage", status: "Success", retention: "30 days" }
-  ];
+  reactExports.useEffect(() => {
+    load();
+  }, [load]);
+  const triggerBackup = async () => {
+    var _a, _b, _c;
+    setBusy(true);
+    setMessage("");
+    try {
+      const res = await api$1.post("/api/cloud-backup/trigger", { backup_type: "Incremental" });
+      const run = ((_a = res.data) == null ? void 0 : _a.data) || res.data;
+      setMessage(`Backup ${(run == null ? void 0 : run.run_id) || ""} completed — ${(run == null ? void 0 : run.size_mb) ?? "—"} MB, ${(run == null ? void 0 : run.tables_count) ?? "—"} tables.`);
+      await load();
+    } catch (err) {
+      setMessage(((_c = (_b = err.response) == null ? void 0 : _b.data) == null ? void 0 : _c.message) || "Could not trigger the backup.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const downloadManifest = () => {
+    const manifest = {
+      generated_at: (/* @__PURE__ */ new Date()).toISOString(),
+      database: dbSummary,
+      runs: runs.map((r2) => ({
+        run_id: r2.run_id,
+        type: r2.backup_type,
+        status: r2.status,
+        size_mb: r2.size_mb,
+        tables: r2.tables_count,
+        patients: r2.patients_count,
+        started_at: r2.started_at
+      }))
+    };
+    const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+    const url2 = URL.createObjectURL(blob);
+    const a2 = document.createElement("a");
+    a2.href = url2;
+    a2.download = `wolf-hms-backup-manifest-${Date.now()}.json`;
+    a2.click();
+    URL.revokeObjectURL(url2);
+  };
+  const backupHistory = runs;
   const schedule = [
     { name: "Daily Full Backup", frequency: "Every day at 02:00 AM IST", type: "Full", target: "GCS: wolf-hms-backups/daily/", retention: "30 days", compression: "gzip", encryption: "AES-256", status: "Active" },
     { name: "Twice-Daily Incremental", frequency: "Every day at 08:00 AM & 14:00 PM", type: "Incremental", target: "GCS: wolf-hms-backups/incremental/", retention: "7 days", compression: "gzip", encryption: "AES-256", status: "Active" },
@@ -151420,10 +151931,11 @@ const CloudBackupConsole = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Automated cloud backup management, retention schedules, and disaster recovery verification" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", children: "Trigger Backup Now" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-warning", children: "Restore from Backup" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", onClick: triggerBackup, disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Trigger Backup Now" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-warning", onClick: downloadManifest, children: "Download Manifest" })
       ] })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: dbSummary.tables }),
@@ -151464,22 +151976,26 @@ const CloudBackupConsole = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Actions" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: backupHistory.map((b2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: b2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: b2.type === "Full" ? "primary" : "info", children: b2.type }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "fw-bold", children: b2.size }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.started }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.completed }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: b2.duration }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: b2.encryption }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.storage }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.retention }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: b2.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-warning", className: "me-1", children: "Restore" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-info", children: "Download" })
-          ] })
-        ] }, i)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          backupHistory.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 11, className: "text-center text-muted py-4", children: [
+            "No backup runs recorded. Use ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Trigger Backup Now" }),
+            "."
+          ] }) }),
+          backupHistory.map((b2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: b2.run_id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: b2.backup_type === "Full" ? "primary" : "info", children: b2.backup_type }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "fw-bold", children: b2.size_mb != null ? `${b2.size_mb} MB` : "—" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.started_at ? String(b2.started_at).slice(0, 16).replace("T", " ") : "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.completed_at ? String(b2.completed_at).slice(0, 16).replace("T", " ") : "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: b2.tables_count != null ? `${b2.tables_count} tables` : "—" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: "AES-256" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Encrypted at rest" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: b2.patients_count != null ? `${b2.patients_count} patients` : "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: b2.status === "Success" ? "success" : "warning", children: b2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-info", onClick: downloadManifest, children: "Download" }) })
+          ] }, b2.id || b2.run_id))
+        ] })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "schedule", title: "Backup Schedule", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -152786,16 +153302,32 @@ const ClinicalScalesDashboard = () => {
     ] })
   ] });
 };
+const emptyTxn = { patient_id: "", amount: "", payment_mode: "Cash", service: "OPD Consultation" };
 const POSTerminal = () => {
   const [activeTab, setActiveTab] = reactExports.useState("terminal");
   const [devices, setDevices] = reactExports.useState([]);
   const [providerCount, setProviderCount] = reactExports.useState(0);
+  const [transactions, setTransactions] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [showTxn, setShowTxn] = reactExports.useState(false);
+  const [txn, setTxn] = reactExports.useState(emptyTxn);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const loadTransactions = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/pos/transactions");
+      setTransactions(res.data.data || res.data.transactions || []);
+    } catch (err) {
+      console.error("[POSTerminal] transaction load failed:", err.message);
+      setTransactions([]);
+    }
+  }, []);
   reactExports.useEffect(() => {
     (async () => {
       try {
         const [devRes, provRes] = await Promise.all([
-          api.get("/api/pos/devices"),
-          api.get("/api/pos/providers/active").catch(() => ({ data: { data: [] } }))
+          api$1.get("/api/pos/devices"),
+          api$1.get("/api/pos/providers/active").catch(() => ({ data: { data: [] } }))
         ]);
         setDevices(devRes.data.data || devRes.data.devices || []);
         setProviderCount((provRes.data.data || []).length);
@@ -152805,40 +153337,65 @@ const POSTerminal = () => {
         setProviderCount(0);
       }
     })();
-  }, []);
-  const currentQueue = [];
-  const todayTransactions = [];
-  const serviceModules = [
-    { module: "OPD Consultation", txnToday: 45, revenue: "Rs.22,500", avgTicket: "Rs.500" },
-    { module: "Laboratory", txnToday: 38, revenue: "Rs.55,100", avgTicket: "Rs.1,450" },
-    { module: "Radiology", txnToday: 22, revenue: "Rs.44,000", avgTicket: "Rs.2,000" },
-    { module: "Pharmacy (Walk-in)", txnToday: 65, revenue: "Rs.50,700", avgTicket: "Rs.780" },
-    { module: "Procedures", txnToday: 12, revenue: "Rs.36,000", avgTicket: "Rs.3,000" },
-    { module: "Health Packages", txnToday: 8, revenue: "Rs.39,992", avgTicket: "Rs.4,999" },
-    { module: "Emergency Registration", txnToday: 6, revenue: "Rs.6,000", avgTicket: "Rs.1,000" },
-    { module: "Vaccination", txnToday: 15, revenue: "Rs.22,500", avgTicket: "Rs.1,500" },
-    { module: "Dental", txnToday: 10, revenue: "Rs.15,000", avgTicket: "Rs.1,500" },
-    { module: "Physiotherapy", txnToday: 8, revenue: "Rs.8,000", avgTicket: "Rs.1,000" },
-    { module: "Diet Counseling", txnToday: 5, revenue: "Rs.2,500", avgTicket: "Rs.500" },
-    { module: "Medical Certificates", txnToday: 12, revenue: "Rs.3,600", avgTicket: "Rs.300" }
-  ];
-  const paymentSummary = [
-    { method: "UPI (GPay/PhonePe)", count: 98, amount: "Rs.1,42,800", share: "46.5%" },
-    { method: "Card (Debit/Credit)", count: 52, amount: "Rs.89,600", share: "29.2%" },
-    { method: "Cash", count: 72, amount: "Rs.62,500", share: "20.4%" },
-    { method: "Insurance (Cashless TPA)", count: 8, amount: "Rs.8,500", share: "2.8%" },
-    { method: "PMJAY", count: 4, amount: "Rs.3,492", share: "1.1%" }
-  ];
-  const totalRevenue = "—";
-  const totalTxn = todayTransactions.length;
+    loadTransactions();
+    (async () => {
+      var _a;
+      try {
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
+      } catch (err) {
+        console.error("[POSTerminal] admission load failed:", err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, [loadTransactions]);
+  const handleCharge = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      await api$1.post("/api/pos/transactions", txn);
+      setShowTxn(false);
+      setTxn(emptyTxn);
+      await loadTransactions();
+      setMessage("Transaction recorded against the patient ledger.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not record the transaction.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const totalRevenue = transactions.reduce((sum, t2) => sum + Number(t2.amount || 0), 0);
+  const totalTxn = transactions.length;
+  const avgTicket = totalTxn ? Math.round(totalRevenue / totalTxn) : 0;
+  const byModule = Object.values(transactions.reduce((acc, t2) => {
+    const key = t2.department || "Unassigned";
+    if (!acc[key]) acc[key] = { module: key, txnToday: 0, revenue: 0 };
+    acc[key].txnToday += 1;
+    acc[key].revenue += Number(t2.amount || 0);
+    return acc;
+  }, {})).map((m2) => ({ ...m2, avgTicket: m2.txnToday ? Math.round(m2.revenue / m2.txnToday) : 0 }));
+  const paymentSummary = Object.values(transactions.reduce((acc, t2) => {
+    const key = t2.payment_mode || "Unknown";
+    if (!acc[key]) acc[key] = { method: key, count: 0, amount: 0 };
+    acc[key].count += 1;
+    acc[key].amount += Number(t2.amount || 0);
+    return acc;
+  }, {})).map((p2) => ({ ...p2, share: totalRevenue ? `${Math.round(p2.amount / totalRevenue * 1e3) / 10}%` : "0%" }));
+  const inr = (n2) => `Rs.${Number(n2 || 0).toLocaleString("en-IN")}`;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Point-of-Sale Terminal" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "POS with 12 service sub-modules, multi-payment, walk-in + registered" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", size: "lg", children: "+ New Transaction" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", size: "lg", onClick: () => {
+        setMessage("");
+        setShowTxn(true);
+      }, children: "+ New Transaction" })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: devices.length }),
@@ -152853,12 +153410,15 @@ const POSTerminal = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Transactions" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-info", children: "Rs.1,312" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-info", children: [
+          "Rs.",
+          avgTicket
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Avg Ticket Size" })
       ] }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: currentQueue.length }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "In Queue" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: inr(totalRevenue) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Collected (live)" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
@@ -152877,17 +153437,11 @@ const POSTerminal = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Action" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: currentQueue.map((q2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "primary", children: q2.token }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: q2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: q2.service }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: q2.department }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: q2.amount }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: q2.method }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: q2.time }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: q2.status === "Processing" ? "warning" : "secondary", children: q2.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", children: "Complete" }) })
-        ] }, q2.token)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: currentQueue.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 9, className: "text-center text-muted py-4", children: [
+          "Queue is clear. Use ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "+ New Transaction" }),
+          " to charge a walk-in or admitted patient."
+        ] }) }) })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "transactions", title: "Today's Transactions", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -152900,16 +153454,19 @@ const POSTerminal = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Operator" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: todayTransactions.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.time }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.service }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: t2.amount }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: t2.method }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.operator }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: t2.status }) })
-        ] }, t2.id)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          transactions.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 8, className: "text-center text-muted py-4", children: "No transactions recorded yet." }) }),
+          transactions.map((t2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t2.transaction_id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: t2.initiated_at ? String(t2.initiated_at).slice(0, 16).replace("T", " ") : "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t2.patient_name || "Walk-in" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: t2.department || "—" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: inr(t2.amount) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: t2.payment_mode || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: t2.status }) })
+          ] }, t2.id))
+        ] })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "modules", title: "Service Modules (12)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -152918,12 +153475,15 @@ const POSTerminal = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Revenue" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Avg Ticket" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: serviceModules.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: m2.module }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: m2.txnToday }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: m2.revenue }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: m2.avgTicket })
-        ] }, m2.module)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          byModule.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 4, className: "text-center text-muted py-4", children: "No service revenue yet." }) }),
+          byModule.map((m2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: m2.module }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: m2.txnToday }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: inr(m2.revenue) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: inr(m2.avgTicket) })
+          ] }, m2.module))
+        ] })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "payments", title: "Payment Summary", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -152933,63 +153493,185 @@ const POSTerminal = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Share" })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          paymentSummary.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 4, className: "text-center text-muted py-4", children: "No payments collected yet." }) }),
           paymentSummary.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.method }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: p2.count }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: p2.amount }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: inr(p2.amount) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "primary", children: p2.share }) })
           ] }, p2.method)),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "table-success fw-bold", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "TOTAL" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: totalTxn }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: totalRevenue }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: inr(totalRevenue) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "100%" })
           ] })
         ] })
       ] }) }) }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showTxn, onHide: () => setShowTxn(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "New POS Transaction" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleCharge, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient (optional)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: txn.patient_id, onChange: (e3) => setTxn({ ...txn, patient_id: e3.target.value }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Walk-in / unregistered" }),
+              admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.patient_id, children: [
+                a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                " — ",
+                a2.ward || "Ward",
+                " ",
+                a2.bed_number || ""
+              ] }, a2.id))
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Amount (INR)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "number", min: "1", step: "0.01", value: txn.amount, onChange: (e3) => setTxn({ ...txn, amount: e3.target.value }), required: true })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Payment Mode" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: txn.payment_mode, onChange: (e3) => setTxn({ ...txn, payment_mode: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Cash" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Card" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "UPI" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Insurance" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "PMJAY" })
+              ] })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Service / Department" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: txn.service, onChange: (e3) => setTxn({ ...txn, service: e3.target.value }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "OPD Consultation" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Laboratory" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Radiology" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Pharmacy" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Procedures" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Emergency Registration" })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowTxn(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "success", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Charge Patient" })
+        ] })
+      ] })
     ] })
   ] });
 };
+const emptyForm = { patient_id: "", icd10_code: "", description: "", onset_date: "", notes: "" };
 const ProblemListManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
-  const [activeProblems, setActiveProblems] = reactExports.useState([]);
-  const [resolvedProblems, setResolvedProblems] = reactExports.useState([]);
-  const [summary, setSummary] = reactExports.useState({ active: 0, resolved: 0, patients: 0, high: 0 });
+  const [problems, setProblems] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [summary, setSummary] = reactExports.useState({ active: 0, resolved: 0, patients: 0 });
+  const [showAdd, setShowAdd] = reactExports.useState(false);
+  const [editing, setEditing] = reactExports.useState(null);
+  const [form, setForm] = reactExports.useState(emptyForm);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/patient-problems");
+      const all3 = res.data.data || res.data.problems || [];
+      setProblems(all3);
+      setSummary({
+        active: all3.filter((r2) => r2.status === "Active").length,
+        resolved: all3.filter((r2) => r2.status !== "Active").length,
+        patients: new Set(all3.map((r2) => r2.patient_id)).size
+      });
+    } catch (err) {
+      console.error("[ProblemListManager] problem load failed:", err.message);
+      setProblems([]);
+      setSummary({ active: 0, resolved: 0, patients: 0 });
+      setError("Could not load the problem list.");
+    }
+  }, []);
   reactExports.useEffect(() => {
+    load();
     (async () => {
+      var _a;
       try {
-        const res = await api.get("/api/patient-problems");
-        const all3 = res.data.data || res.data.problems || [];
-        const byPatient = /* @__PURE__ */ new Map();
-        for (const row of all3.filter((r2) => r2.status === "Active")) {
-          const key = row.patient_name || row.patient_id;
-          if (!byPatient.has(key)) byPatient.set(key, { patient: key, problems: [] });
-          byPatient.get(key).problems.push(row);
-        }
-        setActiveProblems([...byPatient.values()]);
-        setResolvedProblems(all3.filter((r2) => r2.status !== "Active"));
-        setSummary({
-          active: all3.filter((r2) => r2.status === "Active").length,
-          resolved: all3.filter((r2) => r2.status !== "Active").length,
-          patients: byPatient.size,
-          high: 0
-        });
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
       } catch (err) {
-        console.error("[ProblemListManager] problem load failed:", err.message);
-        setActiveProblems([]);
-        setResolvedProblems([]);
-        setSummary({ active: 0, resolved: 0, patients: 0, high: 0 });
+        console.error("[ProblemListManager] admission load failed:", err.message);
+        setAdmissions([]);
       }
     })();
-  }, []);
+  }, [load]);
+  const openAdd = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setError("");
+    setShowAdd(true);
+  };
+  const openEdit = (problem) => {
+    setEditing(problem);
+    setForm({
+      patient_id: problem.patient_id || "",
+      icd10_code: problem.icd10_code || "",
+      description: problem.description || "",
+      onset_date: problem.onset_date ? String(problem.onset_date).slice(0, 10) : "",
+      notes: problem.notes || ""
+    });
+    setError("");
+    setShowAdd(true);
+  };
+  const handleSubmit = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      if (editing) {
+        await api$1.put(`/api/patient-problems/${editing.id}`, form);
+      } else {
+        await api$1.post("/api/patient-problems", form);
+      }
+      setShowAdd(false);
+      setEditing(null);
+      setForm(emptyForm);
+      await load();
+    } catch (err) {
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not save the problem.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const resolveProblem = async (problem) => {
+    var _a, _b;
+    setBusy(true);
+    setError("");
+    try {
+      await api$1.patch(`/api/patient-problems/${problem.id}/resolve`, {});
+      await load();
+    } catch (err) {
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not resolve the problem.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const activeProblems = problems.filter((p2) => p2.status === "Active");
+  const resolvedProblems = problems.filter((p2) => p2.status !== "Active");
+  const grouped = activeProblems.reduce((acc, p2) => {
+    const key = p2.patient_name || p2.patient_id;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(p2);
+    return acc;
+  }, {});
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Problem List Manager" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "ICD-10 coded problem lists, onset tracking, resolution documentation" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "+ Add Problem" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: openAdd, children: "+ Add Problem" })
     ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", dismissible: true, onClose: () => setError(""), children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: summary.active }),
@@ -153002,63 +153684,118 @@ const ProblemListManager = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: summary.patients }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Patients Tracked" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: summary.high }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "High Severity" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "active", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Tab$1, { eventKey: "active", title: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
         "Active Problems ",
         /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: summary.active })
-      ] }), children: activeProblems.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-dark text-white", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.patient }),
-          " — ",
-          p2.problems.length,
-          " active problems"
+      ] }), children: [
+        Object.keys(grouped).length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert$2, { variant: "light", className: "border", children: [
+          "No active problems recorded. Use ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "+ Add Problem" }),
+          " to code the first diagnosis."
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ICD-10" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Problem" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Onset" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Severity" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Managed By" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Actions" })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: p2.problems.map((prob) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: prob.icd }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: prob.name }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: prob.onset }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: prob.severity === "High" || prob.severity === "Severe" ? "danger" : prob.severity === "Moderate" ? "warning" : "success", children: prob.severity }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: prob.managedBy }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-success", className: "me-1", children: "Resolve" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-secondary", children: "Edit" })
-            ] })
-          ] }, prob.icd)) })
-        ] }) })
-      ] }, p2.patient)) }),
+        Object.entries(grouped).map(([patient, rows]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1, { className: "mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-dark text-white", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: patient }),
+            " — ",
+            rows.length,
+            " active problem(s)"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { bordered: true, hover: true, responsive: true, size: "sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-light", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ICD-10" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Problem" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Onset" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Actions" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.map((prob) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: prob.icd10_code || "—" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: prob.description }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: prob.onset_date ? String(prob.onset_date).slice(0, 10) : "—" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "danger", children: prob.status }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-success", className: "me-1", disabled: busy, onClick: () => resolveProblem(prob), children: "Resolve" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-secondary", disabled: busy, onClick: () => openEdit(prob), children: "Edit" })
+              ] })
+            ] }, prob.id)) })
+          ] }) })
+        ] }, patient))
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "resolved", title: "Resolved", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ICD-10" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Problem" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Onset" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Resolved" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Resolution" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Resolved" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: resolvedProblems.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: r2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: r2.icd }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: r2.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.onset }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.resolved }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: r2.resolution }) })
-        ] }, r2.icd + r2.patient)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          resolvedProblems.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5, className: "text-center text-muted py-4", children: "No resolved problems yet." }) }),
+          resolvedProblems.map((r2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: r2.patient_name || r2.patient_id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: r2.icd10_code || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: r2.description }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.onset_date ? String(r2.onset_date).slice(0, 10) : "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: r2.resolved_date ? String(r2.resolved_date).slice(0, 10) : "—" }) })
+          ] }, r2.id))
+        ] })
       ] }) }) }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showAdd, onHide: () => setShowAdd(false), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: editing ? "Edit Problem" : "Add Problem" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleSubmit, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: form.patient_id,
+                onChange: (e3) => setForm({ ...form, patient_id: e3.target.value }),
+                disabled: !!editing,
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.patient_id, children: [
+                    a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                    " — ",
+                    a2.ward || "Ward",
+                    " ",
+                    a2.bed_number || ""
+                  ] }, a2.id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "ICD-10" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.icd10_code, onChange: (e3) => setForm({ ...form, icd10_code: e3.target.value }), placeholder: "e.g. I10" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Problem / Diagnosis" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.description, onChange: (e3) => setForm({ ...form, description: e3.target.value }), required: true })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 4, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Onset Date" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "date", value: form.onset_date, onChange: (e3) => setForm({ ...form, onset_date: e3.target.value }) })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Notes" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.notes, onChange: (e3) => setForm({ ...form, notes: e3.target.value }) })
+            ] }) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowAdd(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : editing ? "Save Changes" : "Add Problem" })
+        ] })
+      ] })
     ] })
   ] });
 };
@@ -153174,25 +153911,71 @@ const TransitionPlanner = () => {
     ] })
   ] });
 };
+const emptyPass = { patient_id: "", pass_type: "Short leave", purpose: "", escort_name: "", valid_until: "" };
 const WardPassManager = () => {
   const [activeTab, setActiveTab] = reactExports.useState("active");
   const [showNew, setShowNew] = reactExports.useState(false);
   const [activePasses, setActivePasses] = reactExports.useState([]);
   const [returnedPasses, setReturnedPasses] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [form, setForm] = reactExports.useState(emptyPass);
+  const [busy, setBusy] = reactExports.useState(false);
+  const [error, setError] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/ward-pass/passes");
+      const all3 = res.data.data || res.data.passes || [];
+      setActivePasses(all3.filter((p2) => p2.status === "Active"));
+      setReturnedPasses(all3.filter((p2) => p2.status !== "Active"));
+    } catch (err) {
+      console.error("[WardPassManager] pass load failed:", err.message);
+      setActivePasses([]);
+      setReturnedPasses([]);
+      setError("Could not load ward passes.");
+    }
+  }, []);
   reactExports.useEffect(() => {
+    load();
     (async () => {
+      var _a;
       try {
-        const res = await api.get("/api/ward-pass/passes");
-        const all3 = res.data.data || res.data.passes || [];
-        setActivePasses(all3.filter((p2) => p2.status === "Active"));
-        setReturnedPasses(all3.filter((p2) => p2.status !== "Active"));
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
       } catch (err) {
-        console.error("[WardPassManager] pass load failed:", err.message);
-        setActivePasses([]);
-        setReturnedPasses([]);
+        console.error("[WardPassManager] admission load failed:", err.message);
+        setAdmissions([]);
       }
     })();
-  }, []);
+  }, [load]);
+  const handleIssue = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await api$1.post("/api/ward-pass/passes", form);
+      setShowNew(false);
+      setForm(emptyPass);
+      await load();
+    } catch (err) {
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not issue the ward pass.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const markReturned = async (pass) => {
+    var _a, _b;
+    setBusy(true);
+    setError("");
+    try {
+      await api$1.patch(`/api/ward-pass/passes/${pass.id}/return`, { return_vitals: "Returned to ward — vitals checked by nursing" });
+      await load();
+    } catch (err) {
+      setError(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not mark the pass returned.");
+    } finally {
+      setBusy(false);
+    }
+  };
   const totalPasses = activePasses.length + returnedPasses.length;
   const policies = [
     { type: "Short Leave", maxDuration: "4 hours", eligibility: "Stable patients, Day 3+", approval: "Treating Doctor", escortRequired: "Yes", vitalsCheck: "Before & After", restrictions: "No alcohol, continue meds" },
@@ -153206,8 +153989,12 @@ const WardPassManager = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "Ward Pass Manager" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Temporary leave passes, escort tracking, return vitals, policies" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowNew(true), children: "+ Issue Ward Pass" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+        setError("");
+        setShowNew(true);
+      }, children: "+ Issue Ward Pass" })
     ] }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "danger", dismissible: true, onClose: () => setError(""), children: error }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: activePasses.length }),
@@ -153244,18 +154031,14 @@ const WardPassManager = () => {
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: activePasses.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: p2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.patient }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: p2.ward }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: p2.type }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.reason }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
-            p2.escortedBy,
-            /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-            p2.contact
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-danger fw-bold", children: p2.returnBy }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.conditions }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", children: "Mark Returned" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p2.patient_name || p2.patient_id }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: p2.pass_type }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: p2.pass_type }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.purpose || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.escort_name || "—" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-danger fw-bold", children: p2.valid_until ? String(p2.valid_until).slice(0, 16).replace("T", " ") : "—" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: p2.return_vitals || "Awaiting return" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", disabled: busy, onClick: () => markReturned(p2), children: "Mark Returned" }) })
         ] }, p2.id)) })
       ] }) }) }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "returned", title: "Return History", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
@@ -153301,51 +154084,64 @@ const WardPassManager = () => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showNew, onHide: () => setShowNew(false), centered: true, size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Issue Ward Pass" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Search admitted patient..." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Pass Type" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Short Leave (4h)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Day Pass (8h)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Overnight (14h)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Extended (48h)" })
-              ] })
-            ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: handleIssue, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: form.patient_id,
+                onChange: (e3) => setForm({ ...form, patient_id: e3.target.value }),
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select an admitted patient" }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a2.patient_id, children: [
+                    a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}`,
+                    " — ",
+                    a2.ward || "Ward",
+                    " ",
+                    a2.bed_number || ""
+                  ] }, a2.id))
+                ]
+              }
+            )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Pass Type" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.pass_type, onChange: (e3) => setForm({ ...form, pass_type: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Short leave", children: "Short Leave (4h)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Day pass", children: "Day Pass (8h)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Overnight pass", children: "Overnight (14h)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Extended leave", children: "Extended (48h)" })
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Valid Until" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { type: "datetime-local", value: form.valid_until, onChange: (e3) => setForm({ ...form, valid_until: e3.target.value }), required: true })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Escort Name" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Name & relationship" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Escort Contact" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { placeholder: "Phone number" })
-            ] })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.escort_name, onChange: (e3) => setForm({ ...form, escort_name: e3.target.value }), placeholder: "Name & relationship" })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Reason / Conditions" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { value: form.purpose, onChange: (e3) => setForm({ ...form, purpose: e3.target.value }), placeholder: "Reason for leave, medications, restrictions" })
+            ] }) })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Reason" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, placeholder: "Reason for leave..." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Special Conditions" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, placeholder: "Medications, restrictions, care instructions..." })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Issue Pass" })
         ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowNew(false), children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowNew(false), children: "Issue Pass" })
       ] })
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-5iVN5-au.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-35Qt_xjD.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),

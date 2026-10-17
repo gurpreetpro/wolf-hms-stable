@@ -209,7 +209,7 @@ const OTDashboard = () => {
                                         <h6 className="fw-bold mb-3 mt-3">Allergies</h6>
                                         <Form.Control as="textarea" name="allergies" rows={2} placeholder="Known drug/latex allergies..." className="mb-3" />
 
-                                        <Button type="submit" variant="primary"><CheckCircle size={14} className="me-1" /> Save Pre-Op Assessment (Disabled)</Button>
+                                        <Button type="submit" variant="primary"><CheckCircle size={14} className="me-1" /> Save Pre-Op Assessment</Button>
                                     </Form>
                                 </Col>
                                 <Col md={6}>

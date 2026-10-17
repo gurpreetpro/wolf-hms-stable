@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Table, ProgressBar, Alert, Tabs, Tab, Button, Form, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Table, ProgressBar, Alert, Tabs, Tab, Button, Form, Spinner, Modal } from 'react-bootstrap';
 import { Activity, Shield, CheckCircle, AlertTriangle, TrendingUp, TrendingDown, Award, ClipboardList, BarChart2, Heart, Users, ThermometerSun } from 'lucide-react';
 import axios from 'axios';
 
@@ -19,6 +19,25 @@ const QualityDashboard = () => {
     const [metrics, setMetrics] = useState(null);
     const [checklist, setChecklist] = useState([]);
     const [dateRange, setDateRange] = useState('30d');
+    const [showMetric, setShowMetric] = useState(false);
+    const [metricForm, setMetricForm] = useState({ metric_key: '', label: '', value: '', unit: '', target: '' });
+    const [metricMsg, setMetricMsg] = useState('');
+
+    const submitMetric = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        try {
+            await axios.post('/api/quality/metrics', metricForm, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setShowMetric(false);
+            setMetricForm({ metric_key: '', label: '', value: '', unit: '', target: '' });
+            setMetricMsg('Quality metric recorded for the current period.');
+            await fetchQualityData();
+        } catch (err) {
+            setMetricMsg(err.response?.data?.message || 'Could not record the metric.');
+        }
+    };
 
     useEffect(() => {
         fetchQualityData();
@@ -171,6 +190,9 @@ const QualityDashboard = () => {
                     <Button variant="outline-primary" size="sm" onClick={fetchQualityData}>
                         <Activity size={14} className="me-1" /> Refresh
                     </Button>
+                    <Button variant="primary" size="sm" onClick={() => setShowMetric(true)}>
+                        <TrendingUp size={14} className="me-1" /> Record Metric
+                    </Button>
                 </div>
             </div>
 
@@ -238,6 +260,54 @@ const QualityDashboard = () => {
                     </Card>
                 </Tab>
             </Tabs>
+
+            {metricMsg && <Alert variant="info" dismissible onClose={() => setMetricMsg('')}>{metricMsg}</Alert>}
+
+            <Modal show={showMetric} onHide={() => setShowMetric(false)} centered>
+                <Modal.Header closeButton><Modal.Title>Record Quality Metric</Modal.Title></Modal.Header>
+                <Form onSubmit={submitMetric}>
+                    <Modal.Body>
+                        <Row>
+                            <Col md={6}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Metric Key</Form.Label>
+                                    <Form.Control value={metricForm.metric_key} onChange={(e) => setMetricForm({ ...metricForm, metric_key: e.target.value })} placeholder="e.g. hand_hygiene_rate" required />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Label</Form.Label>
+                                    <Form.Control value={metricForm.label} onChange={(e) => setMetricForm({ ...metricForm, label: e.target.value })} placeholder="e.g. Hand Hygiene Compliance" required />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Value</Form.Label>
+                                    <Form.Control type="number" step="0.01" value={metricForm.value} onChange={(e) => setMetricForm({ ...metricForm, value: e.target.value })} required />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Unit</Form.Label>
+                                    <Form.Control value={metricForm.unit} onChange={(e) => setMetricForm({ ...metricForm, unit: e.target.value })} placeholder="%" />
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Target</Form.Label>
+                                    <Form.Control type="number" step="0.01" value={metricForm.target} onChange={(e) => setMetricForm({ ...metricForm, target: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowMetric(false)}>Cancel</Button>
+                        <Button variant="primary" type="submit">Save Metric</Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
         </Container>
     );
 };

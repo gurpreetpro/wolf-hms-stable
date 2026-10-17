@@ -42,7 +42,7 @@ const IntegrationHub = () => {
         </div>
         <div className="d-flex gap-2">
           <Badge bg="success" className="p-2 fs-6">{totalMsgsToday.toLocaleString()} msgs today</Badge>
-          <Button variant="outline-primary">+ New Endpoint</Button>
+          <Button variant="outline-primary">+ New Channel</Button>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ const IntegrationHub = () => {
             <Card.Body>
               <Table striped hover responsive size="sm">
                 <thead className="table-dark">
-                  <tr><th>Endpoint</th><th>Standard</th><th>Type</th><th>Status</th><th>Uptime</th><th>Last Msg</th><th>Today</th><th>Errors</th></tr>
+                  <tr><th>Integration Channel</th><th>Standard</th><th>Type</th><th>Status</th><th>Uptime</th><th>Last Msg</th><th>Today</th><th>Errors</th></tr>
                 </thead>
                 <tbody>
                   {endpoints.map((e, i) => (
@@ -86,7 +86,7 @@ const IntegrationHub = () => {
             <Card.Body>
               <Table bordered hover responsive size="sm">
                 <thead className="table-dark">
-                  <tr><th>Endpoint</th><th>Method</th><th>Calls (24h)</th><th>Avg Latency</th><th>P99</th><th>Error Rate</th><th>Rate Limit</th><th>Auth</th></tr>
+                  <tr><th>Service Route</th><th>Method</th><th>Calls (24h)</th><th>Avg Latency</th><th>P99</th><th>Error Rate</th><th>Rate Limit</th><th>Auth</th></tr>
                 </thead>
                 <tbody>
                   {apiGateway.map((a, i) => (

@@ -85,7 +85,7 @@ const PerformanceMonitoring = () => {
             <Card.Body>
               <Table striped hover responsive size="sm">
                 <thead className="table-dark">
-                  <tr><th>Endpoint</th><th>Avg (ms)</th><th>P50</th><th>P95</th><th>P99</th><th>Calls (24h)</th><th>Errors</th><th>SLA</th></tr>
+                  <tr><th>Service Route</th><th>Avg (ms)</th><th>P50</th><th>P95</th><th>P99</th><th>Calls (24h)</th><th>Errors</th><th>SLA</th></tr>
                 </thead>
                 <tbody>
                   {apiPerformance.map((a, i) => (

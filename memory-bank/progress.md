@@ -526,3 +526,18 @@
 - wolf DB role = SUPERUSER: RLS policies exist but enforcement deferred to Phase 7 wolf_app non-superuser role
 - Pending: post-deploy-security.ps1 + k6 smoke (Step 5); GitHub push of d569718
 
+
+## 2026-10-17 Galaxy Interaction Audit
+- [x] `scripts/qa/audit-dead-buttons-and-kpis.js` (5 classes, line-accurate, JSON+MD emitters)
+- [x] Reports: `plans/GALAXY_INTERACTION_AND_BUTTON_AUDIT.md`, `plans/dead-buttons-audit.json`
+- [ ] P0: /icu FIX-1..FIX-4 (remove disabled guard on L440/L454, seed ICU admission, bind MAP/BP + add temp column, delete L438 leak)
+- [ ] P0: write-side wiring for the 6 GET-only Table-A screens
+- [ ] Wire or hide the 15 CLOSE_ONLY_MODAL screens + BloodBankDashboard phantom modal (L563)
+
+## 2026-10-17 Wave-1 (done)
+- [x] /icu end-to-end: migration 312, UUID-safe controller, quick-admit, 6 cards bound, leak removed (audit 0)
+- [x] Table-A 7/7 BOUND with real POST/PUT/PATCH
+- [x] Bucket-C write wiring: ambulance, comms, laundry, staff, assets, quality, pathways
+- [x] TECH_LEAK 0
+- [ ] Remaining Class-1 dead buttons (102) across CPOE/CDI/Radiology/BedTransfer/COPE dashboards
+- [ ] 36 STATIC_JSX_KPI literals outside /icu

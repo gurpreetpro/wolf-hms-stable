@@ -1,4 +1,4 @@
-import { r as reactExports, j as jsxRuntimeExports, C as Card, M as Map, B as Button, R as RefreshCw, S as SlidersVertical, A as Alert, a as Compass, T as Table, b as Badge, F as FloorPlanStudioModal, c as API_BASE } from "./index-CRI1rI4X.js";
+import { r as reactExports, j as jsxRuntimeExports, C as Card, M as Map, B as Button, R as RefreshCw, S as SlidersVertical, A as Alert, a as Compass, T as Table, b as Badge, F as FloorPlanStudioModal, c as API_BASE } from "./index-BR5KP519.js";
 const FloorPlanManager = ({ onSave }) => {
   const [floorPlans, setFloorPlans] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);

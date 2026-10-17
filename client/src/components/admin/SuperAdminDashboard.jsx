@@ -271,7 +271,7 @@ const SuperAdminDashboard = () => {
                                 </div>
                             </div>
                             <div className="d-flex align-items-center text-muted small mt-3">
-                                <span>PostgreSQL Cluster Pool Utilization</span>
+                                <span>Database Connection Pool Utilization</span>
                             </div>
                             <div style={{ position: 'absolute', bottom: 0, left: 0, height: '3px', width: '100%', background: 'linear-gradient(90deg, #facc15, transparent)' }} />
                         </div>
@@ -291,7 +291,7 @@ const SuperAdminDashboard = () => {
                                 </div>
                             </div>
                             <div className="d-flex align-items-center text-muted small mt-3">
-                                <span className="text-success">Node.js Engine Stable</span>
+                                <span className="text-success">Application Runtime Engine Stable</span>
                             </div>
                             <div style={{ position: 'absolute', bottom: 0, left: 0, height: '3px', width: '100%', background: 'linear-gradient(90deg, #10b981, transparent)' }} />
                         </div>

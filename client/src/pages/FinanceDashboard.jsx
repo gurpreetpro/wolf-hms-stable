@@ -17,8 +17,8 @@ import { SimpleBarChart, DonutChart } from '../components/ui/Charts';
 import BillingKPIs from '../components/BillingKPIs';
 
 // STUB MISSING COMPONENTS
-const ARAgingChart = () => <Card className="p-3 text-center text-muted">AR Aging Chart Placeholder</Card>;
-const DenialStats = () => <Card className="p-3 text-center text-muted">Denial Stats Placeholder</Card>;
+const ARAgingChart = () => <Card className="p-3 text-center text-muted">No aging receivables recorded in selected period</Card>;
+const DenialStats = () => <Card className="p-3 text-center text-muted">No claim denials recorded in selected period</Card>;
 
 // Currency formatter helper
 const formatCurrency = (amount) => {

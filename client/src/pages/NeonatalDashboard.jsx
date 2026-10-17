@@ -41,7 +41,7 @@ export default function NeonatalDashboard() {
           <h2 className="mb-1"><Baby className="me-2 text-info" />Neonatal ICU (NICU)</h2>
           <p className="text-muted">Level III NICU — Monitoring & Care</p>
         </div>
-        <Button variant="info">
+        <Button variant="info" onClick={() => setShowAdmit(true)}>
           <Plus size={16} className="me-1" /> Admit Neonate
 </Button>
       </div>
@@ -193,7 +193,15 @@ export default function NeonatalDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdmit(false)}>Cancel</Button>
-          <Button variant="info">Admit to NICU (Disabled)</Button>
+          <Button variant="info" onClick={async () => {
+            try {
+              await api.post('/api/neonatal/admit', newBaby);
+              setShowAdmit(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not admit the neonate.');
+            }
+          }}>Admit to NICU</Button>
         </Modal.Footer>
       </Modal>
     </Container>

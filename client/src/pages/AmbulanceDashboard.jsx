@@ -53,7 +53,7 @@ export default function AmbulanceDashboard() {
           <h2 className="mb-1"><Truck className="me-2 text-danger" />Ambulance Fleet</h2>
           <p className="text-muted">Fleet Management & Emergency Dispatch</p>
         </div>
-        <Button variant="danger">
+        <Button variant="danger" onClick={() => setShowDispatch(true)}>
           <Plus size={16} className="me-1" /> Dispatch Ambulance
 </Button>
       </div>
@@ -174,7 +174,21 @@ export default function AmbulanceDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDispatch(false)}>Cancel</Button>
-          <Button variant="danger">Dispatch Now (Disabled)</Button>
+          <Button variant="danger" onClick={async () => {
+            try {
+              await api.post('/api/ambulance/dispatch', {
+                vehicle_id: dispatch.vehicle_id || null,
+                patient_name: dispatch.patient_name,
+                pickup_location: dispatch.pickup,
+                drop_location: dispatch.destination,
+                call_type: dispatch.priority,
+              });
+              setShowDispatch(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not dispatch the ambulance.');
+            }
+          }}>Dispatch Now</Button>
         </Modal.Footer>
       </Modal>
     </Container>

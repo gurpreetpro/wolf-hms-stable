@@ -44,7 +44,7 @@ export default function AssetDashboard() {
           <h2 className="mb-1"><Monitor className="me-2 text-primary" />Asset & Equipment</h2>
           <p className="text-muted">Biomedical Equipment Tracking & Maintenance</p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setShowAdd(true)}>
           <Plus size={16} className="me-1" /> Register Asset
 </Button>
       </div>
@@ -115,7 +115,20 @@ export default function AssetDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
-          <Button variant="primary">Register (Disabled)</Button>
+          <Button variant="primary" onClick={async () => {
+            try {
+              await api.post('/api/assets', {
+                asset_name: newAsset.name,
+                category: newAsset.category,
+                department: newAsset.location,
+                asset_code: newAsset.serial,
+              });
+              setShowAdd(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not register the asset.');
+            }
+          }}>Register Asset</Button>
         </Modal.Footer>
       </Modal>
     </Container>

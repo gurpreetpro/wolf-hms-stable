@@ -301,15 +301,15 @@ const AdminSettings = () => {
                                             </tr>
                                             <tr>
                                                 <td className="fw-bold">Patient Resource</td>
-                                                <td><code>GET /api/fhir/bundle/:patient_id</code></td>
+                                                <td><span>FHIR R4 Patient Bundle Gateway</span></td>
                                             </tr>
                                             <tr>
                                                 <td className="fw-bold">ABDM Gateway</td>
-                                                <td><code>/api/abdm/callback/*</code></td>
+                                                <td><span>ABDM Health ID Callback Service</span></td>
                                             </tr>
                                             <tr>
                                                 <td className="fw-bold">Care Contexts</td>
-                                                <td><code>/api/abdm/care-context/*</code></td>
+                                                <td><span>ABDM Care Context Linker</span></td>
                                             </tr>
                                         </tbody>
                                     </Table>

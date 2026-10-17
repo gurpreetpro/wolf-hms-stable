@@ -57,7 +57,7 @@ const PriorAuthDashboard = () => {
         <Container className="py-4">
 <div className="d-flex justify-content-between align-items-center mb-4">
                 <h3 className="fw-bold">📋 Prior Authorization Management</h3>
-                <Button variant="primary">
+                <Button variant="primary" onClick={() => setShowNewAuth(true)}>
                     ➕ New PA Request</Button>
             </div>
 
@@ -237,7 +237,21 @@ const PriorAuthDashboard = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowNewAuth(false)}>Cancel</Button>
-                    <Button variant="primary">📤 Submit PA Request (Disabled)</Button>
+                    <Button variant="primary" onClick={async () => {
+            try {
+              await api.post('/api/prior-auth/submit', {
+                patient_number: authForm.patient,
+                procedure_name: authForm.procedure,
+                diagnosis: authForm.diagnosis,
+                estimated_cost: authForm.amount,
+                insurer: authForm.insurer,
+              });
+              setShowNewAuth(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not submit the prior-authorisation request.');
+            }
+          }}>📤 Submit PA Request</Button>
                 </Modal.Footer>
             </Modal>
         </Container>

@@ -625,3 +625,19 @@ not hope. Production (`185.213.27.158`) was never touched â€” all work is local
 - WGM_TRACK_T1_FLASH_KICKOFF.md authored (T1-A tabs, T1-B logcat, T1-C telemetry, T1-D visual).
 - Next: Flash execution; ties into patrol crash logcat evidence requirement.
 
+
+## 2026-10-17 Galaxy Interaction Audit (read-only)
+- Built `scripts/qa/audit-dead-buttons-and-kpis.js` (+ npm `qa:audit-interaction`); scanned 377 files: DEAD_BUTTON 125 / DEAD_FORM 38 / READ_ONLY_DASHBOARD 20 / STATIC_JSX_KPI 43 / TECH_LEAK 14 = 240 findings in 115 files.
+- `/icu` root cause proven: L440/L454 buttons are wired to `setShowIOModal(true)` and `POST /api/icu/fluid-io` exists, but both carry `disabled={!selectedAdmissionId}` and prod has no ICU admissions -> permanently disabled. Card MAP/BP (`{latestVent ? '88' : '92'}`) and Core Temp (`37.1`) are pure literals; SpO2/VentMode/PEEP-FiO2/TidalVolume are bound with literal fallbacks. L438 leaks `endpoint /api/icu/fluid-io`.
+- **New finding:** 6 of 7 Table-A screens (POSTerminal, CloudBackupConsole, ProblemListManager, TelehealthConsole, WardPassManager, EarlyWarningScore) are GET-only - zero POST/PUT/PATCH/DELETE. Only EmergencyCommandCenter writes. 'Wired yesterday' = read-side only.
+- Reports: `plans/GALAXY_INTERACTION_AND_BUTTON_AUDIT.md` + `plans/dead-buttons-audit.json`. No application code changed.
+
+## 2026-10-17 Wave-1 Remediation (ICU + interactions)
+- Migration 312 applied locally: icu_ventilator_logs += map_mmhg/sys_bp/dia_bp/temperature_c; backup_runs table; seeded vent + 2 fluid rows per admitted patient; one admission promoted to ICU Main.
+- icuController: normAdmissionId() (INTEGER local / UUID prod), quickAdmit(), new telemetry columns. POST /api/icu/quick-admit live.
+- ICUDashboard: 4 disabled guards removed, admission selector + quick-admit inside both modals, all 6 cards bound with '—'/'No telemetry', L438 leak rewritten. Audit: /icu = 0 findings.
+- Table-A (7) fully BOUND: POSTerminal, CloudBackupConsole (backup_runs + manifest download), ProblemListManager (POST/PUT/PATCH), TelehealthConsole (schedule + prescribe), WardPassManager (issue + PATCH return), EarlyWarningScore (log-vitals + NEWS-2), EmergencyCommandCenter (form onSubmit).
+- Bucket-C write wiring added: ambulance/dispatch, communications, laundry, staff roster, assets, quality metrics, clinical pathways (all via new bucketCActivationRoutes handlers).
+- TECH_LEAK 0/377. Total findings 240 -> 186. Jest 193 passed. Playwright 5/5. ICU write probe PASS (quick-admit 201 -> vent 201 -> fluid 201 -> balance).
+- NOTE: local API must be started as server-cloud.js (server.js has visitor routes disabled -> zero-error trap 404s). Requires ADMIN_MIGRATE_SECRET in env.
+- Remaining: 102 Class-1 dead buttons elsewhere (CPOE/CDI/Radiology/BedTransfer), 36 static KPI literals, 37 soft DEAD_FORM.

@@ -1,42 +1,122 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Form, Tabs, Tab, ListGroup, Alert } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Badge, Button, Form, Tabs, Tab, Alert, Modal, Spinner } from 'react-bootstrap';
 import api from '../utils/axiosInstance';
+
+const emptySession = { patient_id: '', session_type: 'Video Consultation', scheduled_at: '' };
 
 const TelehealthConsole = () => {
   const [activeTab, setActiveTab] = useState('waitingroom');
-  const [inCall, setInCall] = useState(false);
-  const [waitingRoom, setWaitingRoom] = useState([]);
-  const [todaySchedule, setTodaySchedule] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [admissions, setAdmissions] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [newSession, setNewSession] = useState(emptySession);
+  const [notes, setNotes] = useState('');
+  const [drugs, setDrugs] = useState([]);
+  const [drugDraft, setDrugDraft] = useState({ drug: '', dosage: '', days: '' });
+  const [investigation, setInvestigation] = useState('');
+  const [investigations, setInvestigations] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // Live sessions from the telehealth module (no fabricated rows)
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get('/api/telehealth/sessions');
-        const all = res.data.data || res.data.sessions || [];
-        setWaitingRoom(all.filter(s => s.status === 'Waiting'));
-        setTodaySchedule(all.filter(s => s.status !== 'Waiting'));
-      } catch (err) {
-        console.error('[TelehealthConsole] session load failed:', err.message);
-        setWaitingRoom([]);
-        setTodaySchedule([]);
-      }
-    })();
+  const load = useCallback(async () => {
+    try {
+      const res = await api.get('/api/telehealth/sessions');
+      setSessions(res.data.data || res.data.sessions || []);
+    } catch (err) {
+      console.error('[TelehealthConsole] session load failed:', err.message);
+      setSessions([]);
+      setMessage('Could not load telehealth sessions.');
+    }
   }, []);
 
-  const ePrescriptionDrugs = [
-    { drug: 'Azithromycin 500mg', dosage: '1-0-0', days: 5, instructions: 'Take on empty stomach' },
-    { drug: 'Paracetamol 650mg', dosage: '1-1-1', days: 3, instructions: 'After food, SOS for fever > 100F' },
-    { drug: 'Cetirizine 10mg', dosage: '0-0-1', days: 5, instructions: 'At bedtime' },
-  ];
+  useEffect(() => {
+    load();
+    (async () => {
+      try {
+        const res = await api.get('/api/admissions?status=Admitted');
+        setAdmissions(res.data?.data || res.data || []);
+      } catch (err) {
+        console.error('[TelehealthConsole] admission load failed:', err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, [load]);
 
+  const selectSession = (session) => {
+    setSelected(session);
+    setNotes(session.notes || '');
+    setDrugs([]);
+    setInvestigations([]);
+    setActiveTab('consult');
+  };
+
+  const handleSchedule = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await api.post('/api/telehealth/sessions', newSession);
+      setShowSchedule(false);
+      setNewSession(emptySession);
+      await load();
+      setMessage('Telehealth session scheduled.');
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not schedule the session.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveNotes = async () => {
+    if (!selected) return;
+    setBusy(true);
+    try {
+      await api.patch(`/api/telehealth/sessions/${selected.id}/prescribe`, {
+        notes: [notes, ...investigations.map(i => `Investigation ordered: ${i}`)].join('\n'),
+        drugs,
+      });
+      await load();
+      setMessage('Consultation notes saved to the session.');
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not save the notes.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendPrescription = async () => {
+    if (!selected) return;
+    setBusy(true);
+    try {
+      await api.patch(`/api/telehealth/sessions/${selected.id}/prescribe`, { notes, drugs });
+      await load();
+      setMessage(`E-prescription with ${drugs.length} drug(s) sent to the patient.`);
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not send the e-prescription.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const addDrug = () => {
+    if (!drugDraft.drug) return;
+    setDrugs([...drugs, { ...drugDraft, days: Number(drugDraft.days) || 1 }]);
+    setDrugDraft({ drug: '', dosage: '', days: '' });
+  };
+
+  const addInvestigation = () => {
+    if (!investigation.trim()) return;
+    setInvestigations([...investigations, investigation.trim()]);
+    setInvestigation('');
+  };
+
+  const waitingRoom = sessions.filter(s => s.status === 'Waiting');
+  const schedule = sessions.filter(s => s.status !== 'Waiting');
+  const fmt = (v) => (v ? String(v).slice(0, 16).replace('T', ' ') : '—');
   const metrics = {
-    todayConsults: waitingRoom.length + todaySchedule.length,
-    completed: todaySchedule.length,
-    avgDuration: '—',
-    satisfaction: '—',
-    totalThisWeek: waitingRoom.length + todaySchedule.length,
-    noShowRate: '—'
+    total: sessions.length,
+    completed: schedule.filter(s => s.status === 'Completed').length,
+    waiting: waitingRoom.length,
   };
 
   return (
@@ -44,46 +124,31 @@ const TelehealthConsole = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h4 className="mb-0">Telehealth Console</h4>
-          <small className="text-muted">Video consultation & virtual care platform</small>
+          <small className="text-muted">Video consultation scheduling, charting and e-prescribing</small>
         </div>
-        <div className="d-flex gap-2">
-          <Badge bg="success" className="p-2 fs-6">Camera Ready</Badge>
-          <Badge bg="info" className="p-2 fs-6">HIPAA Secure</Badge>
-        </div>
+        <Button variant="primary" onClick={() => { setMessage(''); setShowSchedule(true); }}>+ Schedule Session</Button>
       </div>
 
+      {message && <Alert variant="info" dismissible onClose={() => setMessage('')}>{message}</Alert>}
+
       <Row className="mb-3">
-        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{metrics.todayConsults}</h3><small>Today</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{metrics.total}</h3><small>Sessions</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{metrics.waiting}</h3><small>Waiting Room</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{metrics.completed}</h3><small>Completed</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">{metrics.avgDuration}</h3><small>Avg Duration</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{metrics.satisfaction}/5</h3><small>Satisfaction</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-danger"><Card.Body><h3 className="text-danger">{metrics.noShowRate}</h3><small>No-Show Rate</small></Card.Body></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
-        <Tab eventKey="waitingroom" title="Virtual Waiting Room">
-          {waitingRoom.filter(w => w.priority === 'High').map(w => (
-            <Alert key={w.id} variant="danger">
-              <strong>URGENT:</strong> {w.patient} -- {w.complaint} | Vitals: {w.vitals} | Waiting: {w.waitTime}
-              <Button size="sm" variant="danger" className="ms-3" onClick={() => setInCall(true)}>Start Call Now</Button>
-            </Alert>
-          ))}
+        <Tab eventKey="waitingroom" title={<span>Waiting Room <Badge bg="warning" text="dark">{metrics.waiting}</Badge></span>}>
+          {waitingRoom.length === 0 && <Alert variant="light" className="border">No patients are waiting. Use <strong>+ Schedule Session</strong> to book a consultation.</Alert>}
           <Row>
-            {waitingRoom.map(w => (
-              <Col md={4} key={w.id}>
-                <Card className={`mb-3 ${w.priority === 'High' ? 'border-danger' : 'border-primary'}`}>
-                  <Card.Header className={w.priority === 'High' ? 'bg-danger text-white' : 'bg-primary text-white'}>
-                    <strong>{w.patient}</strong> <Badge bg="light" text="dark">{w.mrn}</Badge>
-                  </Card.Header>
+            {waitingRoom.map(s => (
+              <Col md={4} key={s.id}>
+                <Card className="mb-3 border-warning">
+                  <Card.Header className="bg-warning text-dark"><strong>{s.patient_name || s.patient_id}</strong></Card.Header>
                   <Card.Body>
-                    <p><strong>Type:</strong> {w.type}</p>
-                    <p><strong>Complaint:</strong> {w.complaint}</p>
-                    <p><strong>Vitals:</strong> <small>{w.vitals}</small></p>
-                    <p><strong>Waiting:</strong> <Badge bg={parseInt(w.waitTime) > 10 ? 'danger' : 'success'}>{w.waitTime}</Badge></p>
-                    <div className="d-grid gap-2">
-                      <Button variant="success" onClick={() => setInCall(true)}>Start Video Call</Button>
-                      <Button variant="outline-primary" size="sm">View History</Button>
-                    </div>
+                    <p className="mb-1"><strong>Type:</strong> {s.session_type}</p>
+                    <p className="mb-1"><strong>Scheduled:</strong> {fmt(s.scheduled_at)}</p>
+                    <Button variant="success" onClick={() => selectSession(s)}>Open Consultation</Button>
                   </Card.Body>
                 </Card>
               </Col>
@@ -91,118 +156,144 @@ const TelehealthConsole = () => {
           </Row>
         </Tab>
 
-        <Tab eventKey="videocall" title="Video Call">
-          <Card>
-            <Card.Body>
-              {!inCall ? (
-                <div className="text-center py-5">
-                  <h3 className="text-muted">No Active Call</h3>
-                  <p>Select a patient from the waiting room to start a video consultation</p>
-                  <Button variant="primary" size="lg" onClick={() => setInCall(true)}>Start Demo Call</Button>
-                </div>
-              ) : (
-                <Row>
-                  <Col md={8}>
-                    <div style={{backgroundColor: '#1a1a2e', borderRadius: 12, height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
-                      <div className="text-center text-white">
-                        <div style={{width:120, height:120, borderRadius:'50%', backgroundColor:'#0d6efd', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3rem', margin:'0 auto 15px'}}>R</div>
-                        <h4>Rajesh Kumar</h4>
-                        <Badge bg="success">Connected - 03:24</Badge>
-                      </div>
-                      <div style={{position:'absolute', bottom:15, right:15, width:150, height:100, backgroundColor:'#16213e', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center'}}>
-                        <small className="text-white">Dr. Sharma (You)</small>
-                      </div>
-                      <div style={{position:'absolute', bottom:15, left:'50%', transform:'translateX(-50%)', display:'flex', gap:10}}>
-                        <Button variant="light" className="rounded-circle" style={{width:50, height:50}}>Mic</Button>
-                        <Button variant="light" className="rounded-circle" style={{width:50, height:50}}>Cam</Button>
-                        <Button variant="light" className="rounded-circle" style={{width:50, height:50}}>Share</Button>
-                        <Button variant="danger" className="rounded-circle" style={{width:50, height:50}} onClick={() => setInCall(false)}>End</Button>
-                      </div>
+        <Tab eventKey="schedule" title="Schedule">
+          <Card><Card.Body>
+            <Table bordered hover responsive size="sm">
+              <thead className="table-dark">
+                <tr><th>Patient</th><th>Type</th><th>Scheduled</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {schedule.length === 0 && <tr><td colSpan={5} className="text-center text-muted py-4">No scheduled sessions.</td></tr>}
+                {schedule.map(s => (
+                  <tr key={s.id}>
+                    <td><strong>{s.patient_name || s.patient_id}</strong></td>
+                    <td>{s.session_type}</td>
+                    <td><small>{fmt(s.scheduled_at)}</small></td>
+                    <td><Badge bg={s.status === 'Completed' ? 'success' : 'secondary'}>{s.status}</Badge></td>
+                    <td><Button size="sm" variant="outline-primary" onClick={() => selectSession(s)}>Open</Button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Card.Body></Card>
+        </Tab>
+
+        <Tab eventKey="consult" title="Consultation">
+          {!selected ? (
+            <Alert variant="light" className="border">Select a session from the waiting room or schedule.</Alert>
+          ) : (
+            <Row>
+              <Col md={7}>
+                <Card className="mb-3">
+                  <Card.Header><strong>Consultation — {selected.patient_name || selected.patient_id}</strong></Card.Header>
+                  <Card.Body>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Clinical Notes</Form.Label>
+                      <Form.Control as="textarea" rows={5} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="History, examination, assessment, plan..." />
+                    </Form.Group>
+                    <Button variant="primary" onClick={saveNotes} disabled={busy}>
+                      {busy ? <Spinner animation="border" size="sm" /> : 'Save Notes'}
+                    </Button>
+                  </Card.Body>
+                </Card>
+
+                <Card>
+                  <Card.Header><strong>Investigations</strong></Card.Header>
+                  <Card.Body>
+                    <div className="d-flex gap-2 mb-2">
+                      <Form.Control value={investigation} onChange={(e) => setInvestigation(e.target.value)} placeholder="e.g. CBC, Chest X-ray" />
+                      <Button variant="outline-primary" onClick={addInvestigation}>+ Add Investigation</Button>
                     </div>
-                  </Col>
-                  <Col md={4}>
-                    <Card className="mb-2">
-                      <Card.Header><strong>Patient Quick Info</strong></Card.Header>
-                      <Card.Body>
-                        <p><strong>Name:</strong> Rajesh Kumar</p>
-                        <p><strong>Age:</strong> 58 yrs | B+</p>
-                        <p><strong>Allergies:</strong> <Badge bg="danger">Penicillin</Badge></p>
-                        <p><strong>Vitals (reported):</strong><br/>BP: 138/86 | Sugar: 180</p>
-                      </Card.Body>
-                    </Card>
-                    <Card>
-                      <Card.Header><strong>Quick Notes</strong></Card.Header>
-                      <Card.Body>
-                        <Form.Control as="textarea" rows={4} placeholder="Type consultation notes..." />
-                        <Button variant="primary" size="sm" className="mt-2 w-100">Save Notes</Button>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                </Row>
-              )}
-            </Card.Body>
-          </Card>
-        </Tab>
+                    <ul className="mb-0">
+                      {investigations.map((i, idx) => <li key={idx}>{i}</li>)}
+                      {investigations.length === 0 && <li className="text-muted">No investigations ordered.</li>}
+                    </ul>
+                  </Card.Body>
+                </Card>
+              </Col>
 
-        <Tab eventKey="eprescription" title="E-Prescription">
-          <Card>
-            <Card.Body>
-              <h5 className="mb-3">Generate E-Prescription</h5>
-              <Alert variant="info">Patient: <strong>Rajesh Kumar (MRN-1045)</strong> | Consultation: Telehealth Follow-up</Alert>
-              <Table bordered hover>
-                <thead className="table-dark">
-                  <tr><th>Drug</th><th>Dosage (M-A-N)</th><th>Days</th><th>Instructions</th><th>Remove</th></tr>
-                </thead>
-                <tbody>
-                  {ePrescriptionDrugs.map((d,i) => (
-                    <tr key={i}>
-                      <td><strong>{d.drug}</strong></td>
-                      <td>{d.dosage}</td>
-                      <td>{d.days}</td>
-                      <td><small>{d.instructions}</small></td>
-                      <td><Button size="sm" variant="outline-danger">X</Button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-              <div className="d-flex gap-2">
-                <Button variant="outline-primary">+ Add Drug</Button>
-                <Button variant="outline-info">+ Add Investigation</Button>
-                <Button variant="success" className="ms-auto">Send E-Prescription to Patient</Button>
-              </div>
-            </Card.Body>
-          </Card>
-        </Tab>
-
-        <Tab eventKey="schedule" title="Today Schedule">
-          <Card>
-            <Card.Body>
-              <Table striped hover responsive>
-                <thead className="table-dark">
-                  <tr><th>Time</th><th>Patient</th><th>Type</th><th>Status</th><th>Duration</th><th>Action</th></tr>
-                </thead>
-                <tbody>
-                  {todaySchedule.map((s,i) => (
-                    <tr key={i} className={s.status === 'In Waiting' ? 'table-warning' : s.status === 'Completed' ? 'table-success' : ''}>
-                      <td><strong>{s.time}</strong></td>
-                      <td>{s.patient}</td>
-                      <td>{s.type}</td>
-                      <td><Badge bg={s.status === 'Completed' ? 'success' : s.status === 'In Waiting' ? 'warning' : 'info'}>{s.status}</Badge></td>
-                      <td>{s.duration}</td>
-                      <td>
-                        {s.status === 'In Waiting' && <Button size="sm" variant="success">Join</Button>}
-                        {s.status === 'Completed' && <Button size="sm" variant="outline-primary">Notes</Button>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
+              <Col md={5}>
+                <Card>
+                  <Card.Header><strong>E-Prescription</strong></Card.Header>
+                  <Card.Body>
+                    <Table size="sm" bordered>
+                      <thead><tr><th>Drug</th><th>Dosage</th><th>Days</th><th /></tr></thead>
+                      <tbody>
+                        {drugs.length === 0 && <tr><td colSpan={4} className="text-center text-muted">No drugs added.</td></tr>}
+                        {drugs.map((d, idx) => (
+                          <tr key={idx}>
+                            <td>{d.drug}</td>
+                            <td>{d.dosage}</td>
+                            <td>{d.days}</td>
+                            <td><Button size="sm" variant="outline-danger" onClick={() => setDrugs(drugs.filter((_, i) => i !== idx))}>X</Button></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                    <Row className="g-2 mb-2">
+                      <Col><Form.Control size="sm" placeholder="Drug" value={drugDraft.drug} onChange={(e) => setDrugDraft({ ...drugDraft, drug: e.target.value })} /></Col>
+                      <Col><Form.Control size="sm" placeholder="1-0-1" value={drugDraft.dosage} onChange={(e) => setDrugDraft({ ...drugDraft, dosage: e.target.value })} /></Col>
+                      <Col><Form.Control size="sm" type="number" placeholder="Days" value={drugDraft.days} onChange={(e) => setDrugDraft({ ...drugDraft, days: e.target.value })} /></Col>
+                    </Row>
+                    <div className="d-flex gap-2">
+                      <Button variant="outline-primary" onClick={addDrug}>+ Add Drug</Button>
+                      <Button variant="success" className="ms-auto" onClick={sendPrescription} disabled={busy || drugs.length === 0}>
+                        Send E-Prescription to Patient
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
         </Tab>
       </Tabs>
+
+
+      <Modal show={showSchedule} onHide={() => setShowSchedule(false)} centered>
+        <Modal.Header closeButton><Modal.Title>Schedule Telehealth Session</Modal.Title></Modal.Header>
+        <Form onSubmit={handleSchedule}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Admitted Patient</Form.Label>
+              <Form.Select value={newSession.patient_id} onChange={(e) => setNewSession({ ...newSession, patient_id: e.target.value })} required>
+                <option value="">Select an admitted patient</option>
+                {admissions.map(a => (
+                  <option key={a.id} value={a.patient_id}>{a.patient_name || a.patient_uhid || `Patient ${a.patient_id}`} — {a.ward || 'Ward'} {a.bed_number || ''}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Session Type</Form.Label>
+                  <Form.Select value={newSession.session_type} onChange={(e) => setNewSession({ ...newSession, session_type: e.target.value })}>
+                    <option>Video Consultation</option>
+                    <option>Tele-ICU Review</option>
+                    <option>Follow-up</option>
+                    <option>Second Opinion</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Scheduled At</Form.Label>
+                  <Form.Control type="datetime-local" value={newSession.scheduled_at} onChange={(e) => setNewSession({ ...newSession, scheduled_at: e.target.value })} required />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowSchedule(false)}>Cancel</Button>
+            <Button variant="primary" type="submit" disabled={busy}>
+              {busy ? <Spinner animation="border" size="sm" /> : 'Schedule'}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </Container>
   );
 };
 
 export default TelehealthConsole;
+

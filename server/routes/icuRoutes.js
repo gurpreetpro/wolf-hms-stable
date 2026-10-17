@@ -16,4 +16,7 @@ router.get('/ventilator-logs/:admissionId', protect, icuController.getVentilator
 router.post('/fluid-io', protect, icuController.logFluidIO);
 router.get('/fluid-io/:admissionId', protect, icuController.getFluidIOHistory);
 
+// Quick-admit: keeps the ICU dashboard operable on an empty admissions table
+router.post('/quick-admit', protect, icuController.quickAdmit);
+
 module.exports = router;

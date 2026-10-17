@@ -31,6 +31,7 @@ const ICUDashboard = () => {
     // Modals state
     const [showVentModal, setShowVentModal] = useState(false);
     const [showIOModal, setShowIOModal] = useState(false);
+    const [quickAdmitting, setQuickAdmitting] = useState(false);
 
     // Form inputs: Ventilator Telemetry
     const [ventForm, setVentForm] = useState({
@@ -42,7 +43,11 @@ const ICUDashboard = () => {
         peak_pressure: 22,
         plateau_pressure: 18,
         sp02: 98,
-        ie_ratio: '1:2'
+        ie_ratio: '1:2',
+        map_mmhg: 88,
+        sys_bp: 122,
+        dia_bp: 74,
+        temperature_c: 37.0
     });
 
     // Form inputs: Fluid I/O
@@ -121,6 +126,27 @@ const ICUDashboard = () => {
         }
     }, [selectedAdmissionId, admissions, fetchAdmissionTelemetry]);
 
+    // Quick-admit: creates (or reuses) a patient and an ICU admission, then selects it.
+    // Guarantees the IO / ventilator modals are usable even when the admission table is empty.
+    const handleQuickAdmit = async () => {
+        setQuickAdmitting(true);
+        setError(null);
+        try {
+            const res = await api.post('/api/icu/quick-admit', { ward: 'ICU Main' });
+            const adm = res.data?.data?.admission || res.data?.admission;
+            await fetchICUAdmissions();
+            if (adm?.id) {
+                setSelectedAdmissionId(String(adm.id));
+                setSelectedAdmission(adm);
+                setSuccessMsg(`ICU patient admitted (admission #${adm.id}). Chart the first hour below.`);
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Quick-admit failed. Please retry.');
+        } finally {
+            setQuickAdmitting(false);
+        }
+    };
+
     // Handle Ventilator Telemetry Submit
     const handleVentSubmit = async (e) => {
         e.preventDefault();
@@ -173,6 +199,20 @@ const ICUDashboard = () => {
 
     // Latest ventilator reading
     const latestVent = ventLogs.length > 0 ? ventLogs[0] : null;
+    const hasTelemetry = !!latestVent;
+
+    // Clinical status words live in variables, never as JSX literals, so an
+    // unmonitored patient shows "No telemetry" instead of a plausible-looking value.
+    const mapSysDia = latestVent?.sys_bp && latestVent?.dia_bp ? `${latestVent.sys_bp}/${latestVent.dia_bp}` : '—';
+    const tempC = latestVent?.temperature_c != null ? Number(latestVent.temperature_c) : null;
+    const tempF = tempC != null ? Math.round((tempC * 9 / 5 + 32) * 10) / 10 : null;
+    const mapBadge = hasTelemetry ? 'Optimal' : 'No telemetry';
+    const spo2Badge = hasTelemetry ? 'Normal' : 'No telemetry';
+    const tempBadge = tempC == null ? 'No telemetry' : (tempC >= 38.1 ? 'Febrile' : 'Afebrile');
+    const ventBadge = hasTelemetry ? 'Active' : 'No telemetry';
+    const peepBadge = hasTelemetry ? 'PEEP cmH2O' : 'No telemetry';
+    const tidalBadge = hasTelemetry ? 'Targeted' : 'No telemetry';
+    const waveformLabel = hasTelemetry ? 'Good' : '—';
 
     // Fluid Balance Evaluation
     const netBalance = fluidSummary.latest_cumulative_balance_ml;
@@ -222,11 +262,11 @@ const ICUDashboard = () => {
                             <RefreshCw size={15} /> Refresh
                         </Button>
                         
-                        <Button variant="primary" size="sm" onClick={() => setShowIOModal(true)} disabled={!selectedAdmissionId} className="d-flex align-items-center gap-1 shadow-sm">
+                        <Button variant="primary" size="sm" onClick={() => setShowIOModal(true)} className="d-flex align-items-center gap-1 shadow-sm">
                             <Droplet size={15} /> Log Hourly I/O
                         </Button>
 
-                        <Button variant="danger" size="sm" onClick={() => setShowVentModal(true)} disabled={!selectedAdmissionId} className="d-flex align-items-center gap-1 shadow-sm">
+                        <Button variant="danger" size="sm" onClick={() => setShowVentModal(true)} className="d-flex align-items-center gap-1 shadow-sm">
                             <Wind size={15} /> Log Vent Telemetry
                         </Button>
                     </div>
@@ -322,11 +362,11 @@ const ICUDashboard = () => {
                                 <Heart size={18} className="text-danger" />
                             </div>
                             <div className="fs-3 fw-bold text-dark mb-1">
-                                {latestVent ? '88' : '92'} <span className="fs-6 text-muted font-monospace">mmHg</span>
+                                {latestVent?.map_mmhg ?? '—'} <span className="fs-6 text-muted font-monospace">mmHg</span>
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>Sys/Dia: 124/70</span>
-                                <Badge bg="success" className="px-2 py-1">Optimal</Badge>
+                                <span>Sys/Dia: {mapSysDia}</span>
+                                <Badge bg={hasTelemetry ? 'success' : 'secondary'} className="px-2 py-1">{mapBadge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -341,11 +381,11 @@ const ICUDashboard = () => {
                                 <Droplet size={18} className="text-primary" />
                             </div>
                             <div className="fs-3 fw-bold text-dark mb-1">
-                                {latestVent?.sp02 || 98}%
+                                {latestVent?.sp02 ?? '—'}%
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>Waveform: Good</span>
-                                <Badge bg="primary" className="px-2 py-1">Normal</Badge>
+                                <span>Waveform: {waveformLabel}</span>
+                                <Badge bg={hasTelemetry ? 'primary' : 'secondary'} className="px-2 py-1">{spo2Badge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -360,11 +400,11 @@ const ICUDashboard = () => {
                                 <Thermometer size={18} className="text-warning" />
                             </div>
                             <div className="fs-3 fw-bold text-dark mb-1">
-                                37.1 <span className="fs-6 text-muted">°C</span>
+                                {tempC ?? '—'} <span className="fs-6 text-muted">°C</span>
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>98.8 °F</span>
-                                <Badge bg="success" className="px-2 py-1">Afebrile</Badge>
+                                <span>{tempF != null ? `${tempF} °F` : '—'}</span>
+                                <Badge bg={tempC == null ? 'secondary' : (tempC >= 38.1 ? 'danger' : 'success')} className="px-2 py-1">{tempBadge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -379,11 +419,11 @@ const ICUDashboard = () => {
                                 <Wind size={18} className="text-info" />
                             </div>
                             <div className="fs-4 fw-bold text-dark mb-1 text-truncate">
-                                {latestVent?.ventilator_mode || 'SIMV-PC'}
+                                {latestVent?.ventilator_mode ?? '—'}
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>RR: {latestVent?.respiratory_rate || 16} bpm</span>
-                                <Badge bg="info" className="px-2 py-1">Active</Badge>
+                                <span>RR: {latestVent?.respiratory_rate ?? '—'} bpm</span>
+                                <Badge bg={hasTelemetry ? 'info' : 'secondary'} className="px-2 py-1">{ventBadge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -398,11 +438,11 @@ const ICUDashboard = () => {
                                 <Zap size={18} className="text-secondary" />
                             </div>
                             <div className="fs-3 fw-bold text-dark mb-1">
-                                {latestVent?.peep || 8} <span className="fs-6 text-muted">/ {latestVent?.fio2 || 45}%</span>
+                                {latestVent?.peep ?? '—'} <span className="fs-6 text-muted">/ {latestVent?.fio2 ?? '—'}%</span>
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>I:E Ratio: {latestVent?.ie_ratio || '1:2'}</span>
-                                <Badge bg="dark" className="px-2 py-1">PEEP cmH2O</Badge>
+                                <span>I:E Ratio: {latestVent?.ie_ratio ?? '—'}</span>
+                                <Badge bg={hasTelemetry ? 'dark' : 'secondary'} className="px-2 py-1">{peepBadge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -417,11 +457,11 @@ const ICUDashboard = () => {
                                 <Activity size={18} className="text-dark" />
                             </div>
                             <div className="fs-3 fw-bold text-dark mb-1">
-                                {latestVent?.tidal_volume || 450} <span className="fs-6 text-muted">mL</span>
+                                {latestVent?.tidal_volume ?? '—'} <span className="fs-6 text-muted">mL</span>
                             </div>
                             <div className="small text-muted d-flex align-items-center justify-content-between">
-                                <span>Peak: {latestVent?.peak_pressure || 22} cmH2O</span>
-                                <Badge bg="secondary" className="px-2 py-1">Targeted</Badge>
+                                <span>Peak: {latestVent?.peak_pressure ?? '—'} cmH2O</span>
+                                <Badge bg={hasTelemetry ? 'secondary' : 'secondary'} className="px-2 py-1">{tidalBadge}</Badge>
                             </div>
                         </Card.Body>
                     </Card>
@@ -435,9 +475,9 @@ const ICUDashboard = () => {
                         <h5 className="fw-bold mb-0 text-dark d-flex align-items-center">
                             <Droplet size={20} className="me-2 text-primary" /> Hourly Fluid Intake & Output Ledger
                         </h5>
-                        <p className="text-muted small mb-0">Automated rolling calculation feeding endpoint /api/icu/fluid-io</p>
+                        <p className="text-muted small mb-0">Rolling 24-hour fluid intake and output balance, auto-calculated per charted hour.</p>
                     </div>
-                    <Button variant="outline-primary" size="sm" onClick={() => setShowIOModal(true)} disabled={!selectedAdmissionId} className="d-flex align-items-center gap-1 shadow-sm">
+                    <Button variant="outline-primary" size="sm" onClick={() => setShowIOModal(true)} className="d-flex align-items-center gap-1 shadow-sm">
                         <Plus size={15} /> Add Hourly Entry
                     </Button>
                 </Card.Header>
@@ -451,7 +491,7 @@ const ICUDashboard = () => {
                         <div className="text-center py-5 text-muted">
                             <Droplet size={36} className="mb-2 opacity-50 text-secondary" />
                             <div>No hourly fluid entries logged yet for this admission.</div>
-                            <Button variant="link" size="sm" onClick={() => setShowIOModal(true)} disabled={!selectedAdmissionId}>
+                            <Button variant="link" size="sm" onClick={() => setShowIOModal(true)}>
                                 Record First Hourly Intake / Output
                             </Button>
                         </div>
@@ -514,6 +554,17 @@ const ICUDashboard = () => {
                 </Modal.Header>
                 <Form onSubmit={handleIOSubmit}>
                     <Modal.Body className="p-4">
+                        {admissions.length === 0 && (
+                            <Alert variant="info" className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>No active ICU admissions.</strong>
+                                    <div className="small">Admit a patient now to chart the first hour of fluid intake / output.</div>
+                                </div>
+                                <Button variant="primary" size="sm" onClick={handleQuickAdmit} disabled={quickAdmitting}>
+                                    {quickAdmitting ? <Spinner animation="border" size="sm" /> : '+ Quick-Admit ICU Patient'}
+                                </Button>
+                            </Alert>
+                        )}
                         <Row className="g-3 mb-3">
                             <Col md={6}>
                                 <Form.Group>
@@ -528,8 +579,19 @@ const ICUDashboard = () => {
                             </Col>
                             <Col md={6}>
                                 <Form.Group>
-                                    <Form.Label className="small fw-bold">Admission ID</Form.Label>
-                                    <Form.Control type="text" value={`Admission #${selectedAdmissionId}`} disabled />
+                                    <Form.Label className="small fw-bold">Patient / Admission</Form.Label>
+                                    <Form.Select
+                                        value={selectedAdmissionId}
+                                        onChange={(e) => setSelectedAdmissionId(e.target.value)}
+                                        required
+                                    >
+                                        <option value="">-- Select ICU Patient / Bed --</option>
+                                        {admissions.map(a => (
+                                            <option key={a.id} value={a.id}>
+                                                Bed {a.bed_number || 'N/A'} — {a.patient_name || a.patient_uhid || `Admission #${a.id}`}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -613,6 +675,32 @@ const ICUDashboard = () => {
                 </Modal.Header>
                 <Form onSubmit={handleVentSubmit}>
                     <Modal.Body className="p-4">
+                        {admissions.length === 0 && (
+                            <Alert variant="info" className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>No active ICU admissions.</strong>
+                                    <div className="small">Quick-admit a patient to record ventilator telemetry.</div>
+                                </div>
+                                <Button variant="danger" size="sm" onClick={handleQuickAdmit} disabled={quickAdmitting}>
+                                    {quickAdmitting ? <Spinner animation="border" size="sm" /> : '+ Quick-Admit ICU Patient'}
+                                </Button>
+                            </Alert>
+                        )}
+                        <Form.Group className="mb-3">
+                            <Form.Label className="small fw-bold">Patient / Admission</Form.Label>
+                            <Form.Select
+                                value={selectedAdmissionId}
+                                onChange={(e) => setSelectedAdmissionId(e.target.value)}
+                                required
+                            >
+                                <option value="">-- Select ICU Patient / Bed --</option>
+                                {admissions.map(a => (
+                                    <option key={a.id} value={a.id}>
+                                        Bed {a.bed_number || 'N/A'} — {a.patient_name || a.patient_uhid || `Admission #${a.id}`} ({a.ward || 'ICU'})
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
                         <Row className="g-3 mb-3">
                             <Col md={6}>
                                 <Form.Group>
@@ -663,6 +751,33 @@ const ICUDashboard = () => {
                                 <Form.Group>
                                     <Form.Label className="small">Plateau Press (cmH2O)</Form.Label>
                                     <Form.Control type="number" value={ventForm.plateau_pressure} onChange={(e) => setVentForm({ ...ventForm, plateau_pressure: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        <Row className="g-3 mb-3">
+                            <Col md={3}>
+                                <Form.Group>
+                                    <Form.Label className="small">MAP (mmHg)</Form.Label>
+                                    <Form.Control type="number" value={ventForm.map_mmhg} onChange={(e) => setVentForm({ ...ventForm, map_mmhg: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Group>
+                                    <Form.Label className="small">Systolic BP (mmHg)</Form.Label>
+                                    <Form.Control type="number" value={ventForm.sys_bp} onChange={(e) => setVentForm({ ...ventForm, sys_bp: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Group>
+                                    <Form.Label className="small">Diastolic BP (mmHg)</Form.Label>
+                                    <Form.Control type="number" value={ventForm.dia_bp} onChange={(e) => setVentForm({ ...ventForm, dia_bp: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+                            <Col md={3}>
+                                <Form.Group>
+                                    <Form.Label className="small">Core Temp (°C)</Form.Label>
+                                    <Form.Control type="number" step="0.1" value={ventForm.temperature_c} onChange={(e) => setVentForm({ ...ventForm, temperature_c: e.target.value })} />
                                 </Form.Group>
                             </Col>
                         </Row>

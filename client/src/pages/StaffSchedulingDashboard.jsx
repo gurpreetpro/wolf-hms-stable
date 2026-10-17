@@ -50,7 +50,7 @@ export default function StaffSchedulingDashboard() {
           <h2 className="mb-1"><Calendar className="me-2 text-primary" />Staff Scheduling</h2>
           <p className="text-muted">Shift Management & Roster Planning</p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setShowAdd(true)}>
           <Plus size={16} className="me-1" /> Add Shift
 </Button>
       </div>
@@ -141,7 +141,20 @@ export default function StaffSchedulingDashboard() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
-          <Button variant="primary">Assign Shift (Disabled)</Button>
+          <Button variant="primary" onClick={async () => {
+            try {
+              await api.post('/api/staff/roster', {
+                staff_name: newShift.staff_id,
+                role: newShift.department,
+                shift_type: newShift.shift_type,
+                shift_date: newShift.date || null,
+              });
+              setShowAdd(false);
+              window.location.reload();
+            } catch (err) {
+              alert(err.response?.data?.message || 'Could not assign the shift.');
+            }
+          }}>Assign Shift</Button>
         </Modal.Footer>
       </Modal>
     </Container>

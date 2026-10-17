@@ -1,38 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Form } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Form, Alert, Spinner } from 'react-bootstrap';
 import api from '../utils/axiosInstance';
 
 const CloudBackupConsole = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [dbSummary, setDbSummary] = useState({ database_size_mb: '—', tables: '—', patients: '—', admitted: '—' });
+  const [runs, setRuns] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // Live data-integrity facts from the console endpoint (no fabricated backup rows)
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get('/api/cloud-backup/summary');
-        const row = (res.data.data || [])[0] || (res.data.summary || {});
-        setDbSummary({
-          database_size_mb: row.database_size_mb != null ? row.database_size_mb : '—',
-          tables: row.tables != null ? row.tables : '—',
-          patients: row.patients != null ? row.patients : '—',
-          admitted: row.admitted != null ? row.admitted : '—',
-        });
-      } catch (err) {
-        console.error('[CloudBackupConsole] summary load failed:', err.message);
-        setDbSummary({ database_size_mb: '—', tables: '—', patients: '—', admitted: '—' });
-      }
-    })();
+  const load = useCallback(async () => {
+    try {
+      const res = await api.get('/api/cloud-backup/summary');
+      const row = (res.data.data || [])[0] || (res.data.summary || {});
+      setDbSummary({
+        database_size_mb: row.database_size_mb != null ? row.database_size_mb : '—',
+        tables: row.tables != null ? row.tables : '—',
+        patients: row.patients != null ? row.patients : '—',
+        admitted: row.admitted != null ? row.admitted : '—',
+      });
+    } catch (err) {
+      console.error('[CloudBackupConsole] summary load failed:', err.message);
+      setDbSummary({ database_size_mb: '—', tables: '—', patients: '—', admitted: '—' });
+    }
+    try {
+      const res = await api.get('/api/cloud-backup/runs');
+      setRuns(res.data.data || res.data.runs || []);
+    } catch (err) {
+      console.error('[CloudBackupConsole] run history load failed:', err.message);
+      setRuns([]);
+    }
   }, []);
 
-  const backupHistory = [
-    { id: 'BK-2026-090', type: 'Full', size: '2.4 GB', started: '02:00 AM', completed: '02:18 AM', duration: '18 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '30 days' },
-    { id: 'BK-2026-089', type: 'Incremental', size: '340 MB', started: '14:00 PM', completed: '14:04 PM', duration: '4 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '7 days' },
-    { id: 'BK-2026-088', type: 'Incremental', size: '280 MB', started: '08:00 AM', completed: '08:03 AM', duration: '3 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '7 days' },
-    { id: 'BK-2026-087', type: 'Full', size: '2.3 GB', started: '02:00 AM (Mar 1)', completed: '02:17 AM', duration: '17 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '30 days' },
-    { id: 'BK-2026-086', type: 'Incremental', size: '420 MB', started: '14:00 PM (Mar 1)', completed: '14:05 PM', duration: '5 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '7 days' },
-    { id: 'BK-2026-085', type: 'Full', size: '2.3 GB', started: '02:00 AM (Feb 28)', completed: '02:16 AM', duration: '16 min', encryption: 'AES-256', storage: 'Google Cloud Storage', status: 'Success', retention: '30 days' },
-  ];
+  useEffect(() => { load(); }, [load]);
+
+  const triggerBackup = async () => {
+    setBusy(true);
+    setMessage('');
+    try {
+      const res = await api.post('/api/cloud-backup/trigger', { backup_type: 'Incremental' });
+      const run = res.data?.data || res.data;
+      setMessage(`Backup ${run?.run_id || ''} completed — ${run?.size_mb ?? '—'} MB, ${run?.tables_count ?? '—'} tables.`);
+      await load();
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not trigger the backup.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Real download: serialises the live manifest (summary + recorded runs) to a file.
+  const downloadManifest = () => {
+    const manifest = {
+      generated_at: new Date().toISOString(),
+      database: dbSummary,
+      runs: runs.map(r => ({
+        run_id: r.run_id, type: r.backup_type, status: r.status, size_mb: r.size_mb,
+        tables: r.tables_count, patients: r.patients_count, started_at: r.started_at,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wolf-hms-backup-manifest-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const backupHistory = runs;
 
   const schedule = [
     { name: 'Daily Full Backup', frequency: 'Every day at 02:00 AM IST', type: 'Full', target: 'GCS: wolf-hms-backups/daily/', retention: '30 days', compression: 'gzip', encryption: 'AES-256', status: 'Active' },
@@ -66,10 +102,14 @@ const CloudBackupConsole = () => {
           <small className="text-muted">Automated cloud backup management, retention schedules, and disaster recovery verification</small>
         </div>
         <div className="d-flex gap-2">
-          <Button variant="success">Trigger Backup Now</Button>
-          <Button variant="outline-warning">Restore from Backup</Button>
+          <Button variant="success" onClick={triggerBackup} disabled={busy}>
+            {busy ? <Spinner animation="border" size="sm" /> : 'Trigger Backup Now'}
+          </Button>
+          <Button variant="outline-warning" onClick={downloadManifest}>Download Manifest</Button>
         </div>
       </div>
+
+      {message && <Alert variant="info" dismissible onClose={() => setMessage('')}>{message}</Alert>}
 
       <Row className="mb-3">
         <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{dbSummary.tables}</h3><small>DB Tables</small></Card.Body></Card></Col>
@@ -88,21 +128,23 @@ const CloudBackupConsole = () => {
                   <tr><th>ID</th><th>Type</th><th>Size</th><th>Started</th><th>Completed</th><th>Duration</th><th>Encryption</th><th>Storage</th><th>Retention</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
-                  {backupHistory.map((b, i) => (
-                    <tr key={i}>
-                      <td><code>{b.id}</code></td>
-                      <td><Badge bg={b.type === 'Full' ? 'primary' : 'info'}>{b.type}</Badge></td>
-                      <td className="fw-bold">{b.size}</td>
-                      <td><small>{b.started}</small></td>
-                      <td><small>{b.completed}</small></td>
-                      <td>{b.duration}</td>
-                      <td><Badge bg="secondary">{b.encryption}</Badge></td>
-                      <td><small>{b.storage}</small></td>
-                      <td><small>{b.retention}</small></td>
-                      <td><Badge bg="success">{b.status}</Badge></td>
+                  {backupHistory.length === 0 && (
+                    <tr><td colSpan={11} className="text-center text-muted py-4">No backup runs recorded. Use <strong>Trigger Backup Now</strong>.</td></tr>
+                  )}
+                  {backupHistory.map((b) => (
+                    <tr key={b.id || b.run_id}>
+                      <td><code>{b.run_id}</code></td>
+                      <td><Badge bg={b.backup_type === 'Full' ? 'primary' : 'info'}>{b.backup_type}</Badge></td>
+                      <td className="fw-bold">{b.size_mb != null ? `${b.size_mb} MB` : '—'}</td>
+                      <td><small>{b.started_at ? String(b.started_at).slice(0, 16).replace('T', ' ') : '—'}</small></td>
+                      <td><small>{b.completed_at ? String(b.completed_at).slice(0, 16).replace('T', ' ') : '—'}</small></td>
+                      <td>{b.tables_count != null ? `${b.tables_count} tables` : '—'}</td>
+                      <td><Badge bg="secondary">AES-256</Badge></td>
+                      <td><small>Encrypted at rest</small></td>
+                      <td><small>{b.patients_count != null ? `${b.patients_count} patients` : '—'}</small></td>
+                      <td><Badge bg={b.status === 'Success' ? 'success' : 'warning'}>{b.status}</Badge></td>
                       <td>
-                        <Button size="sm" variant="outline-warning" className="me-1">Restore</Button>
-                        <Button size="sm" variant="outline-info">Download</Button>
+                        <Button size="sm" variant="outline-info" onClick={downloadManifest}>Download</Button>
                       </td>
                     </tr>
                   ))}

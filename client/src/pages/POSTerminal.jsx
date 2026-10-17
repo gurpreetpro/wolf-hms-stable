@@ -1,13 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab } from 'react-bootstrap';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import api from '../utils/axiosInstance';
+
+const emptyTxn = { patient_id: '', amount: '', payment_mode: 'Cash', service: 'OPD Consultation' };
 
 const POSTerminal = () => {
   const [activeTab, setActiveTab] = useState('terminal');
   const [devices, setDevices] = useState([]);
   const [providerCount, setProviderCount] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+  const [admissions, setAdmissions] = useState([]);
+  const [showTxn, setShowTxn] = useState(false);
+  const [txn, setTxn] = useState(emptyTxn);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // Live POS terminals + providers (replaces the previously hardcoded queue/transaction rows)
+  const loadTransactions = useCallback(async () => {
+    try {
+      const res = await api.get('/api/pos/transactions');
+      setTransactions(res.data.data || res.data.transactions || []);
+    } catch (err) {
+      console.error('[POSTerminal] transaction load failed:', err.message);
+      setTransactions([]);
+    }
+  }, []);
+
+  // Live POS terminals + providers + today's real transactions
   useEffect(() => {
     (async () => {
       try {
@@ -23,37 +41,57 @@ const POSTerminal = () => {
         setProviderCount(0);
       }
     })();
-  }, []);
+    loadTransactions();
+    (async () => {
+      try {
+        const res = await api.get('/api/admissions?status=Admitted');
+        setAdmissions(res.data?.data || res.data || []);
+      } catch (err) {
+        console.error('[POSTerminal] admission load failed:', err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, [loadTransactions]);
 
-  const currentQueue = [];
+  const handleCharge = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setMessage('');
+    try {
+      await api.post('/api/pos/transactions', txn);
+      setShowTxn(false);
+      setTxn(emptyTxn);
+      await loadTransactions();
+      setMessage('Transaction recorded against the patient ledger.');
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Could not record the transaction.');
+    } finally {
+      setBusy(false);
+    }
+  };
 
-  const todayTransactions = [];
+  // Every figure below is derived from the transactions just loaded — no fabricated revenue.
+  const totalRevenue = transactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  const totalTxn = transactions.length;
+  const avgTicket = totalTxn ? Math.round(totalRevenue / totalTxn) : 0;
 
-  const serviceModules = [
-    { module: 'OPD Consultation', txnToday: 45, revenue: 'Rs.22,500', avgTicket: 'Rs.500' },
-    { module: 'Laboratory', txnToday: 38, revenue: 'Rs.55,100', avgTicket: 'Rs.1,450' },
-    { module: 'Radiology', txnToday: 22, revenue: 'Rs.44,000', avgTicket: 'Rs.2,000' },
-    { module: 'Pharmacy (Walk-in)', txnToday: 65, revenue: 'Rs.50,700', avgTicket: 'Rs.780' },
-    { module: 'Procedures', txnToday: 12, revenue: 'Rs.36,000', avgTicket: 'Rs.3,000' },
-    { module: 'Health Packages', txnToday: 8, revenue: 'Rs.39,992', avgTicket: 'Rs.4,999' },
-    { module: 'Emergency Registration', txnToday: 6, revenue: 'Rs.6,000', avgTicket: 'Rs.1,000' },
-    { module: 'Vaccination', txnToday: 15, revenue: 'Rs.22,500', avgTicket: 'Rs.1,500' },
-    { module: 'Dental', txnToday: 10, revenue: 'Rs.15,000', avgTicket: 'Rs.1,500' },
-    { module: 'Physiotherapy', txnToday: 8, revenue: 'Rs.8,000', avgTicket: 'Rs.1,000' },
-    { module: 'Diet Counseling', txnToday: 5, revenue: 'Rs.2,500', avgTicket: 'Rs.500' },
-    { module: 'Medical Certificates', txnToday: 12, revenue: 'Rs.3,600', avgTicket: 'Rs.300' },
-  ];
+  const byModule = Object.values(transactions.reduce((acc, t) => {
+    const key = t.department || 'Unassigned';
+    if (!acc[key]) acc[key] = { module: key, txnToday: 0, revenue: 0 };
+    acc[key].txnToday += 1;
+    acc[key].revenue += Number(t.amount || 0);
+    return acc;
+  }, {})).map(m => ({ ...m, avgTicket: m.txnToday ? Math.round(m.revenue / m.txnToday) : 0 }));
 
-  const paymentSummary = [
-    { method: 'UPI (GPay/PhonePe)', count: 98, amount: 'Rs.1,42,800', share: '46.5%' },
-    { method: 'Card (Debit/Credit)', count: 52, amount: 'Rs.89,600', share: '29.2%' },
-    { method: 'Cash', count: 72, amount: 'Rs.62,500', share: '20.4%' },
-    { method: 'Insurance (Cashless TPA)', count: 8, amount: 'Rs.8,500', share: '2.8%' },
-    { method: 'PMJAY', count: 4, amount: 'Rs.3,492', share: '1.1%' },
-  ];
+  const paymentSummary = Object.values(transactions.reduce((acc, t) => {
+    const key = t.payment_mode || 'Unknown';
+    if (!acc[key]) acc[key] = { method: key, count: 0, amount: 0 };
+    acc[key].count += 1;
+    acc[key].amount += Number(t.amount || 0);
+    return acc;
+  }, {})).map(p => ({ ...p, share: totalRevenue ? `${Math.round((p.amount / totalRevenue) * 1000) / 10}%` : '0%' }));
 
-  const totalRevenue = '—';
-  const totalTxn = todayTransactions.length;
+  const inr = (n) => `Rs.${Number(n || 0).toLocaleString('en-IN')}`;
 
   return (
     <Container fluid className="py-3">
@@ -62,14 +100,16 @@ const POSTerminal = () => {
           <h4 className="mb-0">Point-of-Sale Terminal</h4>
           <small className="text-muted">POS with 12 service sub-modules, multi-payment, walk-in + registered</small>
         </div>
-        <Button variant="success" size="lg">+ New Transaction</Button>
+        <Button variant="success" size="lg" onClick={() => { setMessage(''); setShowTxn(true); }}>+ New Transaction</Button>
       </div>
+
+      {message && <Alert variant="info" dismissible onClose={() => setMessage('')}>{message}</Alert>}
 
       <Row className="mb-3">
         <Col><Card className="text-center border-success"><Card.Body><h3 className="text-success">{devices.length}</h3><small>POS Terminals ({providerCount} providers)</small></Card.Body></Card></Col>
         <Col><Card className="text-center border-primary"><Card.Body><h3 className="text-primary">{totalTxn}</h3><small>Transactions</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">Rs.1,312</h3><small>Avg Ticket Size</small></Card.Body></Card></Col>
-        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{currentQueue.length}</h3><small>In Queue</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-info"><Card.Body><h3 className="text-info">Rs.{avgTicket}</h3><small>Avg Ticket Size</small></Card.Body></Card></Col>
+        <Col><Card className="text-center border-warning"><Card.Body><h3 className="text-warning">{inr(totalRevenue)}</h3><small>Collected (live)</small></Card.Body></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
@@ -80,19 +120,9 @@ const POSTerminal = () => {
                 <tr><th>Token</th><th>Patient</th><th>Service</th><th>Dept</th><th>Amount</th><th>Payment</th><th>Time</th><th>Status</th><th>Action</th></tr>
               </thead>
               <tbody>
-                {currentQueue.map((q) => (
-                  <tr key={q.token}>
-                    <td><Badge bg="primary">{q.token}</Badge></td>
-                    <td><strong>{q.patient}</strong></td>
-                    <td>{q.service}</td>
-                    <td><small>{q.department}</small></td>
-                    <td className="text-success fw-bold">{q.amount}</td>
-                    <td><Badge bg="info">{q.method}</Badge></td>
-                    <td><small>{q.time}</small></td>
-                    <td><Badge bg={q.status === 'Processing' ? 'warning' : 'secondary'}>{q.status}</Badge></td>
-                    <td><Button size="sm" variant="success">Complete</Button></td>
-                  </tr>
-                ))}
+                {currentQueue.length === 0 && (
+                  <tr><td colSpan={9} className="text-center text-muted py-4">Queue is clear. Use <strong>+ New Transaction</strong> to charge a walk-in or admitted patient.</td></tr>
+                )}
               </tbody>
             </Table>
           </Card.Body></Card>
@@ -105,15 +135,18 @@ const POSTerminal = () => {
                 <tr><th>ID</th><th>Time</th><th>Patient</th><th>Service</th><th>Amount</th><th>Payment</th><th>Operator</th><th>Status</th></tr>
               </thead>
               <tbody>
-                {todayTransactions.map((t) => (
+                {transactions.length === 0 && (
+                  <tr><td colSpan={8} className="text-center text-muted py-4">No transactions recorded yet.</td></tr>
+                )}
+                {transactions.map((t) => (
                   <tr key={t.id}>
-                    <td><code>{t.id}</code></td>
-                    <td><small>{t.time}</small></td>
-                    <td><strong>{t.patient}</strong></td>
-                    <td>{t.service}</td>
-                    <td className="text-success fw-bold">{t.amount}</td>
-                    <td><Badge bg="info">{t.method}</Badge></td>
-                    <td><small>{t.operator}</small></td>
+                    <td><code>{t.transaction_id}</code></td>
+                    <td><small>{t.initiated_at ? String(t.initiated_at).slice(0, 16).replace('T', ' ') : '—'}</small></td>
+                    <td><strong>{t.patient_name || 'Walk-in'}</strong></td>
+                    <td>{t.department || '—'}</td>
+                    <td className="text-success fw-bold">{inr(t.amount)}</td>
+                    <td><Badge bg="info">{t.payment_mode || '—'}</Badge></td>
+                    <td><small>—</small></td>
                     <td><Badge bg="success">{t.status}</Badge></td>
                   </tr>
                 ))}
@@ -129,12 +162,15 @@ const POSTerminal = () => {
                 <tr><th>Service Module</th><th>Transactions Today</th><th>Revenue</th><th>Avg Ticket</th></tr>
               </thead>
               <tbody>
-                {serviceModules.map((m) => (
+                {byModule.length === 0 && (
+                  <tr><td colSpan={4} className="text-center text-muted py-4">No service revenue yet.</td></tr>
+                )}
+                {byModule.map((m) => (
                   <tr key={m.module}>
                     <td><strong>{m.module}</strong></td>
                     <td className="text-center">{m.txnToday}</td>
-                    <td className="text-success fw-bold">{m.revenue}</td>
-                    <td>{m.avgTicket}</td>
+                    <td className="text-success fw-bold">{inr(m.revenue)}</td>
+                    <td>{inr(m.avgTicket)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -149,18 +185,21 @@ const POSTerminal = () => {
                 <tr><th>Payment Method</th><th>Transactions</th><th>Amount</th><th>Share</th></tr>
               </thead>
               <tbody>
+                {paymentSummary.length === 0 && (
+                  <tr><td colSpan={4} className="text-center text-muted py-4">No payments collected yet.</td></tr>
+                )}
                 {paymentSummary.map((p) => (
                   <tr key={p.method}>
                     <td><strong>{p.method}</strong></td>
                     <td className="text-center">{p.count}</td>
-                    <td className="text-success fw-bold">{p.amount}</td>
+                    <td className="text-success fw-bold">{inr(p.amount)}</td>
                     <td><Badge bg="primary">{p.share}</Badge></td>
                   </tr>
                 ))}
                 <tr className="table-success fw-bold">
                   <td>TOTAL</td>
                   <td className="text-center">{totalTxn}</td>
-                  <td>{totalRevenue}</td>
+                  <td>{inr(totalRevenue)}</td>
                   <td>100%</td>
                 </tr>
               </tbody>
@@ -168,6 +207,60 @@ const POSTerminal = () => {
           </Card.Body></Card>
         </Tab>
       </Tabs>
+
+      <Modal show={showTxn} onHide={() => setShowTxn(false)} centered>
+        <Modal.Header closeButton><Modal.Title>New POS Transaction</Modal.Title></Modal.Header>
+        <Form onSubmit={handleCharge}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Patient (optional)</Form.Label>
+              <Form.Select value={txn.patient_id} onChange={(e) => setTxn({ ...txn, patient_id: e.target.value })}>
+                <option value="">Walk-in / unregistered</option>
+                {admissions.map(a => (
+                  <option key={a.id} value={a.patient_id}>{a.patient_name || a.patient_uhid || `Patient ${a.patient_id}`} — {a.ward || 'Ward'} {a.bed_number || ''}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Amount (INR)</Form.Label>
+                  <Form.Control type="number" min="1" step="0.01" value={txn.amount} onChange={(e) => setTxn({ ...txn, amount: e.target.value })} required />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Payment Mode</Form.Label>
+                  <Form.Select value={txn.payment_mode} onChange={(e) => setTxn({ ...txn, payment_mode: e.target.value })}>
+                    <option>Cash</option>
+                    <option>Card</option>
+                    <option>UPI</option>
+                    <option>Insurance</option>
+                    <option>PMJAY</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Service / Department</Form.Label>
+              <Form.Select value={txn.service} onChange={(e) => setTxn({ ...txn, service: e.target.value })}>
+                <option>OPD Consultation</option>
+                <option>Laboratory</option>
+                <option>Radiology</option>
+                <option>Pharmacy</option>
+                <option>Procedures</option>
+                <option>Emergency Registration</option>
+              </Form.Select>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowTxn(false)}>Cancel</Button>
+            <Button variant="success" type="submit" disabled={busy}>
+              {busy ? <Spinner animation="border" size="sm" /> : 'Charge Patient'}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </Container>
   );
 };
