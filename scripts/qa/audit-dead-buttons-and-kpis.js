@@ -44,7 +44,16 @@ const ACTION_VERB = /\b(Add|New|Create|Record|Save|Submit|Approve|Reject|Dispens
 const NOOP_HANDLER = /onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*(?:\{\s*\}|null|undefined|void\s+0|console\.\w+\([^)]*\)|alert\([^)]*\)|toast[\w.]*\([^)]*\)|window\.alert\([^)]*\))\s*\}/;
 const SET_TRUE = /onClick\s*=\s*\{\s*\(\s*\)\s*=>\s*set([A-Z]\w*)\(\s*true\s*\)\s*\}/;
 const HTTP_WRITE = /\.(post|put|patch|delete)\s*\(/;
-const HTTP_ANY = /(?:\bapi|\baxios|\bapiClient)\s*\.\s*(get|post|put|patch|delete)\s*\(|\bfetch\s*\(/;
+const HTTP_ANY = /(?:\bapi|\baxios|\baxiosInstance|\bapiClient)\s*\.\s*(get|post|put|patch|delete)\s*\(|\bfetch\s*\(/;
+
+/** True when `idx` sits inside a backtick template literal (raw-HTML strings must not be parsed as JSX). */
+function insideTemplateLiteral(src, idx) {
+    let ticks = 0;
+    for (let i = 0; i < idx; i++) {
+        if (src[i] === '`' && src[i - 1] !== '\\') ticks++;
+    }
+    return ticks % 2 === 1;
+}
 
 /** Extract JSX elements of a given tag with their attribute text + inner text. */
 function extractTags(src, tagName) {
@@ -53,6 +62,7 @@ function extractTags(src, tagName) {
     let m;
     while ((m = re.exec(src)) !== null) {
         const start = m.index;
+        if (insideTemplateLiteral(src, start)) continue;   // raw HTML string, not JSX
         // find the end of the opening tag, skipping braces
         let i = start + m[0].length;
         let brace = 0, quote = null;

@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-17T14:19:56.264Z",
+  "generated_at": "2026-10-17T14:33:16.835Z",
   "scanned_files": 377,
   "counts": {
     "byClass": {
-      "1": 84,
-      "2": 37,
-      "3": 9,
-      "4": 36,
+      "1": 72,
+      "2": 31,
+      "3": 8,
+      "4": 35,
       "5": 0
     },
-    "total": 166,
-    "files_with_findings": 92
+    "total": 146,
+    "files_with_findings": 85
   },
   "classNames": {
     "1": "Dead Buttons / Phantom Modals",
@@ -127,17 +127,6 @@
               "label": "Export All"
             }
           ]
-        }
-      ]
-    },
-    {
-      "file": "client/src/components/BloodRequestModal.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_FORM",
-          "line": 69,
-          "label": "handleSubmit()",
-          "detail": "preventDefault + local state only (no api/axios/fetch call)"
         }
       ]
     },
@@ -265,17 +254,6 @@
       ]
     },
     {
-      "file": "client/src/components/InvoicePrint.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 217,
-          "label": "Download <Download size= className=\"me-1\" />Download",
-          "detail": "no onClick and not a submit button"
-        }
-      ]
-    },
-    {
       "file": "client/src/components/LabReportPrint.jsx",
       "findings": [
         {
@@ -340,14 +318,8 @@
       "file": "client/src/components/PreOpBloodChecklist.jsx",
       "findings": [
         {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 76,
-          "label": "Create Blood Requirement Create Blood Requirement",
-          "detail": "no onClick and not a submit button"
-        },
-        {
           "kind": "DEAD_FORM",
-          "line": 132,
+          "line": 156,
           "label": "Form without onSubmit",
           "detail": "no onSubmit handler attached"
         }
@@ -384,12 +356,6 @@
     {
       "file": "client/src/components/RegistrationReceipt.jsx",
       "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 292,
-          "label": "Download PDF <Download size= className=\"me-1\" />Download PDF",
-          "detail": "no onClick and not a submit button"
-        },
         {
           "kind": "STATIC_JSX_KPI",
           "line": 264,
@@ -434,23 +400,6 @@
           "line": 646,
           "label": "Form without onSubmit",
           "detail": "no onSubmit handler attached"
-        }
-      ]
-    },
-    {
-      "file": "client/src/components/TransfusionMonitor.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_FORM",
-          "line": 195,
-          "label": "handleSubmit()",
-          "detail": "preventDefault + local state only (no api/axios/fetch call)"
-        },
-        {
-          "kind": "DEAD_FORM",
-          "line": 323,
-          "label": "handleSubmit()",
-          "detail": "preventDefault + local state only (no api/axios/fetch call)"
         }
       ]
     },
@@ -531,23 +480,6 @@
           "line": 511,
           "label": "{submitting ? : } Generate Invoice {submitting ? <Spinner size=\"sm\" />",
           "detail": "renders but disabled when data missing: !selectedPatient || lineItems.length === 0 || submitting"
-        }
-      ]
-    },
-    {
-      "file": "client/src/components/billing/PatientLedger.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 63,
-          "label": "Cancel Cancel",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 64,
-          "label": "Confirm Payment Confirm Payment",
-          "detail": "no onClick and not a submit button"
         }
       ]
     },
@@ -892,62 +824,6 @@
           "line": 938,
           "label": "Form without onSubmit",
           "detail": "no onSubmit handler attached"
-        }
-      ]
-    },
-    {
-      "file": "client/src/pages/BloodBankDashboard.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_FORM",
-          "line": 48,
-          "label": "submitBloodRequest()",
-          "detail": "preventDefault + local state only (no api/axios/fetch call)"
-        }
-      ]
-    },
-    {
-      "file": "client/src/pages/CDIDashboard.jsx",
-      "findings": [
-        {
-          "kind": "CLOSE_ONLY_MODAL",
-          "line": 32,
-          "label": "➕ New Query ➕ New Query",
-          "detail": "opens showQueryModal, file has no POST/PUT/PATCH/DELETE"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 140,
-          "label": "Submit Query Submit Query",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_FORM",
-          "line": 127,
-          "label": "Form without onSubmit",
-          "detail": "no onSubmit handler attached"
-        },
-        {
-          "kind": "READ_ONLY_DASHBOARD",
-          "line": 32,
-          "label": "2 action button(s)",
-          "detail": "GETs=0, writes=0 — no mutation path exists",
-          "buttons": [
-            {
-              "line": 32,
-              "label": "➕ New Query"
-            },
-            {
-              "line": 140,
-              "label": "Submit Query"
-            }
-          ]
-        },
-        {
-          "kind": "STATIC_JSX_KPI",
-          "line": 113,
-          "label": "Target: 75%",
-          "detail": "hardcoded numeric literal with unit in JSX text"
         }
       ]
     },
@@ -1350,32 +1226,8 @@
       "file": "client/src/pages/RadiologyDashboard.jsx",
       "findings": [
         {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 376,
-          "label": "🔗 DICOM Import 🔗 DICOM Import",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 377,
-          "label": "📤 Export DICOM 📤 Export DICOM",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 471,
-          "label": "💾 Save Annotations 💾 Save Annotations",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_FORM",
-          "line": 560,
-          "label": "Form without onSubmit",
-          "detail": "no onSubmit handler attached"
-        },
-        {
           "kind": "STATIC_JSX_KPI",
-          "line": 422,
+          "line": 469,
           "label": "Zoom: 100%",
           "detail": "hardcoded numeric literal with unit in JSX text"
         }
@@ -1394,23 +1246,6 @@
           "kind": "DEAD_NO_HANDLER",
           "line": 164,
           "label": "Download Download",
-          "detail": "no onClick and not a submit button"
-        }
-      ]
-    },
-    {
-      "file": "client/src/pages/RevenueCycleAI.jsx",
-      "findings": [
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 69,
-          "label": "Fix & Submit Fix & Submit",
-          "detail": "no onClick and not a submit button"
-        },
-        {
-          "kind": "DEAD_NO_HANDLER",
-          "line": 93,
-          "label": "📤 Submit Appeal 📤 Submit Appeal",
           "detail": "no onClick and not a submit button"
         }
       ]

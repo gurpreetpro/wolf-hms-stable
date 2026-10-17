@@ -289,7 +289,7 @@ const RegistrationReceipt = ({ show, onHide, patientData, appointmentData }) => 
                 </div>
                 <div className="d-flex gap-2">
                     <Button variant="outline-secondary" onClick={onHide}>Close</Button>
-                    <Button variant="outline-primary">
+                    <Button variant="outline-primary" onClick={() => window.print()}>
                         <Download size={16} className="me-1" />Download PDF
                     </Button>
                     <Button variant="success" onClick={handlePrint}>

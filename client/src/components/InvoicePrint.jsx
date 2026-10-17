@@ -214,7 +214,7 @@ const InvoicePrint = ({ show, onHide, patient, admission, invoiceItems = [], inv
             </Modal.Body>
             <Modal.Footer className="bg-light">
                 <Button variant="outline-secondary" onClick={onHide}><X size={16} className="me-1" />Close</Button>
-                <Button variant="outline-primary"><Download size={16} className="me-1" />Download</Button>
+                <Button variant="outline-primary" onClick={() => window.print()}><Download size={16} className="me-1" />Download</Button>
                 <Button variant="primary" onClick={handlePrint}><Printer size={16} className="me-1" />Print</Button>
             </Modal.Footer>
         </Modal>

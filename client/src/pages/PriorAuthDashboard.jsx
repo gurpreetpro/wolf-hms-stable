@@ -144,7 +144,7 @@ const PriorAuthDashboard = () => {
                                         <td>{getStatusBadge(auth.status)}</td>
                                         <td>
                                             <Button size="sm" variant="outline-primary" className="me-1" onClick={() => setAttachFor(auth)}>📞 Follow Up</Button>
-                                            {auth.status === 'Info Requested' && <Button size="sm" variant="warning" onClick={() => setAttachFor(auth)}>📎 Upload Docs</Button>}
+                                    {auth.status !== 'Denied' && <Button size="sm" variant="warning" onClick={() => setAttachFor(auth)}>📎 Upload Docs</Button>}
                                         </td>
                                     </tr>
                                 ))}

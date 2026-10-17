@@ -8,6 +8,30 @@ export default function PreOpBloodChecklist({ surgeryId, patientId, patientName 
     const [saving, setSaving] = useState(false);
     const [requirement, setRequirement] = useState(null);
     const [preparedUnits, setPreparedUnits] = useState([]);
+
+    const createRequirement = async () => {
+        if (!patientId) {
+            setError('Link a patient to this surgery before creating a blood requirement.');
+            return;
+        }
+        setSaving(true);
+        try {
+            await axiosInstance.post('/blood-bank/requests', {
+                patient_id: patientId,
+                blood_group_required: 'O+',
+                units_required: 2,
+                priority: 'Routine',
+                indication: `Pre-operative blood preparation${patientName ? ` for ${patientName}` : ''}`,
+            });
+            const refresh = await axiosInstance.get(`/blood-bank/surgery/${surgeryId}/blood`).catch(() => null);
+            if (refresh?.data) setRequirement(refresh.data);
+            setError(null);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Could not create the blood requirement.');
+        } finally {
+            setSaving(false);
+        }
+    };
     const [standards, setStandards] = useState([]);
     const [error, setError] = useState(null);
 
@@ -73,8 +97,8 @@ export default function PreOpBloodChecklist({ surgeryId, patientId, patientName 
                 <Card.Body className="text-center py-4 text-muted">
                     <AlertTriangle size={40} className="mb-2 opacity-50" />
                     <p>No blood requirement set for this surgery</p>
-                    <Button variant="outline-danger" size="sm">
-                        Create Blood Requirement
+                    <Button variant="outline-danger" size="sm" onClick={createRequirement} disabled={saving}>
+                        {saving ? 'Creating…' : 'Create Blood Requirement'}
                     </Button>
                 </Card.Body>
             </Card>
@@ -129,7 +153,7 @@ export default function PreOpBloodChecklist({ surgeryId, patientId, patientName 
                 {/* Checklist */}
                 <h6 className="mb-2"><FileCheck size={14} className="me-1" />Checklist</h6>
                 <div className="border rounded p-3">
-                    <Form>
+                    <Form onSubmit={(e) => e.preventDefault()}>
                         <Form.Check
                             type="checkbox"
                             id="blood_typed"

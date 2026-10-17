@@ -961,6 +961,18 @@ router.post('/cdi/queries', asyncHandler(async (req, res) => {
     ResponseHandler.success(res, out.rows[0], 'Physician query raised', 201);
 }));
 
+router.patch('/cdi/queries/:id/respond', asyncHandler(async (req, res) => {
+    const response = (req.body && req.body.physician_response) || null;
+    const out = await pool.query(
+        `UPDATE cdi_queries
+            SET status = 'Responded', physician_response = COALESCE($3, physician_response), responded_at = now()
+          WHERE id = $1 AND hospital_id = $2 RETURNING *`,
+        [req.params.id, hid(req), response]
+    );
+    if (!out.rowCount) return ResponseHandler.error(res, 'CDI query not found', 404);
+    ResponseHandler.success(res, out.rows[0], 'CDI query responded');
+}));
+
 /* ------------------------------------------------ Revenue-cycle appeals */
 router.post('/revenue-ai/appeals', asyncHandler(async (req, res) => {
     const { claim_ref, patient_name, payer, denial_reason, amount, appeal_text } = req.body || {};

@@ -85365,7 +85365,7 @@ const RegistrationReceipt = ({ show, onHide: onHide2, patientData, appointmentDa
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-secondary", onClick: onHide2, children: "Close" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", onClick: () => window.print(), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16, className: "me-1" }),
           "Download PDF"
         ] }),
@@ -103128,7 +103128,7 @@ const InvoicePrint = ({ show, onHide: onHide2, patient, admission, invoiceItems 
         /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "me-1" }),
         "Close"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Button, { variant: "outline-primary", onClick: () => window.print(), children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16, className: "me-1" }),
         "Download"
       ] }),
@@ -110455,6 +110455,52 @@ const RadiologyDashboard = () => {
   const [showModal, setShowModal] = reactExports.useState(false);
   const [selectedRequest, setSelectedRequest] = reactExports.useState(null);
   const [historySearch, setHistorySearch] = reactExports.useState("");
+  const [viewerNote, setViewerNote] = reactExports.useState("");
+  const [annotationText, setAnnotationText] = reactExports.useState("");
+  const [activeSeries, setActiveSeries] = reactExports.useState("S001");
+  const [measurements] = reactExports.useState([]);
+  const dicomManifest = async () => {
+    var _a, _b, _c, _d;
+    try {
+      const res = await axios.post("/api/radiology/dicom-import", {
+        study_uid: `1.2.826.0.1.3680043.8.498.${Date.now()}`,
+        modality: "CT",
+        patient_id: (selectedRequest == null ? void 0 : selectedRequest.patient_id) || null,
+        file_name: "pacs-import.dcm"
+      }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      setViewerNote(`Imported study ${((_b = (_a = res.data) == null ? void 0 : _a.data) == null ? void 0 : _b.study_uid) || ""} into PACS.`);
+    } catch (err) {
+      setViewerNote(((_d = (_c = err.response) == null ? void 0 : _c.data) == null ? void 0 : _d.message) || "DICOM import failed.");
+    }
+  };
+  const exportDicom = () => {
+    const manifest = {
+      exported_at: (/* @__PURE__ */ new Date()).toISOString(),
+      patient: selectedRequest || null,
+      series: [{ id: activeSeries, modality: "CT", slices: 128 }],
+      annotations: annotationText ? [{ note: annotationText }] : []
+    };
+    const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+    const url2 = URL.createObjectURL(blob);
+    const a2 = document.createElement("a");
+    a2.href = url2;
+    a2.download = `dicom-manifest-${activeSeries}-${Date.now()}.json`;
+    a2.click();
+    URL.revokeObjectURL(url2);
+  };
+  const saveAnnotations = async () => {
+    var _a, _b;
+    try {
+      await axios.post("/api/radiology/annotations", {
+        study_uid: activeSeries,
+        patient_id: (selectedRequest == null ? void 0 : selectedRequest.patient_id) || null,
+        annotations: annotationText ? [{ note: annotationText, at: (/* @__PURE__ */ new Date()).toISOString() }] : []
+      }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      setViewerNote("Annotations saved to the study.");
+    } catch (err) {
+      setViewerNote(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not save annotations.");
+    }
+  };
   const [auditImage, setAuditImage] = reactExports.useState(null);
   const [aiAnalysis, setAiAnalysis] = reactExports.useState(null);
   const [analyzing, setAnalyzing] = reactExports.useState(false);
@@ -110762,8 +110808,8 @@ Recommendation: ${report.recommendation || "N/A"}`);
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Header, { className: "bg-dark text-white d-flex justify-content-between align-items-center", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "fw-bold", children: "📡 PACS — Picture Archiving & Communication System" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-light", children: "🔗 DICOM Import" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-light", children: "📤 Export DICOM" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-light", onClick: dicomManifest, children: "🔗 DICOM Import" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-light", onClick: exportDicom, children: "📤 Export DICOM" })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
@@ -110778,10 +110824,12 @@ Recommendation: ${report.recommendation || "N/A"}`);
             ].map((series) => /* @__PURE__ */ jsxRuntimeExports.jsx(
               Card$1,
               {
-                className: "mb-2 border cursor-pointer",
+                className: `mb-2 border ${activeSeries === series.id ? "border-primary" : ""}`,
                 style: { cursor: "pointer" },
-                onClick: () => alert(`Loading ${series.desc}... (${series.slices} slices)
-In production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewer`),
+                onClick: () => {
+                  setActiveSeries(series.id);
+                  setViewerNote(`Loaded ${series.desc} (${series.slices} slices)`);
+                },
                 children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { className: "p-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "d-flex justify-content-between align-items-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: series.modality === "CT" ? "primary" : series.modality === "MRI" ? "success" : series.modality === "X-Ray" ? "warning" : "info", className: "me-1", children: series.modality }),
@@ -110856,7 +110904,7 @@ In production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewe
                 size: "sm",
                 variant: "outline-secondary",
                 className: "w-100 mb-1 text-start",
-                onClick: () => alert(`Applied ${preset.name} window: W=${preset.w} L=${preset.l}`),
+                onClick: () => setViewerNote(`Applied ${preset.name} window: W=${preset.w} L=${preset.l}`),
                 children: [
                   preset.name,
                   " ",
@@ -110873,27 +110921,17 @@ In production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewe
             )),
             /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-2", children: "📝 Annotations" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 4, placeholder: "Add annotations, findings notes...", className: "mb-2" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "primary", className: "w-100", children: "💾 Save Annotations" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 4, placeholder: "Add annotations, findings notes...", className: "mb-2", value: annotationText, onChange: (e3) => setAnnotationText(e3.target.value) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "primary", className: "w-100", onClick: saveAnnotations, children: "💾 Save Annotations" }),
+            viewerNote && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "small text-success mt-2", children: viewerNote }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h6", { className: "fw-bold mb-2", children: "📊 Measurements" }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-light rounded p-2 small", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Length 1:" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "12.4 mm" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Length 2:" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "8.7 mm" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Area:" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "3.2 cm²" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "HU Mean:" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "45.2" })
-              ] })
+              measurements.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-muted", children: "No measurements captured on this study." }),
+              measurements.map((m2, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: m2.label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: m2.value })
+              ] }, i))
             ] })
           ] })
         ] }) })
@@ -110979,7 +111017,10 @@ In production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewe
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 8, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: (e3) => {
+            e3.preventDefault();
+            saveAnnotations();
+          }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { className: "fw-bold", children: "Findings" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -142999,7 +143040,7 @@ const PriorAuthDashboard = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(auth.status) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", className: "me-1", onClick: () => setAttachFor(auth), children: "📞 Follow Up" }),
-            auth.status === "Info Requested" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "warning", onClick: () => setAttachFor(auth), children: "📎 Upload Docs" })
+            auth.status !== "Denied" && /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "warning", onClick: () => setAttachFor(auth), children: "📎 Upload Docs" })
           ] })
         ] }, auth.id)) })
       ] }) }) }),
@@ -146047,196 +146088,251 @@ const CPOEDashboard = () => {
     ] })
   ] });
 };
+const emptyQuery = { admission_id: "", patient_id: "", patient_name: "", query_type: "Documentation", query_text: "", severity: "Medium" };
 const CDIDashboard = () => {
   const [activeTab, setActiveTab] = reactExports.useState("queries");
   const [showQueryModal, setShowQueryModal] = reactExports.useState(false);
-  const cdiQueries = [];
-  const gapAlerts = [
-    { category: "Missing HCC Codes", count: 12, impact: "Revenue risk ₹3.2L/month", action: "Review diagnoses for chronic conditions" },
-    { category: "Incomplete Procedures", count: 5, impact: "Unbilled ₹1.8L", action: "Procedure notes missing for 5 surgeries" },
-    { category: "Unspecified Diabetes", count: 8, impact: "DRG downgrade risk", action: "Specify Type 1/2 and complications" },
-    { category: "Missing Laterality", count: 15, impact: "Coding compliance risk", action: "Add left/right specification to diagnoses" },
-    { category: "PSI/HAC Opportunities", count: 3, impact: "Quality score impact", action: "POA indicators needed for 3 conditions" }
-  ];
-  const codingMetrics = {
-    cmi: 1.42,
-    targetCmi: 1.55,
-    ccMccRate: 68,
-    queryResponseRate: 78,
-    reviewRate: 92
+  const [queries, setQueries] = reactExports.useState([]);
+  const [admissions, setAdmissions] = reactExports.useState([]);
+  const [form, setForm] = reactExports.useState(emptyQuery);
+  const [responding, setResponding] = reactExports.useState(null);
+  const [response, setResponse] = reactExports.useState("");
+  const [busy, setBusy] = reactExports.useState(false);
+  const [message2, setMessage] = reactExports.useState("");
+  const load = reactExports.useCallback(async () => {
+    try {
+      const res = await api$1.get("/api/cdi/queries");
+      setQueries(res.data.data || res.data.queries || []);
+    } catch (err) {
+      console.error("[CDI] load failed:", err.message);
+      setQueries([]);
+      setMessage("Could not load CDI queries.");
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    load();
+    (async () => {
+      var _a;
+      try {
+        const res = await api$1.get("/api/admissions?status=Admitted");
+        setAdmissions(((_a = res.data) == null ? void 0 : _a.data) || res.data || []);
+      } catch (err) {
+        console.error("[CDI] admission load failed:", err.message);
+        setAdmissions([]);
+      }
+    })();
+  }, [load]);
+  const submitQuery = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    setBusy(true);
+    try {
+      await api$1.post("/api/cdi/queries", form);
+      setShowQueryModal(false);
+      setForm(emptyQuery);
+      await load();
+      setMessage("CDI query raised to the attending physician.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not raise the query.");
+    } finally {
+      setBusy(false);
+    }
   };
-  const statusColor = (s2) => s2 === "Pending" ? "warning" : s2 === "Sent" ? "info" : s2 === "Responded" ? "primary" : "success";
+  const submitResponse = async (e3) => {
+    var _a, _b;
+    e3.preventDefault();
+    if (!responding) return;
+    setBusy(true);
+    try {
+      await api$1.patch(`/api/cdi/queries/${responding.id}/respond`, { physician_response: response });
+      setResponding(null);
+      setResponse("");
+      await load();
+      setMessage("Physician response recorded.");
+    } catch (err) {
+      setMessage(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || "Could not record the response.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const statusColor = (s2) => s2 === "Open" ? "warning" : s2 === "Responded" ? "success" : "secondary";
+  const open = queries.filter((q2) => q2.status === "Open");
+  const responded = queries.filter((q2) => q2.status === "Responded");
+  const high = queries.filter((q2) => q2.severity === "High");
+  const responseRate = queries.length ? Math.round(responded.length / queries.length * 100) : 0;
+  const ageDays = (d2) => d2 ? Math.max(0, Math.floor((Date.now() - new Date(d2).getTime()) / 864e5)) : 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Container, { fluid: true, className: "py-3", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "mb-0", children: "📋 Clinical Documentation Improvement (CDI)" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Documentation gap analysis, coding optimization, revenue capture" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Documentation gap analysis, physician queries and coding capture" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => setShowQueryModal(true), children: "➕ New Query" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", children: "📊 Reports" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", onClick: () => {
+          setMessage("");
+          setShowQueryModal(true);
+        }, children: "➕ New Query" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outline-info", onClick: () => setActiveTab("metrics"), children: "📊 Metrics" })
       ] })
     ] }),
+    message2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setMessage(""), children: message2 }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: cdiQueries.filter((q2) => q2.status === "Pending").length }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Pending Queries" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-warning", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-warning", children: open.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Open Queries" })
       ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-info", children: [
-          codingMetrics.queryResponseRate,
+          responseRate,
           "%"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Response Rate" })
       ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-primary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-primary", children: codingMetrics.cmi }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Case Mix Index" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: high.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "High Severity" })
       ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-success", children: [
-          codingMetrics.ccMccRate,
-          "%"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "CC/MCC Rate" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-danger", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-danger", children: gapAlerts.reduce((s2, g2) => s2 + g2.count, 0) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Doc Gaps" })
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-secondary", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { children: [
-          codingMetrics.reviewRate,
-          "%"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Review Rate" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { className: "text-center border-success", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-success", children: queries.length }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Total Queries" })
       ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "queries", title: "📝 CDI Queries", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Table, { striped: true, hover: true, responsive: true, size: "sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "table-dark", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Query ID" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Patient" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Query" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Type" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Priority" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Status" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Age" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "DRG Impact" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Physician" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Response" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Action" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: cdiQueries.map((q2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: q2.id }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-            q2.patient,
-            /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: q2.mrn })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { maxWidth: 300 }, children: q2.query }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: q2.type }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: q2.priority === "High" ? "danger" : q2.priority === "Medium" ? "warning" : "secondary", children: q2.priority }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: statusColor(q2.status), children: q2.status }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: q2.age }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-success fw-bold", children: q2.drgImpact }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: q2.physician })
-        ] }, q2.id)) })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { children: [
+          queries.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 9, className: "text-center text-muted py-4", children: [
+            "No CDI queries recorded. Use ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "➕ New Query" }),
+            "."
+          ] }) }),
+          queries.map((q2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: q2.id }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              q2.patient_name || q2.patient_id,
+              /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: q2.query_type })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { maxWidth: 320 }, children: q2.query_text }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "secondary", children: q2.query_type }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: q2.severity === "High" ? "danger" : q2.severity === "Medium" ? "warning" : "secondary", children: q2.severity }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: statusColor(q2.status), children: q2.status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+              ageDays(q2.created_at),
+              "d"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: q2.physician_response || "—" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: q2.status === "Open" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", onClick: () => {
+              setResponding(q2);
+              setResponse("");
+            }, children: "Record Response" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "success", children: "Closed" }) })
+          ] }, q2.id))
+        ] })
       ] }) }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "gaps", title: "⚠️ Documentation Gaps", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-3", children: "Active Documentation Gap Alerts" }),
-        gapAlerts.map((g2, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: i < 2 ? "danger" : i < 4 ? "warning" : "info", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex justify-content-between align-items-center", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: g2.category }),
-            " — ",
-            g2.count,
-            " cases",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: g2.impact })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "metrics", title: "📊 Coding Metrics", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "text-center", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 4, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-primary", children: queries.length }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Queries Raised" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "me-3", children: g2.action }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", children: "Review" })
-          ] })
-        ] }) }, i))
-      ] }) }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "metrics", title: "📊 Coding Metrics", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { children: "Case Mix Index (CMI)" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex align-items-center mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "me-3 mb-0", children: codingMetrics.cmi }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { className: "text-muted", children: [
-              "Target: ",
-              codingMetrics.targetCmi
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { now: codingMetrics.cmi / codingMetrics.targetCmi * 100, variant: "warning", label: `${(codingMetrics.cmi / codingMetrics.targetCmi * 100).toFixed(0)}%` }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-2 text-muted", children: [
-            "CMI gap: ",
-            (codingMetrics.targetCmi - codingMetrics.cmi).toFixed(2),
-            " — estimated revenue impact ₹8.2L/month"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 6, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { children: "CC/MCC Capture Rate" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex align-items-center mb-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "me-3 mb-0", children: [
-              codingMetrics.ccMccRate,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 4, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-success", children: [
+              responseRate,
               "%"
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: "Target: 75%" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Physician Response Rate" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ProgressBar, { now: codingMetrics.ccMccRate, variant: "info", label: `${codingMetrics.ccMccRate}%` }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted", children: "7% below target — focus on complication/comorbidity documentation" })
-        ] })
-      ] }) }) }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Col, { md: 4, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-warning", children: high.length }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "High-severity Open" })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("hr", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-muted small mb-0", children: "Figures are computed from the live cdi_queries table for this hospital. Case-mix index and CC/MCC capture require the coding module and are not fabricated here." })
+      ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: showQueryModal, onHide: () => setShowQueryModal(false), size: "lg", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "➕ New CDI Query" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Body, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Patient" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Select Patient..." }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Rajesh Kumar (MRN-1045)" })
-            ] })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Attending Physician" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Dr. Sharma" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Dr. Patel" })
-            ] })
-          ] }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitQuery, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Admitted Patient" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Form$1.Select,
+              {
+                value: form.admission_id,
+                onChange: (e3) => {
+                  const a2 = admissions.find((x2) => String(x2.id) === e3.target.value);
+                  setForm({ ...form, admission_id: e3.target.value, patient_id: (a2 == null ? void 0 : a2.patient_id) || "", patient_name: (a2 == null ? void 0 : a2.patient_name) || "" });
+                },
+                required: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "Select Patient..." }),
+                  admissions.map((a2) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: a2.id, children: a2.patient_name || a2.patient_uhid || `Patient ${a2.patient_id}` }, a2.id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Query Type" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.query_type, onChange: (e3) => setForm({ ...form, query_type: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Documentation" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Clarification" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Specificity" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Capture" })
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { value: form.severity, onChange: (e3) => setForm({ ...form, severity: e3.target.value }), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "High" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Medium" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Low" })
+              ] })
+            ] }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Query Description" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 3, value: form.query_text, onChange: (e3) => setForm({ ...form, query_text: e3.target.value }), placeholder: "Describe the clinical documentation gap...", required: true })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Row, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Query Type" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Clarification" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Specificity" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Capture" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Conflicting" })
-            ] })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Col, { md: 6, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Priority" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Select, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "High" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Medium" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { children: "Low" })
-            ] })
-          ] }) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Query Description" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 3, placeholder: "Describe the clinical documentation gap..." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { className: "mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Clinical Indicators" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 2, placeholder: "Lab values, vitals, medications supporting the query..." })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setShowQueryModal(false), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: busy ? /* @__PURE__ */ jsxRuntimeExports.jsx(Spinner, { animation: "border", size: "sm" }) : "Submit Query" })
         ] })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Footer, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", children: "Submit Query" }) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1, { show: !!responding, onHide: () => setResponding(null), centered: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Header, { closeButton: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Modal$1.Title, { children: "Physician Response" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1, { onSubmit: submitResponse, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Body, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "small text-muted", children: [
+            "Query #",
+            responding == null ? void 0 : responding.id,
+            " — ",
+            responding == null ? void 0 : responding.patient_name
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Form$1.Group, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Label, { children: "Response" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Form$1.Control, { as: "textarea", rows: 3, value: response, onChange: (e3) => setResponse(e3.target.value), required: true })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Modal$1.Footer, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "secondary", onClick: () => setResponding(null), children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "primary", type: "submit", disabled: busy, children: "Save Response" })
+        ] })
+      ] })
     ] })
   ] });
 };
@@ -147480,6 +147576,25 @@ const EarlyWarningScore = () => {
 };
 const RevenueCycleAI = () => {
   const [activeTab, setActiveTab] = reactExports.useState("denials");
+  const [appealMsg, setAppealMsg] = reactExports.useState("");
+  const [submitted, setSubmitted] = reactExports.useState([]);
+  const submitAppeal = async (row) => {
+    var _a, _b;
+    try {
+      await api$1.post("/api/revenue-ai/appeals", {
+        claim_ref: String(row.id),
+        patient_name: row.patient,
+        payer: row.payer,
+        denial_reason: row.reason,
+        amount: Number(String(row.amount).replace(/[^0-9.]/g, "")) || null,
+        appeal_text: row.aiStrategy || row.suggestedAction || "Appeal submitted from the revenue-cycle workbench"
+      });
+      setSubmitted([...submitted, row.id]);
+      setAppealMsg(`Appeal submitted for ${row.id}.`);
+    } catch (err) {
+      setAppealMsg(((_b = (_a = err.response) == null ? void 0 : _a.data) == null ? void 0 : _b.message) || `Could not submit the appeal for ${row.id}.`);
+    }
+  };
   const denialPredictions = [];
   const deniedClaims = [];
   const leakageDetection = [
@@ -147535,6 +147650,7 @@ const RevenueCycleAI = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Leakage Prevented" })
       ] }) }) })
     ] }),
+    appealMsg && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert$2, { variant: "info", dismissible: true, onClose: () => setAppealMsg(""), children: appealMsg }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Tabs, { activeKey: activeTab, onSelect: setActiveTab, className: "mb-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Tab$1, { eventKey: "denials", title: "🔮 Denial Predictions", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Card$1, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Card$1.Body, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h5", { className: "mb-3", children: "Pre-Submission Denial Risk Analysis" }),
@@ -147563,7 +147679,7 @@ const RevenueCycleAI = () => {
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: d2.reason }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Badge$1, { bg: "info", children: d2.suggestedAction }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", children: "Fix & Submit" }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "outline-primary", disabled: submitted.includes(d2.id), onClick: () => submitAppeal(d2), children: submitted.includes(d2.id) ? "Submitted" : "Fix & Submit" }) })
           ] }, d2.id)) })
         ] })
       ] }) }) }),
@@ -147596,8 +147712,7 @@ const RevenueCycleAI = () => {
               c2.successProb,
               "% success probability"
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "primary", className: "me-1", children: "📄 View Draft" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", children: "📤 Submit Appeal" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { size: "sm", variant: "success", disabled: submitted.includes(c2.id), onClick: () => submitAppeal(c2), children: submitted.includes(c2.id) ? "Submitted" : "📤 Submit Appeal" })
           ] })
         ] }) }, c2.id))
       ] }) }) }),
@@ -154523,7 +154638,7 @@ const WardPassManager = () => {
     ] })
   ] });
 };
-const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-QmKhBo-q.js"), true ? [] : void 0));
+const FloorPlanManager = React.lazy(() => __vitePreload(() => import("./FloorPlanManager-C5lrlHy2.js"), true ? [] : void 0));
 function App() {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(HospitalProfileProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SystemStatusProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ErrorBoundary, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(NotificationToast, { maxNotifications: 5, autoDismiss: 8e3 }),

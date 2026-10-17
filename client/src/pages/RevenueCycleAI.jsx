@@ -1,8 +1,28 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Table, Badge, Button, Tabs, Tab, ProgressBar, Alert } from 'react-bootstrap';
+import api from '../utils/axiosInstance';
 
 const RevenueCycleAI = () => {
   const [activeTab, setActiveTab] = useState('denials');
+  const [appealMsg, setAppealMsg] = useState('');
+  const [submitted, setSubmitted] = useState([]);
+
+  const submitAppeal = async (row) => {
+    try {
+      await api.post('/api/revenue-ai/appeals', {
+        claim_ref: String(row.id),
+        patient_name: row.patient,
+        payer: row.payer,
+        denial_reason: row.reason,
+        amount: Number(String(row.amount).replace(/[^0-9.]/g, '')) || null,
+        appeal_text: row.aiStrategy || row.suggestedAction || 'Appeal submitted from the revenue-cycle workbench',
+      });
+      setSubmitted([...submitted, row.id]);
+      setAppealMsg(`Appeal submitted for ${row.id}.`);
+    } catch (err) {
+      setAppealMsg(err.response?.data?.message || `Could not submit the appeal for ${row.id}.`);
+    }
+  };
 
   const denialPredictions = [];
 
@@ -42,6 +62,8 @@ const RevenueCycleAI = () => {
         <Col><Card className="text-center border-danger"><Card.Body><h4 className="text-danger">{metrics.leakagePrevented}</h4><small>Leakage Prevented</small></Card.Body></Card></Col>
       </Row>
 
+      {appealMsg && <Alert variant="info" dismissible onClose={() => setAppealMsg('')}>{appealMsg}</Alert>}
+
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
         <Tab eventKey="denials" title="🔮 Denial Predictions">
           <Card>
@@ -66,7 +88,7 @@ const RevenueCycleAI = () => {
                       </td>
                       <td><small>{d.reason}</small></td>
                       <td><Badge bg="info">{d.suggestedAction}</Badge></td>
-                      <td><Button size="sm" variant="outline-primary">Fix & Submit</Button></td>
+                      <td><Button size="sm" variant="outline-primary" disabled={submitted.includes(d.id)} onClick={() => submitAppeal(d)}>{submitted.includes(d.id) ? 'Submitted' : 'Fix & Submit'}</Button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -89,8 +111,7 @@ const RevenueCycleAI = () => {
                     </div>
                     <div className="text-end">
                       <Badge bg={c.successProb > 70 ? 'success' : 'warning'} className="mb-2 d-block">{c.successProb}% success probability</Badge>
-                      <Button size="sm" variant="primary" className="me-1">📄 View Draft</Button>
-                      <Button size="sm" variant="success">📤 Submit Appeal</Button>
+                      <Button size="sm" variant="success" disabled={submitted.includes(c.id)} onClick={() => submitAppeal(c)}>{submitted.includes(c.id) ? 'Submitted' : '📤 Submit Appeal'}</Button>
                     </div>
                   </div>
                 </Alert>

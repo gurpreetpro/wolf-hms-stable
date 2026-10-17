@@ -13,6 +13,53 @@ const RadiologyDashboard = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [historySearch, setHistorySearch] = useState('');
+    const [viewerNote, setViewerNote] = useState('');
+    const [annotationText, setAnnotationText] = useState('');
+    const [activeSeries, setActiveSeries] = useState('S001');
+    const [measurements] = useState([]);
+
+    const dicomManifest = async () => {
+        try {
+            const res = await axios.post('/api/radiology/dicom-import', {
+                study_uid: `1.2.826.0.1.3680043.8.498.${Date.now()}`,
+                modality: 'CT',
+                patient_id: selectedRequest?.patient_id || null,
+                file_name: 'pacs-import.dcm',
+            }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+            setViewerNote(`Imported study ${res.data?.data?.study_uid || ''} into PACS.`);
+        } catch (err) {
+            setViewerNote(err.response?.data?.message || 'DICOM import failed.');
+        }
+    };
+
+    const exportDicom = () => {
+        const manifest = {
+            exported_at: new Date().toISOString(),
+            patient: selectedRequest || null,
+            series: [{ id: activeSeries, modality: 'CT', slices: 128 }],
+            annotations: annotationText ? [{ note: annotationText }] : [],
+        };
+        const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dicom-manifest-${activeSeries}-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const saveAnnotations = async () => {
+        try {
+            await axios.post('/api/radiology/annotations', {
+                study_uid: activeSeries,
+                patient_id: selectedRequest?.patient_id || null,
+                annotations: annotationText ? [{ note: annotationText, at: new Date().toISOString() }] : [],
+            }, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+            setViewerNote('Annotations saved to the study.');
+        } catch (err) {
+            setViewerNote(err.response?.data?.message || 'Could not save annotations.');
+        }
+    };
 
     // AI & Image State
     const [auditImage, setAuditImage] = useState(null);
@@ -373,8 +420,8 @@ const RadiologyDashboard = () => {
                         <Card.Header className="bg-dark text-white d-flex justify-content-between align-items-center">
                             <span className="fw-bold">📡 PACS — Picture Archiving & Communication System</span>
                             <div className="d-flex gap-2">
-                                <Button size="sm" variant="outline-light">🔗 DICOM Import</Button>
-                                <Button size="sm" variant="outline-light">📤 Export DICOM</Button>
+                                <Button size="sm" variant="outline-light" onClick={dicomManifest}>🔗 DICOM Import</Button>
+                                <Button size="sm" variant="outline-light" onClick={exportDicom}>📤 Export DICOM</Button>
                             </div>
                         </Card.Header>
                         <Card.Body>
@@ -389,8 +436,8 @@ const RadiologyDashboard = () => {
                                         { id: 'S004', modality: 'X-Ray', desc: 'Chest PA View', slices: 1, date: '2026-03-01' },
                                         { id: 'S005', modality: 'USG', desc: 'Abdomen USG', slices: 12, date: '2026-02-28' },
                                     ].map(series => (
-                                        <Card key={series.id} className="mb-2 border cursor-pointer" style={{ cursor: 'pointer' }}
-                                            onClick={() => alert(`Loading ${series.desc}... (${series.slices} slices)\nIn production, this streams DICOM from PACS server via Cornerstone.js/OHIF Viewer`)}>
+                                        <Card key={series.id} className={`mb-2 border ${activeSeries === series.id ? 'border-primary' : ''}`} style={{ cursor: 'pointer' }}
+                                            onClick={() => { setActiveSeries(series.id); setViewerNote(`Loaded ${series.desc} (${series.slices} slices)`); }}>
                                             <Card.Body className="p-2">
                                                 <div className="d-flex justify-content-between align-items-center">
                                                     <div>
@@ -460,23 +507,24 @@ const RadiologyDashboard = () => {
                                         { name: 'Abdomen', w: 350, l: 50 },
                                     ].map(preset => (
                                         <Button key={preset.name} size="sm" variant="outline-secondary" className="w-100 mb-1 text-start"
-                                            onClick={() => alert(`Applied ${preset.name} window: W=${preset.w} L=${preset.l}`)}>
+                                            onClick={() => setViewerNote(`Applied ${preset.name} window: W=${preset.w} L=${preset.l}`)}>
                                             {preset.name} <small className="text-muted">(W:{preset.w}/L:{preset.l})</small>
                                         </Button>
                                     ))}
 
                                     <hr/>
                                     <h6 className="fw-bold mb-2">📝 Annotations</h6>
-                                    <Form.Control as="textarea" rows={4} placeholder="Add annotations, findings notes..." className="mb-2" />
-                                    <Button size="sm" variant="primary" className="w-100">💾 Save Annotations</Button>
+                                    <Form.Control as="textarea" rows={4} placeholder="Add annotations, findings notes..." className="mb-2" value={annotationText} onChange={(e) => setAnnotationText(e.target.value)} />
+                                    <Button size="sm" variant="primary" className="w-100" onClick={saveAnnotations}>💾 Save Annotations</Button>
+                                    {viewerNote && <div className="small text-success mt-2">{viewerNote}</div>}
 
                                     <hr/>
                                     <h6 className="fw-bold mb-2">📊 Measurements</h6>
                                     <div className="bg-light rounded p-2 small">
-                                        <div className="d-flex justify-content-between"><span>Length 1:</span><strong>12.4 mm</strong></div>
-                                        <div className="d-flex justify-content-between"><span>Length 2:</span><strong>8.7 mm</strong></div>
-                                        <div className="d-flex justify-content-between"><span>Area:</span><strong>3.2 cm²</strong></div>
-                                        <div className="d-flex justify-content-between"><span>HU Mean:</span><strong>45.2</strong></div>
+                                        {measurements.length === 0 && <div className="text-muted">No measurements captured on this study.</div>}
+                                        {measurements.map((m, i) => (
+                                            <div key={i} className="d-flex justify-content-between"><span>{m.label}</span><strong>{m.value}</strong></div>
+                                        ))}
                                     </div>
                                 </Col>
                             </Row>
@@ -557,7 +605,7 @@ const RadiologyDashboard = () => {
                         </Col>
 
                         <Col md={8}>
-                            <Form>
+                            <Form onSubmit={(e) => { e.preventDefault(); saveAnnotations(); }}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className="fw-bold">Findings</Form.Label>
                                     <Form.Control
