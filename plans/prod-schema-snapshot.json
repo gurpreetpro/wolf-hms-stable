@@ -35472,6 +35472,14 @@
     "column_default": null
   },
   {
+    "table_name": "vitals_logs",
+    "column_name": "admission_id",
+    "data_type": "uuid",
+    "udt_name": "uuid",
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
     "table_name": "ward_change_requests",
     "column_name": "id",
     "data_type": "integer",

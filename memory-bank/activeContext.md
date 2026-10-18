@@ -6,6 +6,27 @@
 
 2026-10-18
 
+## Session 2026-10-18 — STAGE 3 (ZERO-UI-TOUCH): HEAL vitals_logs.admission_id & HARDEN clinicalController.js
+- **Mandates Honored**: 100% Zero UI Touch (`client/` untouched, frontend bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.
+- **Root Cause Eliminated**: Clicking `Patient 1` in `DoctorDashboard.jsx` called `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841`. `clinicalController.js:167-170` queried `vitals_logs.admission_id`, which was absent on `wolf_hms_prod`, throwing PostgreSQL 42703 -> HTTP 500 -> client redirection to `/service-unavailable`.
+- **Migration 315 Authored & Applied (`server/migrations/315_doctor_opd_vitals_and_clinical_heal.sql`)**:
+  - Dynamically detected `admissions.id` data type via `information_schema.columns`. Added `vitals_logs.admission_id UUID` on production `wolf_hms_prod` (and `INTEGER` locally).
+  - Created indexes `idx_vitals_logs_admission_id` and `idx_vitals_logs_patient_id`.
+  - Backfilled `vitals_logs.admission_id` from active `admissions`.
+- **Surgical Controller Hardening in `server/controllers/clinicalController.js`**:
+  - `getVitalsByPatient`: Cast patient and admission IDs to text (`patient_id::text = $1 OR admission_id::text IN (SELECT id::text FROM admissions WHERE patient_id::text = $1)`) to ensure cross-type safety.
+  - `saveConsultation`: Safely resolved `hospitalId`, included `hospital_id` in `care_tasks` insert, and tenant-matched `prescriptions` and `lab_test_types`.
+  - `getTasks`, `getSOAPNotes`, `getRoundNotes`: Guarded against `'undefined'` / `'null'` / missing `admission_id`, immediately returning empty array `ResponseHandler.success(res, [])` instead of crashing PostgreSQL with UUID syntax error 22P02.
+- **Verification on Production VPS (`185.213.27.158`)**:
+  - Migration 315 executed cleanly; verified `vitals_logs.admission_id` is `uuid` (nullable).
+  - `Patient 1` (`Token 1`) verified present and `Waiting` in `opd_visits` (`visit_id = 1`).
+  - PM2 `wolf-hms-api` restarted cleanly (PID 3981325, 0% CPU, 138MB RAM).
+  - Live probe `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **HTTP 200 OK** (was HTTP 500!).
+  - Live probe `GET /api/clinical/history/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **HTTP 200 OK**.
+  - Live probe `GET /api/clinical/tasks?admission_id=undefined` -> **HTTP 200 OK `[]`**.
+  - Live probe `GET /api/clinical/soap-notes/undefined` -> **HTTP 200 OK `[]`**.
+  - Live probe `GET /api/opd/queue` -> **HTTP 200 OK** with `Patient 1` in queue.
+
 ## Session 2026-10-18 — ZERO-UI-TOUCH MASTER DATABASE & BACKEND HEAL (Migration 314 + 7 Controller Fixes)
 - **Mandates Honored**: 100% Zero UI Touch (`client/` untouched, frontend bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files.
 - **Migration 314 Authored & Applied (`server/migrations/314_prod_master_schema_and_uuid_heal.sql`)**:

@@ -1,4 +1,24 @@
 ## ✅ Completed & Verified
+### STAGE 3 (ZERO-UI-TOUCH): HEAL vitals_logs.admission_id & HARDEN clinicalController.js (2026-10-18, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Patient 1 Preserved:** `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) in `opd_visits` completely untouched and active.
+- [x] **Migration 315 Authored & Deployed (`server/migrations/315_doctor_opd_vitals_and_clinical_heal.sql`):**
+  - Dynamically resolved `admissions.id` data type and added `vitals_logs.admission_id UUID` on `wolf_hms_prod` (and `INTEGER` locally).
+  - Created indexes `idx_vitals_logs_admission_id` and `idx_vitals_logs_patient_id`.
+  - Backfilled `vitals_logs.admission_id` from active `admissions`.
+- [x] **Surgical Controller Hardening in `clinicalController.js`:**
+  - `getVitalsByPatient`: Cast IDs to text (`patient_id::text = $1 OR admission_id::text IN (...)`).
+  - `saveConsultation`: Multi-source tenant resolver `req.hospital_id || req.hospitalId || req.user?.hospital_id || 1`, added `hospital_id` to `care_tasks`, and tenant-matching on prescriptions/labs.
+  - `getTasks`, `getSOAPNotes`, `getRoundNotes`: Immediate `ResponseHandler.success(res, [])` guard for undefined/null `admission_id` preventing PostgreSQL 22P02 crashes.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK** (resolved 500!).
+  - `GET /api/clinical/history/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK**.
+  - `GET /api/clinical/tasks?admission_id=undefined` -> **200 OK `[]`**.
+  - `GET /api/clinical/soap-notes/undefined` -> **200 OK `[]`**.
+  - `GET /api/opd/queue` -> **200 OK** (Patient 1 present and waiting in queue).
+  - PM2 `wolf-hms-api` online and healthy.
+
 ### ZERO-UI-TOUCH MASTER DATABASE & BACKEND HEAL (2026-10-18, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
