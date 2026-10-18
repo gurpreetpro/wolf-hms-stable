@@ -1339,6 +1339,29 @@ ALTER TABLE IF EXISTS parking_sessions
     ADD COLUMN IF NOT EXISTS is_manual_override BOOLEAN DEFAULT false,
     ADD COLUMN IF NOT EXISTS override_reason TEXT;
 
+ALTER TABLE IF EXISTS admissions 
+    ADD COLUMN IF NOT EXISTS code_status VARCHAR(50) DEFAULT 'Full Code',
+    ADD COLUMN IF NOT EXISTS resuscitation_status VARCHAR(50) DEFAULT 'Full Code';
+
+ALTER TABLE IF EXISTS patient_vitals
+    ADD COLUMN IF NOT EXISTS bp_systolic INTEGER,
+    ADD COLUMN IF NOT EXISTS bp_diastolic INTEGER,
+    ADD COLUMN IF NOT EXISTS pulse_rate INTEGER;
+
+ALTER TABLE IF EXISTS ward_consumables
+    ADD COLUMN IF NOT EXISTS unit VARCHAR(50) DEFAULT 'piece';
+
+ALTER TABLE IF EXISTS vitals 
+    ADD COLUMN IF NOT EXISTS resp_rate INTEGER DEFAULT 16,
+    ADD COLUMN IF NOT EXISTS respiratory_rate INTEGER DEFAULT 16,
+    ADD COLUMN IF NOT EXISTS heart_rate INTEGER DEFAULT 76,
+    ADD COLUMN IF NOT EXISTS conscious_level VARCHAR(50) DEFAULT 'Alert',
+    ADD COLUMN IF NOT EXISTS consciousness VARCHAR(50) DEFAULT 'Alert',
+    ADD COLUMN IF NOT EXISTS on_oxygen BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS blood_pressure VARCHAR(50) DEFAULT '120/80',
+    ADD COLUMN IF NOT EXISTS oxygen_saturation NUMERIC(5,2) DEFAULT 98,
+    ADD COLUMN IF NOT EXISTS pulse_rate INTEGER DEFAULT 76,
+    ADD COLUMN IF NOT EXISTS hospital_id INTEGER DEFAULT 1;
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- 4. BASELINE SEEDING (Ward Consumables, Charges & NEWS2 Vitals)
@@ -1385,4 +1408,20 @@ WHERE a.hospital_id = 1 AND a.status = 'Admitted'
   AND NOT EXISTS (SELECT 1 FROM vitals v WHERE v.admission_id = a.id)
 ON CONFLICT DO NOTHING;
 
+INSERT INTO vitals_logs (patient_id, bp, temp, spo2, heart_rate, respiratory_rate, recorded_at, hospital_id)
+SELECT 
+    a.patient_id,
+    '120/80',
+    36.8,
+    98,
+    76,
+    16,
+    NOW(),
+    1
+FROM admissions a
+WHERE a.hospital_id = 1 AND a.status = 'Admitted'
+  AND NOT EXISTS (SELECT 1 FROM vitals_logs vl WHERE vl.patient_id = a.patient_id)
+ON CONFLICT DO NOTHING;
+
 COMMIT;
+

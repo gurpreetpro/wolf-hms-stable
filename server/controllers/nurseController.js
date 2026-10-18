@@ -182,7 +182,7 @@ const getWardOverview = asyncHandler(async (req, res) => {
                     vitals = vRes.rows[0];
                 } else {
                     const pvRes = await pool.query(
-                        `SELECT bp_systolic, bp_diastolic, temperature as temp, spo2, pulse_rate as heart_rate, respiratory_rate, recorded_at 
+                        `SELECT bp_systolic, bp_diastolic, temperature as temp, spo2, heart_rate, respiratory_rate, recorded_at 
                          FROM patient_vitals WHERE (patient_id = $1 OR admission_id = $2)
                          ORDER BY recorded_at DESC LIMIT 1`,
                         [adm.patient_id, adm.admission_id]
