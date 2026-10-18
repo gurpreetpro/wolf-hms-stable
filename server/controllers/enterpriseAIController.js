@@ -8,6 +8,7 @@ const RevenueCycleAI = require('../services/ai/RevenueCycleAI');
 const SupplyChainAI = require('../services/ai/SupplyChainAI');
 const ClinicalPathwayAI = require('../services/ai/ClinicalPathwayAI');
 const OperationalCommandCenter = require('../services/ai/OperationalCommandCenter');
+const normId = (v) => (v !== undefined && v !== null && /^\d+$/.test(String(v).trim()) ? parseInt(String(v).trim(), 10) : v);
 
 // ══════════════════════════════════════════════════
 // PILLAR 1: REVENUE CYCLE
@@ -23,7 +24,7 @@ const scrubClaim = asyncHandler(async (req, res) => {
 const autoCodDRG = asyncHandler(async (req, res) => {
     const hospitalId = req.user?.hospital_id || req.hospitalId || 1;
     const { admissionId } = req.params;
-    const result = await RevenueCycleAI.autoCodDRG(parseInt(admissionId), hospitalId);
+    const result = await RevenueCycleAI.autoCodDRG(normId(admissionId), hospitalId);
     res.json(result);
 });
 
@@ -38,7 +39,7 @@ const generateAppeal = asyncHandler(async (req, res) => {
 const detectLeakage = asyncHandler(async (req, res) => {
     const hospitalId = req.user?.hospital_id || req.hospitalId || 1;
     const { admissionId } = req.params;
-    const result = await RevenueCycleAI.detectLeakage(parseInt(admissionId), hospitalId);
+    const result = await RevenueCycleAI.detectLeakage(normId(admissionId), hospitalId);
     res.json(result);
 });
 
@@ -79,7 +80,7 @@ const expiryRisk = asyncHandler(async (req, res) => {
 const checkPathway = asyncHandler(async (req, res) => {
     const hospitalId = req.user?.hospital_id || req.hospitalId || 1;
     const { admissionId } = req.params;
-    const result = await ClinicalPathwayAI.checkPathwayAdherence(parseInt(admissionId), hospitalId);
+    const result = await ClinicalPathwayAI.checkPathwayAdherence(normId(admissionId), hospitalId);
     res.json(result);
 });
 
@@ -93,7 +94,7 @@ const readmissionRisk = asyncHandler(async (req, res) => {
 const sepsisScreen = asyncHandler(async (req, res) => {
     const hospitalId = req.user?.hospital_id || req.hospitalId || 1;
     const { admissionId } = req.params;
-    const result = await ClinicalPathwayAI.screenForSepsis(parseInt(admissionId), hospitalId);
+    const result = await ClinicalPathwayAI.screenForSepsis(normId(admissionId), hospitalId);
     res.json(result);
 });
 

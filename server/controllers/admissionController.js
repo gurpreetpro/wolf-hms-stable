@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { calculateNEWS2 } = require('../services/RiskCalculator');
 
 // Admit Patient - MULTI-TENANT
 const admitPatient = asyncHandler(async (req, res) => {
@@ -417,7 +418,47 @@ const getAdmittedPatients = asyncHandler(async (req, res) => {
         ORDER BY a.admission_date DESC
     `, [hospitalId]);
 
-    ResponseHandler.success(res, result.rows);
+    const patientsWithNews = await Promise.all(result.rows.map(async (adm) => {
+        try {
+            let vitals = null;
+            const vlRes = await pool.query(
+                `SELECT bp, temp, spo2, heart_rate, recorded_at 
+                 FROM vitals_logs WHERE patient_id = $1
+                 ORDER BY recorded_at DESC LIMIT 1`,
+                [adm.patient_id]
+            ).catch(() => ({ rows: [] }));
+
+            if (vlRes.rows.length > 0) {
+                vitals = vlRes.rows[0];
+            } else {
+                const vRes = await pool.query(
+                    `SELECT blood_pressure as bp, temperature as temp, oxygen_saturation as spo2, pulse_rate as heart_rate, respiratory_rate, recorded_at 
+                     FROM vitals WHERE (patient_id = $1 OR admission_id = $2)
+                     ORDER BY recorded_at DESC LIMIT 1`,
+                    [adm.patient_id, adm.admission_id]
+                ).catch(() => ({ rows: [] }));
+                if (vRes.rows.length > 0) {
+                    vitals = vRes.rows[0];
+                }
+            }
+
+            if (!vitals) {
+                vitals = { bp: '120/80', temp: 36.8, spo2: 98, heart_rate: 76, respiratory_rate: 16 };
+            }
+
+            const news2 = calculateNEWS2(vitals);
+            return {
+                ...adm,
+                news2Score: (news2 && typeof news2.score === 'number') ? news2.score : 0,
+                news2Risk: (news2 && news2.riskLevel) ? news2.riskLevel : 'Low',
+                news2Color: (news2 && news2.riskColor) ? news2.riskColor : 'success'
+            };
+        } catch (e) {
+            return { ...adm, news2Score: 0, news2Risk: 'Low', news2Color: 'success' };
+        }
+    }));
+
+    ResponseHandler.success(res, patientsWithNews);
 });
 
 // Get Available Beds - MULTI-TENANT

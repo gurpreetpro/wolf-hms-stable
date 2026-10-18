@@ -5,6 +5,7 @@ const { getHospitalId } = require('../utils/tenantHelper');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const FinanceService = require('../services/FinanceService');
+const normId = (v) => (v !== undefined && v !== null && /^\d+$/.test(String(v).trim()) ? parseInt(String(v).trim(), 10) : v);
 
 // Helper: Get Service Rate from Charge Master
 const getServiceRate = async (code, hospitalId) => {
@@ -89,7 +90,7 @@ const generateInvoice = async (req, res, next) => {
     try {
         admission = await prisma.admissions.findFirst({
             where: {
-                id: parseInt(admission_id),
+                id: normId(admission_id),
                 OR: [
                     { hospital_id: parseInt(hospitalId) },
                     { hospital_id: null }
@@ -117,7 +118,7 @@ const generateInvoice = async (req, res, next) => {
     // Fetch all completed, unpaid lab requests
     const labRequests = await prisma.lab_requests.findMany({
         where: {
-            admission_id: parseInt(admission_id),
+            admission_id: normId(admission_id),
             status: 'Completed',
             OR: [
                 { payment_status: { not: 'Paid' } },
@@ -161,7 +162,7 @@ const generateInvoice = async (req, res, next) => {
     // [Refactor] Granular Pharmacy Charges (from Care Tasks)
     const pharmTasks = await prisma.care_tasks.findMany({
         where: {
-            admission_id: parseInt(admission_id),
+            admission_id: normId(admission_id),
             type: 'Medication',
             status: 'Completed',
             OR: [
@@ -202,7 +203,7 @@ const generateInvoice = async (req, res, next) => {
     // Insert Invoice
     const invoice = await prisma.invoices.create({
         data: {
-            admissions: (admission_id && parseInt(admission_id) > 0) ? { connect: { id: parseInt(admission_id) } } : undefined,
+            admissions: (admission_id) ? { connect: { id: normId(admission_id) } } : undefined,
             patients: { connect: { id: patient_id } },
             total_amount: grandTotal,
             users: { connect: { id: parseInt(user_id) } },
@@ -554,7 +555,7 @@ const getBillableItems = asyncHandler(async (req, res) => {
         services.rows.forEach(svc => items.push({ id: `SVC-${svc.id}`, type: 'Service', description: svc.name, price: svc.price, qty: svc.quantity || 1 }));
     } catch (err) { console.error('Error fetching service charges', err); }
     
-    ResponseHandler.success(res, { patient_name: admData.patient_name, admission_id: parseInt(admission_id), ward: admData.ward, bed_number: admData.bed_number, items, total: items.reduce((sum, i) => sum + (i.price * i.qty), 0) });
+    ResponseHandler.success(res, { patient_name: admData.patient_name, admission_id: normId(admission_id), ward: admData.ward, bed_number: admData.bed_number, items, total: items.reduce((sum, i) => sum + (i.price * i.qty), 0) });
 });
 
 // Get AR Aging Report - Multi-Tenant

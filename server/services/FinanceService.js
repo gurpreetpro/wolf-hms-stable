@@ -8,6 +8,7 @@
 
 const { pool } = require('../db');
 const prisma = require('../config/prisma');
+const normId = (v) => (v !== undefined && v !== null && /^\d+$/.test(String(v).trim()) ? parseInt(String(v).trim(), 10) : v);
 
 class FinanceService {
     
@@ -91,7 +92,7 @@ class FinanceService {
     async calculateLabCharges(admissionId, hospitalId) {
         const labRequests = await prisma.lab_requests.findMany({
             where: {
-                admission_id: parseInt(admissionId),
+                admission_id: normId(admissionId),
                 status: 'Completed',
                 hospital_id: parseInt(hospitalId),
                 OR: [
@@ -134,7 +135,7 @@ class FinanceService {
     async calculatePharmacyCharges(admissionId, hospitalId) {
         const pharmTasks = await prisma.care_tasks.findMany({
             where: {
-                admission_id: parseInt(admissionId),
+                admission_id: normId(admissionId),
                 type: 'Medication',
                 status: 'Completed',
                 hospital_id: parseInt(hospitalId)
@@ -275,7 +276,7 @@ class FinanceService {
         // 1. Get admission details
         const admission = await prisma.admissions.findFirst({
             where: {
-                id: parseInt(admissionId),
+                id: normId(admissionId),
                 hospital_id: parseInt(hospitalId)
             }
         });
@@ -294,7 +295,7 @@ class FinanceService {
         // Instead of calculating everything from scratch, we look for the real-time invoice
         let invoice = await prisma.invoices.findFirst({
             where: {
-                admission_id: parseInt(admissionId),
+                admission_id: normId(admissionId),
                 status: 'Pending',
                 hospital_id: parseInt(hospitalId)
             },
@@ -385,7 +386,7 @@ class FinanceService {
 
             invoice = await prisma.invoices.create({
                 data: {
-                    admissions: admissionId > 0 ? { connect: { id: parseInt(admissionId) } } : undefined,
+                    admissions: admissionId ? { connect: { id: normId(admissionId) } } : undefined,
                     patients: { connect: { id: patientId } },
                     total_amount: Math.max(grandTotal, 100),
                     users: { connect: { id: parseInt(userId) } },

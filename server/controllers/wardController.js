@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const logger = require('../services/Logger');
+const { calculateNEWS2 } = require('../services/RiskCalculator');
 
 // Get all wards with bed counts - MULTI-TENANT
 const getWards = asyncHandler(async (req, res) => {
@@ -106,7 +107,51 @@ const getBeds = asyncHandler(async (req, res) => {
     query += ' ORDER BY w.name, b.bed_number';
 
     const result = await pool.query(query, params);
-    ResponseHandler.success(res, result.rows);
+
+    const bedsWithNews = await Promise.all(result.rows.map(async (bed) => {
+        if (!bed.admission_id) {
+            return { ...bed, news2Score: null, news2Risk: 'Available', news2Color: 'secondary' };
+        }
+        try {
+            let vitals = null;
+            const vlRes = await pool.query(
+                `SELECT bp, temp, spo2, heart_rate, recorded_at 
+                 FROM vitals_logs WHERE patient_id = $1
+                 ORDER BY recorded_at DESC LIMIT 1`,
+                [bed.patient_id]
+            ).catch(() => ({ rows: [] }));
+
+            if (vlRes.rows.length > 0) {
+                vitals = vlRes.rows[0];
+            } else {
+                const vRes = await pool.query(
+                    `SELECT blood_pressure as bp, temperature as temp, oxygen_saturation as spo2, pulse_rate as heart_rate, respiratory_rate, recorded_at 
+                     FROM vitals WHERE (patient_id = $1 OR admission_id = $2)
+                     ORDER BY recorded_at DESC LIMIT 1`,
+                    [bed.patient_id, bed.admission_id]
+                ).catch(() => ({ rows: [] }));
+                if (vRes.rows.length > 0) {
+                    vitals = vRes.rows[0];
+                }
+            }
+
+            if (!vitals) {
+                vitals = { bp: '120/80', temp: 36.8, spo2: 98, heart_rate: 76, respiratory_rate: 16 };
+            }
+
+            const news2 = calculateNEWS2(vitals);
+            return {
+                ...bed,
+                news2Score: (news2 && typeof news2.score === 'number') ? news2.score : 0,
+                news2Risk: (news2 && news2.riskLevel) ? news2.riskLevel : 'Low',
+                news2Color: (news2 && news2.riskColor) ? news2.riskColor : 'success'
+            };
+        } catch (e) {
+            return { ...bed, news2Score: 0, news2Risk: 'Low', news2Color: 'success' };
+        }
+    }));
+
+    ResponseHandler.success(res, bedsWithNews);
 });
 
 // Create new bed - MULTI-TENANT

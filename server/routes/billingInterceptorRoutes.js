@@ -15,6 +15,7 @@ const { protect, authorize } = require("../middleware/authMiddleware");
 const { getHospitalId } = require("../utils/tenantHelper");
 const BillingInterceptor = require("../services/BillingInterceptor");
 const ResponseHandler = require("../utils/responseHandler");
+const normId = (v) => (v !== undefined && v !== null && /^\d+$/.test(String(v).trim()) ? parseInt(String(v).trim(), 10) : v);
 
 // ─────────────────────────────────────────────────────────────
 // GET /api/billing/folio/:patientId
@@ -63,13 +64,13 @@ router.post(
       const { patientId, admissionId } = req.body;
       const hospitalId = getHospitalId(req);
 
-      if (!patientId || isNaN(parseInt(patientId))) {
-        return ResponseHandler.error(res, "Valid patientId (numeric) is required.", 400);
+      if (!patientId) {
+        return ResponseHandler.error(res, "Valid patientId is required.", 400);
       }
 
       const result = await BillingInterceptor.createFolio(
-        parseInt(patientId),
-        admissionId || null,
+        normId(patientId),
+        normId(admissionId) || null,
         hospitalId
       );
 

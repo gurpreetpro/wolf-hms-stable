@@ -10,6 +10,7 @@
 
 const prisma = require('../config/prisma');
 const { getHospitalId } = require('../utils/tenantHelper');
+const normId = (v) => (v !== undefined && v !== null && /^\d+$/.test(String(v).trim()) ? parseInt(String(v).trim(), 10) : v);
 
 // Get Socket.io instance (will be set from server.js)
 let io = null;
@@ -118,7 +119,7 @@ const getPendingCharges = async (req, res) => {
         };
 
         if (patient_id) where.patient_id = patient_id;
-        if (admission_id) where.admission_id = parseInt(admission_id);
+        if (admission_id) where.admission_id = normId(admission_id);
         if (status && status !== 'all') where.status = status;
         if (charge_type) where.charge_type = charge_type;
 
@@ -202,7 +203,7 @@ const getPatientCharges = async (req, res) => {
         };
 
         if (status && status !== 'all') where.status = status;
-        if (admission_id) where.admission_id = parseInt(admission_id);
+        if (admission_id) where.admission_id = normId(admission_id);
 
         const charges = await prisma.pending_charges.findMany({
             where,
