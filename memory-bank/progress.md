@@ -1,4 +1,25 @@
 ## ✅ Completed & Verified
+### ZERO-UI-TOUCH MASTER DATABASE & BACKEND HEAL (2026-10-18, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Migration 314 Authored & Deployed (`server/migrations/314_prod_master_schema_and_uuid_heal.sql`):**
+  - Widened all 36 foreign key candidate columns from `INTEGER` to `UUID` dynamically on `wolf_hms_prod`.
+  - Created 81 missing clinical and operational tables (`patient_consumables`, `patient_service_charges`, `shift_handoff_notes`, `fall_risk_assessments`, `wound_assessments`, `patient_care_plans`, `soap_notes`, `round_notes`, `clinical_alerts`, `lab_orders`, `lab_results`, etc.).
+  - Added missing columns and fixed NOT NULL defaults across `nursing_care_plans`, `pain_scores`, `fluid_balance`, `iv_lines`, `care_tasks`, `admissions`, `patient_vitals`, `ward_consumables`, `vitals`.
+  - Seeded baseline `ward_consumables`, `ward_service_charges`, and active `vitals` + `vitals_logs` for admitted patients.
+- [x] **7 Surgical Controller Fixes:**
+  - `nurseController.js`: Multi-source vitals fallback for NEWS2; consumable write with `used_by` & `recorded_by`; non-fatal billing try-catch; coalesce join.
+  - `wardController.js` & `admissionController.js`: Imported `calculateNEWS2` and attached live numeric `news2Score`, `news2Risk`, `news2Color` to `getBeds` and `getAdmittedPatients`.
+  - Removed 22 `parseInt(admission_id / patient_id)` coercion traps across `chargesController.js`, `enterpriseAIController.js`, `financeController.js`, `billingInterceptorRoutes.js`, and `FinanceService.js`.
+- [x] **Verification & Live Probes on `185.213.27.158`:**
+  - `node --check` passed on all modified server files.
+  - Local Jest test suite: **193 passed, 0 failed** (3 skipped).
+  - Live probe `POST /api/nurse/consumables` -> **201 Created** (`Syringe 5ml` recorded for Sneha Bhat).
+  - Live probe `GET /api/nurse/consumables/:admissionId` -> **200 OK** (recorded item returned with `recorded_by_name`).
+  - Live probes `POST /api/nurse/care-plan`, `/pain`, `/fluid-balance`, `/iv-line`, `/services` -> **201 Created**.
+  - Smart Ward BedCard NEWS2 -> returns numeric `news2Score: 0`, `news2Risk: 'LOW'`, `news2Color: 'success'` (no more `? - Unknown`).
+  - System-wide X-Ray audit re-scan: Smart Ward tab failures dropped to **0/13 FAIL (100% PASS)**!
+
 ### GALAXY WAVES 1, 2 & 2B DEPLOYMENT (2026-10-17, Production VPS 185.213.27.158)
 - [x] **GitHub Push:** Pushed f41b95..b711204 to origin/main (Waves 1, 2, 2B UI wiring, mutations, E2E tests).
 - [x] **Delta Pack & Assets:** Deployed bundle index-CmiIAuQj.js and synced to client/dist/.

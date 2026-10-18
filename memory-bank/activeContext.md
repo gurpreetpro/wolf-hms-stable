@@ -4,7 +4,33 @@
 
 ## Last Updated
 
-2026-10-17
+2026-10-18
+
+## Session 2026-10-18 — ZERO-UI-TOUCH MASTER DATABASE & BACKEND HEAL (Migration 314 + 7 Controller Fixes)
+- **Mandates Honored**: 100% Zero UI Touch (`client/` untouched, frontend bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files.
+- **Migration 314 Authored & Applied (`server/migrations/314_prod_master_schema_and_uuid_heal.sql`)**:
+  - Safe transactional dynamic widening of all 36 foreign key candidate columns from `INTEGER` to `UUID` on `wolf_hms_prod`.
+  - Created 81 missing clinical and operational tables (`patient_consumables`, `patient_service_charges`, `shift_handoff_notes`, `fall_risk_assessments`, `wound_assessments`, `patient_care_plans`, `soap_notes`, `round_notes`, `clinical_alerts`, `lab_orders`, `lab_results`, `anesthesia_records`, `ot_rooms`, etc.).
+  - Added missing columns and fixed NOT NULL default traps across `nursing_care_plans`, `pain_scores`, `fluid_balance`, `iv_lines`, `care_tasks`, `admissions`, `patient_vitals`, `ward_consumables`, `vitals`, etc.
+  - Seeded baseline `ward_consumables`, `ward_service_charges`, and initial `vitals` + `vitals_logs` for admitted patients.
+- **7 Surgical Controller / Service Fixes**:
+  - `server/controllers/nurseController.js`: Multi-source vitals fallback for NEWS2 scoring; fixed consumable recording with both `used_by` and `recorded_by`; wrapped invoice billing in non-fatal try-catch; user coalesce join.
+  - `server/controllers/wardController.js`: Imported `calculateNEWS2` and attached live numeric `news2Score`, `news2Risk`, `news2Color` to `getBeds`.
+  - `server/controllers/admissionController.js`: Imported `calculateNEWS2` and attached live numeric NEWS2 metrics to `getAdmittedPatients`.
+  - `server/controllers/chargesController.js`: Added `normId` helper to prevent `parseInt(admission_id)` NaN coercion traps.
+  - `server/controllers/enterpriseAIController.js`: Replaced `parseInt(admissionId)` with `normId(admissionId)` on DRG, leakage, pathway, and sepsis screen.
+  - `server/controllers/financeController.js`: Added `normId` helper and replaced all integer coercion traps on `admission_id`.
+  - `server/routes/billingInterceptorRoutes.js`: Allowed UUID `patientId` by removing numeric-only `isNaN(parseInt(patientId))` block.
+  - `server/services/FinanceService.js`: Replaced `parseInt(admissionId)` with `normId(admissionId)`.
+- **Testing & Verification**:
+  - `node --check` passed across all 8 modified server files.
+  - `npx jest --forceExit` passed 193/193 tests.
+  - Live HTTP probes on `185.213.27.158`:
+    - `POST /api/nurse/consumables` -> 201 Created.
+    - `GET /api/nurse/consumables/:admissionId` -> 200 OK with recorded item and user name.
+    - `POST /api/nurse/care-plan`, `/pain`, `/fluid-balance`, `/iv-line`, `/services` -> 201 Created across all Smart Ward tabs.
+    - Smart Ward bed cards now return `news2Score: 0`, `news2Risk: 'LOW'`, `news2Color: 'success'` (no more `? - Unknown`).
+  - System-wide X-Ray audit re-scan: Smart Ward tab failures dropped from 5/13 down to **0/13 FAIL (100% PASS)**!
 
 ## Session 2026-10-17 — GALAXY WAVES 1, 2 & 2B DEPLOYMENT (Production VPS 185.213.27.158)
 - Pushed verified commits f41b95..b711204 to GitHub origin/main.
