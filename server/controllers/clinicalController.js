@@ -23,12 +23,16 @@ const getTasks = asyncHandler(async (req, res) => {
     const { admission_id, status } = req.query;
     const hospitalId = req.hospital_id;
 
+    if (admission_id && (admission_id === 'undefined' || admission_id === 'null' || !String(admission_id).trim())) {
+        return ResponseHandler.success(res, []);
+    }
+
     let query = 'SELECT * FROM care_tasks WHERE hospital_id = $1';
     const params = [hospitalId];
 
     if (admission_id) {
         params.push(admission_id);
-        query += ` AND admission_id = $${params.length}`;
+        query += ` AND admission_id::text = $${params.length}`;
     }
     if (status) {
         params.push(status);
@@ -165,16 +169,10 @@ const logVitals = asyncHandler(async (req, res) => {
 const getVitalsByPatient = asyncHandler(async (req, res) => {
     const { patient_id } = req.params;
 
-    // Disabled strict UUID check to support legacy imported patients
-    // const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    // if (!uuidRegex.test(patient_id)) {
-    //     return ResponseHandler.error(res, 'Invalid patient ID format', 400);
-    // }
-
     const result = await pool.query(`
         SELECT * FROM vitals_logs 
         WHERE patient_id::text = $1 
-            OR admission_id IN (SELECT id FROM admissions WHERE patient_id::text = $1)
+            OR admission_id::text IN (SELECT id::text FROM admissions WHERE patient_id::text = $1)
         ORDER BY recorded_at DESC LIMIT 10
     `, [patient_id]);
 
@@ -208,6 +206,7 @@ const prescribe = asyncHandler(async (req, res) => {
 const saveConsultation = asyncHandler(async (req, res) => {
     const { visit_id, diagnosis, prescriptions, lab_requests } = req.body;
     const user_id = req.user.id;
+    const hospitalId = req.hospital_id || req.hospitalId || req.user?.hospital_id || 1;
 
     await pool.query('UPDATE opd_visits SET status = $1 WHERE id = $2', ['Completed', visit_id]);
 
@@ -227,17 +226,17 @@ const saveConsultation = asyncHandler(async (req, res) => {
     // [FIX] Sync Prescriptions for Home Orders (Wolf Care App)
     if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
 
-        // 1. Create Care Tasks (Nurse/History)
+        // 1. Create Care Tasks (Nurse/History) with hospital_id
         for (const rx of prescriptions) {
             if (rx.name) {
                 await pool.query(`
-                    INSERT INTO care_tasks (patient_id, type, description, scheduled_time, status, doctor_id)
-                    VALUES ($1, 'Medication', $2, NOW(), 'Pending', $3)
-                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}`, user_id]);
+                    INSERT INTO care_tasks (patient_id, type, description, scheduled_time, status, doctor_id, hospital_id)
+                    VALUES ($1, 'Medication', $2, NOW(), 'Pending', $3, $4)
+                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}`, user_id, hospitalId]);
             }
         }
 
-        // 2. [NEW] Create Master Prescription Record (For Orders)
+        // 2. [NEW] Create Master Prescription Record (For Orders) with hospitalId
         try {
             await pool.query(`
                 INSERT INTO prescriptions (
@@ -250,7 +249,7 @@ const saveConsultation = asyncHandler(async (req, res) => {
                 diagnosis || 'Consultation',
                 JSON.stringify(prescriptions),
                 'Generated from OPD Consultation',
-                req.hospitalId || req.user.hospital_id || 1
+                hospitalId
             ]);
             console.log('✅ Created master prescription record for visit:', visit_id);
         } catch (rxErr) {
@@ -263,9 +262,11 @@ const saveConsultation = asyncHandler(async (req, res) => {
     if (lab_requests && Array.isArray(lab_requests) && lab_requests.length > 0) {
         for (const test_name of lab_requests) {
             if (test_name) {
-                const typeRes = await pool.query('SELECT id FROM lab_test_types WHERE name = $1', [test_name]);
+                const typeRes = await pool.query(
+                    'SELECT id FROM lab_test_types WHERE name = $1 ORDER BY (hospital_id = $2) DESC NULLS LAST LIMIT 1',
+                    [test_name, hospitalId]
+                );
                 const test_type_id = typeRes.rows.length > 0 ? typeRes.rows[0].id : null;
-                const hospitalId = req.hospitalId || req.hospital_id || req.user?.hospital_id || 1;
                 await pool.query(`
                     INSERT INTO lab_requests (patient_id, test_name, test_type_id, status, doctor_id, requested_at, hospital_id)
                     VALUES ($1, $2, $3, 'Pending', $4, NOW(), $5)
@@ -315,8 +316,12 @@ const createSOAPNote = asyncHandler(async (req, res) => {
 const getSOAPNotes = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
 
+    if (!admission_id || admission_id === 'undefined' || admission_id === 'null' || !String(admission_id).trim()) {
+        return ResponseHandler.success(res, []);
+    }
+
     const result = await pool.query(
-        'SELECT * FROM soap_notes WHERE admission_id = $1 ORDER BY created_at DESC',
+        'SELECT * FROM soap_notes WHERE admission_id::text = $1 ORDER BY created_at DESC',
         [admission_id]
     );
     ResponseHandler.success(res, result.rows);
@@ -338,8 +343,12 @@ const createRoundNote = asyncHandler(async (req, res) => {
 const getRoundNotes = asyncHandler(async (req, res) => {
     const { admission_id } = req.params;
 
+    if (!admission_id || admission_id === 'undefined' || admission_id === 'null' || !String(admission_id).trim()) {
+        return ResponseHandler.success(res, []);
+    }
+
     const result = await pool.query(
-        'SELECT * FROM round_notes WHERE admission_id = $1 ORDER BY created_at DESC',
+        'SELECT * FROM round_notes WHERE admission_id::text = $1 ORDER BY created_at DESC',
         [admission_id]
     );
     ResponseHandler.success(res, result.rows);
