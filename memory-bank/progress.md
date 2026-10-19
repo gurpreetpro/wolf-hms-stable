@@ -1,4 +1,25 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL RECEPTION VITALS WRITE & OPD QUEUE WAITING TIME (2026-10-19, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched. Updated `PatientQueueCard.jsx` in source tree only.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Patient 1 Preserved:** `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) in `opd_visits` completely untouched and active in queue.
+- [x] **Defect A Healed (`ClinicalService.logVitals`):**
+  - Rewrote `logVitals` in `server/services/clinicalService.js` using raw `pool.query` instead of Prisma.
+  - Automatically handles `gen_random_uuid()` on prod and sequence on local.
+  - Safely extracts and writes `bp_systolic`, `bp_diastolic`, `pulse`, `temperature`, `spo2` (as integer on prod, string on local).
+  - Dual-writes to `vitals` twin table and generates `clinical_alerts`.
+  - Hardened `validators/clinical.js` so empty strings `""` are converted to `null`, preventing 400 rejection on partial triage.
+- [x] **Defect B Healed (`opdController.js` & `PatientQueueCard.jsx`):**
+  - Mapped `v.created_at AS visit_date` in `getQueue`, so existing compiled bundle evaluates true check-in timestamp with real time-of-day.
+  - Extended queue filter to `WHERE (v.visit_date = CURRENT_DATE OR v.status = 'Waiting')`, keeping active patients visible across date roll-overs.
+  - Updated `PatientQueueCard.jsx:13` to prefer `patient.created_at || patient.visit_date`.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - `POST /api/clinical/vitals` -> **201 Created** (row persisted with UUID).
+  - `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK** returning BP `120/80`, Heart Rate `76`, Temp `98.6`, SpO2 `98` (no more `N/A`!).
+  - `GET /api/opd/queue` -> **200 OK** (Patient 1 active, waiting time calculated from check-in time).
+  - PM2 `wolf-hms-api` online and healthy.
+  - 193 Jest unit & contract tests passing.
+
 ### STAGE 3 (ZERO-UI-TOUCH): HEAL vitals_logs.admission_id & HARDEN clinicalController.js (2026-10-18, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.

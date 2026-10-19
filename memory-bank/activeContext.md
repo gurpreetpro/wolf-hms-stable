@@ -4,7 +4,24 @@
 
 ## Last Updated
 
-2026-10-18
+2026-10-19
+
+## Session 2026-10-19 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL RECEPTION VITALS WRITE & OPD QUEUE WAITING TIME
+- **Mandates Honored**: 100% Zero UI Touch (`client/dist` untouched, bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.
+- **Root Cause Defect A Eliminated**: `ClinicalService.logVitals` rewritten from Prisma to raw `pg` (`pool.query`). Eliminates Prisma schema-drift runtime crashes (`id uuid`, `spo2 int4` vs Prisma `Int`/`String`), supports both UUID and integer IDs via Postgres default `gen_random_uuid()` / `nextval()`, and adds dual-write to `vitals` twin table plus `clinical_alerts` insert.
+- **Root Cause Defect B Eliminated**: In `opdController.js:getQueue`, mapped `v.created_at AS visit_date` and updated query to `WHERE (v.visit_date = CURRENT_DATE OR v.status = 'Waiting')`. This ensures:
+  1. The existing compiled bundle immediately calculates waiting time using check-in timestamp (`created_at`) with real time-of-day rather than midnight UTC `00:00:00Z`.
+  2. Patients in `Waiting` status (including `Patient 1`) remain visible and active across date roll-overs.
+  3. Updated `PatientQueueCard.jsx:13` to prefer `created_at || visit_date` for source tree fidelity.
+- **Validation Hardened**: `validators/clinical.js` updated to preprocess empty strings `""` to `null` so partial vitals entries never fail validation with 400.
+- **Migration 316 Applied**: `server/migrations/316_vitals_logs_numeric_columns_align.sql` aligns local/test DBs with production numeric columns (`bp_systolic`, `bp_diastolic`, `pulse`, `temperature`).
+- **Live Production Verification on `185.213.27.158`**:
+  - `POST /api/clinical/vitals` -> **HTTP 201 Created** (persisted `vitals_logs` UUID `a9edcf9f-c069-4059-ad78-b8104c2c81a3`).
+  - `GET /api/clinical/vitals/:patientId` -> **HTTP 200 OK** returning BP `120/80`, Heart Rate `76`, Temp `98.6`, SpO2 `98`. Doctor dashboard now displays real live clinical vitals (zero `N/A`).
+  - `GET /api/opd/queue` -> **HTTP 200 OK**, `Patient 1` present in queue with accurate check-in timestamp `2026-10-18T10:50:39.314Z` (not 00:00:00Z).
+  - All 193 Jest unit & contract tests passing.
+
+
 
 ## Session 2026-10-18 — STAGE 3 (ZERO-UI-TOUCH): HEAL vitals_logs.admission_id & HARDEN clinicalController.js
 - **Mandates Honored**: 100% Zero UI Touch (`client/` untouched, frontend bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.
