@@ -1,4 +1,4 @@
-const prisma = require('../config/prisma');
+const { pool } = require('../db');
 const { VITALS_THRESHOLDS } = require('../config/hmsConstants');
 
 /**
@@ -8,17 +8,31 @@ const ClinicalService = {
 
     /**
      * Log patient vitals and generate alerts if thresholds are breached.
-     * @param {Object} data - { admission_id, patient_id, bp, temp, spo2, heart_rate, user_id }
+     * @param {Object} data - { admission_id, patient_id, bp, temp, spo2, heart_rate, user_id, hospital_id }
      * @returns {Object} { vitalsLog: Object, alerts: Array }
      */
-    async logVitals({ admission_id, patient_id, bp, temp, spo2, heart_rate, user_id }) {
-        // Prepare data for Prisma (convert to strings as per schema)
+    async logVitals({ admission_id, patient_id, bp, temp, spo2, heart_rate, user_id, hospital_id }) {
         // Parse numbers for logic check
-        const hrVal = parseInt(heart_rate);
-        const spo2Val = parseInt(spo2);
+        const hrVal = parseInt(heart_rate, 10);
+        const spo2Val = parseInt(spo2, 10);
         const tempVal = parseFloat(temp);
 
-        // Alert Generation Logic (Calculate BEFORE transaction)
+        // Normalize IDs
+        const cleanAdmissionId = (admission_id && admission_id !== 'undefined' && admission_id !== 'null') ? admission_id : null;
+        const cleanPatientId = (patient_id && patient_id !== 'undefined' && patient_id !== 'null') ? patient_id : null;
+        const cleanUserId = user_id ? parseInt(user_id, 10) : null;
+        const cleanHospitalId = hospital_id ? parseInt(hospital_id, 10) : 1;
+
+        // Extract systolic and diastolic if bp is '120/80'
+        let bp_systolic = null;
+        let bp_diastolic = null;
+        if (bp && typeof bp === 'string' && bp.includes('/')) {
+            const parts = bp.split('/');
+            bp_systolic = parseInt(parts[0], 10) || null;
+            bp_diastolic = parseInt(parts[1], 10) || null;
+        }
+
+        // Alert Generation Logic (Calculate BEFORE database insert)
         const alertsData = [];
         
         if (!isNaN(hrVal)) {
@@ -78,43 +92,81 @@ const ClinicalService = {
             }
         }
 
-        // Execute Transaction
-        return await prisma.$transaction(async (tx) => {
-            // 1. Create Log
-            const vitalsLog = await tx.vitals_logs.create({
-                data: {
-                    admission_id: admission_id || null,
-                    patient_id: patient_id || null,
-                    bp: bp ? String(bp) : null,
-                    temp: temp ? String(temp) : null,
-                    spo2: spo2 ? String(spo2) : null,
-                    heart_rate: heart_rate ? String(heart_rate) : null,
-                    recorded_by: user_id ? parseInt(user_id) : null,
-                    recorded_at: new Date()
-                }
-            });
+        // 1. Insert into vitals_logs using raw node-postgres pool.query
+        // We omit 'id' to allow PostgreSQL defaults (gen_random_uuid() on prod, nextval() on local)
+        const insertRes = await pool.query(`
+            INSERT INTO vitals_logs (
+                patient_id, admission_id,
+                bp, temp, spo2, heart_rate,
+                bp_systolic, bp_diastolic, pulse, temperature,
+                recorded_by, hospital_id, recorded_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+            RETURNING *
+        `, [
+            cleanPatientId,
+            cleanAdmissionId,
+            bp ? String(bp) : null,
+            temp ? String(temp) : null,
+            !isNaN(spo2Val) ? spo2Val : (spo2 ? String(spo2) : null),
+            heart_rate ? String(heart_rate) : null,
+            bp_systolic,
+            bp_diastolic,
+            !isNaN(hrVal) ? hrVal : null,
+            !isNaN(tempVal) ? tempVal : null,
+            cleanUserId,
+            cleanHospitalId
+        ]);
 
-            // 2. Create Alerts
-            if (patient_id) {
-                for (const alert of alertsData) {
-                    await tx.clinical_alerts.create({
-                        data: {
-                            patients: patient_id ? { connect: { id: patient_id } } : undefined,
-                            admissions: admission_id ? { connect: { id: admission_id } } : undefined,
-                            type: alert.type,
-                            title: alert.title,
-                            // severity: alert.severity, // Column does not exist
-                            message: alert.message,
-                            value: alert.value,
-                            threshold: alert.threshold,
-                            created_at: new Date()
-                        }
-                    });
+        const vitalsLog = insertRes.rows[0];
+
+        // 2. Dual-write to vitals twin table if patient_id is present (safe best-effort)
+        if (cleanPatientId) {
+            try {
+                await pool.query(`
+                    INSERT INTO vitals (
+                        patient_id, temperature, pulse, bp_systolic, bp_diastolic, spo2, hospital_id, recorded_at
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                `, [
+                    cleanPatientId,
+                    !isNaN(tempVal) ? tempVal : null,
+                    !isNaN(hrVal) ? hrVal : null,
+                    bp_systolic,
+                    bp_diastolic,
+                    !isNaN(spo2Val) ? spo2Val : null,
+                    cleanHospitalId
+                ]);
+            } catch (twinErr) {
+                console.warn('[Vitals Dual-Write] Note:', twinErr.message);
+            }
+        }
+
+        // 3. Create Alerts (best-effort raw SQL)
+        if (cleanPatientId && alertsData.length > 0) {
+            for (const alert of alertsData) {
+                try {
+                    await pool.query(`
+                        INSERT INTO clinical_alerts (
+                            patient_id, admission_id, type, title, message, value, threshold, created_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                    `, [
+                        cleanPatientId,
+                        cleanAdmissionId,
+                        alert.type,
+                        alert.title,
+                        alert.message,
+                        alert.value,
+                        alert.threshold
+                    ]);
+                } catch (alertErr) {
+                    console.warn('[Clinical Alert] Note:', alertErr.message);
                 }
             }
+        }
 
-            return { vitalsLog, alerts: alertsData };
-        });
+        return { vitalsLog, alerts: alertsData };
     }
 };
 

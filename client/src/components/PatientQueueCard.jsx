@@ -9,8 +9,8 @@ import { Clock, AlertCircle, User, Video } from 'lucide-react';
 const PatientQueueCard = ({ patient, isSelected, onClick, onVideoCall }) => {
     // Calculate waiting time
     const getWaitingTime = () => {
-        if (!patient.visit_date && !patient.created_at) return null;
-        const visitTime = new Date(patient.visit_date || patient.created_at);
+        if (!patient.created_at && !patient.visit_date) return null;
+        const visitTime = new Date(patient.created_at || patient.visit_date);
         const now = new Date();
         const diffMs = now - visitTime;
         const diffMins = Math.floor(diffMs / 60000);

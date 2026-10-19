@@ -145,7 +145,8 @@ const ClinicalService = require('../services/clinicalService');
 // Log Vitals - PRODUCTION SAFE
 const logVitals = asyncHandler(async (req, res) => {
     const { admission_id, patient_id, bp, temp, spo2, heart_rate } = req.body;
-    const user_id = req.user.id;
+    const user_id = req.user?.id;
+    const hospital_id = req.hospital_id || req.user?.hospital_id || 1;
 
     const { vitalsLog, alerts } = await ClinicalService.logVitals({
         admission_id,
@@ -154,7 +155,8 @@ const logVitals = asyncHandler(async (req, res) => {
         temp,
         spo2,
         heart_rate,
-        user_id
+        user_id,
+        hospital_id
     });
 
     if (admission_id && req.io) {
@@ -165,16 +167,39 @@ const logVitals = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, vitalsLog, 'Vitals logged successfully', 201);
 });
 
-// Get vitals by patient - LEGACY ID SUPPORT
+// Get vitals by patient - LEGACY ID SUPPORT & TWIN TABLE FALLBACK
 const getVitalsByPatient = asyncHandler(async (req, res) => {
     const { patient_id } = req.params;
 
-    const result = await pool.query(`
+    let result = await pool.query(`
         SELECT * FROM vitals_logs 
         WHERE patient_id::text = $1 
             OR admission_id::text IN (SELECT id::text FROM admissions WHERE patient_id::text = $1)
         ORDER BY recorded_at DESC LIMIT 10
     `, [patient_id]);
+
+    if (result.rows.length === 0) {
+        // Fallback to vitals twin table
+        const twinResult = await pool.query(`
+            SELECT 
+                id, patient_id, hospital_id,
+                temperature as temp,
+                pulse as heart_rate,
+                spo2,
+                CASE 
+                    WHEN bp_systolic IS NOT NULL AND bp_diastolic IS NOT NULL 
+                    THEN bp_systolic || '/' || bp_diastolic 
+                    ELSE NULL 
+                END as bp,
+                recorded_at
+            FROM vitals
+            WHERE patient_id::text = $1
+            ORDER BY recorded_at DESC LIMIT 10
+        `, [patient_id]);
+        if (twinResult.rows.length > 0) {
+            result = twinResult;
+        }
+    }
 
     ResponseHandler.success(res, result.rows);
 });

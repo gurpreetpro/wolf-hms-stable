@@ -383,12 +383,15 @@ const getQueue = asyncHandler(async (req, res) => {
 
     // [FIX] DATA LEAK: Doctors should only see their own patients
     // Receptions/Admins can see all
+    // Map v.created_at AS visit_date so client computes wait time from check-in time instead of 00:00:00Z
     let query = `
-        SELECT v.*, p.name as patient_name, p.phone, p.uhid, p.gender, p.dob, u.department 
+        SELECT v.*, 
+            v.created_at AS visit_date,
+            p.name as patient_name, p.phone, p.uhid, p.gender, p.dob, u.department 
         FROM opd_visits v 
         JOIN patients p ON v.patient_id = p.id 
         JOIN users u ON v.doctor_id = u.id
-        WHERE v.visit_date = CURRENT_DATE 
+        WHERE (v.visit_date = CURRENT_DATE OR v.status = 'Waiting') 
             AND v.status != 'Completed' 
             AND v.status != 'Cancelled' 
             AND v.status != 'Rescheduled'
@@ -397,7 +400,7 @@ const getQueue = asyncHandler(async (req, res) => {
     const params = [hospitalId];
 
     if (req.user && req.user.role === 'doctor') {
-        query += ` AND v.doctor_id = $2`;
+        query += ` AND (v.doctor_id = $2 OR v.doctor_id IS NULL)`;
         params.push(req.user.id);
         console.log(`[OPD] Filtering queue for Doctor ${req.user.username} (ID: ${req.user.id})`);
     }
