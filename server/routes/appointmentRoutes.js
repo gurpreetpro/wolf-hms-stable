@@ -22,8 +22,8 @@ router.get('/', protect, authorize('admin', 'receptionist', 'doctor'), getAppoin
 // Get today's summary
 router.get('/summary', protect, authorize('admin', 'receptionist', 'doctor'), getTodaysSummary);
 
-// Create a new appointment
-router.post('/', protect, authorize('admin', 'receptionist'), createAppointment);
+// Create a new appointment (allows admin, receptionist, doctor)
+router.post('/', protect, authorize('admin', 'receptionist', 'doctor'), createAppointment);
 
 // Update appointment status
 router.patch('/:id/status', protect, authorize('admin', 'receptionist', 'doctor'), updateAppointmentStatus);

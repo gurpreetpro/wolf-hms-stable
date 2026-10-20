@@ -288,7 +288,9 @@ const getInvoices = asyncHandler(async (req, res) => {
         SELECT 
             i.*, 
             p.name as patient_name, 
-            p.phone as patient_number,
+            COALESCE(NULLIF(p.uhid, ''), NULLIF(i.patient_number, ''), p.phone) as patient_number,
+            p.uhid as patient_uhid,
+            p.phone as patient_phone,
             p.gender,
             p.dob,
             p.address,
@@ -315,7 +317,7 @@ const getInvoiceItems = asyncHandler(async (req, res) => {
     const result = await pool.query(
         `SELECT id, description, quantity, unit_price, total_price 
          FROM invoice_items 
-         WHERE invoice_id = $1 AND (hospital_id = $2) 
+         WHERE invoice_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) 
          ORDER BY id`, 
         [invoice_id, hospitalId]
     );

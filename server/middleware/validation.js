@@ -46,12 +46,17 @@ const patientSchema = Joi.object({
 
 // Appointment schemas
 const appointmentSchema = Joi.object({
-    patient_id: Joi.string().uuid().required(),
-    doctor_id: Joi.number().integer().required(),
-    date: Joi.date().required(),
-    time: Joi.string().required(),
-    type: Joi.string().required(),
-    reason: Joi.string().max(500).optional()
+    patient_id: Joi.alternatives().try(Joi.string().uuid(), Joi.number().integer()).required(),
+    doctor_id: Joi.number().integer().optional(),
+    date: Joi.date().optional(),
+    appointment_date: Joi.alternatives().try(Joi.date(), Joi.string()).optional(),
+    time: Joi.string().optional(),
+    appointment_time: Joi.string().optional(),
+    department: Joi.string().optional(),
+    type: Joi.string().optional(),
+    appointment_type: Joi.string().optional(),
+    notes: Joi.string().allow('', null).optional(),
+    reason: Joi.string().max(500).allow('', null).optional()
 });
 
 // Blood Bank schemas

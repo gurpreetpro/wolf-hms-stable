@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const ResponseHandler = require('../utils/responseHandler');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { VITALS_THRESHOLDS } = require('../config/hmsConstants');
+const { addToInvoice } = require('../services/billingService');
 
 // Create Care Task (Prescribe/Order) - With hospital_id isolation
 const createCareTask = asyncHandler(async (req, res) => {
@@ -251,13 +252,14 @@ const saveConsultation = asyncHandler(async (req, res) => {
     // [FIX] Sync Prescriptions for Home Orders (Wolf Care App)
     if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
 
-        // 1. Create Care Tasks (Nurse/History) with hospital_id
+        // 1. Create Care Tasks (Nurse/History) with hospital_id and duration
         for (const rx of prescriptions) {
             if (rx.name) {
+                const durationSuffix = rx.duration ? ` - ${rx.duration} days` : '';
                 await pool.query(`
                     INSERT INTO care_tasks (patient_id, type, description, scheduled_time, status, doctor_id, hospital_id)
                     VALUES ($1, 'Medication', $2, NOW(), 'Pending', $3, $4)
-                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}`, user_id, hospitalId]);
+                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}${durationSuffix}`, user_id, hospitalId]);
             }
         }
 
@@ -288,14 +290,23 @@ const saveConsultation = asyncHandler(async (req, res) => {
         for (const test_name of lab_requests) {
             if (test_name) {
                 const typeRes = await pool.query(
-                    'SELECT id FROM lab_test_types WHERE name = $1 ORDER BY (hospital_id = $2) DESC NULLS LAST LIMIT 1',
+                    'SELECT id, price FROM lab_test_types WHERE name = $1 ORDER BY (hospital_id = $2) DESC NULLS LAST LIMIT 1',
                     [test_name, hospitalId]
                 );
                 const test_type_id = typeRes.rows.length > 0 ? typeRes.rows[0].id : null;
+                const test_price = typeRes.rows.length > 0 && typeRes.rows[0].price ? parseFloat(typeRes.rows[0].price) : 350.00;
+
                 await pool.query(`
-                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, status, doctor_id, requested_at, hospital_id)
-                    VALUES ($1, $2, $3, 'Pending', $4, NOW(), $5)
-                `, [patient_id, test_name, test_type_id, user_id, hospitalId]);
+                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, test_price, status, doctor_id, requested_at, hospital_id)
+                    VALUES ($1, $2, $3, $4, 'Pending', $5, NOW(), $6)
+                `, [patient_id, test_name, test_type_id, test_price, user_id, hospitalId]);
+
+                // Immediately add the lab test to the patient's open OPD invoice
+                try {
+                    await addToInvoice(patient_id, null, `Lab Test: ${test_name}`, 1, test_price, user_id, hospitalId);
+                } catch (billErr) {
+                    console.warn(`[Clinical] Non-fatal: Failed to add lab test ${test_name} to invoice:`, billErr.message);
+                }
             }
         }
         if (req.io) req.io.emit('lab_update', { type: 'new_lab_request', patient_id });

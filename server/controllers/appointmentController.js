@@ -75,26 +75,35 @@ const createAppointment = asyncHandler(async (req, res) => {
     const info = req.user || { id: null };
     const hospitalId = getHospitalId(req);
 
-    const existing = await pool.query(
-        `SELECT id FROM appointments 
-            WHERE doctor_id = $1 AND appointment_date = $2 AND appointment_time = $3
-            AND status NOT IN ('Cancelled', 'No Show')
-            AND (hospital_id = $4)`,
-        [doctor_id, appointment_date, appointment_time, hospitalId]
-    );
+    const resolvedDoctorId = doctor_id || (req.user?.role === 'doctor' ? req.user.id : null);
+    const resolvedDepartment = department || req.user?.department || 'General Medicine';
+    const resolvedTime = appointment_time || '10:00:00';
+    const resolvedType = req.body.appointment_type || req.body.type || 'in-person';
 
-    if (existing.rows.length > 0) {
-        return ResponseHandler.error(res, 'This time slot is already booked', 400);
+    if (resolvedDoctorId && appointment_time) {
+        const existing = await pool.query(
+            `SELECT id FROM appointments 
+                WHERE doctor_id = $1 AND appointment_date = $2 AND appointment_time = $3
+                AND status NOT IN ('Cancelled', 'No Show')
+                AND (hospital_id = $4)`,
+            [resolvedDoctorId, appointment_date, resolvedTime, hospitalId]
+        );
+
+        if (existing.rows.length > 0) {
+            return ResponseHandler.error(res, 'This time slot is already booked', 400);
+        }
     }
 
     const result = await pool.query(
-        `INSERT INTO appointments (patient_id, doctor_id, department, appointment_date, appointment_time, reason, notes, status, hospital_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 'Scheduled', $8) RETURNING *`,
-        [patient_id, doctor_id, department, appointment_date, appointment_time, reason, notes, hospitalId]
+        `INSERT INTO appointments (patient_id, doctor_id, department, appointment_date, appointment_time, reason, notes, status, hospital_id, appointment_type, created_by)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, 'Scheduled', $8, $9, $10) RETURNING *`,
+        [patient_id, resolvedDoctorId, resolvedDepartment, appointment_date, resolvedTime, reason || null, notes || null, hospitalId, resolvedType, info.id]
     );
 
-    // Add to invoice
-    await addToInvoice(patient_id, null, `Consultation Fee (${department})`, 1, 500.00, info.id, hospitalId);
+    // Only add consultation fee invoice if not a follow-up
+    if (resolvedType !== 'follow-up') {
+        await addToInvoice(patient_id, null, `Consultation Fee (${resolvedDepartment})`, 1, 500.00, info.id, hospitalId);
+    }
 
     ResponseHandler.success(res, { appointment: result.rows[0] }, 'Appointment booked successfully', 201);
 });

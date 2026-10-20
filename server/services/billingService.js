@@ -202,9 +202,9 @@ const addToInvoice = async (patient_id, admission_id, description, quantity, uni
 
         // 3. Add Line Item
         await db.query(
-            `INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price)
-             VALUES ($1, $2, $3, $4, $5)`,
-            [invoice_id, description, quantity, unit_price, total_item_price]
+            `INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price, hospital_id)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [invoice_id, description, quantity, unit_price, total_item_price, hospitalId || 1]
         );
 
         // 4. Update Invoice Total

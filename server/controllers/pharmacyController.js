@@ -119,7 +119,47 @@ const processPrescription = asyncHandler(async (req, res) => {
         } 
     }
 
-    const qtyToDispense = 1; 
+    let qtyToDispense = 1;
+    try {
+        const desc = task.description || '';
+        let dailyDoses = 1;
+        if (/TDS|TID/i.test(desc)) dailyDoses = 3;
+        else if (/BD|BID/i.test(desc)) dailyDoses = 2;
+        else if (/QID/i.test(desc)) dailyDoses = 4;
+        else if (/OD/i.test(desc)) dailyDoses = 1;
+
+        const durationMatch = desc.match(/(\d+)\s*(?:days|day|d)\b/i);
+        let days = 1;
+        if (durationMatch) {
+            days = parseInt(durationMatch[1], 10) || 1;
+        } else {
+            const rxRes = await pool.query(
+                `SELECT medications FROM prescriptions WHERE patient_id = $1 ORDER BY id DESC LIMIT 1`,
+                [task.patient_id]
+            );
+            if (rxRes.rows.length > 0 && rxRes.rows[0].medications) {
+                const meds = typeof rxRes.rows[0].medications === 'string'
+                    ? JSON.parse(rxRes.rows[0].medications)
+                    : rxRes.rows[0].medications;
+                if (Array.isArray(meds)) {
+                    const matchMed = meds.find(m => m.name && m.name.toLowerCase() === itemName.toLowerCase());
+                    if (matchMed && matchMed.duration) {
+                        days = parseInt(matchMed.duration, 10) || 1;
+                    }
+                    if (matchMed && matchMed.freq) {
+                        if (/TDS|TID/i.test(matchMed.freq)) dailyDoses = 3;
+                        else if (/BD|BID/i.test(matchMed.freq)) dailyDoses = 2;
+                        else if (/QID/i.test(matchMed.freq)) dailyDoses = 4;
+                        else if (/OD/i.test(matchMed.freq)) dailyDoses = 1;
+                    }
+                }
+            }
+        }
+        qtyToDispense = Math.max(1, dailyDoses * days);
+    } catch (parseErr) {
+        console.warn('[Pharmacy] Could not calculate prescribed quantity, defaulting to 1:', parseErr.message);
+        qtyToDispense = 1;
+    } 
     const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3) RETURNING stock_quantity, price_per_unit, id', [qtyToDispense, itemName, hospitalId]); 
     if (updateRes.rows.length === 0) return ResponseHandler.error(res, `Insufficient stock or item not found: ${itemName}`, 400); 
     const { price_per_unit, id: itemId } = updateRes.rows[0];
