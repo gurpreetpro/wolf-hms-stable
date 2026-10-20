@@ -15,6 +15,11 @@ const cookieParser = require('cookie-parser');
 const RedisStore = require('rate-limit-redis').default || require('rate-limit-redis');
 const Redis = require('ioredis');
 
+// Enforce UTC timezone across all Date operations and node-postgres parsers
+process.env.TZ = 'UTC';
+const pg = require('pg');
+pg.types.setTypeParser(1114, str => str ? new Date(str.replace(' ', 'T') + 'Z') : null);
+
 dotenv.config();
 
 console.log('🚀 Starting Wolf HMS Server (Cloud Mode)...');

@@ -335,13 +335,19 @@ const registerOPD = asyncHandler(async (req, res) => {
     sendSMS(phone, smsMessage).catch(console.error);
     sendWhatsApp(phone, `Welcome to WOLF HMS! 🏥\n\nYour appointment is confirmed.\nToken: *${nextToken}*\nDoctor: Dr. ${doctorName}\n\nPlease arrive 15 mins early.`).catch(console.error);
 
-    // Return full patient data including UHID
-    ResponseHandler.success(res, {
+    // Return full patient data including UHID (compat shim: provide data envelope + top-level properties for PatientRegistrationModal)
+    const payloadData = {
         patient: fullPatient,
         visit: { ...visit.rows[0], doctor_name: doctorName },
         token: nextToken,
         payment: paymentRecord
-    }, 'Patient registered successfully', 201);
+    };
+    return res.status(201).json({
+        success: true,
+        message: 'Patient registered successfully',
+        data: payloadData,
+        ...payloadData
+    });
 });
 
 // Cancel Visit - PRODUCTION SAFE

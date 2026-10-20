@@ -16,8 +16,10 @@ const logVitalsSchema = z.object({
     temp: z.preprocess(emptyToNull, z.union([z.string(), z.number()]).refine((val) => {
         if (val === null || val === undefined) return true;
         const n = parseFloat(val);
-        return !isNaN(n) && n > 80 && n < 115;
-    }, { message: "Temperature must be between 80F and 115F" }).optional().nullable()),
+        if (isNaN(n)) return false;
+        const f = n < 45 ? (n * 9 / 5) + 32 : n;
+        return f > 80 && f < 115;
+    }, { message: "Temperature must be between 80F and 115F (or 27C and 46C)" }).optional().nullable()),
 
     spo2: z.preprocess(emptyToNull, z.union([z.string(), z.number()]).refine((val) => {
         if (val === null || val === undefined) return true;
