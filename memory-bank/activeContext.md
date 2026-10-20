@@ -4,7 +4,25 @@
 
 ## Last Updated
 
-2026-10-19
+2026-10-20
+
+## Session 2026-10-20 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): RAW ARRAY ENVELOPE HEAL FOR DOCTOR VITALS, HISTORY, LAB CRITICAL ALERTS & PATIENT SEARCH
+- **Mandates Honored**: 100% Zero UI Touch (`client/dist` and frontend bundle `index-CmiIAuQj.js` 100% untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.
+- **Root Cause Eliminated**: `DoctorDashboard.jsx` (L242, L261 in compiled bundle `index-CmiIAuQj.js`) reads `res.data.length > 0` and `res.data[0]` directly on `GET /api/clinical/vitals/:id` and `GET /api/clinical/history/:id`. When the backend wrapped payloads in `ResponseHandler.success(res, rows)` (`{ success: true, message: 'Success', data: [...] }`), `res.data.length` evaluated to `undefined`, causing Doctor Dashboard to set vitals to null ("N/A") and history to empty ("No previous visits").
+- **Backend Heals Implemented**:
+  1. `server/controllers/clinicalController.js`: In `getVitalsByPatient` and `getPatientHistory`, replaced `ResponseHandler.success` with `return res.status(200).json(result.rows);`.
+  2. `server/controllers/labController.js`: In `getPendingCriticalAlerts`, replaced `ResponseHandler.success` with `return res.status(200).json(alerts.rows);`, healing `CriticalAlertWidget.jsx` line 91 (`alerts.map`).
+  3. `server/controllers/patientController.js`: In `searchPatients`, replaced `ResponseHandler.success` with `return res.status(200).json(result.rows);`, healing `OPDReception.jsx`, `AdvancePaymentModal.jsx`, `NewInvoiceModal.jsx`, and `RecoveryConsole.jsx`.
+- **Quality Gates**:
+  - `node --check` passed across all 3 modified controllers.
+  - `npx jest --forceExit` passed 193/193 tests.
+  - Git commit `e4931cf` pushed to `origin/main`.
+  - SFTP uploaded to `/var/www/wolf-hms/server/controllers/` on `185.213.27.158` and restarted PM2 `wolf-hms-api`.
+- **Live Production Probes on `185.213.27.158`**:
+  - `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK**, `Array.isArray(body) === true`, `bp = '120/80'`, `heart_rate = '76'`, `temp = '98.6'`, `spo2 = 98`.
+  - `GET /api/clinical/history/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK**, `Array.isArray(body) === true` (`[]`).
+  - `GET /api/lab/critical-alerts/pending` -> **200 OK**, `Array.isArray(body) === true` (`[]`).
+  - `GET /api/patients/search?q=Patient` -> **200 OK**, `Array.isArray(body) === true`, returned `Patient 1`.
 
 ## Session 2026-10-19 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL RECEPTION VITALS WRITE & OPD QUEUE WAITING TIME
 - **Mandates Honored**: 100% Zero UI Touch (`client/dist` untouched, bundle `index-CmiIAuQj.js` untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.

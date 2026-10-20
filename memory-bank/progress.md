@@ -1,4 +1,26 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL ZERO-UI-TOUCH): RAW ARRAY ENVELOPE HEAL FOR DOCTOR VITALS, HISTORY, LAB CRITICAL ALERTS & PATIENT SEARCH (2026-10-20, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Patient 1 Preserved:** `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) in `opd_visits` completely untouched and active in queue.
+- [x] **Doctor Vitals & History Healed (`clinicalController.js`):**
+  - Updated `getVitalsByPatient` to return raw Array via `return res.status(200).json(result.rows);`.
+  - Updated `getPatientHistory` to return raw Array via `return res.status(200).json(result.rows);`.
+  - `DoctorDashboard.jsx` (L242, L261 in compiled bundle `index-CmiIAuQj.js`) directly reads `res.data.length > 0` and `res.data[0]`, rendering vitals (`120/80`, `76 bpm`, `98.6°F`, `98% SpO2`) immediately with zero UI rebuild.
+- [x] **Lab Critical Alerts & Patient Search Healed (`labController.js` & `patientController.js`):**
+  - Updated `getPendingCriticalAlerts` to return raw Array, preventing `alerts.map is not a function` in `CriticalAlertWidget.jsx:91`.
+  - Updated `searchPatients` to return raw Array, enabling dropdown results in `OPDReception.jsx`, `AdvancePaymentModal.jsx`, `NewInvoiceModal.jsx`, and `RecoveryConsole.jsx`.
+- [x] **Quality Gates & VPS Deployment:**
+  - `node --check` passed on all 3 modified controllers.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`e4931cf`).
+  - SFTP uploaded to `/var/www/wolf-hms/server/controllers/` on `185.213.27.158` and restarted PM2 `wolf-hms-api`.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK**, `Array.isArray(body) === true`, `bp: 120/80`, `heart_rate: 76`, `temp: 98.6`, `spo2: 98`.
+  - `GET /api/clinical/history/d8bf268a-ce7a-405d-bf00-57c2bee78841` -> **200 OK**, `Array.isArray(body) === true`.
+  - `GET /api/lab/critical-alerts/pending` -> **200 OK**, `Array.isArray(body) === true`.
+  - `GET /api/patients/search?q=Patient` -> **200 OK**, `Array.isArray(body) === true` (returns `Patient 1`).
+
 ### STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL RECEPTION VITALS WRITE & OPD QUEUE WAITING TIME (2026-10-19, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched. Updated `PatientQueueCard.jsx` in source tree only.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
