@@ -1,4 +1,25 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL ZERO-UI-TOUCH): UNBLOCK RECEPTION VITALS GATE, FIX UTC+2 TIMEZONE SHIFT & REMOVE SYNTHETIC VITALS (2026-10-20, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Patient 1 & Patient 2 Preserved:** Both patients active and waiting in OPD queue.
+- [x] **Defect T1 Eliminated (Reception Vitals Gate Unblocked):**
+  - Updated `opdController.js:registerOPD` to return BOTH data envelope AND top-level `patient`, `visit`, `token`, `payment` (`return res.status(201).json({ success: true, message: '...', data: payloadData, ...payloadData })`).
+  - Compiled bundle `PatientRegistrationModal.jsx:383` (`res.data.patient?.id`), `L386`, and `L398` now resolve successfully on newly registered patients.
+  - Hardened `validators/clinical.js` with Celsius-to-Fahrenheit preprocessing (<45 converts to °F) to prevent 400 validation rejection.
+- [x] **Defect T2 Eliminated (UTC+2 Timezone Shift):**
+  - Added `process.env.TZ = 'UTC'` and `pg.types.setTypeParser(1114, str => str ? new Date(str.replace(' ', 'T') + 'Z') : null)` at entry in `server-cloud.js`.
+  - Configured `TZ=UTC` in `/var/www/wolf-hms/server/.env` and restarted PM2 with `TZ=UTC NODE_ENV=production pm2 restart wolf-hms-api --update-env`.
+  - Live probe confirmed: `Patient 1` `created_at = 2026-10-18T12:50:39.314Z` and `Patient 2` `created_at = 2026-10-20T03:51:01.038Z` (0h offset, exact PostgreSQL wall-clock match).
+- [x] **Synthetic Vitals Row Cleaned Up:**
+  - Deleted synthetic vitals row `a9edcf9f-c069-4059-ad78-b8104c2c81a3` from both `vitals_logs` and `vitals` twin table.
+  - Verified `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` returns 0 rows (`[]`).
+- [x] **Quality Gates & VPS Deployment:**
+  - `node --check` passed across all modified server files.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`b9aebba`).
+  - SFTP uploaded to `/var/www/wolf-hms/server/` on `185.213.27.158` and PM2 restarted cleanly.
+
 ### STAGE 3 (SURGICAL ZERO-UI-TOUCH): RAW ARRAY ENVELOPE HEAL FOR DOCTOR VITALS, HISTORY, LAB CRITICAL ALERTS & PATIENT SEARCH (2026-10-20, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.

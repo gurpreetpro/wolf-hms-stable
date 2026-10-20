@@ -6,6 +6,26 @@
 
 2026-10-20
 
+## Session 2026-10-20 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): UNBLOCK RECEPTION VITALS GATE, FIX UTC+2 TIMEZONE SHIFT & REMOVE SYNTHETIC VITALS
+- **Mandates Honored**: 100% Zero UI Touch (`client/dist` and frontend bundle `index-CmiIAuQj.js` 100% untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` and `Patient 2` in `opd_visits` completely preserved in queue.
+- **Root Cause Defect T1 Eliminated (Reception Vitals Gate Unblocked)**:
+  - In `PatientRegistrationModal.jsx:383, 386, 398`, compiled bundle gates vitals submission on `res.data.patient?.id`.
+  - Updated `opdController.js:registerOPD` to return BOTH data envelope AND top-level `patient`, `visit`, `token`, `payment` (`return res.status(201).json({ success: true, message: '...', data: payloadData, ...payloadData })`).
+  - Hardened `server/validators/clinical.js` so temperature inputs in Celsius (<45) are converted to Fahrenheit, preventing 400 validation rejection.
+- **Root Cause Defect T2 Eliminated (UTC+2 Timezone Shift)**:
+  - VPS host timezone is `Europe/Berlin` (UTC+2). `node-postgres` parsed `timestamp without time zone` columns using Node local timezone, shifting `created_at` 2 hours earlier and displaying `Waiting: 2h 0m` upon registration.
+  - Added `process.env.TZ = 'UTC'` and `pg.types.setTypeParser(1114, str => str ? new Date(str.replace(' ', 'T') + 'Z') : null)` at entry in `server-cloud.js`.
+  - Configured `TZ=UTC` in `/var/www/wolf-hms/server/.env` and restarted PM2 with `TZ=UTC NODE_ENV=production pm2 restart wolf-hms-api --update-env`.
+  - Live probe confirmed: `Patient 1` `created_at = 2026-10-18T12:50:39.314Z` and `Patient 2` `created_at = 2026-10-20T03:51:01.038Z` (0h offset, exact PostgreSQL match).
+- **Synthetic Vitals Cleaned Up**:
+  - Deleted synthetic vitals row `a9edcf9f-c069-4059-ad78-b8104c2c81a3` from both `vitals_logs` and `vitals` twin table.
+  - Verified `GET /api/clinical/vitals/d8bf268a-ce7a-405d-bf00-57c2bee78841` returns 0 rows (`[]`).
+- **Quality Gates**:
+  - `node --check` passed across `opdController.js`, `server-cloud.js`, and `validators/clinical.js`.
+  - All 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`b9aebba`).
+  - SFTP uploaded to `/var/www/wolf-hms/server/` on `185.213.27.158` and PM2 restarted cleanly.
+
 ## Session 2026-10-20 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): RAW ARRAY ENVELOPE HEAL FOR DOCTOR VITALS, HISTORY, LAB CRITICAL ALERTS & PATIENT SEARCH
 - **Mandates Honored**: 100% Zero UI Touch (`client/dist` and frontend bundle `index-CmiIAuQj.js` 100% untouched), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 1` (`visit_id = 1`, `token_number = 1`, status `Waiting`) 100% preserved.
 - **Root Cause Eliminated**: `DoctorDashboard.jsx` (L242, L261 in compiled bundle `index-CmiIAuQj.js`) reads `res.data.length > 0` and `res.data[0]` directly on `GET /api/clinical/vitals/:id` and `GET /api/clinical/history/:id`. When the backend wrapped payloads in `ResponseHandler.success(res, rows)` (`{ success: true, message: 'Success', data: [...] }`), `res.data.length` evaluated to `undefined`, causing Doctor Dashboard to set vitals to null ("N/A") and history to empty ("No previous visits").
