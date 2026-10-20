@@ -1,4 +1,31 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL DOCTOR FOLLOW-UP (403), ITEMIZED OPD BILLING (CBC + PARACETAMOL QTY) & INVOICE #4 DISPLAY (2026-10-20, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Defect 1 Eliminated (Doctor Follow-Up Scheduling 403 Unblocked):**
+  - Updated `server/routes/appointmentRoutes.js:26` to authorize `'doctor'` on `POST /api/appointments`.
+  - Updated `server/controllers/appointmentController.js:createAppointment` to resolve doctor defaults (`doctor_id`, `department`, `appointment_time`, `appointment_type`) and skip consultation fee invoicing for follow-ups.
+  - Relaxed `server/middleware/validation.js:appointmentSchema` to accept doctor appointment payloads.
+  - Live probe confirmed: `POST /api/appointments` by `doctor_user` returns **HTTP 201 Created** (no more 403!).
+- [x] **Defect 2A Eliminated (Invoice #4 Hidden Items & UHID Display):**
+  - Updated `server/services/billingService.js:addToInvoice` to insert `hospital_id` into `invoice_items`.
+  - Updated `server/controllers/financeController.js:getInvoices` to map `COALESCE(NULLIF(p.uhid, ''), NULLIF(i.patient_number, ''), p.phone) AS patient_number`, displaying `Patient ID: KOKILA-0003/2026` instead of phone number `9999988888`.
+  - Updated `server/controllers/financeController.js:getInvoiceItems` to allow `hospital_id IS NULL` for backward compatibility, eliminating generic fallback `"Hospital Charges (Legacy Invoice - Details Not Available)"`.
+- [x] **Defect 2B Eliminated (Prescription Quantity & Lab Orders Auto-Billing):**
+  - Updated `server/controllers/clinicalController.js:saveConsultation` to include duration in `care_tasks.description` and auto-invoice ordered lab tests via `addToInvoice`.
+  - Updated `server/controllers/pharmacyController.js:processPrescription` to calculate dispense quantity dynamically (`freq` × `duration` days: `BD/BID = 2`, `TDS/TID = 3`, `QID = 4`, `OD = 1`; e.g., `2 * 7 = 14`), replacing hardcoded `qtyToDispense = 1`.
+- [x] **Migration 317 Applied:**
+  - `server/migrations/317_followup_and_billing_itemization_heal.sql` aligned columns on `pending_charges` and `invoice_items`, backfilled `hospital_id = 1` on legacy null items, healed Patient 3's `Invoice #4` to ₹378.00 (Rx 14 qty @ ₹2 = ₹28 + CBC 1 qty @ ₹350 = ₹350), and backfilled `patient_number` with UHID.
+- [x] **Quality Gates & VPS Deployment:**
+  - `node --check` passed across all 7 modified backend files.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`d9cca33`).
+  - SFTP uploaded to `/var/www/wolf-hms/server/` on `185.213.27.158` and PM2 restarted cleanly.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - Probe 1: Doctor appointment scheduling -> **HTTP 201 Created**.
+  - Probe 2: Invoice #4 header -> **HTTP 200 OK**, `total_amount: "378.00"`, `patient_number: "KOKILA-0003/2026"`.
+  - Probe 3: Invoice #4 line items -> **HTTP 200 OK**, 2 itemized rows (Paracetamol 14 qty @ ₹2.00, CBC 1 qty @ ₹350.00).
+
 ### STAGE 3 (SURGICAL ZERO-UI-TOUCH): UNBLOCK RECEPTION VITALS GATE, FIX UTC+2 TIMEZONE SHIFT & REMOVE SYNTHETIC VITALS (2026-10-20, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
