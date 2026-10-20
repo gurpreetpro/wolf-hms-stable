@@ -201,7 +201,7 @@ const getVitalsByPatient = asyncHandler(async (req, res) => {
         }
     }
 
-    ResponseHandler.success(res, result.rows);
+    return res.status(200).json(result.rows);
 });
 
 // Prescribe - PRODUCTION SAFE
@@ -321,7 +321,7 @@ const getPatientHistory = asyncHandler(async (req, res) => {
         ORDER BY opd.visit_date DESC LIMIT 10
     `, [id]);
 
-    ResponseHandler.success(res, result.rows);
+    return res.status(200).json(result.rows);
 });
 
 // SOAP Notes - PRODUCTION SAFE

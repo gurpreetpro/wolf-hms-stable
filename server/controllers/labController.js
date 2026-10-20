@@ -653,7 +653,7 @@ const acknowledgeCriticalAlert = asyncHandler(async (req, res) => {
 const getPendingCriticalAlerts = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
     const alerts = await pool.query(`SELECT a.*, p.name as patient_name, t.name as test_name FROM lab_critical_alerts a LEFT JOIN patients p ON a.patient_id = p.id LEFT JOIN lab_requests lr ON a.request_id = lr.id LEFT JOIN lab_test_types t ON lr.test_type_id = t.id WHERE a.acknowledged = FALSE AND (a.hospital_id = $1 OR a.hospital_id IS NULL) ORDER BY a.created_at DESC LIMIT 50`, [hospitalId]);
-    ResponseHandler.success(res, alerts.rows);
+    return res.status(200).json(alerts.rows);
 });
 
 // Get Reagents - Multi-Tenant

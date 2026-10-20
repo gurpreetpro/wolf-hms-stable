@@ -35,7 +35,7 @@ const searchPatients = asyncHandler(async (req, res) => {
     // [AUDIT] Log search performed (optional, maybe high volume)
     // AuditService.log('SEARCH_PATIENT', 'PATIENT', 'QUERY', { query: q }, req);
 
-    ResponseHandler.success(res, result.rows);
+    return res.status(200).json(result.rows);
 });
 
 // Get patient by ID - MULTI-TENANT
