@@ -1,4 +1,29 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL FIX): SYNC PHARMACY BILLING (PAID BADGE), FIX DR. DOCTOR_USER DISPLAY, AUTO-BILL OPD RX AT SIGN & SEND, AND PREVENT DOUBLE-BILLING ON DISPENSE (2026-10-21, Production VPS 185.213.27.158)
+- [x] **No Vite Rebuild Compliance:** Executed exact 6-line surgical expression update in `server/public/assets/index-CmiIAuQj.js` and `client/dist/assets/index-CmiIAuQj.js` with full source parity in `PharmacyDashboard.jsx`.
+- [x] **Guardrail Preserved:** Zero edits to 17 uncommitted Phase-7/WGM files.
+- [x] **Preserved Patient 3 Prescription Row:** Row `1a18be64-8e0f-487f-a703-ed4873f0d043` (`Paracetamol 500mg` for `Patient 3`) remains in `status = 'Pending'` with `payment_status = 'Paid'` for interactive user testing.
+- [x] **Migration 319 Applied:**
+  - Added `payment_status VARCHAR(50) DEFAULT 'Pending'` and `invoice_id INTEGER` to `care_tasks`.
+  - Healed Patient 3 row to `payment_status = 'Paid'`, `invoice_id = 4` while preserving `status = 'Pending'`.
+  - Synced existing medication care_tasks for all paid invoices.
+- [x] **Billing Service Synchronized (`billingService.js`):**
+  - Updated `recordPayment` to automatically update `care_tasks.payment_status = 'Paid'` upon invoice payment completion (both via direct `invoice_id` and via `invoice_items` medication matching).
+- [x] **Clinical Controller Auto-Billing (`clinicalController.js`):**
+  - In `saveConsultation`, calculated Rx dosage quantity (`freq` × `duration`) and looked up inventory unit price to invoice OPD prescriptions immediately via `addToInvoice`, storing `invoice_id` and `payment_status = 'Pending'` on `care_tasks`.
+- [x] **Pharmacy Controller Hardened (`pharmacyController.js`):**
+  - `getPrescriptionQueue`: Returns `payment_status`, `invoice_id`, and maps `created_by` / `doctor_name` to `doctor_name || 'doctor_user'`.
+  - `processPrescription`: Guarded against double-billing (skips invoice insert if already billed/paid), rejected re-dispense with 400, and completed OPD prescriptions (`status = 'Completed'`, `pharmacy_status = 'Dispensed'`).
+- [x] **Quality Gates & VPS Deployment:**
+  - `node --check` passed across all modified server files.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`d780db4`).
+  - SFTP uploaded files to `185.213.27.158`, applied Migration 319, and restarted PM2 `wolf-hms-api`.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - `care_tasks` row `1a18be64-8e0f-487f-a703-ed4873f0d043`: `status = 'Pending'`, `payment_status = 'Paid'`, `invoice_id = 4`.
+  - `GET /api/pharmacy/queue`: Returns `doctor_name: "doctor_user"`, `created_by: "doctor_user"`, `payment_status: "Paid"`.
+  - Browser bundles verified on VPS: `Dr. doctor_user` and green `Paid` badge live and ready for user `✓ Dispense` click.
+
 ### STAGE 3 (SURGICAL ZERO-UI-TOUCH): SYNC BILLING COUNTER PAYMENTS TO LAB REQUESTS PAYMENT STATUS & UNBLOCK SAMPLE COLLECTION (2026-10-21, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.

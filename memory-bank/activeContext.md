@@ -4,7 +4,36 @@
 
 ## Last Updated
 
-2026-10-20
+2026-10-21
+
+## Session 2026-10-21 — STAGE 3 (SURGICAL FIX): SYNC PHARMACY BILLING (PAID BADGE), FIX DR. DOCTOR_USER DISPLAY, AUTO-BILL OPD RX AT SIGN & SEND, AND PREVENT DOUBLE-BILLING ON DISPENSE
+- **Mandates Honored**: No Vite Rebuild (surgical 6-line expression edit applied directly to `server/public/assets/index-CmiIAuQj.js` and `client/dist/assets/index-CmiIAuQj.js`, with source parity in `PharmacyDashboard.jsx`), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 3`'s prescription row (`1a18be64-8e0f-487f-a703-ed4873f0d043`) strictly preserved in `status = 'Pending'` so user can test clicking `✓ Dispense` live.
+- **Root Causes Eliminated**:
+  - `care_tasks` lacked `payment_status` and `invoice_id` columns, and `recordPayment` never synced `care_tasks` when invoices became `Paid`.
+  - Amber `Pending Billing` badge was hardcoded in JSX for all OPD rows (`isIPD ? 'Bill on Discharge' : 'Pending Billing'`) with no check on `payment_status`.
+  - Doctor column rendered `Dr. {item.created_by}` when API returned `doctor_name`, producing dangling `Dr. `.
+  - OPD prescriptions were never billed at `Sign & Send`, relying on pharmacist dispense action which created duplicate invoices if the patient already paid.
+  - Dispense never marked OPD tasks as `Completed`, leaving them permanently in the pending queue.
+- **Backend & Database Heals Implemented**:
+  1. `server/migrations/319_pharmacy_billing_sync_and_care_tasks_heal.sql`:
+     - Added `payment_status VARCHAR(50) DEFAULT 'Pending'` and `invoice_id INTEGER` to `care_tasks`.
+     - Healed Patient 3 prescription row `1a18be64-8e0f-487f-a703-ed4873f0d043` with `payment_status = 'Paid'`, `invoice_id = 4` while preserving `status = 'Pending'`.
+     - Auto-synced existing medication care_tasks for all paid invoices.
+  2. `server/services/billingService.js`: In `recordPayment`, added automatic cross-table sync to `care_tasks` (both by `invoice_id` and by medication name matching on `invoice_items`) when an invoice becomes `'Paid'`.
+  3. `server/controllers/clinicalController.js`: In `saveConsultation`, automatically calculated medicine quantity (`freq` × `duration`) and looked up inventory unit price to add OPD prescriptions to the invoice via `addToInvoice`, storing `invoice_id` and `payment_status = 'Pending'` on newly created `care_tasks`.
+  4. `server/controllers/pharmacyController.js`:
+     - In `getPrescriptionQueue`: Selected `payment_status` and `invoice_id`, mapped `created_by: row.doctor_name || row.created_by || 'doctor_user'` and normalized `payment_status`.
+     - In `processPrescription`: Added already-dispensed check (`400`), double-billing prevention guard (skips charge creation if already invoiced/paid), and completed OPD tasks with `status = 'Completed'`, `pharmacy_status = 'Dispensed'`, `completed_at = CURRENT_TIMESTAMP`, `completed_by = pharmacist_id`.
+  5. UI Surgical Expression: Updated `client/src/pages/PharmacyDashboard.jsx` (source parity) and compiled bundle `server/public/assets/index-CmiIAuQj.js` + `client/dist/assets/index-CmiIAuQj.js` to render `Dr. {item.doctor_name || item.created_by}` and `item.payment_status === 'Paid' ? <Badge bg="success">Paid</Badge> : isIPD ? ... : ...`.
+- **Quality Gates & VPS Deployment**:
+  - `node --check` passed across all modified backend files.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`d780db4`).
+  - SFTP uploaded modified files, applied Migration 319 on `wolf_hms_prod`, and restarted PM2 `wolf-hms-api`.
+- **Live Production Probes on `185.213.27.158`**:
+  - `care_tasks` row `1a18be64-8e0f-487f-a703-ed4873f0d043`: `status = 'Pending'`, `payment_status = 'Paid'`, `invoice_id = 4`.
+  - `GET /api/pharmacy/queue`: Returns `doctor_name: "doctor_user"`, `created_by: "doctor_user"`, `payment_status: "Paid"`.
+  - Deployed bundles on VPS verified: `Dr. doctor_user` renders, green `Paid` badge displays, ready for user click on `✓ Dispense`.
 
 ## Session 2026-10-21 — STAGE 3 (SURGICAL ZERO-UI-TOUCH): SYNC BILLING COUNTER PAYMENTS TO LAB REQUESTS PAYMENT STATUS & UNBLOCK SAMPLE COLLECTION
 - **Mandates Honored**: 100% Zero UI Touch (`client/dist` and frontend bundle `index-CmiIAuQj.js` 100% untouched), zero edits to 17 uncommitted Phase 7 / WGM files, Request `#1` (`CBC` for `Patient 3`) preserved in `status = 'Pending'` so the user can click `Collect` themselves.
