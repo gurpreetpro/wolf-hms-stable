@@ -326,9 +326,13 @@ const PharmacyDashboard = () => {
                                                 </Badge>
                                             </td>
                                             <td>{item.description}</td>
-                                            <td>Dr. {item.created_by}</td>
+                                            <td>Dr. {item.doctor_name || item.created_by || '—'}</td>
                                             <td>
-                                                {isIPD ? (
+                                                {item.payment_status === 'Paid' ? (
+                                                    <Badge bg="success" className="d-flex align-items-center gap-1" style={{width: 'fit-content'}}>
+                                                        <IndianRupee size={12} /> Paid
+                                                    </Badge>
+                                                ) : isIPD ? (
                                                     <Badge bg="info" className="d-flex align-items-center gap-1" style={{width: 'fit-content'}}>
                                                         <IndianRupee size={12} /> Bill on Discharge
                                                     </Badge>

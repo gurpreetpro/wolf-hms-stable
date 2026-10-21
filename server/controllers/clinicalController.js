@@ -252,14 +252,50 @@ const saveConsultation = asyncHandler(async (req, res) => {
     // [FIX] Sync Prescriptions for Home Orders (Wolf Care App)
     if (prescriptions && Array.isArray(prescriptions) && prescriptions.length > 0) {
 
-        // 1. Create Care Tasks (Nurse/History) with hospital_id and duration
+        // 1. Create Care Tasks (Nurse/History) with hospital_id, duration, and auto-billing
         for (const rx of prescriptions) {
             if (rx.name) {
                 const durationSuffix = rx.duration ? ` - ${rx.duration} days` : '';
+
+                // Calculate dosage quantity and look up inventory unit price
+                let dailyDoses = 1;
+                if (/TDS|TID/i.test(rx.freq || '')) dailyDoses = 3;
+                else if (/BD|BID/i.test(rx.freq || '')) dailyDoses = 2;
+                else if (/QID/i.test(rx.freq || '')) dailyDoses = 4;
+                else if (/OD/i.test(rx.freq || '')) dailyDoses = 1;
+
+                let days = 7;
+                if (rx.duration) {
+                    const dMatch = String(rx.duration).match(/\d+/);
+                    if (dMatch) days = parseInt(dMatch[0], 10) || 7;
+                }
+                const qtyToDispense = Math.max(1, dailyDoses * days);
+
+                let unit_price = 2.00;
+                try {
+                    const itemRes = await pool.query(
+                        'SELECT price_per_unit FROM inventory_items WHERE name ILIKE $1 AND (hospital_id = $2 OR hospital_id IS NULL) ORDER BY (hospital_id = $2) DESC NULLS LAST LIMIT 1',
+                        [rx.name.trim(), hospitalId]
+                    );
+                    if (itemRes.rows.length > 0 && itemRes.rows[0].price_per_unit) {
+                        unit_price = parseFloat(itemRes.rows[0].price_per_unit);
+                    }
+                } catch (invErr) {
+                    console.warn(`[Clinical] Non-fatal: Could not lookup inventory price for ${rx.name}:`, invErr.message);
+                }
+
+                let invoice_id = null;
+                try {
+                    const desc = `Rx: ${rx.name} (${rx.dose || ''} ${rx.freq || ''} x ${days} days)`.trim();
+                    invoice_id = await addToInvoice(patient_id, null, desc, qtyToDispense, unit_price, user_id, hospitalId);
+                } catch (billErr) {
+                    console.warn(`[Clinical] Non-fatal: Failed to add Rx ${rx.name} to invoice:`, billErr.message);
+                }
+
                 await pool.query(`
-                    INSERT INTO care_tasks (patient_id, type, description, scheduled_time, status, doctor_id, hospital_id)
-                    VALUES ($1, 'Medication', $2, NOW(), 'Pending', $3, $4)
-                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}${durationSuffix}`, user_id, hospitalId]);
+                    INSERT INTO care_tasks (patient_id, type, description, scheduled_time, status, payment_status, doctor_id, hospital_id, invoice_id)
+                    VALUES ($1, 'Medication', $2, NOW(), 'Pending', 'Pending', $3, $4, $5)
+                `, [patient_id, `${rx.name} - ${rx.dose || 'N/A'} - ${rx.freq || 'N/A'}${durationSuffix}`, user_id, hospitalId, invoice_id]);
             }
         }
 

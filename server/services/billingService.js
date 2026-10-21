@@ -312,6 +312,37 @@ const recordPayment = async (paymentData, client = pool) => {
                 } catch (syncErr) {
                     console.warn('[BillingService] Non-fatal: Failed to sync lab_requests payment status:', syncErr.message);
                 }
+
+                // Synchronize care_tasks (pharmacy) payment status when invoice is fully paid
+                try {
+                    // 1. Sync by explicit invoice_id link
+                    await db.query(
+                        `UPDATE care_tasks 
+                         SET payment_status = 'Paid'
+                         WHERE invoice_id = $1 AND (hospital_id = $2 OR $2 IS NULL)`,
+                        [invoice_id, hospital_id || null]
+                    );
+
+                    // 2. Sync by matching medication items on invoice_items for this patient
+                    await db.query(
+                        `UPDATE care_tasks ct
+                         SET payment_status = 'Paid',
+                             invoice_id = $1
+                         FROM invoice_items ii, invoices inv
+                         WHERE inv.id = $1
+                           AND inv.id = ii.invoice_id
+                           AND ct.patient_id = inv.patient_id
+                           AND ct.type = 'Medication'
+                           AND (
+                               ii.description ILIKE '%' || SPLIT_PART(ct.description, ' - ', 1) || '%'
+                               OR SPLIT_PART(ct.description, ' - ', 1) ILIKE '%' || REPLACE(REPLACE(ii.description, 'Rx: ', ''), 'Medication: ', '') || '%'
+                           )
+                           AND (ct.payment_status IS NULL OR ct.payment_status != 'Paid')`,
+                        [invoice_id]
+                    );
+                } catch (syncErr) {
+                    console.warn('[BillingService] Non-fatal: Failed to sync care_tasks payment status:', syncErr.message);
+                }
             }
             
             console.log(`[Billing] Payment recorded. Invoice #${invoice_id} status: ${newStatus} (Paid: ${newPaid}/${total})`);

@@ -102074,9 +102074,12 @@ const PharmacyDashboard = () => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.description }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
                     "Dr. ",
-                    item.created_by
+                    item.doctor_name || item.created_by
                   ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: isIPD ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "info", className: "d-flex align-items-center gap-1", style: { width: "fit-content" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: item.payment_status === "Paid" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "success", className: "d-flex align-items-center gap-1", style: { width: "fit-content" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(IndianRupee, { size: 12 }),
+                    " Paid"
+                  ] }) : isIPD ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "info", className: "d-flex align-items-center gap-1", style: { width: "fit-content" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(IndianRupee, { size: 12 }),
                     " Bill on Discharge"
                   ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(Badge$1, { bg: "warning", text: "dark", className: "d-flex align-items-center gap-1", style: { width: "fit-content" }, children: [

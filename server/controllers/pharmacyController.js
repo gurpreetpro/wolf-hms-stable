@@ -84,9 +84,13 @@ const processPrescription = asyncHandler(async (req, res) => {
     const pharmacist_id = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const taskRes = await pool.query('SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2)', [task_id, hospitalId]); 
+    const taskRes = await pool.query('SELECT * FROM care_tasks WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [task_id, hospitalId]); 
     if (taskRes.rows.length === 0) return ResponseHandler.error(res, 'Prescription task not found', 404); 
     const task = taskRes.rows[0]; 
+
+    if (task.status === 'Completed' || task.pharmacy_status === 'Dispensed') {
+        return ResponseHandler.error(res, 'Prescription has already been dispensed', 400);
+    }
     const itemName = task.description.split(' - ')[0].trim();
 
     if (!force) { 
@@ -164,63 +168,115 @@ const processPrescription = asyncHandler(async (req, res) => {
     if (updateRes.rows.length === 0) return ResponseHandler.error(res, `Insufficient stock or item not found: ${itemName}`, 400); 
     const { price_per_unit, id: itemId } = updateRes.rows[0];
 
-    // Create pending charge for billing queue (Gold Standard Pattern)
-    try {
-        await createChargeHelper({
-            hospital_id: hospitalId,
-            patient_id: task.patient_id,
-            admission_id: task.admission_id || null,
-            charge_type: 'pharmacy',
-            description: `Rx: ${itemName}`,
-            quantity: qtyToDispense,
-            unit_price: parseFloat(price_per_unit),
-            source_table: 'care_tasks',
-            source_id: task_id,
-            created_by: pharmacist_id
-        });
-        console.log(`📋 [Pharmacy] Rx charge created for ${itemName} - ₹${parseFloat(price_per_unit)}`);
-    } catch (chargeError) {
-        console.warn('[Pharmacy] Failed to create Rx charge (non-blocking):', chargeError.message);
-        // Fallback to old invoice method
-        await addToInvoice(task.patient_id, task.admission_id, `Rx: ${itemName}`, qtyToDispense, parseFloat(price_per_unit), pharmacist_id, hospitalId);
-    }
-
-    // Simplified for Schema Compatibility (removed is_controlled check)
-    /* 
-    const controlledCheck = await pool.query('SELECT id, is_controlled, schedule_type, batch_number FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [itemName, hospitalId]); 
-    if (controlledCheck.rows.length > 0 && controlledCheck.rows[0].is_controlled) { 
-        const item = controlledCheck.rows[0]; 
-        const patientRes = await pool.query('SELECT name FROM patients WHERE id = $1', [task.patient_id]); 
-        const pharmacistRes = await pool.query('SELECT username FROM users WHERE id = $1', [pharmacist_id]); 
-        await pool.query(`INSERT INTO controlled_substance_log (inventory_item_id, drug_name, schedule_type, patient_id, patient_name, quantity, prescription_id, dispensed_by, dispensed_by_name, admission_id, batch_number, balance_before, balance_after, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`, [item.id, itemName, item.schedule_type, task.patient_id, patientRes.rows[0]?.name || 'Unknown', qtyToDispense, task.id, pharmacist_id, pharmacistRes.rows[0]?.username || 'Unknown', task.admission_id, item.batch_number, updateRes.rows[0].stock_quantity + qtyToDispense, updateRes.rows[0].stock_quantity, hospitalId]); 
-        console.log(`⚠️ CONTROLLED SUBSTANCE DISPENSED: ${itemName} [${item.schedule_type}] to ${patientRes.rows[0]?.name}`); 
-    }
-    */
-
-    // [CLMA] Phase 2: Pharmacy Verification Step
-    // Instead of completing the task, we mark it as 'Verified' so the Nurse can administer it.
-    // We only complete it if it's NOT a medication task (which it is, by definition of this API), 
-    // or if we want to bypass CLMA (optional flag?). For now, STRICT CLMA.
-    
-    // Check if task exists (already fetched above)
-    // Update the task to 'Verified' by pharmacy
-    await pool.query(
-        `UPDATE care_tasks 
-         SET pharmacy_status = 'Verified', 
-             updated_at = CURRENT_TIMESTAMP, 
-             updated_by = $1 
-         WHERE id = $2`, 
-        [pharmacist_id, task_id]
+    // Prevent double-billing: check if prescription was already billed or paid
+    const alreadyBilled = !!(
+        task.invoice_id || 
+        (task.payment_status && String(task.payment_status).trim().toLowerCase() === 'paid')
     );
-    
-    ResponseHandler.success(res, { pharmacy_status: 'Verified' }, 'Prescription Verified. Ready for Nurse Administration.');
+
+    let existingItem = null;
+    if (!alreadyBilled) {
+        const itemCheck = await pool.query(
+            `SELECT ii.id FROM invoice_items ii 
+             JOIN invoices inv ON ii.invoice_id = inv.id 
+             WHERE inv.patient_id = $1 
+               AND (
+                   ii.description ILIKE '%' || $2 || '%' 
+                   OR $2 ILIKE '%' || REPLACE(REPLACE(ii.description, 'Rx: ', ''), 'Medication: ', '') || '%'
+               )
+             LIMIT 1`,
+            [task.patient_id, itemName]
+        );
+        if (itemCheck.rows.length > 0) existingItem = itemCheck.rows[0];
+    }
+
+    if (!alreadyBilled && !existingItem) {
+        // Create pending charge for billing queue (Gold Standard Pattern)
+        try {
+            await createChargeHelper({
+                hospital_id: hospitalId,
+                patient_id: task.patient_id,
+                admission_id: task.admission_id || null,
+                charge_type: 'pharmacy',
+                description: `Rx: ${itemName}`,
+                quantity: qtyToDispense,
+                unit_price: parseFloat(price_per_unit),
+                source_table: 'care_tasks',
+                source_id: task_id,
+                created_by: pharmacist_id
+            });
+            console.log(`📋 [Pharmacy] Rx charge created for ${itemName} - ₹${parseFloat(price_per_unit)}`);
+        } catch (chargeError) {
+            console.warn('[Pharmacy] Failed to create Rx charge (non-blocking):', chargeError.message);
+            // Fallback to old invoice method
+            await addToInvoice(task.patient_id, task.admission_id, `Rx: ${itemName}`, qtyToDispense, parseFloat(price_per_unit), pharmacist_id, hospitalId);
+        }
+    } else {
+        console.log(`📋 [Pharmacy] Prescription ${itemName} already invoiced/paid. Skipping duplicate charge.`);
+    }
+
+    // For OPD (no admission_id): Complete the task upon dispensing so it leaves the pending queue
+    // For IPD (admission_id exists): Mark Verified so the nurse can administer on the ward
+    const isIPD = !!task.admission_id;
+    if (isIPD) {
+        await pool.query(
+            `UPDATE care_tasks 
+             SET pharmacy_status = 'Verified', 
+                 updated_at = CURRENT_TIMESTAMP, 
+                 updated_by = $1 
+             WHERE id = $2`, 
+            [pharmacist_id, task_id]
+        );
+        return ResponseHandler.success(res, { pharmacy_status: 'Verified' }, 'Prescription Verified. Ready for Nurse Administration.');
+    } else {
+        await pool.query(
+            `UPDATE care_tasks 
+             SET status = 'Completed',
+                 pharmacy_status = 'Dispensed', 
+                 completed_at = CURRENT_TIMESTAMP, 
+                 completed_by = $1,
+                 updated_at = CURRENT_TIMESTAMP, 
+                 updated_by = $1 
+             WHERE id = $2`, 
+            [pharmacist_id, task_id]
+        );
+        return ResponseHandler.success(res, { pharmacy_status: 'Dispensed', status: 'Completed' }, 'Prescription Dispensed successfully.');
+    }
 });
 
 // Get Prescription Queue - Multi-Tenant
 const getPrescriptionQueue = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
-    const result = await pool.query(`SELECT ct.id, ct.patient_id, ct.admission_id, p.name as patient_name, u.username as doctor_name, ct.description, ct.status, ct.created_at FROM care_tasks ct JOIN patients p ON ct.patient_id = p.id LEFT JOIN users u ON ct.doctor_id = u.id WHERE ct.type = 'Medication' AND ct.status = 'Pending' AND (ct.hospital_id = $1 OR ct.hospital_id IS NULL) ORDER BY ct.created_at ASC`, [hospitalId]); 
-    ResponseHandler.success(res, result.rows);
+    const result = await pool.query(
+        `SELECT ct.id, ct.patient_id, ct.admission_id, p.name as patient_name, 
+                u.username as doctor_name, ct.description, ct.status, ct.pharmacy_status,
+                ct.payment_status, ct.invoice_id, ct.created_at 
+         FROM care_tasks ct 
+         JOIN patients p ON ct.patient_id = p.id 
+         LEFT JOIN users u ON ct.doctor_id = u.id 
+         WHERE ct.type = 'Medication' AND ct.status = 'Pending' 
+           AND (ct.hospital_id = $1 OR ct.hospital_id IS NULL) 
+         ORDER BY ct.created_at ASC`, 
+        [hospitalId]
+    ); 
+
+    const mapped = result.rows.map(row => {
+        let normalizedPaymentStatus = row.payment_status;
+        if (normalizedPaymentStatus && String(normalizedPaymentStatus).trim().toLowerCase() === 'paid') {
+            normalizedPaymentStatus = 'Paid';
+        } else {
+            normalizedPaymentStatus = 'Pending';
+        }
+        const doctorName = row.doctor_name || 'doctor_user';
+        return {
+            ...row,
+            doctor_name: doctorName,
+            created_by: doctorName,
+            payment_status: normalizedPaymentStatus
+        };
+    });
+
+    ResponseHandler.success(res, mapped);
 });
 
 // Request Price Change - Multi-Tenant
