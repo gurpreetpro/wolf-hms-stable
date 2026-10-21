@@ -1,4 +1,31 @@
 ## ✅ Completed & Verified
+### STAGE 3 (SURGICAL ZERO-UI-TOUCH): SYNC BILLING COUNTER PAYMENTS TO LAB REQUESTS PAYMENT STATUS & UNBLOCK SAMPLE COLLECTION (2026-10-21, Production VPS 185.213.27.158)
+- [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
+- [x] **Preserved Lab Request #1 (`status = 'Pending'`):** Request #1 (`CBC` for `Patient 3`) remains in `status = 'Pending'` so the user can test the `Collect` workflow themselves in the browser.
+- [x] **Migration 318 Applied:**
+  - `server/migrations/318_lab_billing_sync_and_payment_status_heal.sql` changed `payment_status` default from `'PAID'` to `'Pending'`.
+  - Added `invoice_id` column to `lab_requests`.
+  - Healed Request #1 to `payment_status = 'Paid'`, `paid_amount = 350.00`, `invoice_id = 4`.
+  - Normalized legacy uppercase `'PAID'` values to canonical `'Paid'`.
+- [x] **Billing Service Synchronized (`billingService.js`):**
+  - Updated `recordPayment` to automatically update `lab_requests.payment_status = 'Paid'` upon invoice payment completion (both via direct `invoice_id` and via `invoice_items` test name matching).
+- [x] **Lab Controller Hardened (`labController.js`):**
+  - `getLabQueue`: Normalized `payment_status` to canonical `'Paid'`, turning the badge GREEN in `LabQueueTab.jsx:54`.
+  - `collectSample`: Changed payment check to case-insensitive and returned `barcode` at top-level and envelope for UI toast compatibility.
+- [x] **Clinical Controller Hardened (`clinicalController.js`):**
+  - `saveConsultation`: Linked newly ordered lab tests to `invoice_id` from `addToInvoice` with `payment_status = 'Pending'`.
+- [x] **Quality Gates & VPS Deployment:**
+  - `node --check` passed across all modified server files.
+  - 193 Jest unit & contract tests passing.
+  - Committed and pushed to `origin/main` (`8a2b006`).
+  - SFTP uploaded to `/var/www/wolf-hms/server/` on `185.213.27.158` and PM2 restarted cleanly.
+- [x] **Live Probes & Verification on `185.213.27.158`:**
+  - `lab_requests` row #1: `status = 'Pending'`, `payment_status = 'Paid'`, `invoice_id = 4`.
+  - Column default of `lab_requests.payment_status` confirmed changed to `'Pending'`.
+  - `GET /api/lab/queue`: Request #1 returns `"payment_status": "Paid"`, turning the badge GREEN with zero amber badge.
+  - `GET /api/lab/pending-payments`: Returns `data: []` (no false-unpaid items).
+
 ### STAGE 3 (SURGICAL ZERO-UI-TOUCH): HEAL DOCTOR FOLLOW-UP (403), ITEMIZED OPD BILLING (CBC + PARACETAMOL QTY) & INVOICE #4 DISPLAY (2026-10-20, Production VPS 185.213.27.158)
 - [x] **Zero-UI Touch Compliance:** Preserved `client/dist` and production bundle `index-CmiIAuQj.js` 100% untouched.
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files.
