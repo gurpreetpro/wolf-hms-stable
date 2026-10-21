@@ -296,17 +296,18 @@ const saveConsultation = asyncHandler(async (req, res) => {
                 const test_type_id = typeRes.rows.length > 0 ? typeRes.rows[0].id : null;
                 const test_price = typeRes.rows.length > 0 && typeRes.rows[0].price ? parseFloat(typeRes.rows[0].price) : 350.00;
 
-                await pool.query(`
-                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, test_price, status, doctor_id, requested_at, hospital_id)
-                    VALUES ($1, $2, $3, $4, 'Pending', $5, NOW(), $6)
-                `, [patient_id, test_name, test_type_id, test_price, user_id, hospitalId]);
-
                 // Immediately add the lab test to the patient's open OPD invoice
+                let invoice_id = null;
                 try {
-                    await addToInvoice(patient_id, null, `Lab Test: ${test_name}`, 1, test_price, user_id, hospitalId);
+                    invoice_id = await addToInvoice(patient_id, null, `Lab Test: ${test_name}`, 1, test_price, user_id, hospitalId);
                 } catch (billErr) {
                     console.warn(`[Clinical] Non-fatal: Failed to add lab test ${test_name} to invoice:`, billErr.message);
                 }
+
+                await pool.query(`
+                    INSERT INTO lab_requests (patient_id, test_name, test_type_id, test_price, status, payment_status, doctor_id, requested_at, hospital_id, invoice_id)
+                    VALUES ($1, $2, $3, $4, 'Pending', 'Pending', $5, NOW(), $6, $7)
+                `, [patient_id, test_name, test_type_id, test_price, user_id, hospitalId, invoice_id]);
             }
         }
         if (req.io) req.io.emit('lab_update', { type: 'new_lab_request', patient_id });

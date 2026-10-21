@@ -235,8 +235,21 @@ const orderTest = asyncHandler(async (req, res) => {
 // Get Lab Queue - Multi-Tenant
 const getLabQueue = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req);
-    const result = await pool.query(`SELECT r.*, COALESCE(t.name, r.test_name) as test_name, p.name as patient_name FROM lab_requests r LEFT JOIN lab_test_types t ON r.test_type_id = t.id LEFT JOIN patients p ON r.patient_id = p.id LEFT JOIN admissions a ON r.admission_id = a.id WHERE r.status != 'Completed' AND (r.hospital_id = $1 OR r.hospital_id IS NULL)`, [hospitalId]);
-    ResponseHandler.success(res, result.rows.map(row => ({ ...row, patient_name: row.patient_name || 'Admitted Patient' })));
+    const result = await pool.query(`SELECT r.*, COALESCE(t.name, r.test_name) as test_name, p.name as patient_name FROM lab_requests r LEFT JOIN lab_test_types t ON r.test_type_id = t.id LEFT JOIN patients p ON r.patient_id = p.id LEFT JOIN admissions a ON r.admission_id = a.id WHERE r.status != 'Completed' AND (r.hospital_id = $1 OR r.hospital_id IS NULL) ORDER BY r.id DESC`, [hospitalId]);
+
+    ResponseHandler.success(res, result.rows.map(row => {
+        let normalizedPaymentStatus = row.payment_status;
+        if (normalizedPaymentStatus && String(normalizedPaymentStatus).trim().toLowerCase() === 'paid') {
+            normalizedPaymentStatus = 'Paid';
+        } else if (!normalizedPaymentStatus || String(normalizedPaymentStatus).trim().toLowerCase() === 'pending') {
+            normalizedPaymentStatus = 'Pending';
+        }
+        return {
+            ...row,
+            patient_name: row.patient_name || 'Admitted Patient',
+            payment_status: normalizedPaymentStatus
+        };
+    }));
 });
 
 // Upload Result - Multi-Tenant
@@ -540,17 +553,26 @@ const collectSample = asyncHandler(async (req, res) => {
     const collected_by = req.user.id;
     const hospitalId = getHospitalId(req);
 
-    const reqCheck = await pool.query('SELECT admission_id, payment_status, payment_method FROM lab_requests WHERE id = $1 AND (hospital_id = $2)', [id, hospitalId]);
+    const reqCheck = await pool.query('SELECT admission_id, payment_status, payment_method FROM lab_requests WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [id, hospitalId]);
     if (reqCheck.rows.length === 0) return ResponseHandler.error(res, 'Request not found', 404);
 
     const request = reqCheck.rows[0];
-    if (!request.admission_id && request.payment_status !== 'Paid') return ResponseHandler.error(res, 'Payment required for OPD sample collection', 402, null, { requires_payment: true });
+    const isPaid = request.payment_status && String(request.payment_status).trim().toLowerCase() === 'paid';
+    if (!request.admission_id && !isPaid) {
+        return ResponseHandler.error(res, 'Payment required for OPD sample collection', 402, null, { requires_payment: true });
+    }
 
     const barcode = 'LAB' + String(id).padStart(8, '0');
     await pool.query(`UPDATE lab_requests SET barcode = COALESCE(barcode, $1), sample_collected_at = NOW(), collected_by = $2, status = 'Sample Collected' WHERE id = $3`, [barcode, collected_by, id]);
     await logAudit(id, 'SAMPLE_COLLECTED', collected_by, { barcode }, null, hospitalId);
 
-    ResponseHandler.success(res, { message: 'Sample collected', barcode });
+    // Return barcode at root and in data envelope for backward & frontend compatibility
+    return res.status(200).json({
+        success: true,
+        message: 'Sample collected',
+        barcode,
+        data: { message: 'Sample collected', barcode }
+    });
 });
 
 // Get Audit Log - Multi-Tenant

@@ -275,6 +275,44 @@ const recordPayment = async (paymentData, client = pool) => {
                     [newPaid, newStatus, invoice_id]
                 );
             }
+
+            // Synchronize lab_requests payment status when invoice is fully paid
+            if (newStatus === 'Paid') {
+                try {
+                    // 1. Sync by explicit invoice_id link
+                    await db.query(
+                        `UPDATE lab_requests 
+                         SET payment_status = 'Paid', 
+                             paid_amount = COALESCE(test_price, 0),
+                             payment_received_at = NOW(),
+                             payment_method = $1
+                         WHERE invoice_id = $2 AND (hospital_id = $3 OR $3 IS NULL)`,
+                        [payment_mode || 'Cash', invoice_id, hospital_id || null]
+                    );
+
+                    // 2. Sync by matching test items on invoice_items for this patient
+                    await db.query(
+                        `UPDATE lab_requests lr
+                         SET payment_status = 'Paid',
+                             paid_amount = COALESCE(lr.test_price, 0),
+                             payment_received_at = NOW(),
+                             payment_method = $1,
+                             invoice_id = $2
+                         FROM invoice_items ii, invoices inv
+                         WHERE inv.id = $2
+                           AND inv.id = ii.invoice_id
+                           AND lr.patient_id = inv.patient_id
+                           AND (
+                               ii.description ILIKE '%' || lr.test_name || '%'
+                               OR lr.test_name ILIKE '%' || REPLACE(REPLACE(ii.description, 'Lab Test: ', ''), 'Lab: ', '') || '%'
+                           )
+                           AND lr.payment_status != 'Paid'`,
+                        [payment_mode || 'Cash', invoice_id]
+                    );
+                } catch (syncErr) {
+                    console.warn('[BillingService] Non-fatal: Failed to sync lab_requests payment status:', syncErr.message);
+                }
+            }
             
             console.log(`[Billing] Payment recorded. Invoice #${invoice_id} status: ${newStatus} (Paid: ${newPaid}/${total})`);
         }
