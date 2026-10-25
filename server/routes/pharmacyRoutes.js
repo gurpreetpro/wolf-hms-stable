@@ -13,8 +13,10 @@ const {
     getExpiryHeatmap,
     getDemandForecast,
     addInventoryItem,
+    updateInventoryItem,
     deleteInventoryItem,
     getSuppliers,
+    createSupplier,
     createPurchaseOrder,
     receiveStock,
     getPurchaseOrders,
@@ -68,8 +70,10 @@ router.get('/forecast', protect, authorize('admin', 'pharmacist', 'doctor'), get
 
 // Phase 5: Master Data & Procurement
 router.post('/inventory', protect, authorize('admin', 'pharmacist'), addInventoryItem);
+router.put('/inventory/:id', protect, authorize('admin', 'pharmacist'), updateInventoryItem);
 router.delete('/inventory/:id', protect, authorize('admin'), deleteInventoryItem);
 router.get('/suppliers', protect, authorize('admin', 'pharmacist'), getSuppliers);
+router.post('/suppliers', protect, authorize('admin', 'pharmacist'), createSupplier);
 router.post('/purchase-orders', protect, authorize('admin', 'pharmacist'), createPurchaseOrder);
 router.get('/purchase-orders', protect, authorize('admin', 'pharmacist'), getPurchaseOrders);
 router.post('/purchase-orders/:id/approve', protect, authorize('admin', 'pharmacist'), approvePurchaseOrder);
@@ -85,10 +89,11 @@ router.get('/reports/smart-alerts', protect, authorize('admin', 'pharmacist'), g
 router.get('/dispenses/recent', protect, authorize('admin', 'pharmacist'), getRecentDispenses);
 router.get('/dispenses/unbilled', protect, authorize('admin', 'pharmacist', 'billing'), getUnbilledDispenses);
 router.post('/refund', protect, authorize('admin', 'pharmacist'), processRefund);
+router.post('/refunds', protect, authorize('admin', 'pharmacist'), processRefund);
 router.get('/refunds', protect, authorize('admin', 'pharmacist'), getRefundHistory);
 
-// Controlled Substance Log (Admin only - compliance)
-router.get('/controlled-log', protect, authorize('admin'), getControlledSubstanceLog);
+// Controlled Substance Log (Admin and Pharmacist - compliance)
+router.get('/controlled-log', protect, authorize('admin', 'pharmacist'), getControlledSubstanceLog);
 
 module.exports = router;
 

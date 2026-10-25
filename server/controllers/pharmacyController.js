@@ -164,9 +164,34 @@ const processPrescription = asyncHandler(async (req, res) => {
         console.warn('[Pharmacy] Could not calculate prescribed quantity, defaulting to 1:', parseErr.message);
         qtyToDispense = 1;
     } 
-    const updateRes = await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3) RETURNING stock_quantity, price_per_unit, id', [qtyToDispense, itemName, hospitalId]); 
-    if (updateRes.rows.length === 0) return ResponseHandler.error(res, `Insufficient stock or item not found: ${itemName}`, 400); 
-    const { price_per_unit, id: itemId } = updateRes.rows[0];
+    // FEFO (First-Expired, First-Out) batch selection
+    let updateRes;
+    let selectedBatch = null;
+    const batchRes = await pool.query(
+        `SELECT id, batch_number, expiry_date, stock_quantity, price_per_unit 
+         FROM inventory_items 
+         WHERE LOWER(name) = LOWER($1) AND stock_quantity >= $2 AND (hospital_id = $3 OR hospital_id IS NULL)
+         ORDER BY expiry_date ASC NULLS LAST, id ASC LIMIT 1`,
+        [itemName, qtyToDispense, hospitalId]
+    );
+
+    if (batchRes.rows.length > 0) {
+        selectedBatch = batchRes.rows[0];
+        updateRes = await pool.query(
+            'UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE id = $2 AND stock_quantity >= $1 RETURNING stock_quantity, price_per_unit, id, batch_number',
+            [qtyToDispense, selectedBatch.id]
+        );
+    } else {
+        updateRes = await pool.query(
+            'UPDATE inventory_items SET stock_quantity = stock_quantity - $1 WHERE name = $2 AND stock_quantity >= $1 AND (hospital_id = $3) RETURNING stock_quantity, price_per_unit, id, batch_number',
+            [qtyToDispense, itemName, hospitalId]
+        );
+    }
+
+    if (!updateRes || updateRes.rows.length === 0) return ResponseHandler.error(res, `Insufficient stock or item not found: ${itemName}`, 400); 
+    const { price_per_unit, id: itemId, batch_number: batchNum } = updateRes.rows[0];
+    const finalBatch = batchNum || (selectedBatch ? selectedBatch.batch_number : null) || 'BATCH-DEFAULT';
+    const lineTotal = (parseFloat(price_per_unit) || 0) * qtyToDispense;
 
     // Prevent double-billing: check if prescription was already billed or paid
     const alreadyBilled = !!(
@@ -222,12 +247,16 @@ const processPrescription = asyncHandler(async (req, res) => {
         await pool.query(
             `UPDATE care_tasks 
              SET pharmacy_status = 'Verified', 
+                 dispensed_quantity = $3,
+                 unit_price = $4,
+                 total_amount = $5,
+                 batch_number = $6,
                  updated_at = CURRENT_TIMESTAMP, 
                  updated_by = $1 
              WHERE id = $2`, 
-            [pharmacist_id, task_id]
+            [pharmacist_id, task_id, qtyToDispense, parseFloat(price_per_unit), lineTotal, finalBatch]
         );
-        return ResponseHandler.success(res, { pharmacy_status: 'Verified' }, 'Prescription Verified. Ready for Nurse Administration.');
+        return ResponseHandler.success(res, { pharmacy_status: 'Verified', dispensed_quantity: qtyToDispense, total_amount: lineTotal }, 'Prescription Verified. Ready for Nurse Administration.');
     } else {
         await pool.query(
             `UPDATE care_tasks 
@@ -235,12 +264,16 @@ const processPrescription = asyncHandler(async (req, res) => {
                  pharmacy_status = 'Dispensed', 
                  completed_at = CURRENT_TIMESTAMP, 
                  completed_by = $1,
+                 dispensed_quantity = $3,
+                 unit_price = $4,
+                 total_amount = $5,
+                 batch_number = $6,
                  updated_at = CURRENT_TIMESTAMP, 
                  updated_by = $1 
              WHERE id = $2`, 
-            [pharmacist_id, task_id]
+            [pharmacist_id, task_id, qtyToDispense, parseFloat(price_per_unit), lineTotal, finalBatch]
         );
-        return ResponseHandler.success(res, { pharmacy_status: 'Dispensed', status: 'Completed' }, 'Prescription Dispensed successfully.');
+        return ResponseHandler.success(res, { pharmacy_status: 'Dispensed', status: 'Completed', dispensed_quantity: qtyToDispense, total_amount: lineTotal }, 'Prescription Dispensed successfully.');
     }
 });
 
@@ -356,17 +389,103 @@ const getDemandForecast = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, forecast);
 });
 
-// Add Inventory Item - Multi-Tenant
+// Add Inventory Item - Enterprise Multi-Tenant
 const addInventoryItem = asyncHandler(async (req, res) => { 
-    const { name, generic_name, category, manufacturer, rack_location, price_per_unit, stock_quantity, reorder_level, hsn_code } = req.body; 
+    const { 
+        name, generic_name, category, dosage_form, strength, pack_size,
+        batch_number, mfg_date, expiry_date, manufacturer, rack_location,
+        price_per_unit, cost_price, mrp, gst_percent, stock_quantity,
+        reorder_level, hsn_code, schedule_type, is_controlled, barcode
+    } = req.body; 
     const hospitalId = getHospitalId(req); 
     try {
-        const result = await pool.query(`INSERT INTO inventory_items (name, generic_name, category, manufacturer, rack_location, price_per_unit, stock_quantity, reorder_level, hsn_code, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`, [name, generic_name, category, manufacturer, rack_location, price_per_unit, stock_quantity || 0, reorder_level || 100, hsn_code, hospitalId]); 
+        const result = await pool.query(`
+            INSERT INTO inventory_items (
+                name, generic_name, category, dosage_form, strength, pack_size,
+                batch_number, mfg_date, expiry_date, manufacturer, rack_location,
+                price_per_unit, cost_price, mrp, gst_percent, stock_quantity,
+                reorder_level, hsn_code, schedule_type, is_controlled, barcode, hospital_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+            RETURNING *
+        `, [
+            name, 
+            generic_name || null, 
+            category || 'General', 
+            dosage_form || 'Tablet', 
+            strength || null, 
+            pack_size || '10s Strip',
+            batch_number || null, 
+            mfg_date || null, 
+            expiry_date || null, 
+            manufacturer || null, 
+            rack_location || null, 
+            price_per_unit || 0.00, 
+            cost_price || null, 
+            mrp || null, 
+            gst_percent || 12.00, 
+            stock_quantity || 0, 
+            reorder_level || 100, 
+            hsn_code || '30049099', 
+            schedule_type || 'OTC', 
+            Boolean(is_controlled), 
+            barcode || null, 
+            hospitalId
+        ]); 
         ResponseHandler.success(res, result.rows[0], 'Item added successfully', 201);
     } catch (error) {
-         if (error.code === '23505') return ResponseHandler.error(res, 'Drug with this name already exists', 409, error);
+         if (error.code === '23505') return ResponseHandler.error(res, 'Drug with this name and batch already exists', 409, error);
          throw error;
     }
+});
+
+// Update Inventory Item / Add Batch - Multi-Tenant
+const updateInventoryItem = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const hospitalId = getHospitalId(req);
+    const { 
+        name, generic_name, category, dosage_form, strength, pack_size,
+        batch_number, mfg_date, expiry_date, manufacturer, rack_location,
+        price_per_unit, cost_price, mrp, gst_percent, stock_quantity,
+        reorder_level, hsn_code, schedule_type, is_controlled, barcode
+    } = req.body;
+
+    const result = await pool.query(`
+        UPDATE inventory_items SET
+            name = COALESCE($1, name),
+            generic_name = COALESCE($2, generic_name),
+            category = COALESCE($3, category),
+            dosage_form = COALESCE($4, dosage_form),
+            strength = COALESCE($5, strength),
+            pack_size = COALESCE($6, pack_size),
+            batch_number = COALESCE($7, batch_number),
+            mfg_date = COALESCE($8, mfg_date),
+            expiry_date = COALESCE($9, expiry_date),
+            manufacturer = COALESCE($10, manufacturer),
+            rack_location = COALESCE($11, rack_location),
+            price_per_unit = COALESCE($12, price_per_unit),
+            cost_price = COALESCE($13, cost_price),
+            mrp = COALESCE($14, mrp),
+            gst_percent = COALESCE($15, gst_percent),
+            stock_quantity = COALESCE($16, stock_quantity),
+            reorder_level = COALESCE($17, reorder_level),
+            hsn_code = COALESCE($18, hsn_code),
+            schedule_type = COALESCE($19, schedule_type),
+            is_controlled = COALESCE($20, is_controlled),
+            barcode = COALESCE($21, barcode)
+        WHERE id = $22 AND (hospital_id = $23 OR hospital_id IS NULL)
+        RETURNING *
+    `, [
+        name, generic_name, category, dosage_form, strength, pack_size,
+        batch_number, mfg_date, expiry_date, manufacturer, rack_location,
+        price_per_unit, cost_price, mrp, gst_percent, stock_quantity,
+        reorder_level, hsn_code, schedule_type, is_controlled, barcode,
+        id, hospitalId
+    ]);
+
+    if (result.rows.length === 0) {
+        return ResponseHandler.error(res, 'Inventory item not found', 404);
+    }
+    ResponseHandler.success(res, result.rows[0], 'Item updated successfully');
 });
 
 // Delete Inventory Item - Multi-Tenant
@@ -382,6 +501,20 @@ const getSuppliers = asyncHandler(async (req, res) => {
     const hospitalId = getHospitalId(req); 
     const result = await pool.query('SELECT * FROM suppliers WHERE (hospital_id = $1) ORDER BY name', [hospitalId]); 
     ResponseHandler.success(res, result.rows);
+});
+
+// Create Supplier - Multi-Tenant
+const createSupplier = asyncHandler(async (req, res) => {
+    const hospitalId = getHospitalId(req);
+    const { name, contact_person, phone, email, address, gstin, drug_license_no, payment_terms } = req.body;
+    if (!name) return ResponseHandler.error(res, 'Supplier name is required', 400);
+
+    const result = await pool.query(`
+        INSERT INTO suppliers (name, contact_person, phone, email, address, gstin, drug_license_no, payment_terms, hospital_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING *
+    `, [name, contact_person || null, phone || null, email || null, address || null, gstin || null, drug_license_no || null, payment_terms || 'Net 30', hospitalId]);
+    ResponseHandler.success(res, result.rows[0], 'Supplier created successfully', 201);
 });
 
 // Create Purchase Order - Multi-Tenant
@@ -440,19 +573,150 @@ const rejectPurchaseOrder = asyncHandler(async (req, res) => {
     }
 });
 
-// Receive Stock - Multi-Tenant
+// Receive Stock (Enterprise Goods Received Note / GRN Processing) - Multi-Tenant Transaction
 const receiveStock = asyncHandler(async (req, res) => { 
-    const { po_id } = req.body; 
+    const { po_id, invoice_number, invoice_date, items, notes } = req.body; 
     const hospitalId = getHospitalId(req); 
-    
-    const itemsRes = await pool.query('SELECT * FROM po_items WHERE po_id = $1 AND (hospital_id = $2)', [po_id, hospitalId]); 
-    for (const item of itemsRes.rows) { 
-        if (item.inventory_item_id) { 
-            await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity + $1 WHERE id = $2', [item.quantity, item.inventory_item_id]); 
-        } 
-    } 
-    await pool.query("UPDATE purchase_orders SET status = 'Received' WHERE id = $1", [po_id]); 
-    ResponseHandler.success(res, null, 'Stock received successfully (GRN Processed)');
+    const userId = req.user?.id || null;
+
+    if (!po_id) return ResponseHandler.error(res, 'PO ID is required', 400);
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Fetch PO header with row lock
+        const poRes = await client.query('SELECT * FROM purchase_orders WHERE id = $1 AND (hospital_id = $2 OR hospital_id IS NULL) FOR UPDATE', [po_id, hospitalId]); 
+        if (poRes.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return ResponseHandler.error(res, 'Purchase order not found', 404);
+        }
+        const po = poRes.rows[0];
+
+        // Fetch po_items
+        const itemsRes = await client.query('SELECT * FROM po_items WHERE po_id = $1 AND (hospital_id = $2 OR hospital_id IS NULL)', [po_id, hospitalId]); 
+        const dbItems = itemsRes.rows;
+
+        let totalReceivedUnits = 0;
+        let totalReceivedAmount = 0;
+
+        const receiptItems = Array.isArray(items) && items.length > 0 
+            ? items 
+            : dbItems.map(it => ({
+                po_item_id: it.id,
+                inventory_item_id: it.inventory_item_id,
+                item_name: it.item_name,
+                quantity: it.quantity,
+                unit_price: it.unit_price,
+                batch_number: it.batch_number || `GRN-${Date.now().toString().slice(-6)}`,
+                mfg_date: it.mfg_date || null,
+                expiry_date: it.expiry_date || null
+            }));
+
+        for (const rItem of receiptItems) {
+            const qty = parseInt(rItem.quantity || rItem.received_quantity || 0);
+            if (qty <= 0) continue;
+
+            const unitPrice = parseFloat(rItem.unit_price || 0);
+            totalReceivedUnits += qty;
+            totalReceivedAmount += (qty * unitPrice);
+
+            let invItemId = rItem.inventory_item_id;
+            const batchNo = rItem.batch_number || null;
+            const expDate = rItem.expiry_date || null;
+            const mfgDate = rItem.mfg_date || null;
+
+            if (invItemId) {
+                // Check if identical batch exists for this item
+                const existingBatch = await client.query(
+                    'SELECT * FROM inventory_items WHERE (id = $1 OR (LOWER(name) = (SELECT LOWER(name) FROM inventory_items WHERE id = $1) AND batch_number = $2)) AND (hospital_id = $3)',
+                    [invItemId, batchNo, hospitalId]
+                );
+
+                if (existingBatch.rows.length > 0 && existingBatch.rows[0].batch_number === batchNo) {
+                    await client.query(`
+                        UPDATE inventory_items SET 
+                            stock_quantity = stock_quantity + $1,
+                            expiry_date = COALESCE($2, expiry_date),
+                            mfg_date = COALESCE($3, mfg_date),
+                            cost_price = COALESCE($4, cost_price)
+                        WHERE id = $5
+                    `, [qty, expDate, mfgDate, unitPrice > 0 ? unitPrice : null, existingBatch.rows[0].id]);
+                } else if (batchNo && existingBatch.rows.length > 0) {
+                    // Create new batch row for multi-batch FEFO
+                    const master = existingBatch.rows[0];
+                    await client.query(`
+                        INSERT INTO inventory_items (
+                            name, generic_name, category, dosage_form, strength, pack_size,
+                            batch_number, mfg_date, expiry_date, manufacturer, rack_location,
+                            price_per_unit, cost_price, mrp, gst_percent, stock_quantity,
+                            reorder_level, hsn_code, schedule_type, is_controlled, hospital_id
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+                        ON CONFLICT (LOWER(name), COALESCE(batch_number, 'DEFAULT'), COALESCE(hospital_id, 1))
+                        DO UPDATE SET stock_quantity = inventory_items.stock_quantity + EXCLUDED.stock_quantity
+                    `, [
+                        master.name, master.generic_name, master.category, master.dosage_form || 'Tablet',
+                        master.strength, master.pack_size, batchNo, mfgDate, expDate,
+                        master.manufacturer, master.rack_location, master.price_per_unit,
+                        unitPrice > 0 ? unitPrice : master.cost_price, master.mrp, master.gst_percent,
+                        qty, master.reorder_level, master.hsn_code, master.schedule_type, master.is_controlled, hospitalId
+                    ]);
+                } else {
+                    await client.query(
+                        'UPDATE inventory_items SET stock_quantity = stock_quantity + $1 WHERE id = $2 AND (hospital_id = $3)',
+                        [qty, invItemId, hospitalId]
+                    );
+                }
+            }
+
+            // Update po_items line
+            if (rItem.po_item_id) {
+                await client.query(`
+                    UPDATE po_items SET 
+                        received_quantity = COALESCE(received_quantity, 0) + $1,
+                        batch_number = COALESCE($2, batch_number),
+                        mfg_date = COALESCE($3, mfg_date),
+                        expiry_date = COALESCE($4, expiry_date)
+                    WHERE id = $5 AND (hospital_id = $6)
+                `, [qty, batchNo, mfgDate, expDate, rItem.po_item_id, hospitalId]);
+            }
+        }
+
+        // Generate Audit GRN Number
+        const grnNumber = `GRN-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${po_id}-${Math.floor(1000 + Math.random()*9000)}`;
+
+        // Insert Goods Received Note
+        await client.query(`
+            INSERT INTO goods_received_notes (
+                grn_number, po_id, supplier_id, invoice_number, invoice_date,
+                received_by, received_date, total_items, total_amount, status, notes, hospital_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8, 'Completed', $9, $10)
+        `, [
+            grnNumber, po_id, po.supplier_id, invoice_number || `INV-PO-${po_id}`,
+            invoice_date || new Date().toISOString().slice(0,10), userId,
+            totalReceivedUnits, totalReceivedAmount || po.total_amount, notes || 'Stock received via Enterprise GRN', hospitalId
+        ]);
+
+        // Update PO status, GRN number and timestamps
+        await client.query(`
+            UPDATE purchase_orders SET 
+                status = 'Received',
+                grn_number = $1,
+                invoice_no = COALESCE($2, invoice_no),
+                received_at = NOW(),
+                received_by = $3
+            WHERE id = $4 AND (hospital_id = $5 OR hospital_id IS NULL)
+        `, [grnNumber, invoice_number || null, userId, po_id, hospitalId]);
+
+        await client.query('COMMIT');
+        ResponseHandler.success(res, { grn_number: grnNumber, total_received: totalReceivedUnits }, 'Stock received successfully (GRN Processed)', 200);
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('[receiveStock] Transaction failed:', err);
+        return ResponseHandler.error(res, 'Failed to process GRN receipt: ' + err.message, 500, err);
+    } finally {
+        client.release();
+    }
 });
 
 // Get Purchase Orders - Multi-Tenant
@@ -473,19 +737,39 @@ const getABCAnalysis = asyncHandler(async (req, res) => {
     let a_value = 0, b_value = 0, c_value = 0; 
     items.forEach(item => { 
         cumulativeValue += Number(item.total_value); 
-        const percentage = (cumulativeValue / totalInventoryValue) * 100; 
+        const percentage = totalInventoryValue > 0 ? (cumulativeValue / totalInventoryValue) * 100 : 0; 
         if (percentage <= 70) { a_items++; a_value += Number(item.total_value); } 
         else if (percentage <= 90) { b_items++; b_value += Number(item.total_value); } 
         else { c_items++; c_value += Number(item.total_value); } 
     }); 
-    ResponseHandler.success(res, { stats: { A: { count: a_items, value: a_value, label: 'Class A (High Value 70%)' }, B: { count: b_items, value: b_value, label: 'Class B (Moderate 20%)' }, C: { count: c_items, value: c_value, label: 'Class C (Low Value 10%)' } }, items: result.rows });
+    const statsData = { 
+        A: { count: a_items, value: a_value, label: 'Class A (High Value 70%)' }, 
+        B: { count: b_items, value: b_value, label: 'Class B (Moderate 20%)' }, 
+        C: { count: c_items, value: c_value, label: 'Class C (Low Value 10%)' } 
+    };
+    return res.status(200).json({
+        success: true,
+        message: 'Success',
+        stats: statsData,
+        totalValue: totalInventoryValue,
+        items: result.rows,
+        data: {
+            stats: statsData,
+            totalValue: totalInventoryValue,
+            items: result.rows
+        }
+    });
 });
 
 // Expiry Report - Multi-Tenant
 const getExpiryReport = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
     const result = await pool.query(`SELECT * FROM inventory_items WHERE expiry_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' AND (hospital_id = $1) ORDER BY expiry_date ASC`, [hospitalId]); 
-    ResponseHandler.success(res, result.rows);
+    const expiryRows = result.rows.map(row => ({
+        ...row,
+        days_remaining: Math.max(0, Math.ceil((new Date(row.expiry_date) - new Date()) / (1000 * 60 * 60 * 24)))
+    }));
+    return res.status(200).json(expiryRows);
 });
 
 // Smart Alerts - Multi-Tenant
@@ -494,32 +778,108 @@ const getSmartAlerts = asyncHandler(async (req, res) => {
     ResponseHandler.success(res, alerts);
 });
 
-// Recent Dispenses - Multi-Tenant
+// Recent Dispenses - Multi-Tenant (With True Quantity, Total Amount & UHID)
 const getRecentDispenses = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
     const { days = 30, limit = 100 } = req.query; 
-    const result = await pool.query(`SELECT ct.id, ct.patient_id, ct.admission_id, ct.description as medication, ct.completed_at as dispense_date, ct.completed_by, p.name as patient_name, p.phone as patient_phone, u.username as dispensed_by_name, ii.price_per_unit, ii.name as item_name, inv.id as invoice_id, inv.status as invoice_status, inv.total_amount as invoice_total FROM care_tasks ct LEFT JOIN patients p ON ct.patient_id = p.id LEFT JOIN users u ON ct.completed_by = u.id LEFT JOIN inventory_items ii ON LOWER(split_part(ct.description, ' - ', 1)) = LOWER(ii.name) LEFT JOIN invoices inv ON ct.patient_id = inv.patient_id AND inv.generated_at >= ct.completed_at - INTERVAL '1 day' AND inv.generated_at <= ct.completed_at + INTERVAL '1 day' WHERE ct.type = 'Medication' AND ct.status = 'Completed' AND ct.completed_at > NOW() - INTERVAL '${parseInt(days)} days' AND (ct.hospital_id = $1 OR ct.hospital_id IS NULL) ORDER BY ct.completed_at DESC LIMIT ${parseInt(limit)}`, [hospitalId]); 
+    const result = await pool.query(`
+        SELECT * FROM (
+            SELECT DISTINCT ON (ct.id)
+                ct.id,
+                ct.id as task_id,
+                ct.patient_id,
+                ct.admission_id,
+                ct.description as medication,
+                ct.completed_at as dispense_date,
+                ct.completed_by,
+                p.name as patient_name,
+                p.phone as patient_phone,
+                p.uhid as patient_uhid,
+                COALESCE(NULLIF(p.uhid, ''), p.phone) as patient_identifier,
+                u.username as dispensed_by_name,
+                COALESCE(ct.dispensed_quantity, 1) as quantity,
+                COALESCE(ct.unit_price, ii.price_per_unit, 0.00) as unit_price,
+                COALESCE(ct.unit_price, ii.price_per_unit, 0.00) as price_per_unit,
+                COALESCE(ct.total_amount, (COALESCE(ct.dispensed_quantity, 1) * COALESCE(ct.unit_price, ii.price_per_unit, 0.00))) as amount,
+                COALESCE(ct.total_amount, (COALESCE(ct.dispensed_quantity, 1) * COALESCE(ct.unit_price, ii.price_per_unit, 0.00))) as total_amount,
+                COALESCE(ct.batch_number, ii.batch_number, '') as batch_number,
+                ii.name as item_name,
+                inv.id as invoice_id,
+                inv.status as invoice_status,
+                inv.total_amount as invoice_total
+            FROM care_tasks ct
+            LEFT JOIN patients p ON ct.patient_id = p.id
+            LEFT JOIN users u ON ct.completed_by = u.id
+            LEFT JOIN inventory_items ii ON LOWER(split_part(ct.description, ' - ', 1)) = LOWER(ii.name) AND (ii.hospital_id = ct.hospital_id OR ii.hospital_id IS NULL)
+            LEFT JOIN invoices inv ON ct.invoice_id = inv.id
+            WHERE ct.type = 'Medication' 
+              AND ct.status = 'Completed' 
+              AND ct.completed_at > NOW() - INTERVAL '${parseInt(days)} days' 
+              AND (ct.hospital_id = $1 OR ct.hospital_id IS NULL)
+            ORDER BY ct.id, ct.completed_at DESC
+        ) sub
+        ORDER BY dispense_date DESC
+        LIMIT ${parseInt(limit)}
+    `, [hospitalId]); 
     ResponseHandler.success(res, result.rows);
 });
 
 // Process Refund - Multi-Tenant
 const processRefund = asyncHandler(async (req, res) => {
-    const { task_id, item_name, quantity = 1, reason, reason_notes, patient_id, restore_stock = true } = req.body;
+    const taskId = req.body.task_id || req.body.invoice_item_id || null;
+    let itemName = req.body.item_name;
+    const quantity = parseInt(req.body.quantity || req.body.return_quantity || 1, 10);
+    let patientId = req.body.patient_id;
+    let reason = req.body.reason;
+    const reason_notes = req.body.reason_notes || null;
+    const restore_stock = req.body.restore_stock !== false;
     const pharmacist_id = req.user.id;
     const hospitalId = getHospitalId(req);
     
-    if (!item_name || !reason) return ResponseHandler.error(res, 'Item name and reason are required', 400); 
-    const validReasons = ['wrong_medication', 'adverse_reaction', 'patient_refused', 'duplicate_dispense', 'doctor_cancelled', 'other']; 
-    if (!validReasons.includes(reason)) return ResponseHandler.error(res, 'Invalid refund reason', 400);
+    if (!reason) return ResponseHandler.error(res, 'Refund reason is required', 400);
 
-    const itemRes = await pool.query('SELECT id, price_per_unit, stock_quantity FROM inventory_items WHERE name = $1 AND (hospital_id = $2)', [item_name, hospitalId]); 
+    // Auto-resolve item_name and patient_id from care_tasks if not supplied
+    if (taskId && (!itemName || !patientId)) {
+        const taskLookup = await pool.query(
+            `SELECT description, patient_id FROM care_tasks WHERE id::text = $1`,
+            [String(taskId)]
+        );
+        if (taskLookup.rows.length > 0) {
+            if (!itemName) itemName = taskLookup.rows[0].description.split(' - ')[0].trim();
+            if (!patientId) patientId = taskLookup.rows[0].patient_id;
+        }
+    }
+
+    if (!itemName) return ResponseHandler.error(res, 'Item name and reason are required', 400);
+
+    // Normalize reason to valid enum values
+    const validReasons = ['wrong_medication', 'adverse_reaction', 'patient_refused', 'duplicate_dispense', 'doctor_cancelled', 'other'];
+    const reasonMap = {
+        'customer return (unopened)': 'patient_refused',
+        'dispensing error': 'wrong_medication',
+        'dispensing error / wrong item': 'wrong_medication',
+        'defective / damaged': 'wrong_medication',
+        'damaged / defective': 'wrong_medication',
+        'wrong medication dispensed': 'wrong_medication',
+        'expired product': 'other',
+        'adverse reaction': 'adverse_reaction',
+        'adverse reaction (clinical)': 'adverse_reaction',
+        'doctor cancelled': 'doctor_cancelled',
+        'duplicate dispense': 'duplicate_dispense'
+    };
+    const normalizedReason = reasonMap[String(reason).trim().toLowerCase()] || (validReasons.includes(reason) ? reason : 'other');
+
+    const itemRes = await pool.query(
+        'SELECT id, price_per_unit, stock_quantity FROM inventory_items WHERE LOWER(name) = LOWER($1) AND (hospital_id = $2 OR hospital_id IS NULL) LIMIT 1',
+        [itemName, hospitalId]
+    ); 
     if (itemRes.rows.length === 0) return ResponseHandler.error(res, 'Item not found in inventory', 404); 
     const item = itemRes.rows[0]; 
     const refund_amount = parseFloat(item.price_per_unit) * quantity;
 
     let patient_name = 'Unknown'; 
-    if (patient_id) { 
-        const patientRes = await pool.query('SELECT name FROM patients WHERE id = $1', [patient_id]); 
+    if (patientId) { 
+        const patientRes = await pool.query('SELECT name FROM patients WHERE id = $1', [patientId]); 
         if (patientRes.rows.length > 0) patient_name = patientRes.rows[0].name; 
     }
     const pharmacistRes = await pool.query('SELECT username FROM users WHERE id = $1', [pharmacist_id]); 
@@ -527,19 +887,56 @@ const processRefund = asyncHandler(async (req, res) => {
 
     try {
         await pool.query('BEGIN');
-        if (restore_stock) await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity + $1 WHERE id = $2', [quantity, item.id]);
-        if (patient_id) { 
-            const invoiceRes = await pool.query('SELECT id FROM invoices WHERE patient_id = $1 AND status = $2 ORDER BY generated_at DESC LIMIT 1', [patient_id, 'Pending']); 
+        if (restore_stock) {
+            await pool.query('UPDATE inventory_items SET stock_quantity = stock_quantity + $1 WHERE id = $2', [quantity, item.id]);
+        }
+        let invoiceReversed = false;
+        if (patientId) { 
+            const invoiceRes = await pool.query(
+                'SELECT id, status FROM invoices WHERE patient_id = $1 ORDER BY generated_at DESC LIMIT 1',
+                [patientId]
+            ); 
             if (invoiceRes.rows.length > 0) { 
-                const invoice_id = invoiceRes.rows[0].id; 
-                await pool.query(`INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price, hospital_id) VALUES ($1, $2, $3, $4, $5, $6)`, [invoice_id, `REFUND: ${item_name}`, quantity, -parseFloat(item.price_per_unit), -refund_amount, hospitalId]); 
-                await pool.query('UPDATE invoices SET total_amount = total_amount - $1 WHERE id = $2', [refund_amount, invoice_id]); 
+                const inv = invoiceRes.rows[0]; 
+                await pool.query(
+                    `INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price, hospital_id) VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [inv.id, `REFUND: ${itemName}`, quantity, -parseFloat(item.price_per_unit), -refund_amount, hospitalId]
+                ); 
+                if (inv.status === 'Pending') {
+                    await pool.query('UPDATE invoices SET total_amount = total_amount - $1 WHERE id = $2', [refund_amount, inv.id]); 
+                }
+                invoiceReversed = true;
             } 
         }
-        await pool.query(`INSERT INTO pharmacy_refunds (original_task_id, patient_id, patient_name, item_name, quantity, refund_amount, reason, reason_notes, stock_restored, invoice_reversed, processed_by, processed_by_name, status, completed_at, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Completed', NOW(), $13)`, [task_id || null, patient_id || null, patient_name, item_name, quantity, refund_amount, reason, reason_notes || null, restore_stock, patient_id ? true : false, pharmacist_id, pharmacist_name, hospitalId]);
+        await pool.query(
+            `INSERT INTO pharmacy_refunds (
+                original_task_id, patient_id, patient_name, item_name, quantity, 
+                refund_amount, reason, reason_notes, stock_restored, invoice_reversed, 
+                processed_by, processed_by_name, status, completed_at, hospital_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'Completed', NOW(), $13)`,
+            [
+                taskId ? String(taskId) : null,
+                patientId || null,
+                patient_name,
+                itemName,
+                quantity,
+                refund_amount,
+                normalizedReason,
+                reason_notes || String(reason),
+                restore_stock,
+                invoiceReversed,
+                pharmacist_id,
+                pharmacist_name,
+                hospitalId
+            ]
+        );
         await pool.query('COMMIT'); 
-        console.log(`💰 REFUND PROCESSED: ${item_name} x${quantity} = ₹${refund_amount} [${reason}] by ${pharmacist_name}`); 
-        ResponseHandler.success(res, { refund_amount, stock_restored: restore_stock, new_stock: restore_stock ? item.stock_quantity + quantity : item.stock_quantity }, 'Refund processed successfully');
+        console.log(`💰 REFUND PROCESSED: ${itemName} x${quantity} = ₹${refund_amount} [${normalizedReason}] by ${pharmacist_name}`); 
+        ResponseHandler.success(res, { 
+            refund_amount, 
+            stock_restored: restore_stock, 
+            new_stock: restore_stock ? item.stock_quantity + quantity : item.stock_quantity 
+        }, 'Refund processed successfully');
     } catch (error) {
         await pool.query('ROLLBACK');
         console.error('Refund error:', error);
@@ -551,7 +948,16 @@ const processRefund = asyncHandler(async (req, res) => {
 const getControlledSubstanceLog = asyncHandler(async (req, res) => { 
     const hospitalId = getHospitalId(req); 
     const { days = 30 } = req.query; 
-    const result = await pool.query(`SELECT csl.*, ii.name as current_stock_name FROM controlled_substance_log csl LEFT JOIN inventory_items ii ON csl.inventory_item_id = ii.id WHERE csl.dispensed_at > NOW() - INTERVAL '${parseInt(days)} days' AND (csl.hospital_id = $1 OR csl.hospital_id IS NULL) ORDER BY csl.dispensed_at DESC LIMIT 500`, [hospitalId]); 
+    const result = await pool.query(
+        `SELECT csl.*, ii.name as current_stock_name 
+         FROM controlled_substance_log csl 
+         LEFT JOIN inventory_items ii ON csl.inventory_item_id = ii.id 
+         WHERE COALESCE(csl.dispensed_at, csl.created_at) > NOW() - INTERVAL '${parseInt(days)} days' 
+           AND (csl.hospital_id = $1 OR csl.hospital_id IS NULL) 
+         ORDER BY COALESCE(csl.dispensed_at, csl.created_at) DESC 
+         LIMIT 500`,
+        [hospitalId]
+    ); 
     ResponseHandler.success(res, result.rows);
 });
 
@@ -571,7 +977,9 @@ const getUnbilledDispenses = asyncHandler(async (req, res) => {
             SELECT c.*, c.item_name as name, c.amount as price, p.name as patient_name, false as billed
             FROM charges c
             LEFT JOIN patients p ON c.patient_id = p.id
-            WHERE c.department = 'pharmacy' AND c.status = 'Pending' AND (c.hospital_id = $1 OR c.hospital_id IS NULL)
+            WHERE (c.department = 'pharmacy' OR c.department = 'Pharmacy' OR c.item_name ILIKE 'Rx:%') 
+              AND c.status = 'Pending' 
+              AND (c.hospital_id = $1 OR c.hospital_id IS NULL)
             ORDER BY c.created_at DESC LIMIT 100
         `, [hospitalId]);
         ResponseHandler.success(res, result.rows);
@@ -580,5 +988,5 @@ const getUnbilledDispenses = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, deleteInventoryItem, getSuppliers, createPurchaseOrder, approvePurchaseOrder, rejectPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts, getUnbilledDispenses };
+module.exports = { getInventory, searchInventory, dispense, getPrescriptionQueue, processPrescription, requestPriceChange, getPriceRequests, approvePriceChange, denyPriceChange, getExpiryHeatmap, getDemandForecast, addInventoryItem, updateInventoryItem, deleteInventoryItem, getSuppliers, createSupplier, createPurchaseOrder, approvePurchaseOrder, rejectPurchaseOrder, receiveStock, getPurchaseOrders, getABCAnalysis, getExpiryReport, getRecentDispenses, processRefund, getRefundHistory, getControlledSubstanceLog, getSmartAlerts, getUnbilledDispenses };
 

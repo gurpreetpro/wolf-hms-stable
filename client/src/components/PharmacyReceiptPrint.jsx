@@ -17,13 +17,13 @@ const PharmacyReceiptPrint = ({ show, onHide, transaction }) => {
             items: [{
                 name: transaction.medication || transaction.item_name || 'Medication',
                 qty: transaction.quantity || 1,
-                price: parseFloat(transaction.price_per_unit || 0),
-                total: parseFloat(transaction.total_amount || (transaction.quantity * transaction.price_per_unit) || 0)
+                price: parseFloat(transaction.unit_price || transaction.price_per_unit || 0),
+                total: parseFloat(transaction.total_amount || transaction.amount || (transaction.quantity * (transaction.unit_price || transaction.price_per_unit)) || 0)
             }],
             patient: {
                 name: transaction.patient_name || 'Walk-in Customer',
                 phone: transaction.patient_phone || '',
-                id: transaction.patient_id
+                id: transaction.patient_uhid || transaction.patient_identifier || transaction.patient_id
             },
             doctor: transaction.doctor_name
         };

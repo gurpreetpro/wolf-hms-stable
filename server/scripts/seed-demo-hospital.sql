@@ -15,20 +15,23 @@
 BEGIN;
 
 -- ---------------------------------------------------------------------
--- 1. Tenant 1 profile — fill in realistic details WITHOUT renaming the
---    tenant (contract test tests/contract/slowQueryTelemetry.test.js pins
---    hospitals.id=1 name).
+-- 1. Tenant 1 profile — ensure hospital id=1 exists and has realistic details
+--    WITHOUT renaming existing tenant name (contract test
+--    tests/contract/slowQueryTelemetry.test.js pins hospitals.id=1 name).
 -- ---------------------------------------------------------------------
-UPDATE hospitals
-   SET city = COALESCE(city, 'Pune'),
-       state = COALESCE(state, 'Maharashtra'),
-       country = COALESCE(country, 'India'),
-       address = COALESCE(address, 'Plot 14, Baner Road, Baner'),
-       phone = COALESCE(phone, '+91 20 4123 4500'),
-       email = COALESCE(email, 'frontdesk@kokilahospital.in'),
-       status = COALESCE(status, 'active'),
-       updated_at = now()
- WHERE id = 1;
+INSERT INTO hospitals (id, name, code, city, state, country, address, phone, email, status)
+VALUES (1, 'Kokila Dhirubhai Ambani Hospital', 'HOSP-001', 'Pune', 'Maharashtra', 'India', 'Plot 14, Baner Road, Baner', '+91 20 4123 4500', 'frontdesk@kokilahospital.in', 'active')
+ON CONFLICT (id) DO UPDATE
+   SET code = COALESCE(hospitals.code, EXCLUDED.code),
+       city = COALESCE(hospitals.city, EXCLUDED.city),
+       state = COALESCE(hospitals.state, EXCLUDED.state),
+       country = COALESCE(hospitals.country, EXCLUDED.country),
+       address = COALESCE(hospitals.address, EXCLUDED.address),
+       phone = COALESCE(hospitals.phone, EXCLUDED.phone),
+       email = COALESCE(hospitals.email, EXCLUDED.email),
+       status = COALESCE(hospitals.status, EXCLUDED.status),
+       updated_at = now();
+SELECT setval('hospitals_id_seq', GREATEST((SELECT COALESCE(MAX(id), 1) FROM hospitals), 1));
 
 -- ---------------------------------------------------------------------
 -- 2. Demo clinical staff for hospital 1 (doctor + nurse), deterministic logins

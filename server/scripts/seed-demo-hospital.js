@@ -40,6 +40,21 @@ async function main() {
     console.log('🏥  WOLF HMS — Golden Hospital Seed (hospital_id = 1)');
     console.log('='.repeat(66));
 
+    // Bootstrap base schema if running against an empty database (e.g. GitHub Actions CI service)
+    const tableCheck = await pool.query("SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'hospitals'");
+    if (tableCheck.rows.length === 0) {
+        console.log('⚡ Base schema not found (fresh DB detected) — bootstrapping schema...');
+        const schemaFile = path.join(__dirname, 'schema-demo-base.sql');
+        if (fs.existsSync(schemaFile)) {
+            console.log(`▶ Applying ${path.relative(process.cwd(), schemaFile)} ...`);
+            const baseSql = fs.readFileSync(schemaFile, 'utf8');
+            await pool.query(baseSql);
+            console.log('✔ Base schema bootstrap complete');
+        } else {
+            console.warn('⚠️ schema-demo-base.sql not found; proceeding with seed SQL');
+        }
+    }
+
     if (!fs.existsSync(SQL_FILE)) throw new Error(`Seed SQL not found: ${SQL_FILE}`);
     let sql = fs.readFileSync(SQL_FILE, 'utf8');
 

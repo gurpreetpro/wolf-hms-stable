@@ -24,9 +24,14 @@ const RefundModal = ({ show, onHide, transaction, refreshData }) => {
         }
 
         try {
+            const rawItemName = transaction.item_name || (transaction.medication ? transaction.medication.split(' - ')[0].trim() : '') || transaction.description || '';
             await api.post('/api/pharmacy/refund', {
+                task_id: transaction.id,
                 invoice_item_id: transaction.id,
+                item_name: rawItemName,
+                quantity,
                 return_quantity: quantity,
+                patient_id: transaction.patient_id,
                 reason
             });
             setSuccess('Refund Processed Successfully!');
@@ -51,10 +56,10 @@ const RefundModal = ({ show, onHide, transaction, refreshData }) => {
                 {error && <Alert variant="danger">{error}</Alert>}
                 {success && <Alert variant="success">{success}</Alert>}
 
-                <h6 className="fw-bold">{transaction.description}</h6>
+                <h6 className="fw-bold">{transaction.medication || transaction.description}</h6>
                 <div className="text-muted small mb-3">
-                    Patient: {transaction.patient_name || 'N/A'} <br />
-                    Original Qty: {transaction.quantity} @ {formatCurrency(transaction.unit_price)}
+                    Patient: {transaction.patient_name || 'N/A'} {transaction.patient_uhid ? `(${transaction.patient_uhid})` : ''} <br />
+                    Original Qty: {transaction.quantity || 1} @ {formatCurrency(transaction.unit_price || transaction.price_per_unit || 0)}
                 </div>
 
                 <Form.Group className="mb-3">

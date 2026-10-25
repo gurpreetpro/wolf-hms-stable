@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-17T13:42:45.456Z",
+  "generatedAt": "2026-10-25T15:44:08.555Z",
   "hospitalId": 1,
-  "database": "hospital_db",
+  "database": "hospital_db_ci_test",
   "demoLogins": {
     "admin": {
       "username": "admin",
@@ -26,12 +26,12 @@
     "billing": "e0000000-0000-4000-8000-000000000002"
   },
   "patientId": "a0000000-0000-4000-8000-000000000001",
-  "admissionId": 15,
-  "invoiceId": 107,
-  "paidInvoiceId": 106,
-  "labOrderId": 10,
+  "admissionId": 1,
+  "invoiceId": 2,
+  "paidInvoiceId": 1,
+  "labOrderId": 3,
   "radiologyOrderId": 1,
-  "doctorId": 127,
-  "nurseId": 128,
-  "icuWardId": 6
+  "doctorId": 3,
+  "nurseId": 4,
+  "icuWardId": 1
 }

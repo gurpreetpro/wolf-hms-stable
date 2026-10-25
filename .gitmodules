@@ -1,0 +1,3 @@
+[submodule "wolf-care-app"]
+	path = wolf-care-app
+	url = https://github.com/gurpreetpro/wolf-care-app.git

@@ -26,10 +26,10 @@ const { logVitalsSchema } = require('../validators/clinical');
 
 router.post('/tasks', protect, authorize('doctor', 'nurse', 'admin'), createCareTask);
 router.get('/tasks', protect, getTasks);
-router.post('/tasks/complete', protect, authorize('nurse', 'doctor', 'admin'), completeTask);
-router.put('/task/complete', protect, authorize('nurse', 'doctor', 'admin'), completeTask);
-router.put('/tasks/complete', protect, authorize('nurse', 'doctor', 'admin'), completeTask);
-router.put('/tasks/:id', protect, authorize('nurse', 'doctor', 'admin'), (req, res, next) => {
+router.post('/tasks/complete', protect, authorize('nurse', 'doctor', 'admin', 'pharmacist'), completeTask);
+router.put('/task/complete', protect, authorize('nurse', 'doctor', 'admin', 'pharmacist'), completeTask);
+router.put('/tasks/complete', protect, authorize('nurse', 'doctor', 'admin', 'pharmacist'), completeTask);
+router.put('/tasks/:id', protect, authorize('nurse', 'doctor', 'admin', 'pharmacist'), (req, res, next) => {
     req.body.task_id = req.params.id;
     return completeTask(req, res, next);
 });

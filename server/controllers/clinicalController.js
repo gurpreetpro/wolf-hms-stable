@@ -28,18 +28,24 @@ const getTasks = asyncHandler(async (req, res) => {
         return ResponseHandler.success(res, []);
     }
 
-    let query = 'SELECT * FROM care_tasks WHERE hospital_id = $1';
+    let query = `
+        SELECT ct.*, p.name as patient_name, p.uhid as patient_uhid, u.username as doctor_name
+        FROM care_tasks ct
+        LEFT JOIN patients p ON ct.patient_id = p.id
+        LEFT JOIN users u ON ct.doctor_id = u.id
+        WHERE (ct.hospital_id = $1 OR ct.hospital_id IS NULL)
+    `;
     const params = [hospitalId];
 
     if (admission_id) {
         params.push(admission_id);
-        query += ` AND admission_id::text = $${params.length}`;
+        query += ` AND ct.admission_id::text = $${params.length}`;
     }
     if (status) {
         params.push(status);
-        query += ` AND status = $${params.length}`;
+        query += ` AND ct.status = $${params.length}`;
     }
-    query += ' ORDER BY scheduled_time ASC';
+    query += ' ORDER BY ct.scheduled_time ASC NULLS LAST, ct.created_at DESC';
 
     const result = await pool.query(query, params);
     ResponseHandler.success(res, result.rows);

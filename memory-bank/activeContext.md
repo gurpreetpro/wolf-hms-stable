@@ -4,7 +4,116 @@
 
 ## Last Updated
 
-2026-10-21
+2026-10-25
+
+## Session 2026-10-25 — STAGE 3 (ENTERPRISE PHARMACY INVENTORY & PROCUREMENT UPGRADE): DOSAGE FORM, BATCH NO., MFG DATE, EXPIRY DATE, MRP/GST, EDIT ITEM & PROCUREMENT GRN
+- **Mandates Honored**: Zero touch on 17 uncommitted Phase-7 / WGM files, all previous Stage 3 fixes preserved, live verified on `185.213.27.158`.
+- **Migration 321 Applied & Verified (`server/migrations/321_enterprise_pharmacy_inventory_batches_and_procurement.sql`)**:
+  - Upgraded `inventory_items` with enterprise columns: `dosage_form` (default 'Tablet'), `strength`, `pack_size`, `mfg_date`, `mrp`, `cost_price`, `gst_percent` (12.00).
+  - Dropped restrictive `unique_drug_name_hospital` constraint/index and created composite unique index `unique_drug_batch_hospital` on `(LOWER(name), COALESCE(batch_number, 'DEFAULT'), COALESCE(hospital_id, 1))` enabling multi-batch FEFO inventory.
+  - Backfilled all 8 existing items with realistic batch numbers (`PCM-2601`, `AMX-2602`, `MET-2603`, etc.), valid dates, manufacturer, dosage forms (`Tablet`, `Capsule`), MRP, cost price, GST %, and schedule types (`OTC`, `H`, `H1`).
+  - Seeded 3 diverse dosage-form drugs (`Normal Saline 0.9% 500ml` [IV Fluid], `Ceftriaxone 1g Inj` [Injection], `Ambroxol Cough Syrup 100ml` [Syrup]).
+  - Extended `suppliers` table with `gstin`, `drug_license_no`, `payment_terms`, `is_active` and seeded 3 verified pharma distributors (*Cipla*, *Sun Pharma*, *Dr. Reddy's*).
+  - Extended `po_items` and `purchase_orders` with batch and GRN receipt columns.
+  - Created `goods_received_notes` table for audit compliance.
+- **Backend Controllers & Routes (`pharmacyController.js`, `pharmacyRoutes.js`)**:
+  - `addInventoryItem`: Accepts full enterprise master data (`dosage_form`, `strength`, `pack_size`, `batch_number`, `mfg_date`, `expiry_date`, `mrp`, `cost_price`, `gst_percent`, `schedule_type`, `is_controlled`, `barcode`).
+  - `updateInventoryItem`: Implemented `PUT /api/pharmacy/inventory/:id` enabling editing master data and updating batch stock.
+  - `createSupplier`: Implemented `POST /api/pharmacy/suppliers` for registering distributors.
+  - `receiveStock`: Replaced blind quantity increment with transactional GRN handling (`BEGIN...COMMIT`), creating audit `goods_received_notes` records, supporting multi-batch cloning on distinct batches, and updating `po_items` and `purchase_orders`.
+- **Frontend Components & Bundles**:
+  - `AddDrugModal.jsx`: Modern 3-section layout capturing dosage form dropdown, batch number, mfg/exp dates, strength, pack size, schedule type, controlled substance toggle, MRP, cost price, GST %, and HSN code.
+  - `EditDrugModal.jsx`: Created new modal component wired to `PUT /api/pharmacy/inventory/:id`.
+  - `PharmacyDashboard.jsx`: Inventory tab displays dosage form badge, strength, pack size, schedule badges (`H`, `H1`), controlled substance indicator, MRP with strikethrough, and new "Edit Item / Add Batch" action button.
+  - `ProcurementDashboard.jsx`: Added "+ Add New Supplier" modal and "Receive (GRN)" modal capturing vendor invoice number, invoice date, batch numbers, and expiry dates per line item.
+  - `client/src/index.css`: Fixed dark theme modal contrast by setting `--bs-modal-color: var(--text-primary)` and `.modal-title { color: var(--text-primary) !important; }`.
+  - Rebuilt production bundle (`index-DALDXXaU.js`) and deployed to both `client/dist/` and `server/public/`.
+- **Live VPS Probes on `185.213.27.158` (100% PASS)**:
+  - `GET /api/pharmacy/inventory`: Returned 11 items with all enterprise columns.
+  - `POST /api/pharmacy/suppliers`: Registered *Lupin Pharmaceuticals Ltd.* (ID: 4).
+  - `POST /api/pharmacy/inventory`: Created *Azithromycin 500mg* (ID: 20, Batch: `AZM-2612`).
+  - `PUT /api/pharmacy/inventory/20`: Updated rack and stock.
+  - `POST /api/pharmacy/purchase-orders`: Created PO #1.
+  - `POST /api/pharmacy/purchase-orders/receive`: Executed transactional GRN, generating `GRN-20261025-1-1139` and creating multi-batch record `AZM-2612-B2` in `inventory_items` and audit row in `goods_received_notes`.
+  - Frontend root `http://185.213.27.158/wolf/` confirmed serving new bundle `index-DALDXXaU.js`.
+
+## Session 2026-10-21 — STAGE 3 (SURGICAL BACKEND, DB & BUNDLE FIX): HEAL PHARMACY ORDER HISTORY, REFUND, PRINT, FEFO DISPENSING & 9 TABS
+- **Mandates Honored**: No Vite rebuild (surgical updates applied to `server/public/assets/index-CmiIAuQj.js` and `client/dist/assets/index-CmiIAuQj.js` with full source parity in `PharmacyDashboard.jsx`), zero touch on 17 uncommitted Phase 7 / WGM files, temporary scripts purged.
+- **Migration 320 Applied & Verified**:
+  - `server/migrations/320_pharmacy_order_history_refunds_and_enterprise_heal.sql` executed cleanly inside Docker container `wolf_fitness_db` (`wolf_hms_prod`).
+  - Added `dispensed_quantity`, `unit_price`, `total_amount`, and `batch_number` to `care_tasks`.
+  - Healed Patient 3 task `1a18be64-8e0f-487f-a703-ed4873f0d043` (`dispensed_quantity = 14`, `unit_price = 2.00`, `total_amount = 28.00`, `batch_number = 'BATCH-PARA-2026'`).
+  - Altered `pharmacy_refunds.original_task_id` to `VARCHAR(100)` to eliminate integer vs UUID type crash.
+  - Added missing columns `invoice_reversed`, `processed_by`, `processed_by_name`, `status`, `completed_at` to `pharmacy_refunds`.
+  - Added missing `dispensed_at` to `controlled_substance_log` and `department` to `charges`.
+- **Backend Controllers & Routes Hardened**:
+  - `pharmacyController.js`:
+    - `getRecentDispenses`: Uses `DISTINCT ON (ct.id)`, joins `invoices` strictly on `ct.invoice_id = inv.id`, selects true `quantity`, `unit_price`, `total_amount`, and `p.uhid`. Completely eliminates 3x Cartesian fan-out and unit-price display defect.
+    - `processPrescription`: Implemented FEFO batch deduction, sets `dispensed_quantity`, `unit_price`, `total_amount`, and `batch_number` on `care_tasks`.
+    - `processRefund`: Supports both `{ task_id, item_name, quantity, reason }` and `{ invoice_item_id, return_quantity, reason }`, auto-resolves missing items from `care_tasks`, maps frontend reason strings to internal enum, handles invoice line-item reversal for both pending and paid invoices.
+    - `getABCAnalysis`: Computes `totalInventoryValue` and returns stats, totalValue, items both in envelope and at root.
+    - `getExpiryReport`: Injects calculated `days_remaining` and returns clean array.
+    - `getControlledSubstanceLog`: Queries with `COALESCE(dispensed_at, created_at)`.
+    - `getUnbilledDispenses`: Queries charges with department and medication fallbacks.
+  - `pharmacyRoutes.js`:
+    - Added `/refunds` POST alias and authorized `pharmacist` for `/controlled-log`.
+  - `clinicalRoutes.js`:
+    - Authorized `pharmacist` on `/tasks/complete` to unblock Tab 2 IPD dispensing.
+  - `clinicalController.js`:
+    - In `getTasks`, joined `patients` and `users` to provide `patient_name`, `patient_uhid`, and `doctor_name`.
+- **Frontend & Precompiled Bundles Synchronized**:
+  - `PharmacyDashboard.jsx` & bundles (`server/public/assets/index-CmiIAuQj.js`, `client/dist/assets/index-CmiIAuQj.js`):
+    - Renders `patient_uhid` with phone fallback (`KOKILA-0003/2026`).
+    - Renders `Qty: {item.quantity}` badge under medication.
+    - Renders total line amount `₹{parseFloat(item.amount || item.total_amount).toFixed(2)}` (`₹28.00`).
+  - `PharmacyReceiptPrint.jsx`: Uses `unit_price`, `total_amount`, and `patient_uhid`.
+  - `RefundModal.jsx`: Displays `Original Qty: 14 @ ₹2.00`, sends complete payload with `task_id` and `item_name`.
+  - `PharmacyReports.jsx`: Safely unwraps `abcRes.data?.data?.stats || abcRes.data?.stats` and array `expiryRes.data`.
+- **Live Production VPS Verification (`185.213.27.158`)**:
+  - `care_tasks` row `1a18be64-8e0f-487f-a703-ed4873f0d043`: `dispensed_quantity = 14`, `unit_price = 2.00`, `total_amount = 28.00`, `batch_number = 'BATCH-PARA-2026'`.
+  - `GET /api/pharmacy/dispenses/recent`: Returns **EXACTLY 1 RECORD** for task `1a18be64-...`, `quantity = 14`, `amount = 28.00`, `patient_uhid = KOKILA-0003/2026`.
+  - `GET /api/pharmacy/reports/abc`: Returns `stats` and `totalValue = 93340`.
+  - `GET /api/pharmacy/controlled-log`: HTTP 200 OK for `pharmacist`.
+  - `POST /api/pharmacy/refund`: HTTP 200 OK (`Refund processed successfully`).
+
+## Session 2026-10-21 — STAGE 2 (100% READ-ONLY LIVE VPS RECONFIRMATION): EXECUTE SECTION 4 LIVE SQL & API PROBES ON 185.213.27.158
+- **Mandates Honored**: 100% Read-Only mode (`client/` and `server/` source code untouched, zero DB mutations, `git diff` clean, temporary probe scripts purged).
+- **Live Production Evidence on `185.213.27.158` (`wolf_fitness_db` / `wolf_hms_prod`)**:
+  1. **Dispensed Task State Confirmed (Checklist 4.1)**:
+     - Task `1a18be64-8e0f-487f-a703-ed4873f0d043` is in `status = 'Completed'`, `pharmacy_status = 'Dispensed'`, `payment_status = 'Paid'`, `invoice_id = 4`, `completed_at = '2026-10-21 05:41:49.619358+00'` (11:11:49 IST), `completed_by = 26` (`pharmacy_user`).
+  2. **Cartesian Fan-Out 100% Proven Live (Checklist 4.2 & 4.3)**:
+     - Patient 3 (`1bec5324-0d85-46ad-939e-a1eac95b1127`) has exactly 3 invoices generated on 2026-10-20 (Invoice 3: ₹500.00 Paid, Invoice 4: ₹378.00 Paid, Invoice 5: ₹28.00 Pending), all within the `±1 day` range of `completed_at`.
+     - Exact SQL from `getRecentDispenses` returned exactly 3 rows for task `1a18be64-8e0f-487f-a703-ed4873f0d043`, pairing it with Invoice 5, 4, and 3 respectively.
+     - In all 3 rows, `price_per_unit = 2.00` is returned; UI renders this as `Amount: ₹2.00`.
+  3. **True Quantity & Amount Confirmed on Invoice #4 (Checklist 4.3)**:
+     - `invoice_items` item #8: `Rx: Paracetamol 500mg (500mg BD/BID x 7 days)`, `quantity = 14`, `unit_price = 2.00`, `total_price = 28.00`.
+     - `inventory_items` stock quantity is `4970` (14 units deducted from 4984).
+  4. **Schema Column Incompatibilities Confirmed (Checklist 4.4, 4.5, 4.6)**:
+     - `pharmacy_refunds`: `original_task_id` is `integer` (UUID string insertion causes 22P02); missing columns `invoice_reversed`, `processed_by`, `processed_by_name`, `status`, `completed_at` (causing 42703).
+     - `controlled_substance_log`: lacks `dispensed_at` (only `created_at` exists).
+     - `charges`: lacks `department` column.
+  5. **Live API Envelopes & Error Probes Confirmed (Checklist 4.7)**:
+     - `GET /api/pharmacy/reports/abc`: Returns `{success: true, message: "Success", data: {stats: {...}, items: [...]}}`. Proves UI `abcRes.data.stats` fails due to envelope unwrapping.
+     - `POST /api/clinical/tasks/complete`: Returns `HTTP 403 {"message":"User role not authorized"}` for `pharmacist`.
+     - `POST /api/pharmacy/refund`: Returns `HTTP 400 {"success":false,"message":"Item name and reason are required"}` when called with `RefundModal.jsx` frontend payload.
+
+## Session 2026-10-21 — STAGE 1 (100% READ-ONLY FORENSICS): PHARMACY ORDER HISTORY DISCREPANCY & 9-TAB ENTERPRISE HMS AUDIT
+- **Mandates Honored**: 100% Read-Only mode (`client/` and `server/` untouched, `git diff` clean, zero DB mutations).
+- **Core Findings Documented in `plans/PHARMACY_ENTERPRISE_AND_ORDER_HISTORY_AUDIT.md`**:
+  1. **Order History 3-Record Fan-Out**: `getRecentDispenses` joins `care_tasks` to `invoices` via a fuzzy `±1 day` timestamp window on `ct.patient_id = inv.patient_id` rather than `ct.invoice_id = inv.id`. Patient 3 has 3 invoices within 24h, generating a 1-to-3 Cartesian row explosion with duplicate React keys.
+  2. **Amount: ₹2.00 vs ₹28.00 (Qty 14)**: Tab 9 table header labels the column `Amount`, but cell JSX binds directly to `item.price_per_unit` (unit price ₹2.00). `care_tasks` has no `quantity` column; `processPrescription` computed `14` tablets for stock deduction, but never stored the quantity or line total. Quantity column is completely missing from Tab 9 `<thead>`.
+  3. **Patient Phone vs UHID**: `getRecentDispenses` selects `p.phone as patient_phone` and omits `p.uhid`. UI renders `{item.patient_phone}` (`9999988888`) instead of `KOKILA-0003/2026`.
+  4. **Refund Button 100% Non-Functional**: `RefundModal.jsx` sends `{invoice_item_id, return_quantity, reason}` while API requires `{item_name, quantity, reason, patient_id}` -> HTTP 400. Dropdown strings reject against 6-value internal enum -> HTTP 400. `pharmacy_refunds.original_task_id` is `INTEGER` while task ID is `UUID` -> PostgreSQL 22P02 crash. Schema misses 5 columns (`invoice_reversed`, `processed_by`, etc.) -> 42703 crash. Ignores paid invoices (`status = 'Pending'` only).
+  5. **Full 9-Tab Technical Audit**:
+     - Tab 1 (`Prescription Queue`): Stock deducted correctly, but quantity not persisted.
+     - Tab 2 (`IPD Orders`): `getTasks` has NO joins -> `patient_name`, `ward`, `bed_number` are all blank; `completeTask` throws 403 for pharmacists and bypasses inventory deduction.
+     - Tab 3 (`Inventory`): `AddDrugModal` lacks batch number, expiry date, MRP, and GST; no UI for price approvals.
+     - Tab 4 (`Expiry Heatmap`): Decorative only; backend dispensing is NOT FEFO (arbitrary batch).
+     - Tab 5 (`Procurement`): PO header and items inserted outside DB transaction; stock receive lacks GRN/AP.
+     - Tab 6 (`Analytics & Reports`): Fatal envelope crash (`abcRes.data.stats` and `expiryRes.data` unwrapped); locks tab in "Loading Analytics...".
+     - Tab 7 (`AI Forecast`): Uses `COUNT(*)` of tasks instead of units dispensed, underestimating burn rate by ~1400%.
+     - Tab 8 (`Recent Dispenses & Returns`): Duplicate view of Tab 9 with undefined `quantity`.
+     - Tab 9 (`Order History`): Subject of the defect (fan-out, unit price as total, phone instead of UHID, broken Print/Refund).
 
 ## Session 2026-10-21 — STAGE 3 (SURGICAL FIX): SYNC PHARMACY BILLING (PAID BADGE), FIX DR. DOCTOR_USER DISPLAY, AUTO-BILL OPD RX AT SIGN & SEND, AND PREVENT DOUBLE-BILLING ON DISPENSE
 - **Mandates Honored**: No Vite Rebuild (surgical 6-line expression edit applied directly to `server/public/assets/index-CmiIAuQj.js` and `client/dist/assets/index-CmiIAuQj.js`, with source parity in `PharmacyDashboard.jsx`), zero edits to 17 uncommitted Phase 7 / WGM files, `Patient 3`'s prescription row (`1a18be64-8e0f-487f-a703-ed4873f0d043`) strictly preserved in `status = 'Pending'` so user can test clicking `✓ Dispense` live.

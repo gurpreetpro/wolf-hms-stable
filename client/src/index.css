@@ -227,10 +227,17 @@ body {
 .modal-content {
   background-color: var(--bg-card);
   border-color: var(--border-color);
+  color: var(--text-primary);
+  --bs-modal-color: var(--text-primary);
 }
 
 .modal-header {
   border-bottom-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.modal-title {
+  color: var(--text-primary) !important;
 }
 
 .modal-footer {

@@ -14,11 +14,14 @@ const PharmacyReports = () => {
         const fetchData = async () => {
             try {
                 const abcRes = await api.get('/api/pharmacy/reports/abc');
-                setAbcStats(abcRes.data.stats);
-                setTotalValue(abcRes.data.totalValue);
+                const stats = abcRes.data?.data?.stats || abcRes.data?.stats;
+                const total = abcRes.data?.data?.totalValue ?? abcRes.data?.totalValue ?? 0;
+                setAbcStats(stats);
+                setTotalValue(total);
 
                 const expiryRes = await api.get('/api/pharmacy/reports/expiry');
-                setExpiryList(expiryRes.data);
+                const expiry = Array.isArray(expiryRes.data) ? expiryRes.data : (expiryRes.data?.data || []);
+                setExpiryList(expiry);
             } catch (error) {
                 console.error("Report fetch failed", error);
             } finally {

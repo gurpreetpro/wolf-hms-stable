@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, Tabs, Tab, Modal, InputGroup, Spinner, Badge, Alert } from 'react-bootstrap';
-import { Package, ShoppingCart, AlertTriangle, FileText, Check, Search, IndianRupee, Info, Plus, Printer, History } from 'lucide-react';
+import { Package, ShoppingCart, AlertTriangle, FileText, Check, Search, IndianRupee, Info, Plus, Printer, History, Edit } from 'lucide-react';
 import api from '../utils/axiosInstance';
 import { io } from '../utils/socket-stub';
 import { StatsCard, StatusBadge } from '../components/ui';
 import { formatCurrency } from '../utils/currency';
 import AddDrugModal from '../components/AddDrugModal';
+import EditDrugModal from '../components/EditDrugModal';
 import ProcurementDashboard from '../components/ProcurementDashboard';
 import PharmacyReports from '../components/PharmacyReports';
 import PharmacyReceiptPrint from '../components/PharmacyReceiptPrint';
@@ -23,6 +24,9 @@ const PharmacyDashboard = () => {
 
     const [dispenseQuantity, setDispenseQuantity] = useState(1);
     const [showAddDrugModal, setShowAddDrugModal] = useState(false); // Phase 5
+    const [showEditDrugModal, setShowEditDrugModal] = useState(false);
+    const [selectedDrugForEdit, setSelectedDrugForEdit] = useState(null);
+    const openEditModal = (item) => { setSelectedDrugForEdit(item); setShowEditDrugModal(true); };
 
     // Price Management State
     const [showPriceModal, setShowPriceModal] = useState(false);
@@ -424,10 +428,15 @@ const PharmacyDashboard = () => {
                                                 <div className="fw-bold">
                                                     {item.name}
                                                     {item.schedule_type === 'H1' && <Badge bg="danger" className="ms-2" title="Schedule H1 Drug">H1</Badge>}
+                                                    {item.schedule_type === 'H' && <Badge bg="warning" text="dark" className="ms-2" title="Schedule H Drug">H</Badge>}
+                                                    {item.is_controlled && <Badge bg="dark" className="ms-1 border border-danger text-danger">Controlled</Badge>}
                                                 </div>
-                                                <div className="small text-muted">{item.generic_name}</div>
+                                                <div className="small text-muted">{item.generic_name} {item.strength ? `• ${item.strength}` : ''}</div>
                                                 <div className="small text-secondary fst-italic">{item.manufacturer}</div>
-                                                <Badge bg="light" text="dark" className="border mt-1">{item.category}</Badge>
+                                                <div className="d-flex gap-1 mt-1 flex-wrap">
+                                                    <Badge bg="primary" className="border">{item.dosage_form || item.category || 'Tablet'}</Badge>
+                                                    {item.pack_size && <Badge bg="light" text="dark" className="border">{item.pack_size}</Badge>}
+                                                </div>
                                             </td>
                                             <td>
                                                 <div className="fw-bold">{item.rack_location || '-'}</div>
@@ -450,7 +459,7 @@ const PharmacyDashboard = () => {
                                             </td>
                                             <td>
                                                 <div className="fw-bold">₹{item.price_per_unit}</div>
-                                                {item.mrp && <small className="text-muted text-decoration-line-through">MRP: ₹{item.mrp}</small>}
+                                                {item.mrp && <small className="text-muted text-decoration-line-through d-block">MRP: ₹{item.mrp}</small>}
                                                 {item.gst_percent > 0 && <div className="small text-info">GST: {item.gst_percent}%</div>}
                                             </td>
                                             <td>
@@ -462,6 +471,14 @@ const PharmacyDashboard = () => {
                                                         title="Dispense Item"
                                                     >
                                                         <ShoppingCart size={16} />
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline-primary"
+                                                        onClick={() => openEditModal(item)}
+                                                        title="Edit Item / Add Batch"
+                                                    >
+                                                        <Edit size={16} />
                                                     </Button>
                                                     <Button
                                                         size="sm"
@@ -697,16 +714,21 @@ const PharmacyDashboard = () => {
                                             </td>
                                             <td>
                                                 <div className="fw-bold">{item.patient_name || 'Unknown'}</div>
-                                                {item.patient_phone && (
-                                                    <small className="text-muted">{item.patient_phone}</small>
+                                                {(item.patient_uhid || item.patient_phone) && (
+                                                    <small className="text-muted">
+                                                        {item.patient_uhid ? `${item.patient_uhid}${item.patient_phone ? ' • ' + item.patient_phone : ''}` : item.patient_phone}
+                                                    </small>
                                                 )}
                                             </td>
                                             <td>
                                                 <div>{item.medication || item.description}</div>
+                                                {item.quantity && (
+                                                    <small className="text-muted d-block">Qty: {item.quantity}</small>
+                                                )}
                                             </td>
                                             <td>
                                                 <span className="fw-bold text-success">
-                                                    ₹{parseFloat(item.price_per_unit || 0).toFixed(2)}
+                                                    ₹{parseFloat(item.amount || item.total_amount || (item.quantity ? item.quantity * item.price_per_unit : item.price_per_unit) || 0).toFixed(2)}
                                                 </span>
                                             </td>
                                             <td>
@@ -931,6 +953,13 @@ const PharmacyDashboard = () => {
             <AddDrugModal
                 show={showAddDrugModal}
                 onHide={() => setShowAddDrugModal(false)}
+                refreshData={fetchInventory}
+            />
+
+            <EditDrugModal
+                show={showEditDrugModal}
+                onHide={() => { setShowEditDrugModal(false); setSelectedDrugForEdit(null); }}
+                drug={selectedDrugForEdit}
                 refreshData={fetchInventory}
             />
 

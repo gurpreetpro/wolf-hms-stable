@@ -102358,12 +102358,15 @@ const PharmacyDashboard = () => {
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fw-bold", children: item.patient_name || "Unknown" }),
-                  item.patient_phone && /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: item.patient_phone })
+                  (item.patient_uhid || item.patient_phone) && /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted", children: item.patient_uhid ? `${item.patient_uhid}${item.patient_phone ? " • " + item.patient_phone : ""}` : item.patient_phone })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: item.medication || item.description }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  item.medication || item.description,
+                  item.quantity ? /* @__PURE__ */ jsxRuntimeExports.jsx("small", { className: "text-muted d-block", children: `Qty: ${item.quantity}` }) : null
+                ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "fw-bold text-success", children: [
                   "₹",
-                  parseFloat(item.price_per_unit || 0).toFixed(2)
+                  parseFloat(item.amount || item.total_amount || (item.quantity ? item.quantity * item.price_per_unit : item.price_per_unit) || 0).toFixed(2)
                 ] }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: item.dispensed_by_name || "System" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "d-flex gap-1", children: [
