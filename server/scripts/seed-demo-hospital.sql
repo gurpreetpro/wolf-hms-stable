@@ -14,6 +14,8 @@
 
 BEGIN;
 
+SET search_path TO public, pg_catalog;
+
 -- ---------------------------------------------------------------------
 -- 1. Tenant 1 profile — ensure hospital id=1 exists and has realistic details
 --    WITHOUT renaming existing tenant name (contract test
