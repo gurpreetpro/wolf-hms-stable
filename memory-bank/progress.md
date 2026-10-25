@@ -1,4 +1,13 @@
 ## ✅ Completed & Verified
+### GITHUB ACTIONS WORKFLOW FORENSIC FIX: `.github/workflows/pre-demo-qa.yml` (EXIT CODE 1 & GIT 128 RESOLVED, 2026-10-25)
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`).
+- [x] **Root Cause 1 (Git Exit Code 128) Fixed:** Created root `.gitmodules` mapping `wolf-care-app` and configured `fetch-depth: 0` in `actions/checkout@v4`, eliminating gitlink submodule enumeration failures during checkout cleanup.
+- [x] **Root Cause 2 (Empty DB Seed Crash) Fixed:** Exported sanitized PostgreSQL base schema `server/scripts/schema-demo-base.sql` (385 tables) without PG18 meta-commands, enforced `search_path TO public, pg_catalog;`, and enhanced `server/scripts/seed-demo-hospital.js` to automatically bootstrap tables when `hospitals` table is missing.
+- [x] **Root Cause 3 (Linux Case Sensitivity MODULE_NOT_FOUND) Fixed:** Fixed `server/routes/receptionRoutes.js` requiring `../services/ABDMService` (case mismatch against `abdmService.js` on Linux). Added `abdmService` wrapper and `getABDMService` helper to `server/services/abdmService.js`.
+- [x] **Root Cause 4 (API Background Startup & Polling) Fixed:** Added `mkdir -p ../logs` in `pre-demo-qa.yml`, configured environment secrets (`PORT`, `JWT_SECRET`, `ADMIN_MIGRATE_SECRET`, `SETUP_KEY`, `MIGRATION_CLI_TOKEN`), replaced fragile `npx wait-on` with active curl loop, added log dumping on failure, and added `ci-api.log` to artifact upload.
+- [x] **Root Cause 5 (Cron Spam & Deprecation Warnings) Fixed:** Disabled nightly `schedule:` cron trigger in `pre-demo-qa.yml`, added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'`, and upgraded runner node version to `22`.
+- [x] **Full CI Verification Succeeded:** GitHub Actions Run `40211414150` on commit `ae37013` passed 100% across all 12 steps (Golden seed, Start API, Jest tests, 500-Hunter sweep, Playwright E2E, QA evidence upload).
+
 ### STAGE 3 (ENTERPRISE PHARMACY INVENTORY & PROCUREMENT UPGRADE): BATCHES, DOSAGE FORMS, MULTI-BATCH FEFO, PROCUREMENT GRN & MODALS (2026-10-25, Production VPS 185.213.27.158)
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`).
 - [x] **Migration 321 Applied on `wolf_hms_prod` (`321_enterprise_pharmacy_inventory_batches_and_procurement.sql`):**

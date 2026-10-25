@@ -6,7 +6,47 @@
 
 2026-10-25
 
-## Session 2026-10-25 — STAGE 3 (ENTERPRISE PHARMACY INVENTORY & PROCUREMENT UPGRADE): DOSAGE FORM, BATCH NO., MFG DATE, EXPIRY DATE, MRP/GST, EDIT ITEM & PROCUREMENT GRN
+## Session 2026-10-25 (Part 2) — GITHUB ACTIONS FORENSIC FIX: `.github/workflows/pre-demo-qa.yml` (EXIT CODE 1 & GIT 128 RESOLVED)
+- **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`).
+- **Forensic Root Causes Identified & Permanently Fixed**:
+  1. *Git Exit Code 128*:
+     - In post-job cleanup, `actions/checkout@v4` executes `git submodule foreach --recursive ...`.
+     - Git encountered a submodule entry for `wolf-care-app` (gitlink mode 160000 in tree) with no root `.gitmodules` file, failing with: `fatal: No url found for submodule path 'wolf-care-app' in .gitmodules`.
+     - *Fix*: Created root `.gitmodules` mapping `wolf-care-app` to `https://github.com/gurpreetpro/wolf-care-app.git` and added `fetch-depth: 0` to checkout step.
+  2. *Step 6 Seed Crash*:
+     - The CI container `postgres:16` initializes an empty `hospital_db`. `scripts/seed-demo-hospital.js` ran `seed-demo-hospital.sql` directly without bootstrapping the schema, crashing with `relation "hospitals" does not exist`.
+     - *Fix*: Sanitized and exported `server/scripts/schema-demo-base.sql` (385 tables) from local schema, stripped Postgres 18 meta-commands (`\restrict`, `\unrestrict`), enforced `SET search_path TO public, pg_catalog;`, and added auto-bootstrap in `seed-demo-hospital.js` when `hospitals` table is missing.
+  3. *Step 7 Background API Startup Crash & Wait-on Timeout*:
+     - `server-cloud.js` crashed on Linux during module loading at `server/routes/receptionRoutes.js:23` with `MODULE_NOT_FOUND: Cannot find module '../services/ABDMService'`. The disk filename was `abdmService.js` (lowercase `a`), which succeeded on Windows (case-insensitive) but crashed Node on Linux (case-sensitive).
+     - Furthermore, `abdmService.js` lacked exported `abdmService` wrapper and `getABDMService` helper needed by `receptionRoutes.js` and `abdmController.js`.
+     - `nohup node server-cloud.js > ../logs/ci-api.log 2>&1 &` previously failed when `../logs/` did not exist (gitignored), and `npx wait-on` swallowed all startup error output without dumping `ci-api.log`.
+     - *Fix*:
+       - Fixed case sensitivity in `receptionRoutes.js` (`require('../services/abdmService')`).
+       - Implemented `abdmService` wrapper with M1 compliant `requestOTP`, `verifyOTP`, and `getABDMService` in `server/services/abdmService.js`.
+       - Overhauled step 7 in `pre-demo-qa.yml` with `mkdir -p ../logs`, explicit environment secrets (`PORT`, `JWT_SECRET`, `ADMIN_MIGRATE_SECRET`, `SETUP_KEY`, `MIGRATION_CLI_TOKEN`), active HTTP 200 curl polling loop, and automated `ci-api.log` console dump on failure.
+       - Added `ci-api.log` to artifact upload in step 12.
+  4. *Spam Cron Notifications*:
+     - Commented out automatic `schedule:` cron trigger in `pre-demo-qa.yml`, preserving on-demand `workflow_dispatch:`.
+  5. *Node 20 Deprecation Warning*:
+     - Added `env: FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'` and configured `node-version: '22'` to silence the runner deprecation warning.
+- **Verification on GitHub Actions**:
+  - Run `40211414150` triggered via `workflow_dispatch` on commit `ae37013`:
+    - All 12 steps passed with 100% `completed success` (exit code 0):
+      1. Set up job: success
+      2. Initialize containers: success
+      3. Checkout @v4: success
+      4. Setup Node.js 22: success
+      5. Install backend dependencies: success
+      6. Apply schema migrations + golden seed: success
+      7. Start API (background): success
+      8. Backend contract + unit tests: success
+      9. 500-Hunter (demo profile): success
+      10. Install client + Playwright browser: success
+      11. Playwright E2E — golden clinical journey: success
+      12. Upload QA evidence: success
+      13. Post checkout submodule cleanup: success (zero git 128 errors)
+
+## Session 2026-10-25 (Part 1) — STAGE 3 (ENTERPRISE PHARMACY INVENTORY & PROCUREMENT UPGRADE): DOSAGE FORM, BATCH NO., MFG DATE, EXPIRY DATE, MRP/GST, EDIT ITEM & PROCUREMENT GRN
 - **Mandates Honored**: Zero touch on 17 uncommitted Phase-7 / WGM files, all previous Stage 3 fixes preserved, live verified on `185.213.27.158`.
 - **Migration 321 Applied & Verified (`server/migrations/321_enterprise_pharmacy_inventory_batches_and_procurement.sql`)**:
   - Upgraded `inventory_items` with enterprise columns: `dosage_form` (default 'Tablet'), `strength`, `pack_size`, `mfg_date`, `mrp`, `cost_price`, `gst_percent` (12.00).
