@@ -17,10 +17,9 @@ router.get('/collections/summary', protect, authorize('admin', 'billing'), getCo
 // ──────────────────────────────────────────────────────────────────────────────
 // Phase 4: ABHA 3-Step OTP Verification (NHA M1 Compliant)
 // ──────────────────────────────────────────────────────────────────────────────
-
 const db = require('../db');
 const ResponseHandler = require('../utils/responseHandler');
-const { abdmService } = require('../services/ABDMService');
+const { abdmService } = require('../services/abdmService');
 
 // Step 1 — POST /api/reception/abha/init-verify
 // Accepts an ABHA number, returns a txnId and masked mobile.
