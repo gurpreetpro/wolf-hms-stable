@@ -64,6 +64,7 @@ jobs:
       - name: Start API (background)
         working-directory: server
         run: |
+          mkdir -p ../logs
           PORT=8080 ADMIN_MIGRATE_SECRET=ci-secret nohup node server-cloud.js > ../logs/ci-api.log 2>&1 &
           npx wait-on http://127.0.0.1:8080/api/health --timeout 120000
 
