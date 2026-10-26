@@ -12,8 +12,41 @@ import './index.css'
 // Configure axios baseURL - uses VITE_API_URL from environment
 // Production: Cloud Run URL, Development: empty (uses proxy)
 
+// WATCHDOG TELEMETRY BUFFER
+if (typeof window !== 'undefined') {
+  window.__WOLF_WATCHDOG_TELEMETRY__ = window.__WOLF_WATCHDOG_TELEMETRY__ || {
+    apiCalls: [],
+    consoleErrors: []
+  };
+
+  const origConsoleError = console.error;
+  console.error = function(...args) {
+    try {
+      const errStr = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.unshift({
+        timestamp: new Date().toISOString(),
+        message: errStr.slice(0, 300)
+      });
+      if (window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.length > 20) {
+        window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.pop();
+      }
+    } catch {}
+    origConsoleError.apply(console, args);
+  };
+}
+
 // GLOBAL ERROR HANDLER (DEBUGGING PRODUCTION CRASH)
 window.onerror = function(message, source, lineno, colno, error) {
+  if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+    window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.unshift({
+      timestamp: new Date().toISOString(),
+      message: `${message} (${source}:${lineno}:${colno})`
+    });
+    if (window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.length > 20) {
+      window.__WOLF_WATCHDOG_TELEMETRY__.consoleErrors.pop();
+    }
+  }
+
   const root = document.getElementById('root');
   if (!root || root.innerHTML.trim() === '') {
      document.body.innerHTML = `
@@ -48,10 +81,40 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 axios.defaults.baseURL = API_URL;
 console.log('[WOLF HMS] API URL:', API_URL || 'relative (dev mode)');
 
-// Global Axios Interceptor for Auth Errors
+// Global Axios Interceptor for Auth & Telemetry
 axios.interceptors.response.use(
-  response => response,
+  response => {
+    if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+      window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.unshift({
+        timestamp: new Date().toISOString(),
+        method: (response.config?.method || 'get').toUpperCase(),
+        url: response.config?.url,
+        status: response.status,
+        durationMs: 0,
+        error: null
+      });
+      if (window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.length > 20) {
+        window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.pop();
+      }
+    }
+    return response;
+  },
   error => {
+    const url = error.config?.url || '';
+    if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+      window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.unshift({
+        timestamp: new Date().toISOString(),
+        method: (error.config?.method || 'get').toUpperCase(),
+        url,
+        status: error.response?.status || 0,
+        durationMs: 0,
+        error: error.message || 'Request failed'
+      });
+      if (window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.length > 20) {
+        window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.pop();
+      }
+    }
+
     if (error.response && error.response.status === 401) {
       console.log('[WOLF HMS] Session expired or invalid token (401)');
       localStorage.removeItem('user');
@@ -60,18 +123,16 @@ axios.interceptors.response.use(
          window.location.href = '/login';
       }
     } else if (error.response && (error.response.status === 503 || error.response.status === 500)) {
-        // Redirect to service unavailable for critical server errors
-        if (!window.location.pathname.includes('/service-unavailable')) {
+        // Do not redirect to service unavailable for AI or support calls
+        if (!url.includes('/api/ai') && !url.includes('/api/support') && !window.location.pathname.includes('/service-unavailable')) {
              window.location.href = '/service-unavailable';
         }
     } else if (error.code === 'ERR_NETWORK') {
-        // Handle network errors (server down)
-        if (!window.location.pathname.includes('/service-unavailable')) {
+        if (!url.includes('/api/ai') && !url.includes('/api/support') && !window.location.pathname.includes('/service-unavailable')) {
              window.location.href = '/service-unavailable';
         }
     } else if (error.response && error.response.status === 403) {
       console.warn('[WOLF HMS] Access Forbidden (403) - Request denied but session valid.');
-      // Do NOT log out on 403
     }
     return Promise.reject(error);
   }

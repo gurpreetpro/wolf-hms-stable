@@ -25,13 +25,13 @@ const BillingOptimizer = ({ invoiceData, claimData, onOptimized }) => {
         try {
             // Run all AI analyses in parallel
             const [denialRes, approvalRes, pricingRes, anomalyRes] = await Promise.all([
-                claimData ? api.post('/ai-billing/predict-denial', claimData) : Promise.resolve({ data: null }),
-                claimData ? api.post('/ai-billing/estimate-approval', claimData) : Promise.resolve({ data: null }),
-                invoiceData?.items ? api.post('/ai-billing/optimize-pricing', {
+                claimData ? api.post('/api/ai-billing/predict-denial', claimData) : Promise.resolve({ data: null }),
+                claimData ? api.post('/api/ai-billing/estimate-approval', claimData) : Promise.resolve({ data: null }),
+                invoiceData?.items ? api.post('/api/ai-billing/optimize-pricing', {
                     lineItems: invoiceData.items,
                     tpaInfo: claimData?.tpaInfo
                 }) : Promise.resolve({ data: null }),
-                invoiceData ? api.post('/ai-billing/detect-anomalies', invoiceData) : Promise.resolve({ data: null })
+                invoiceData ? api.post('/api/ai-billing/detect-anomalies', invoiceData) : Promise.resolve({ data: null })
             ]);
 
             setDenialPrediction(denialRes.data);

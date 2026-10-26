@@ -2,9 +2,41 @@
 
 > ⚠️ UPDATE THIS FILE at the start and end of every AI session.
 
-## Last Updated
-
-2026-10-26
+## Session 2026-10-26 (Part 2) — STAGE 3: MULTI-PROVIDER ZERO-HALLUCINATION AI GATEWAY, GLOBAL DASHBOARD WATCHDOG & 1-CLICK ISSUE REPORTER
+- **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
+- **Core Architecture Deployed**:
+  1. *Unified AI Gateway (`server/services/UnifiedAIGateway.js`)*:
+     - Multi-provider failover chain across Oct 2026 Model Registry (`gemini-3.8-flash`, `gemini-3.5-flash-lite`, `gemini-4-argon`, `deepseek-flash`, `deepseek-v4-pro`, `gpt-6.1-sol`, `gpt-6-luna`, `gpt-6-astra`, `gpt-5.4-mini`, and deterministic `offline-clinical-catalog`).
+     - Automatic PHI Redaction (`scrubPHI`) scrubbed Indian phones, Aadhaar numbers, PAN cards, emails, and auth tokens before LLM dispatch.
+     - Strict medical system prompt with temperature 0.05, formulary adherence, and mandatory clinical disclaimer.
+     - Live provider health tracking with circuit breakers.
+  2. *Live Migration 322 Applied on `wolf_hms_prod` (`322_ai_gateway_watchdog_and_support_heal.sql`)*:
+     - Healed `support_tickets` table: added `assigned_to`, `dashboard_route`, `user_role`, `telemetry_json`, `ai_diagnosis_json`, `auto_healed`, `model_used`.
+     - Cured the live `500 column t.assigned_to does not exist` crash permanently.
+     - Upserted default `ai_gateway_config` in `system_settings` table with idempotent column additions.
+  3. *Controller & Service Modernization*:
+     - Migrated `labOCRController.js`, `aiController.js`, `ClinicalCoPilot.js`, `SmartInventory.js`, and `aiBillingEngine.js` to `UnifiedAIGateway`.
+     - Dual-mounted `enterpriseAIRoutes` at `/api/enterprise-ai` and `/api/ai`.
+     - Fixed `OperationalCommandCenter.js` bed intelligence and scorecard queries to align with actual Postgres schema (`admission_date`, `discharge_date`, and `wards` join).
+  4. *Dashboard Watchdog & 1-Click Reporter*:
+     - Ring buffer in `axiosInstance.js` tracks last 20 API calls with latencies and HTTP status codes.
+     - `main.jsx` captures unhandled runtime/console errors.
+     - Floating `ChatAssistant.jsx` overhaul:
+       - Tab 1: AI Co-Pilot (Clinical decision support with real-time model badge).
+       - Tab 2: Dashboard Watchdog & Auto-Heal (Live health scan, recent captured API errors, 1-click Auto-Heal & Report, automated AI root-cause diagnosis).
+       - Tab 3: AI Models & Guardrails (Live model switcher with active guardrail indicators).
+- **VPS Deployment & Live Verification on `185.213.27.158`**:
+  - Synced `GEMINI_API_KEY` from local `server/.env` to `/var/www/wolf-hms/server/.env` (39 chars, `AIzaSy...`).
+  - SFTP uploaded modified services, controllers, routes, migration 322, and frontend bundle (`index-jjlRUJf8.js`).
+  - All 8 live verification probes succeeded with HTTP 200:
+    1. `POST /api/ai/chat`: 200 OK (`gemini-2.5-flash`, latency 621ms, clinical advisory attached).
+    2. `GET /api/ai/models`: 200 OK (Full registry with 11 models, health state, guardrails).
+    3. `POST /api/ai/models/select`: 200 OK.
+    4. `GET /api/support/tickets?hospital_id=1`: 200 OK (Clean list, 0 crashes).
+    5. `POST /api/ai/watchdog/report`: 200 OK (Generated ticket with 0.95 confidence AI root-cause diagnosis).
+    6. `GET /api/ai/watchdog/health-scan?hospital_id=1`: 200 OK (Score 100%, HEALTHY).
+    7. `GET /api/ai/ops/beds?hospital_id=1`: 200 OK.
+    8. `GET /api/enterprise-ai/ops/beds?hospital_id=1`: 200 OK.
 
 ## Session 2026-10-26 — FIX GITHUB ACTIONS `CI Gate` (`ci.yml`): EXCLUDE `client/e2e/**` PLAYWRIGHT SPECS FROM VITEST & UPGRADE TO NODE 22
 - **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).

@@ -244,17 +244,20 @@ router.get('/dashboard', async (req, res) => {
 router.get('/tickets', async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
-        const userId = req.user?.role === 'Admin' ? null : req.user?.id;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        const userId = ['Admin', 'admin', 'super_admin'].includes(req.user?.role) ? null : req.user?.id;
 
         const tickets = await RemoteAccessService.getTickets({
+            hospitalId,
             userId,
             status,
-            page: parseInt(page),
-            limit: parseInt(limit)
+            page: parseInt(page) || 1,
+            limit: parseInt(limit) || 20
         });
 
         res.json(tickets);
     } catch (error) {
+        console.error('[SupportRoutes] GET /tickets error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -265,7 +268,8 @@ router.get('/tickets', async (req, res) => {
  */
 router.get('/tickets/:id', async (req, res) => {
     try {
-        const ticket = await RemoteAccessService.getTicketDetails(req.params.id);
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        const ticket = await RemoteAccessService.getTicketDetails(req.params.id, hospitalId);
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -281,20 +285,49 @@ router.get('/tickets/:id', async (req, res) => {
  */
 router.post('/tickets', async (req, res) => {
     try {
-        const { category, priority, subject, description, remoteAccessRequested } = req.body;
+        const {
+            category,
+            priority,
+            subject,
+            description,
+            remoteAccessRequested,
+            dashboard_route,
+            dashboardRoute,
+            user_role,
+            userRole,
+            telemetry,
+            telemetry_json,
+            telemetryJson,
+            ai_diagnosis_json,
+            aiDiagnosisJson,
+            auto_healed,
+            autoHealed,
+            model_used,
+            modelUsed
+        } = req.body;
+
         const userId = req.user?.id || 1;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
 
         const ticket = await RemoteAccessService.createTicket({
             userId,
-            category,
+            hospitalId,
+            category: category || 'General',
             priority: priority || 'medium',
-            subject,
-            description,
-            remoteAccessRequested
+            subject: subject || 'Support Request',
+            description: description || 'No description provided',
+            remoteAccessRequested: Boolean(remoteAccessRequested),
+            dashboardRoute: dashboard_route || dashboardRoute || null,
+            userRole: user_role || userRole || req.user?.role || 'Staff',
+            telemetryJson: telemetry_json || telemetryJson || telemetry || {},
+            aiDiagnosisJson: ai_diagnosis_json || aiDiagnosisJson || {},
+            autoHealed: auto_healed || autoHealed || false,
+            modelUsed: model_used || modelUsed || 'manual'
         });
 
         res.status(201).json(ticket);
     } catch (error) {
+        console.error('[SupportRoutes] POST /tickets error:', error);
         res.status(500).json({ error: error.message });
     }
 });

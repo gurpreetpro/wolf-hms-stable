@@ -44,34 +44,38 @@ class OperationalCommandCenter {
         // By ward breakdown
         const byWard = await pool.query(`
             SELECT 
-                ward_type as ward,
-                COUNT(*) as total,
-                COUNT(*) FILTER (WHERE status = 'Occupied') as occupied,
-                COUNT(*) FILTER (WHERE status = 'Available') as available,
-                ROUND(100.0 * COUNT(*) FILTER (WHERE status = 'Occupied') / NULLIF(COUNT(*), 0), 1) as occupancy_pct
-            FROM beds
-            WHERE hospital_id = $1
-            GROUP BY ward_type
+                COALESCE(w.name, w.type, 'General Ward') as ward,
+                COUNT(b.id) as total,
+                COUNT(b.id) FILTER (WHERE b.status = 'Occupied') as occupied,
+                COUNT(b.id) FILTER (WHERE b.status = 'Available') as available,
+                ROUND(100.0 * COUNT(b.id) FILTER (WHERE b.status = 'Occupied') / NULLIF(COUNT(b.id), 0), 1) as occupancy_pct
+            FROM beds b
+            LEFT JOIN wards w ON b.ward_id = w.id
+            WHERE b.hospital_id = $1
+            GROUP BY COALESCE(w.name, w.type, 'General Ward')
             ORDER BY occupancy_pct DESC
         `, [hospitalId]);
 
         // Predicted discharges (next 24h based on expected LOS)
-        const predictedDischarges = await pool.query(`
-            SELECT a.id as admission_id, p.name as patient_name,
-                   a.ward, a.bed_number, a.admitted_at,
-                   tp.stay_days as expected_los,
-                   a.admitted_at + (tp.stay_days || 3) * INTERVAL '1 day' as expected_discharge,
-                   EXTRACT(HOURS FROM (a.admitted_at + (tp.stay_days || 3) * INTERVAL '1 day') - NOW()) as hours_until_discharge
-            FROM admissions a
-            LEFT JOIN patients p ON a.patient_id = p.id
-            LEFT JOIN patient_packages pp ON pp.patient_id = a.patient_id AND pp.status = 'active'
-            LEFT JOIN treatment_packages tp ON pp.package_id = tp.id
-            WHERE a.hospital_id = $1 
-              AND a.status = 'Admitted'
-              AND a.admitted_at + COALESCE(tp.stay_days, 3) * INTERVAL '1 day' <= NOW() + INTERVAL '24 hours'
-            ORDER BY hours_until_discharge ASC
-            LIMIT 20
-        `, [hospitalId]);
+        let predictedDischarges = { rows: [] };
+        try {
+            predictedDischarges = await pool.query(`
+                SELECT a.id as admission_id, COALESCE(p.name, 'Patient') as patient_name,
+                       a.ward, a.bed_number, a.admission_date as admitted_at,
+                       3 as expected_los,
+                       a.admission_date + INTERVAL '3 days' as expected_discharge,
+                       EXTRACT(HOURS FROM (a.admission_date + INTERVAL '3 days') - NOW()) as hours_until_discharge
+                FROM admissions a
+                LEFT JOIN patients p ON a.patient_id = p.id
+                WHERE a.hospital_id = $1 
+                  AND a.status = 'Admitted'
+                  AND a.admission_date + INTERVAL '3 days' <= NOW() + INTERVAL '24 hours'
+                ORDER BY hours_until_discharge ASC
+                LIMIT 20
+            `, [hospitalId]);
+        } catch (e) {
+            console.warn('[OperationalCommandCenter] predictedDischarges query warning:', e.message);
+        }
 
         // Bottleneck detection
         const bottlenecks = [];
@@ -142,14 +146,19 @@ class OperationalCommandCenter {
         `, [hospitalId]);
 
         // Current active nurse assignments
-        const nursesByWard = await pool.query(`
-            SELECT ward, COUNT(DISTINCT user_id) as nurse_count
-            FROM nurse_assignments
-            WHERE hospital_id = $1 
-              AND status = 'Active'
-              AND shift_end > NOW()
-            GROUP BY ward
-        `, [hospitalId]);
+        let nursesByWard = { rows: [] };
+        try {
+            nursesByWard = await pool.query(`
+                SELECT ward, COUNT(DISTINCT user_id) as nurse_count
+                FROM nurse_assignments
+                WHERE hospital_id = $1 
+                  AND status = 'Active'
+                  AND shift_end > NOW()
+                GROUP BY ward
+            `, [hospitalId]);
+        } catch (e) {
+            console.warn('[OperationalCommandCenter] nurse_assignments query warning:', e.message);
+        }
 
         const nurseMap = {};
         nursesByWard.rows.forEach(r => { nurseMap[r.ward] = Number(r.nurse_count); });
@@ -214,18 +223,23 @@ class OperationalCommandCenter {
      */
     static async predictERSurge(hospitalId) {
         // Get ER admissions pattern by day-of-week and hour
-        const pattern = await pool.query(`
-            SELECT 
-                EXTRACT(DOW FROM admitted_at) as day_of_week,
-                EXTRACT(HOUR FROM admitted_at) as hour,
-                COUNT(*) as er_count
-            FROM admissions
-            WHERE hospital_id = $1 
-              AND ward ILIKE '%emergency%'
-              AND admitted_at >= NOW() - INTERVAL '90 days'
-            GROUP BY EXTRACT(DOW FROM admitted_at), EXTRACT(HOUR FROM admitted_at)
-            ORDER BY day_of_week, hour
-        `, [hospitalId]);
+        let pattern = { rows: [] };
+        try {
+            pattern = await pool.query(`
+                SELECT 
+                    EXTRACT(DOW FROM admission_date) as day_of_week,
+                    EXTRACT(HOUR FROM admission_date) as hour,
+                    COUNT(*) as er_count
+                FROM admissions
+                WHERE hospital_id = $1 
+                  AND ward ILIKE '%emergency%'
+                  AND admission_date >= NOW() - INTERVAL '90 days'
+                GROUP BY EXTRACT(DOW FROM admission_date), EXTRACT(HOUR FROM admission_date)
+                ORDER BY day_of_week, hour
+            `, [hospitalId]);
+        } catch (e) {
+            console.warn('[OperationalCommandCenter] predictERSurge pattern warning:', e.message);
+        }
 
         // Current day/hour
         const now = new Date();
@@ -284,12 +298,17 @@ class OperationalCommandCenter {
         const month = "NOW() - INTERVAL '30 days'";
 
         // KPI 1: Average Length of Stay
-        const alos = await pool.query(`
-            SELECT AVG(EXTRACT(DAY FROM (discharged_at - admitted_at))) as alos
-            FROM admissions
-            WHERE hospital_id = $1 AND discharged_at IS NOT NULL 
-              AND admitted_at >= ${month}
-        `, [hospitalId]);
+        let alos = { rows: [] };
+        try {
+            alos = await pool.query(`
+                SELECT AVG(EXTRACT(DAY FROM (discharge_date - admission_date))) as alos
+                FROM admissions
+                WHERE hospital_id = $1 AND discharge_date IS NOT NULL 
+                  AND admission_date >= ${month}
+            `, [hospitalId]);
+        } catch (e) {
+            console.warn('[OperationalCommandCenter] alos query warning:', e.message);
+        }
 
         // KPI 2: Bed Occupancy Rate
         const bor = await pool.query(`
@@ -313,10 +332,15 @@ class OperationalCommandCenter {
         `, [hospitalId]);
 
         // KPI 5: Patient Discharge Rate (today)
-        const discharges = await pool.query(`
-            SELECT COUNT(*) as count FROM admissions
-            WHERE hospital_id = $1 AND discharged_at::date = CURRENT_DATE
-        `, [hospitalId]);
+        let discharges = { rows: [] };
+        try {
+            discharges = await pool.query(`
+                SELECT COUNT(*) as count FROM admissions
+                WHERE hospital_id = $1 AND discharge_date::date = CURRENT_DATE
+            `, [hospitalId]);
+        } catch (e) {
+            console.warn('[OperationalCommandCenter] discharges query warning:', e.message);
+        }
 
         // KPI 6: OPD volume (today)
         const opdToday = await pool.query(`

@@ -10,11 +10,7 @@
  */
 
 const { pool } = require('../db');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const UnifiedAIGateway = require('./UnifiedAIGateway');
 
 class ClinicalCoPilot {
     
@@ -174,12 +170,12 @@ OUTPUT FORMAT: JSON object with keys: summary, findings (array), risks (array wi
 Be clinical and precise. If data is insufficient, state "Insufficient data for [X]" rather than guessing.
             `;
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text()
-                .replace(/```json/g, '')
-                .replace(/```/g, '')
-                .trim();
+            const aiRes = await UnifiedAIGateway.generate({
+                prompt,
+                preferredModel: 'gemini-3.8-flash',
+                jsonMode: true
+            });
+            const text = aiRes.text;
 
             // 5. Parse the response
             let aiSummary;
@@ -265,11 +261,12 @@ Provide:
 OUTPUT: JSON with keys: interpretation, significance, causes (array), followupTests (array)
             `;
 
-            const result = await model.generateContent(prompt);
-            const text = result.response.text()
-                .replace(/```json/g, '')
-                .replace(/```/g, '')
-                .trim();
+            const aiRes = await UnifiedAIGateway.generate({
+                prompt,
+                preferredModel: 'gemini-3.8-flash',
+                jsonMode: true
+            });
+            const text = aiRes.text;
 
             return JSON.parse(text);
 
@@ -319,11 +316,12 @@ Analyze the trend and provide:
 OUTPUT: JSON with keys: trend, concerns (array), warnings (array), recommendedFrequency
             `;
 
-            const result = await model.generateContent(prompt);
-            const text = result.response.text()
-                .replace(/```json/g, '')
-                .replace(/```/g, '')
-                .trim();
+            const aiRes = await UnifiedAIGateway.generate({
+                prompt,
+                preferredModel: 'gemini-3.8-flash',
+                jsonMode: true
+            });
+            const text = aiRes.text;
 
             return JSON.parse(text);
 
@@ -362,11 +360,12 @@ OUTPUT: JSON with keys: interactions (array of {drugs, severity, description}), 
 Be conservative - flag potential issues even if uncertain.
             `;
 
-            const result = await model.generateContent(prompt);
-            const text = result.response.text()
-                .replace(/```json/g, '')
-                .replace(/```/g, '')
-                .trim();
+            const aiRes = await UnifiedAIGateway.generate({
+                prompt,
+                preferredModel: 'gemini-3.8-flash',
+                jsonMode: true
+            });
+            const text = aiRes.text;
 
             return JSON.parse(text);
 

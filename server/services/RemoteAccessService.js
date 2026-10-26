@@ -10,19 +10,46 @@ class RemoteAccessService {
     static generateToken() { return crypto.randomBytes(32).toString('hex'); }
     static generateTicketNumber() { const date = new Date(); return `TKT${date.toISOString().slice(2, 10).replace(/-/g, '')}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`; }
 
-    // Create ticket - Multi-Tenant
-    static async createTicket({ userId, hospitalId, category, priority, subject, description, remoteAccessRequested = false }) {
-        try { const ticketNumber = this.generateTicketNumber(); const result = await pool.query(`INSERT INTO support_tickets (ticket_number, user_id, category, priority, subject, description, remote_access_requested, hospital_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`, [ticketNumber, userId, category, priority, subject, description, remoteAccessRequested, hospitalId]); logger.info('Support ticket created', { ticketNumber, category, priority }); return result.rows[0]; }
-        catch (error) { logger.error('Failed to create ticket', { error: error.message }); throw error; }
+    // Create ticket - Multi-Tenant with Watchdog Telemetry
+    static async createTicket({ userId, hospitalId = 1, category, priority = 'medium', subject, description, remoteAccessRequested = false, dashboardRoute = null, userRole = null, telemetryJson = {}, aiDiagnosisJson = {}, autoHealed = false, modelUsed = null }) {
+        try {
+            const ticketNumber = this.generateTicketNumber();
+            const result = await pool.query(
+                `INSERT INTO support_tickets 
+                 (ticket_number, user_id, category, priority, subject, description, remote_access_requested, hospital_id, dashboard_route, user_role, telemetry_json, ai_diagnosis_json, auto_healed, model_used) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
+                 RETURNING *`,
+                [ticketNumber, userId, category || 'Technical', priority, subject, description, remoteAccessRequested, hospitalId, dashboardRoute, userRole, JSON.stringify(telemetryJson), JSON.stringify(aiDiagnosisJson), autoHealed, modelUsed]
+            );
+            logger.info('Support ticket created', { ticketNumber, category, priority });
+            return result.rows[0];
+        } catch (error) {
+            logger.error('Failed to create ticket', { error: error.message });
+            throw error;
+        }
     }
 
     // Get tickets - Multi-Tenant
-    static async getTickets({ hospitalId, userId = null, status = null, page = 1, limit = 20 }) {
-        try { const offset = (page - 1) * limit; let query = `SELECT t.*, u.username as created_by_name, a.username as assigned_to_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id LEFT JOIN users a ON t.assigned_to = a.id WHERE (t.hospital_id = $1 OR t.hospital_id IS NULL)`; const params = [hospitalId]; let paramIndex = 2;
-        if (userId) { query += ` AND t.user_id = $${paramIndex}`; params.push(userId); paramIndex++; }
-        if (status) { query += ` AND t.status = $${paramIndex}`; params.push(status); paramIndex++; }
-        query += ` ORDER BY t.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`; params.push(limit, offset); const result = await pool.query(query, params); return result.rows; }
-        catch (error) { logger.error('Failed to get tickets', { error: error.message }); throw error; }
+    static async getTickets({ hospitalId = 1, userId = null, status = null, page = 1, limit = 20 }) {
+        try {
+            const offset = (Math.max(1, page) - 1) * limit;
+            let query = `SELECT t.*, u.username as created_by_name, a.username as assigned_to_name 
+                         FROM support_tickets t 
+                         LEFT JOIN users u ON t.user_id = u.id 
+                         LEFT JOIN users a ON t.assigned_to = a.id 
+                         WHERE (t.hospital_id = $1 OR t.hospital_id IS NULL OR $1 IS NULL)`;
+            const params = [hospitalId || 1];
+            let paramIndex = 2;
+            if (userId) { query += ` AND t.user_id = $${paramIndex}`; params.push(userId); paramIndex++; }
+            if (status) { query += ` AND t.status = $${paramIndex}`; params.push(status); paramIndex++; }
+            query += ` ORDER BY t.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+            params.push(limit, offset);
+            const result = await pool.query(query, params);
+            return result.rows;
+        } catch (error) {
+            logger.error('Failed to get tickets', { error: error.message });
+            throw error;
+        }
     }
 
     // Get ticket details - Multi-Tenant

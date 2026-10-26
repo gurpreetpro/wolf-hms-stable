@@ -14,9 +14,17 @@ const api = axios.create({
     timeout: 30000, // Increased timeout for slow cold starts
 });
 
-// Request interceptor - add auth token
+if (typeof window !== 'undefined') {
+    window.__WOLF_WATCHDOG_TELEMETRY__ = window.__WOLF_WATCHDOG_TELEMETRY__ || {
+        apiCalls: [],
+        consoleErrors: []
+    };
+}
+
+// Request interceptor - add auth token & record start time
 api.interceptors.request.use(
     (config) => {
+        config._startTime = Date.now();
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -26,11 +34,42 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor - handle errors and retry
+// Response interceptor - handle errors and retry with telemetry capture
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+            const durationMs = response.config?._startTime ? Date.now() - response.config._startTime : 0;
+            window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.unshift({
+                timestamp: new Date().toISOString(),
+                method: (response.config?.method || 'get').toUpperCase(),
+                url: response.config?.url,
+                status: response.status,
+                durationMs,
+                error: null
+            });
+            if (window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.length > 20) {
+                window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.pop();
+            }
+        }
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
+
+        if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+            const durationMs = originalRequest?._startTime ? Date.now() - originalRequest._startTime : 0;
+            window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.unshift({
+                timestamp: new Date().toISOString(),
+                method: (originalRequest?.method || 'get').toUpperCase(),
+                url: originalRequest?.url,
+                status: error.response?.status || 0,
+                durationMs,
+                error: error.message || 'Request failed'
+            });
+            if (window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.length > 20) {
+                window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls.pop();
+            }
+        }
 
         // Handle 401 Unauthorized - token expired or invalid
         if (error.response?.status === 401) {
