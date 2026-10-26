@@ -1,4 +1,10 @@
 ## ✅ Completed & Verified
+### GITHUB ACTIONS WORKFLOW FIX: `CI Gate` (`ci.yml`) — VITEST EXCLUSIONS & ALL PUSH JOBS 100% GREEN (2026-10-26)
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
+- [x] **Vitest Exclusion Added (`client/vite.config.js` & `client/vitest.config.js`):** Added `exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/playwright-report/**', '**/test-results/**']` to test configurations, preventing Vitest from executing Playwright E2E suites.
+- [x] **Node 22 & Runner Hardening:** Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'` and upgraded `node-version: "22"` across `.github/workflows/ci.yml`, `deploy.yml`, and `wolf_staff_build.yml`.
+- [x] **Full CI Verification Succeeded:** GitHub Actions Run `40266826281` on commit `17fc465` passed with 100% success across all 3 jobs: `Backend Tests (Jest)`, `Frontend Tests (Vitest) & Build Gate`, and `Mobile Apps Syntax Check`.
+
 ### GITHUB ACTIONS WORKFLOW FORENSIC FIX: `.github/workflows/pre-demo-qa.yml` (EXIT CODE 1 & GIT 128 RESOLVED, 2026-10-25)
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`).
 - [x] **Root Cause 1 (Git Exit Code 128) Fixed:** Created root `.gitmodules` mapping `wolf-care-app` and configured `fetch-depth: 0` in `actions/checkout@v4`, eliminating gitlink submodule enumeration failures during checkout cleanup.

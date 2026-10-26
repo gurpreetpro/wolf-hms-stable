@@ -4,7 +4,29 @@
 
 ## Last Updated
 
-2026-10-25
+2026-10-26
+
+## Session 2026-10-26 — FIX GITHUB ACTIONS `CI Gate` (`ci.yml`): EXCLUDE `client/e2e/**` PLAYWRIGHT SPECS FROM VITEST & UPGRADE TO NODE 22
+- **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
+- **Root Cause Identified**:
+  - `ci.yml` job `Frontend Tests (Vitest) & Build Gate` ran `npm test` (`vitest run`). Vitest automatically discovered and executed `client/e2e/*.spec.js` (Playwright test suites), failing with:
+    - `e2e/socket-sync.spec.js`: `Error: Playwright Test did not expect test.describe() to be called here.`
+    - `e2e/golden-clinical-journey.spec.js`: `Error: Playwright Test did not expect test.describe.configure() to be called here.`
+    - `e2e/demo-rehearsal.spec.js`: `Error: Playwright Test did not expect test.describe() to be called here.`
+- **Surgical Fixes Applied**:
+  - In `client/vitest.config.js` and `client/vite.config.js`:
+    - Added `exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/playwright-report/**', '**/test-results/**']` inside `test:` configuration.
+    - Verified locally: Vitest cleanly ran 3 test files, passed 16/16 unit tests in 2.01s with 0 failures.
+  - In `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `.github/workflows/wolf_staff_build.yml`:
+    - Added `env: FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'` to eliminate all Node 20 runner deprecation warnings.
+    - Upgraded `node-version` from `20` to `22` across all runner jobs.
+    - Added `fetch-depth: 0` to checkout steps.
+- **Verification on GitHub Actions**:
+  - Run `40266826281` on commit `17fc465`:
+    - `Job: Backend Tests (Jest)`: `completed: success`
+    - `Job: Frontend Tests (Vitest) & Build Gate`: `completed: success`
+    - `Job: Mobile Apps Syntax Check (node --check)`: `completed: success`
+    - Entire workflow conclusion: `100% success` (exit code 0).
 
 ## Session 2026-10-25 (Part 2) — GITHUB ACTIONS FORENSIC FIX: `.github/workflows/pre-demo-qa.yml` (EXIT CODE 1 & GIT 128 RESOLVED)
 - **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`).
