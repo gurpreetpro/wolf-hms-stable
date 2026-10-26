@@ -8,8 +8,19 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
+    let user = {};
+    try {
+        const uStr = localStorage.getItem('user');
+        if (uStr && uStr !== 'undefined' && uStr !== 'null') {
+            user = JSON.parse(uStr) || {};
+        }
+    } catch (e) {
+        user = {};
+    }
+    const isAdmin = ['admin', 'super_admin', 'administrator', 'platform_admin'].includes(user?.role);
+
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState('copilot'); // 'copilot' | 'watchdog' | 'models'
+    const [activeTab, setActiveTab] = useState('copilot'); // 'copilot' | 'watchdog' | 'models' (admin only)
     const [messages, setMessages] = useState([
         { 
             sender: 'bot', 
@@ -128,6 +139,7 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
 
     const handleModelSelect = async (e) => {
         e.preventDefault();
+        if (!isAdmin) return;
         setModelSaving(true);
         setModelSaveMsg(null);
         try {
@@ -410,11 +422,11 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
                                     style={{ fontSize: '0.72rem' }}
                                     onClick={() => {
                                         handleClose();
-                                        window.dispatchEvent(new CustomEvent('open-ai-modal', { detail: { tab: 'keys' } }));
+                                        window.dispatchEvent(new CustomEvent('open-ai-modal', { detail: { tab: isAdmin ? 'keys' : 'watchdog' } }));
                                     }}
-                                    title="Open Full AI Key Portal & Watchdog Modal"
+                                    title={isAdmin ? "Open Full AI Key Portal & Watchdog Modal" : "Open Watchdog & Report Issue"}
                                 >
-                                    Portal ↗
+                                    {isAdmin ? "Portal ↗" : "Report ↗"}
                                 </Button>
                                 <Button
                                     variant="link"
@@ -457,16 +469,18 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
                                     )}
                                 </Nav.Link>
                             </Nav.Item>
-                            <Nav.Item>
-                                <Nav.Link 
-                                    active={activeTab === 'models'} 
-                                    onClick={() => setActiveTab('models')}
-                                    className="py-1 px-2 text-white small"
-                                    style={{ fontSize: '0.8rem', cursor: 'pointer' }}
-                                >
-                                    ⚙️ Models
-                                </Nav.Link>
-                            </Nav.Item>
+                            {isAdmin && (
+                                <Nav.Item>
+                                    <Nav.Link 
+                                        active={activeTab === 'models'} 
+                                        onClick={() => setActiveTab('models')}
+                                        className="py-1 px-2 text-white small"
+                                        style={{ fontSize: '0.8rem', cursor: 'pointer' }}
+                                    >
+                                        ⚙️ Models
+                                    </Nav.Link>
+                                </Nav.Item>
+                            )}
                         </Nav>
                     </Card.Header>
 
@@ -701,8 +715,8 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
                         </Card.Body>
                     )}
 
-                    {/* Tab 3: AI Models & Healthcare Guardrails */}
-                    {activeTab === 'models' && (
+                    {/* Tab 3: AI Models & Healthcare Guardrails (Strictly Admin Only) */}
+                    {isAdmin && activeTab === 'models' && (
                         <Card.Body className="flex-grow-1 overflow-auto p-3 bg-light">
                             {/* Model Selector Card */}
                             <div className="bg-white p-3 rounded-3 shadow-sm mb-3 border">

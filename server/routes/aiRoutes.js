@@ -3,7 +3,7 @@ const router = express.Router();
 const aiController = require('../controllers/aiController');
 const aiService = require('../services/aiService');
 const UnifiedAIGateway = require('../services/UnifiedAIGateway');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { protect, authorize, authenticateToken } = require('../middleware/authMiddleware');
 
 let pool;
 try {
@@ -62,7 +62,7 @@ router.post('/generate-note', aiController.generateSOAPFromTranscript);
 router.post('/scribe', aiController.generateSOAPFromTranscript);
 
 // Chat (Never 500s)
-router.post('/chat', aiController.chatWithHealthAgent);
+router.post('/chat', protect, aiController.chatWithHealthAgent);
 
 // OCR
 router.post('/extract-id', aiController.extractIdDetails);
@@ -87,10 +87,22 @@ router.get('/admission/:admission_id/vitals-trend', authenticateToken, aiControl
 /**
  * @route   GET /api/ai/models
  * @desc    Get model registry, active model, failover chain, provider keys, and health
+ * @access  All Authenticated Hospital Staff (Sanitized for non-admin)
  */
-router.get('/models', (req, res) => {
+router.get('/models', protect, (req, res) => {
     try {
         const data = UnifiedAIGateway.getModelRegistry();
+        const isAdmin = req.user && ['admin', 'super_admin', 'administrator', 'platform_admin'].includes(req.user.role);
+        if (!isAdmin) {
+            // Non-admin staff get activeModel displayName and guardrails without key exposure
+            const activeMeta = data.models?.[data.activeModel] || {};
+            return res.json({
+                success: true,
+                activeModel: data.activeModel,
+                activeModelDisplayName: activeMeta.displayName || data.activeModel,
+                guardrails: data.guardrails
+            });
+        }
         res.json({ success: true, ...data });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -100,8 +112,9 @@ router.get('/models', (req, res) => {
 /**
  * @route   POST /api/ai/models/select
  * @desc    Switch default active model and failover chain
+ * @access  Strict Admin Only
  */
-router.post('/models/select', async (req, res) => {
+router.post('/models/select', protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin'), async (req, res) => {
     try {
         const { defaultModel, failoverChain } = req.body;
         const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
@@ -115,8 +128,9 @@ router.post('/models/select', async (req, res) => {
 /**
  * @route   GET /api/ai/keys
  * @desc    Get masked provider keys status, active model, failover chain, guardrails & registry
+ * @access  Strict Admin Only
  */
-router.get('/keys', async (req, res) => {
+router.get('/keys', protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin'), async (req, res) => {
     try {
         const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
         await UnifiedAIGateway.initConfig(hospitalId);
@@ -141,8 +155,9 @@ router.get('/keys', async (req, res) => {
 /**
  * @route   POST /api/ai/keys
  * @desc    Save/update provider keys, active model, and guardrails
+ * @access  Strict Admin Only
  */
-router.post('/keys', async (req, res) => {
+router.post('/keys', protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin'), async (req, res) => {
     try {
         const {
             geminiKey,
@@ -186,8 +201,9 @@ router.post('/keys', async (req, res) => {
 /**
  * @route   POST /api/ai/keys/test
  * @desc    Lightweight live ping to verify an API key
+ * @access  Strict Admin Only
  */
-router.post('/keys/test', async (req, res) => {
+router.post('/keys/test', protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin'), async (req, res) => {
     try {
         const { provider, apiKey, modelId } = req.body;
         if (!provider) {
@@ -204,8 +220,9 @@ router.post('/keys/test', async (req, res) => {
 /**
  * @route   POST /api/ai/watchdog/report
  * @desc    One-Click Dashboard Issue Reporter & Safe Self-Healing Engine
+ * @access  All Authenticated Hospital Staff
  */
-router.post('/watchdog/report', async (req, res) => {
+router.post('/watchdog/report', protect, async (req, res) => {
     try {
         const {
             dashboard_route = '/dashboard',
@@ -391,8 +408,9 @@ Return ONLY valid JSON matching this schema:
 /**
  * @route   GET /api/ai/watchdog/health-scan
  * @desc    Live DB integrity scan and AI health scorecard
+ * @access  All Authenticated Hospital Staff
  */
-router.get('/watchdog/health-scan', async (req, res) => {
+router.get('/watchdog/health-scan', protect, async (req, res) => {
     try {
         let unsyncedLabs = { rows: [{ count: 0 }] };
         let unsyncedMeds = { rows: [{ count: 0 }] };

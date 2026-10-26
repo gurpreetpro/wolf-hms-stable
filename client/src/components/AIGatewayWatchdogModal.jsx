@@ -7,15 +7,32 @@ import {
 } from 'lucide-react';
 import api from '../utils/axiosInstance';
 
-const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
-    const [activeTab, setActiveTab] = useState(initialTab);
+const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys', user: propUser }) => {
+    let user = propUser;
+    if (!user || !user.role) {
+        try {
+            const uStr = localStorage.getItem('user');
+            if (uStr && uStr !== 'undefined' && uStr !== 'null') {
+                user = JSON.parse(uStr) || {};
+            }
+        } catch (e) {
+            user = {};
+        }
+    }
+    const isAdmin = ['admin', 'super_admin', 'administrator', 'platform_admin'].includes(user?.role);
+
+    const [activeTab, setActiveTab] = useState(isAdmin ? initialTab : 'watchdog');
 
     // Sync tab when opened with specific initialTab
     useEffect(() => {
-        if (show && initialTab) {
-            setActiveTab(initialTab);
+        if (show) {
+            if (!isAdmin) {
+                setActiveTab('watchdog');
+            } else if (initialTab) {
+                setActiveTab(initialTab);
+            }
         }
-    }, [show, initialTab]);
+    }, [show, initialTab, isAdmin]);
 
     // ==========================================
     // TAB 1: AI API KEYS & MODELS STATE
@@ -49,8 +66,9 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
     const [testingProvider, setTestingProvider] = useState(null);
     const [testResults, setTestResults] = useState({});
 
-    // Fetch keys & model metadata
+    // Fetch keys & model metadata (Admins only)
     const fetchKeysData = async () => {
+        if (!isAdmin) return;
         setKeysLoading(true);
         try {
             const res = await api.get('/api/ai/keys');
@@ -68,11 +86,27 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
         }
     };
 
+    // For non-admins, fetch basic sanitized active model from /api/ai/models
+    const fetchSanitizedModel = async () => {
+        try {
+            const res = await api.get('/api/ai/models');
+            if (res.data?.activeModel) {
+                setDefaultModel(res.data.activeModel);
+            }
+        } catch (err) {
+            // Non-critical fallback
+        }
+    };
+
     useEffect(() => {
         if (show) {
-            fetchKeysData();
+            if (isAdmin) {
+                fetchKeysData();
+            } else {
+                fetchSanitizedModel();
+            }
         }
-    }, [show]);
+    }, [show, isAdmin]);
 
     // Save Provider Key
     const handleSaveKey = async (provider) => {
@@ -341,16 +375,17 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
                     className="mb-4 custom-ai-tabs border-secondary"
                     fill
                 >
-                    {/* TAB 1: AI API KEYS & MODELS */}
-                    <Tab
-                        eventKey="keys"
-                        title={
-                            <span className="d-flex align-items-center justify-content-center gap-2 py-1">
-                                <Key size={16} />
-                                <strong>1. AI API Key Portal & Models</strong>
-                            </span>
-                        }
-                    >
+                    {/* TAB 1: AI API KEYS & MODELS (ADMIN ONLY) */}
+                    {isAdmin && (
+                        <Tab
+                            eventKey="keys"
+                            title={
+                                <span className="d-flex align-items-center justify-content-center gap-2 py-1">
+                                    <Key size={16} />
+                                    <strong>1. AI API Key Portal & Models</strong>
+                                </span>
+                            }
+                        >
                         {keysMessage && (
                             <Alert variant={keysMessage.type} dismissible onClose={() => setKeysMessage(null)}>
                                 {keysMessage.text}
@@ -678,14 +713,15 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
                             </Row>
                         </Card>
                     </Tab>
+                    )}
 
-                    {/* TAB 2: WATCHDOG & 1-CLICK HEAL */}
+                    {/* TAB 2: WATCHDOG & 1-CLICK HEAL (ALL STAFF & ADMIN) */}
                     <Tab
                         eventKey="watchdog"
                         title={
                             <span className="d-flex align-items-center justify-content-center gap-2 py-1">
                                 <ShieldCheck size={16} />
-                                <strong>2. Dashboard Watchdog & Auto-Heal</strong>
+                                <strong>{isAdmin ? '2. Dashboard Watchdog & Auto-Heal' : '🛡️ Dashboard Watchdog & Report Issue'}</strong>
                             </span>
                         }
                     >
@@ -873,7 +909,9 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
                         {/* Open Support Tickets */}
                         {openTickets.length > 0 && (
                             <div className="mt-3">
-                                <div className="small fw-bold text-muted mb-2">Recent Support Tickets in System</div>
+                                <div className="small fw-bold text-muted mb-2">
+                                    {isAdmin ? 'Recent Support Tickets in System' : 'Your Submitted Tickets'}
+                                </div>
                                 <div className="d-flex flex-column gap-1">
                                     {openTickets.map((t) => (
                                         <div key={t.id} className="p-2 bg-secondary bg-opacity-10 rounded border border-secondary d-flex justify-content-between align-items-center small">
@@ -898,7 +936,7 @@ const AIGatewayWatchdogModal = ({ show, onHide, initialTab = 'keys' }) => {
                         title={
                             <span className="d-flex align-items-center justify-content-center gap-2 py-1">
                                 <Bot size={16} />
-                                <strong>3. Wolf AI Clinical Co-Pilot</strong>
+                                <strong>{isAdmin ? '3. Wolf AI Clinical Co-Pilot' : '💬 Wolf AI Co-Pilot'}</strong>
                             </span>
                         }
                     >

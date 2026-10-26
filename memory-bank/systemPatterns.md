@@ -195,3 +195,10 @@ CRITICAL: Never apply fallbacks or default variables without verifying the exact
 | `notification` | Server → Client | General notifications |
 | `chat_message` | Bidirectional | Staff chat |
 | `video_signal` | Bidirectional | WebRTC signaling |
+
+## Strict Enterprise RBAC Rule
+STRICT ENTERPRISE RBAC RULE: Infrastructure, API Keys, Model Routing, and System Settings are strictly Admin-only (UI hidden for non-admins + backend authorize('admin') returning 403). Staff dashboards expose only role-appropriate clinical tools and the 'Report Issue / Watchdog' reporter. Non-admins (`doctor`, `nurse`, `pharmacist`, `lab_tech`, `receptionist`, `billing`) must never see or be able to invoke `/api/ai/keys`, `/api/ai/keys/test`, or `/api/ai/models/select`.
+
+## Dual-Root Frontend Serving Rule
+DUAL-ROOT FRONTEND SERVING RULE: On production VPS (185.213.27.158), Nginx serves the SPA directly from `/var/www/wolf-hms/client/dist/` (port 80), while Node.js Express serves from `/var/www/wolf-hms/server/public/` (port 5002). Every client build MUST be synced to BOTH locations and Nginx reloaded to guarantee live browser updates.
+

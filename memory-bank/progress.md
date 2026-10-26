@@ -1,4 +1,24 @@
 ## ✅ Completed & Verified
+### STRICT ENTERPRISE RBAC ENFORCEMENT: LOCK AI KEY PORTAL & SWITCHING TO ADMIN ONLY (2026-10-26, Production VPS 185.213.27.158)
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (dbPools.js, server.js, MetricsCollector.js, socketHandler.js, systemRoutes.js, wgm/*, wolf-care-app).
+- [x] **Backend RBAC Lockdown (aiRoutes.js, supportRoutes.js):**
+  - Protected GET /api/ai/keys, POST /api/ai/keys, POST /api/ai/keys/test, and POST /api/ai/models/select with protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin') returning HTTP 403 Forbidden to non-admin staff.
+  - Kept GET /api/ai/models, POST /api/ai/watchdog/report, GET /api/ai/watchdog/health-scan, and POST /api/ai/chat accessible to all authenticated hospital staff.
+  - GET /api/ai/models sanitizes output for non-admins, exposing activeModel and guardrails without disclosing masked keys or provider status.
+  - GET /api/support/tickets applies protect and filters tickets by req.user.id for non-admin staff.
+- [x] **Frontend Role-Based Guarding (TopNav.jsx, AIGatewayWatchdogModal.jsx, ChatAssistant.jsx):**
+  - In TopNav.jsx: Rendered the 'AI Keys: [Model]' pill button strictly when isAdmin is true. Preserved 'Watchdog / Report Issue' button for all hospital staff.
+  - In AIGatewayWatchdogModal.jsx: Completely hidden and unrendered Tab 1 ('AI API Key Portal & Models') for non-admins. Blocked GET /api/ai/keys invocation for non-admins, defaulting to watchdog tab.
+  - In ChatAssistant.jsx: Shortcut button opens 'watchdog' for staff and 'keys' for admin. Hid 'models' tab for non-admins.
+- [x] **Dual-Root Build & Deployment (185.213.27.158):**
+  - Rebuilt client bundle and deployed to BOTH /var/www/wolf-hms/client/dist/ and /var/www/wolf-hms/server/public/.
+  - Reloaded PM2 (wolf-hms-api) and Nginx.
+- [x] **Live Probes Verified on 185.213.27.158:**
+  - pharmacy_user (role: pharmacist): GET /api/ai/keys -> 403 Forbidden.
+  - pharmacy_user (role: pharmacist): POST /api/ai/keys -> 403 Forbidden.
+  - pharmacy_user (role: pharmacist): POST /api/ai/watchdog/report -> 200 OK (auto-heal operational).
+  - admin_user (role: admin): GET /api/ai/keys -> 200 OK.
+
 ### FRONTEND AI API KEY PORTAL & TOP-NAVBAR WATCHDOG CONTROLS ON ALL DASHBOARDS, NGINX DUAL-ROOT SYNC & LIVE VERIFICATION (2026-10-26, Production VPS 185.213.27.158)
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
 - [x] **Nginx Root Static Serving Root Cause Resolved:** Identified that Nginx on port 80 maps directly to `root /var/www/wolf-hms/client/dist;`. Uploaded new production bundle (`index-UxErFUcb.js`, `style-Bxbq86wJ.css`, `FloorPlanManager-CVjR8osf.js`) to **BOTH** `/var/www/wolf-hms/client/dist/` AND `/var/www/wolf-hms/server/public/`. Verified live that port 80 immediately serves `index-UxErFUcb.js`.

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const RemoteAccessService = require('../services/RemoteAccessService');
+const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @route   GET /api/support/dashboard
@@ -241,11 +242,11 @@ router.get('/dashboard', async (req, res) => {
  * @route   GET /api/support/tickets
  * @desc    Get all tickets
  */
-router.get('/tickets', async (req, res) => {
+router.get('/tickets', protect, async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
         const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
-        const userId = ['Admin', 'admin', 'super_admin'].includes(req.user?.role) ? null : req.user?.id;
+        const userId = ['Admin', 'admin', 'super_admin', 'administrator', 'platform_admin'].includes(req.user?.role) ? null : req.user?.id;
 
         const tickets = await RemoteAccessService.getTickets({
             hospitalId,
@@ -266,7 +267,7 @@ router.get('/tickets', async (req, res) => {
  * @route   GET /api/support/tickets/:id
  * @desc    Get ticket details
  */
-router.get('/tickets/:id', async (req, res) => {
+router.get('/tickets/:id', protect, async (req, res) => {
     try {
         const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
         const ticket = await RemoteAccessService.getTicketDetails(req.params.id, hospitalId);
@@ -283,7 +284,7 @@ router.get('/tickets/:id', async (req, res) => {
  * @route   POST /api/support/tickets
  * @desc    Create new ticket
  */
-router.post('/tickets', async (req, res) => {
+router.post('/tickets', protect, async (req, res) => {
     try {
         const {
             category,

@@ -2,6 +2,19 @@
 
 > ⚠️ UPDATE THIS FILE at the start and end of every AI session.
 
+## Session 2026-10-26 (Part 4) — STRICT ENTERPRISE RBAC: LOCK AI KEY PORTAL TO ADMIN ONLY & DUAL-ROOT SERVING
+- **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (dbPools.js, server.js, MetricsCollector.js, socketHandler.js, systemRoutes.js, wgm/*, wolf-care-app).
+- **Strict Enterprise RBAC Rules Enforced**:
+  - server/routes/aiRoutes.js: Locked down GET /api/ai/keys, POST /api/ai/keys, POST /api/ai/keys/test, and POST /api/ai/models/select with protect, authorize('admin', 'super_admin', 'administrator', 'platform_admin') returning HTTP 403 Forbidden to non-admin staff roles.
+  - server/routes/aiRoutes.js: Kept GET /api/ai/models, POST /api/ai/watchdog/report, GET /api/ai/watchdog/health-scan, and POST /api/ai/chat protected for all authenticated staff roles (with sanitized output on GET /models preventing masked key leaks).
+  - server/routes/supportRoutes.js: Added protect to GET /api/support/tickets with automatic user filtering (userId = req.user.id for staff, all hospital tickets for admins).
+  - client/src/components/TopNav.jsx: Role-guarded the 'AI Keys: [Model]' pill button so it is strictly rendered when isAdmin is true. Maintained 'Watchdog / Report Issue' pill button for all staff roles on every dashboard.
+  - client/src/components/AIGatewayWatchdogModal.jsx: Completely hid and unrendered Tab 1 ('AI API Key Portal & Models') for non-admins. Prevented non-admins from triggering GET /api/ai/keys (defaults to 'watchdog' tab).
+  - client/src/components/ChatAssistant.jsx: Header shortcut opens modal to 'watchdog' tab for non-admins, and 'keys' for admins. Hid 'models' tab for non-admins.
+- **Permanent Rules Inscribed**:
+  - STRICT ENTERPRISE RBAC RULE recorded in memory-bank/systemPatterns.md and memory-bank/activeContext.md.
+  - DUAL-ROOT FRONTEND SERVING RULE recorded in memory-bank/systemPatterns.md and memory-bank/activeContext.md.
+
 ## Session 2026-10-26 (Part 3) — FRONTEND AI API KEY PORTAL, TOP-NAVBAR WATCHDOG CONTROLS, NGINX DUAL-ROOT SYNC & LIVE PROBES
 - **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
 - **Nginx Static Root Fix**: Discovered Nginx on port 80 maps directly to `root /var/www/wolf-hms/client/dist;`. Uploaded new production bundle (`index-UxErFUcb.js`, `style-Bxbq86wJ.css`, `FloorPlanManager-CVjR8osf.js`) to both `/var/www/wolf-hms/client/dist/` AND `/var/www/wolf-hms/server/public/`. Confirmed live that port 80 immediately serves `index-UxErFUcb.js`.

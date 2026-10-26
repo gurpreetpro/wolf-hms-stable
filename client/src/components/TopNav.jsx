@@ -27,9 +27,24 @@ const TopNav = () => {
     const [showPanicModal, setShowPanicModal] = useState(false);
     const [panicLoading, setPanicLoading] = useState(false);
 
+    let user = {};
+    try {
+        const userStr = localStorage.getItem('user');
+        // Guard against "undefined" string or null/empty
+        if (userStr && userStr !== 'undefined' && userStr !== 'null') {
+            const storedUser = JSON.parse(userStr);
+            user = storedUser || {};
+        }
+    } catch (e) {
+        console.error('Error parsing user data in TopNav:', e);
+        user = {};
+    }
+
+    const isAdmin = ['admin', 'super_admin', 'administrator', 'platform_admin'].includes(user?.role);
+
     // AI Gateway & Watchdog Portal State
     const [showAIModal, setShowAIModal] = useState(false);
-    const [aiModalTab, setAiModalTab] = useState('keys');
+    const [aiModalTab, setAiModalTab] = useState(isAdmin ? 'keys' : 'watchdog');
     const [activeModelName, setActiveModelName] = useState('Gemini 3.8 Flash');
     const [telemetryErrorCount, setTelemetryErrorCount] = useState(0);
 
@@ -46,11 +61,13 @@ const TopNav = () => {
         checkTelemetry();
         const interval = setInterval(checkTelemetry, 3000);
 
-        // Fetch active model
-        api.get('/api/ai/keys')
+        // Fetch active model (Admins query /keys, non-admins query /models to avoid 403)
+        const modelEndpoint = isAdmin ? '/api/ai/keys' : '/api/ai/models';
+        api.get(modelEndpoint)
             .then(res => {
-                if (res.data?.defaultModel) {
-                    const formatted = res.data.defaultModel.replace('gemini-', 'Gemini ').replace('deepseek-', 'DeepSeek ').replace('gpt-', 'GPT ');
+                const modelId = res.data?.defaultModel || res.data?.activeModel;
+                if (modelId) {
+                    const formatted = res.data?.activeModelDisplayName || modelId.replace('gemini-', 'Gemini ').replace('deepseek-', 'DeepSeek ').replace('gpt-', 'GPT ');
                     setActiveModelName(formatted);
                 }
             })
@@ -58,7 +75,8 @@ const TopNav = () => {
 
         // Global event listener to open AI modal from floating button or other components
         const handleOpenAIModal = (e) => {
-            if (e?.detail?.tab) setAiModalTab(e.detail.tab);
+            const requestedTab = e?.detail?.tab || 'watchdog';
+            setAiModalTab(isAdmin ? requestedTab : 'watchdog');
             setShowAIModal(true);
         };
         window.addEventListener('open-ai-modal', handleOpenAIModal);
@@ -67,20 +85,7 @@ const TopNav = () => {
             clearInterval(interval);
             window.removeEventListener('open-ai-modal', handleOpenAIModal);
         };
-    }, []);
-
-    let user = {};
-    try {
-        const userStr = localStorage.getItem('user');
-        // Guard against "undefined" string or null/empty
-        if (userStr && userStr !== 'undefined' && userStr !== 'null') {
-            const storedUser = JSON.parse(userStr);
-            user = storedUser || {};
-        }
-    } catch (e) {
-        console.error('Error parsing user data in TopNav:', e);
-        user = {};
-    }
+    }, [isAdmin]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -138,19 +143,21 @@ const TopNav = () => {
 
                 {/* Right Side */}
                     <div className="nav-right d-flex align-items-center">
-                        {/* 1. AI API Key Portal & Models Pill Button */}
-                        <Button
-                            variant="outline-light"
-                            className="ai-portal-pill-btn d-flex align-items-center gap-1 px-3 py-1 me-2 rounded-pill shadow-sm"
-                            onClick={() => { setAiModalTab('keys'); setShowAIModal(true); }}
-                            title="Open AI API Key Portal & Switch Models"
-                        >
-                            <Key size={14} className="text-warning" />
-                            <span className="d-none d-md-inline">AI Keys:</span>
-                            <span className="text-warning fw-bold">{activeModelName || 'Gemini 3.8'}</span>
-                        </Button>
+                        {/* 1. AI API Key Portal & Models Pill Button (Strictly Admin Only) */}
+                        {isAdmin && (
+                            <Button
+                                variant="outline-light"
+                                className="ai-portal-pill-btn d-flex align-items-center gap-1 px-3 py-1 me-2 rounded-pill shadow-sm"
+                                onClick={() => { setAiModalTab('keys'); setShowAIModal(true); }}
+                                title="Open AI API Key Portal & Switch Models (Admin Only)"
+                            >
+                                <Key size={14} className="text-warning" />
+                                <span className="d-none d-md-inline">AI Keys:</span>
+                                <span className="text-warning fw-bold">{activeModelName || 'Gemini 3.8'}</span>
+                            </Button>
+                        )}
 
-                        {/* 2. Watchdog / Report Issue Pill Button */}
+                        {/* 2. Watchdog / Report Issue Pill Button (All Staff Roles) */}
                         <Button
                             variant="outline-light"
                             className={`watchdog-pill-btn d-flex align-items-center gap-1 px-3 py-1 me-2 rounded-pill shadow-sm ${telemetryErrorCount > 0 ? 'watchdog-err' : 'watchdog-ok'}`}
@@ -267,7 +274,8 @@ const TopNav = () => {
             <AIGatewayWatchdogModal
                 show={showAIModal}
                 onHide={() => setShowAIModal(false)}
-                initialTab={aiModalTab}
+                initialTab={isAdmin ? aiModalTab : 'watchdog'}
+                user={user}
             />
 
             <style>{`
