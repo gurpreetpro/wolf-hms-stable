@@ -196,6 +196,13 @@ class UnifiedAIGateway {
         this.strictGrounding = true;
         this.phiRedaction = true;
 
+        // Provider API Keys in memory (loaded from system_settings or process.env)
+        this.providerKeys = {
+            gemini: process.env.GEMINI_API_KEY || '',
+            deepseek: process.env.DEEPSEEK_API_KEY || '',
+            openai: process.env.OPENAI_API_KEY || ''
+        };
+
         // Health Tracking per model
         this.modelHealth = {};
         Object.keys(MODEL_REGISTRY).forEach(m => {
@@ -209,18 +216,41 @@ class UnifiedAIGateway {
             };
         });
 
+        this.MODEL_REGISTRY = MODEL_REGISTRY;
         this.initialized = false;
     }
 
     /**
-     * Load persisted settings from system_settings if available
+     * Resolve API key for a provider from memory or environment
+     */
+    resolveApiKey(provider) {
+        if (!provider) return '';
+        if (this.providerKeys && this.providerKeys[provider]) {
+            return this.providerKeys[provider];
+        }
+        if (provider === 'gemini') return process.env.GEMINI_API_KEY || '';
+        if (provider === 'deepseek') return process.env.DEEPSEEK_API_KEY || '';
+        if (provider === 'openai') return process.env.OPENAI_API_KEY || '';
+        return '';
+    }
+
+    /**
+     * Helper to mask API keys for safe UI inspection
+     */
+    getMaskedKey(key) {
+        if (!key || typeof key !== 'string') return '';
+        const trimmed = key.trim();
+        if (trimmed.length <= 8) return trimmed.slice(0, 3) + '...';
+        return trimmed.slice(0, 6) + '...' + trimmed.slice(-4);
+    }
+
+    /**
+     * Load persisted settings and keys from system_settings
      */
     async initConfig(hospitalId = 1) {
-        if (this.initialized) return;
-        this.initialized = true;
-
         if (!dbPool) return;
         try {
+            // 1. Load Gateway configuration
             const res = await dbPool.query(
                 `SELECT value FROM system_settings WHERE key = 'ai_gateway_config' AND (hospital_id = $1 OR hospital_id IS NULL) LIMIT 1`,
                 [hospitalId]
@@ -234,6 +264,27 @@ class UnifiedAIGateway {
                 if (typeof cfg.temperature === 'number') this.temperature = cfg.temperature;
                 if (typeof cfg.strictGrounding === 'boolean') this.strictGrounding = cfg.strictGrounding;
                 if (typeof cfg.phiRedaction === 'boolean') this.phiRedaction = cfg.phiRedaction;
+            }
+
+            // 2. Load Persisted Provider Keys
+            const keyRes = await dbPool.query(
+                `SELECT value FROM system_settings WHERE key = 'ai_provider_keys' AND (hospital_id = $1 OR hospital_id IS NULL) LIMIT 1`,
+                [hospitalId]
+            );
+            if (keyRes.rows.length > 0 && keyRes.rows[0].value) {
+                const savedKeys = typeof keyRes.rows[0].value === 'string' ? JSON.parse(keyRes.rows[0].value) : keyRes.rows[0].value;
+                if (savedKeys.gemini) {
+                    this.providerKeys.gemini = savedKeys.gemini;
+                    process.env.GEMINI_API_KEY = savedKeys.gemini;
+                }
+                if (savedKeys.deepseek) {
+                    this.providerKeys.deepseek = savedKeys.deepseek;
+                    process.env.DEEPSEEK_API_KEY = savedKeys.deepseek;
+                }
+                if (savedKeys.openai) {
+                    this.providerKeys.openai = savedKeys.openai;
+                    process.env.OPENAI_API_KEY = savedKeys.openai;
+                }
             }
         } catch (err) {
             console.warn('[UnifiedAIGateway] Could not load system_settings config, using defaults:', err.message);
@@ -285,7 +336,7 @@ CRITICAL MANDATES:
      * Execute Gemini REST Call via Google Generative Language v1beta API
      */
     async callGemini(modelName, prompt, systemInstruction, jsonMode = false, imagePart = null) {
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = this.resolveApiKey('gemini');
         if (!apiKey) {
             throw new Error('GEMINI_API_KEY not configured on server');
         }
@@ -346,7 +397,7 @@ CRITICAL MANDATES:
      * Execute DeepSeek REST Call
      */
     async callDeepSeek(modelName, prompt, systemInstruction, jsonMode = false) {
-        const apiKey = process.env.DEEPSEEK_API_KEY;
+        const apiKey = this.resolveApiKey('deepseek');
         if (!apiKey) {
             throw new Error('DEEPSEEK_API_KEY not configured on server');
         }
@@ -384,7 +435,7 @@ CRITICAL MANDATES:
      * Execute OpenAI REST Call
      */
     async callOpenAI(modelName, prompt, systemInstruction, jsonMode = false) {
-        const apiKey = process.env.OPENAI_API_KEY;
+        const apiKey = this.resolveApiKey('openai');
         if (!apiKey) {
             throw new Error('OPENAI_API_KEY not configured on server');
         }
@@ -600,9 +651,9 @@ CRITICAL MANDATES:
      * Get Model Registry with Live Key & Health Status
      */
     getModelRegistry() {
-        const hasGemini = Boolean(process.env.GEMINI_API_KEY);
-        const hasDeepSeek = Boolean(process.env.DEEPSEEK_API_KEY);
-        const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
+        const hasGemini = Boolean(this.resolveApiKey('gemini'));
+        const hasDeepSeek = Boolean(this.resolveApiKey('deepseek'));
+        const hasOpenAI = Boolean(this.resolveApiKey('openai'));
 
         const registry = {};
         Object.entries(MODEL_REGISTRY).forEach(([key, meta]) => {
@@ -636,6 +687,281 @@ CRITICAL MANDATES:
                 openai: hasOpenAI
             }
         };
+    }
+
+    /**
+     * Get masked key status and model counts per provider for UI
+     */
+    getMaskedKeysStatus() {
+        const geminiKey = this.resolveApiKey('gemini');
+        const deepseekKey = this.resolveApiKey('deepseek');
+        const openaiKey = this.resolveApiKey('openai');
+
+        const geminiModels = Object.values(MODEL_REGISTRY).filter(m => m.provider === 'gemini').length;
+        const deepseekModels = Object.values(MODEL_REGISTRY).filter(m => m.provider === 'deepseek').length;
+        const openaiModels = Object.values(MODEL_REGISTRY).filter(m => m.provider === 'openai').length;
+
+        return {
+            gemini: {
+                configured: Boolean(geminiKey),
+                maskedKey: this.getMaskedKey(geminiKey),
+                modelsCount: geminiModels,
+                status: geminiKey ? 'ACTIVE' : 'NOT_CONFIGURED',
+                providerName: 'Google Gemini'
+            },
+            deepseek: {
+                configured: Boolean(deepseekKey),
+                maskedKey: this.getMaskedKey(deepseekKey),
+                modelsCount: deepseekModels,
+                status: deepseekKey ? 'ACTIVE' : 'NOT_CONFIGURED',
+                providerName: 'DeepSeek AI'
+            },
+            openai: {
+                configured: Boolean(openaiKey),
+                maskedKey: this.getMaskedKey(openaiKey),
+                modelsCount: openaiModels,
+                status: openaiKey ? 'ACTIVE' : 'NOT_CONFIGURED',
+                providerName: 'OpenAI'
+            }
+        };
+    }
+
+    /**
+     * Save / Update Provider Keys and Gateway Settings
+     */
+    async saveProviderKeys({
+        geminiKey,
+        deepseekKey,
+        openaiKey,
+        defaultModel,
+        temperature,
+        strictGrounding,
+        phiRedaction,
+        hospitalId = 1
+    }) {
+        let keysChanged = false;
+
+        if (typeof geminiKey === 'string' && geminiKey.trim()) {
+            this.providerKeys.gemini = geminiKey.trim();
+            process.env.GEMINI_API_KEY = this.providerKeys.gemini;
+            keysChanged = true;
+        }
+        if (typeof deepseekKey === 'string' && deepseekKey.trim()) {
+            this.providerKeys.deepseek = deepseekKey.trim();
+            process.env.DEEPSEEK_API_KEY = this.providerKeys.deepseek;
+            keysChanged = true;
+        }
+        if (typeof openaiKey === 'string' && openaiKey.trim()) {
+            this.providerKeys.openai = openaiKey.trim();
+            process.env.OPENAI_API_KEY = this.providerKeys.openai;
+            keysChanged = true;
+        }
+
+        if (defaultModel && MODEL_REGISTRY[defaultModel]) {
+            this.defaultModel = defaultModel;
+        }
+        if (typeof temperature === 'number') {
+            this.temperature = temperature;
+        }
+        if (typeof strictGrounding === 'boolean') {
+            this.strictGrounding = strictGrounding;
+        }
+        if (typeof phiRedaction === 'boolean') {
+            this.phiRedaction = phiRedaction;
+        }
+
+        // Persist to system_settings in PostgreSQL
+        if (dbPool) {
+            try {
+                if (keysChanged) {
+                    await dbPool.query(
+                        `INSERT INTO system_settings (key, value, description, hospital_id, updated_at)
+                         VALUES ('ai_provider_keys', $1, 'Multi-Provider AI API Keys', $2, NOW())
+                         ON CONFLICT (key) DO UPDATE
+                         SET value = EXCLUDED.value, updated_at = NOW()`,
+                        [JSON.stringify(this.providerKeys), hospitalId]
+                    ).catch(async () => {
+                        await dbPool.query(
+                            `UPDATE system_settings SET value = $1, updated_at = NOW() WHERE key = 'ai_provider_keys' AND (hospital_id = $2 OR hospital_id IS NULL)`,
+                            [JSON.stringify(this.providerKeys), hospitalId]
+                        ).catch(() => {});
+                    });
+                }
+
+                const configToSave = {
+                    defaultModel: this.defaultModel,
+                    lightModel: this.lightModel,
+                    reasoningModel: this.reasoningModel,
+                    failoverChain: this.failoverChain,
+                    temperature: this.temperature,
+                    strictGrounding: this.strictGrounding,
+                    phiRedaction: this.phiRedaction
+                };
+
+                await dbPool.query(
+                    `INSERT INTO system_settings (key, value, description, hospital_id, updated_at)
+                     VALUES ('ai_gateway_config', $1, 'Unified AI Gateway and Multi-Provider Fallback Configuration', $2, NOW())
+                     ON CONFLICT (key) DO UPDATE
+                     SET value = EXCLUDED.value, updated_at = NOW()`,
+                    [JSON.stringify(configToSave), hospitalId]
+                ).catch(async () => {
+                    await dbPool.query(
+                        `UPDATE system_settings SET value = $1, updated_at = NOW() WHERE key = 'ai_gateway_config' AND (hospital_id = $2 OR hospital_id IS NULL)`,
+                        [JSON.stringify(configToSave), hospitalId]
+                    ).catch(() => {});
+                });
+            } catch (err) {
+                console.warn('[UnifiedAIGateway] Error persisting keys to database:', err.message);
+            }
+        }
+
+        // Update server/.env if accessible
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const envCandidates = [
+                path.resolve(__dirname, '../.env'),
+                '/var/www/wolf-hms/server/.env'
+            ];
+            for (const envPath of envCandidates) {
+                if (fs.existsSync(envPath)) {
+                    let content = fs.readFileSync(envPath, 'utf8');
+                    if (this.providerKeys.gemini) {
+                        content = content.includes('GEMINI_API_KEY=')
+                            ? content.replace(/GEMINI_API_KEY=.*/g, `GEMINI_API_KEY=${this.providerKeys.gemini}`)
+                            : content.trimEnd() + `\nGEMINI_API_KEY=${this.providerKeys.gemini}\n`;
+                    }
+                    if (this.providerKeys.deepseek) {
+                        content = content.includes('DEEPSEEK_API_KEY=')
+                            ? content.replace(/DEEPSEEK_API_KEY=.*/g, `DEEPSEEK_API_KEY=${this.providerKeys.deepseek}`)
+                            : content.trimEnd() + `\nDEEPSEEK_API_KEY=${this.providerKeys.deepseek}\n`;
+                    }
+                    if (this.providerKeys.openai) {
+                        content = content.includes('OPENAI_API_KEY=')
+                            ? content.replace(/OPENAI_API_KEY=.*/g, `OPENAI_API_KEY=${this.providerKeys.openai}`)
+                            : content.trimEnd() + `\nOPENAI_API_KEY=${this.providerKeys.openai}\n`;
+                    }
+                    fs.writeFileSync(envPath, content, 'utf8');
+                }
+            }
+        } catch (e) {
+            // Non-critical if .env file write fails
+        }
+
+        return this.getMaskedKeysStatus();
+    }
+
+    /**
+     * Live Test a Provider Key with a lightweight ping
+     */
+    async testProviderKey({ provider, apiKey, modelId }) {
+        const key = apiKey && apiKey.trim() ? apiKey.trim() : this.resolveApiKey(provider);
+        if (!key) {
+            return {
+                success: false,
+                provider,
+                modelTested: modelId || 'none',
+                latencyMs: 0,
+                error: `No API key configured or provided for provider '${provider}'.`
+            };
+        }
+
+        const start = Date.now();
+        try {
+            if (provider === 'gemini') {
+                const targetModel = modelId || 'gemini-2.5-flash';
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${key}`;
+                const body = {
+                    contents: [{ role: 'user', parts: [{ text: 'Reply OK' }] }],
+                    generationConfig: { maxOutputTokens: 10, temperature: 0.1 }
+                };
+                const res = await axios.post(url, body, {
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: 10000
+                });
+                const latencyMs = Date.now() - start;
+                const reply = res.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || 'OK';
+                return {
+                    success: true,
+                    provider: 'gemini',
+                    modelTested: targetModel,
+                    latencyMs,
+                    message: `Verified: ${reply} (${latencyMs}ms)`
+                };
+            }
+
+            if (provider === 'deepseek') {
+                const targetModel = modelId || 'deepseek-chat';
+                const url = 'https://api.deepseek.com/v1/chat/completions';
+                const body = {
+                    model: targetModel === 'deepseek-v4-pro' ? 'deepseek-reasoner' : 'deepseek-chat',
+                    messages: [{ role: 'user', content: 'Reply OK' }],
+                    max_tokens: 10,
+                    temperature: 0.1
+                };
+                const res = await axios.post(url, body, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${key}`
+                    },
+                    timeout: 10000
+                });
+                const latencyMs = Date.now() - start;
+                const reply = res.data?.choices?.[0]?.message?.content?.trim() || 'OK';
+                return {
+                    success: true,
+                    provider: 'deepseek',
+                    modelTested: targetModel,
+                    latencyMs,
+                    message: `Verified: ${reply} (${latencyMs}ms)`
+                };
+            }
+
+            if (provider === 'openai') {
+                const targetModel = modelId || 'gpt-4o-mini';
+                const url = 'https://api.openai.com/v1/chat/completions';
+                const body = {
+                    model: targetModel,
+                    messages: [{ role: 'user', content: 'Reply OK' }],
+                    max_tokens: 10,
+                    temperature: 0.1
+                };
+                const res = await axios.post(url, body, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${key}`
+                    },
+                    timeout: 10000
+                });
+                const latencyMs = Date.now() - start;
+                const reply = res.data?.choices?.[0]?.message?.content?.trim() || 'OK';
+                return {
+                    success: true,
+                    provider: 'openai',
+                    modelTested: targetModel,
+                    latencyMs,
+                    message: `Verified: ${reply} (${latencyMs}ms)`
+                };
+            }
+
+            return {
+                success: false,
+                provider,
+                modelTested: modelId,
+                latencyMs: 0,
+                error: `Unsupported provider: ${provider}`
+            };
+        } catch (err) {
+            const latencyMs = Date.now() - start;
+            const errMsg = err.response?.data?.error?.message || err.response?.data?.message || err.message;
+            return {
+                success: false,
+                provider,
+                modelTested: modelId || provider,
+                latencyMs,
+                error: `API test failed: ${errMsg}`
+            };
+        }
     }
 
     /**

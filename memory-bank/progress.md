@@ -1,4 +1,30 @@
 ## ✅ Completed & Verified
+### FRONTEND AI API KEY PORTAL & TOP-NAVBAR WATCHDOG CONTROLS ON ALL DASHBOARDS, NGINX DUAL-ROOT SYNC & LIVE VERIFICATION (2026-10-26, Production VPS 185.213.27.158)
+- [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
+- [x] **Nginx Root Static Serving Root Cause Resolved:** Identified that Nginx on port 80 maps directly to `root /var/www/wolf-hms/client/dist;`. Uploaded new production bundle (`index-UxErFUcb.js`, `style-Bxbq86wJ.css`, `FloorPlanManager-CVjR8osf.js`) to **BOTH** `/var/www/wolf-hms/client/dist/` AND `/var/www/wolf-hms/server/public/`. Verified live that port 80 immediately serves `index-UxErFUcb.js`.
+- [x] **Backend API Key Management & Live Test Endpoints (`UnifiedAIGateway.js`, `aiRoutes.js`):**
+  - Added memory key resolution with runtime sync from `system_settings` (`ai_provider_keys`).
+  - Added `getMaskedKeysStatus()` returning masked keys (`AIzaSy...ee8g`, etc.), model counts, and active status for Gemini, DeepSeek, and OpenAI.
+  - Added `saveProviderKeys()` with persistence to `system_settings` (`ai_provider_keys`, `ai_gateway_config`) and updates to `server/.env`.
+  - Added `testProviderKey()` live testing with lightweight ping to Google Gemini, DeepSeek, or OpenAI returning response time and status.
+  - Exposed `GET /api/ai/keys`, `POST /api/ai/keys`, `POST /api/ai/keys/test`.
+- [x] **Frontend AI API Key Portal & Watchdog Modal (`AIGatewayWatchdogModal.jsx`):**
+  - Tab 1: AI API Key Portal & Model Switcher (3 Provider cards for Gemini, DeepSeek, and OpenAI with show/hide password, live key testing with ms latency, default model switcher, failover chain visualization, and anti-hallucination guardrail controls).
+  - Tab 2: Dashboard Watchdog & 1-Click Auto-Heal (Live route indicator, recent API error badge, live API telemetry ring buffer table, 1-click issue reporter with automated DB reconcilers, AI root-cause diagnosis, and support tickets).
+  - Tab 3: Wolf AI Clinical Co-Pilot (Live clinical chat with active model badge and rapid prompt chips).
+- [x] **Top Navbar & Global Integration (`TopNav.jsx`, `ChatAssistant.jsx`, `DashboardLayout.jsx`):**
+  - Mounted two crisp pill buttons in the top navbar across all dashboards:
+    1. "🔑 AI Keys: [Active Model]" button opening Tab 1.
+    2. "🛡️ Watchdog: Healthy / [N] Err" button with live status indicator opening Tab 2.
+  - Upgraded floating button in `ChatAssistant.jsx` to a sleek "🛡️ AI & Watchdog" pill with error counter and quick link to the full portal.
+- [x] **VPS Live Verification Probes Verified on `185.213.27.158`:**
+  - Probe 1 (Nginx Port 80 Live Bundle): `index-UxErFUcb.js` (CONFIRMED NEW HASH SERVED BY NGINX).
+  - Probe 1b (Express Port 5002 Bundle): `index-UxErFUcb.js` (CONFIRMED MATCHING).
+  - Probe 2 (`GET /api/ai/keys`): HTTP 200 with Gemini configured (`AIzaSy...ee8g`), DeepSeek & OpenAI standby slots, 6-step failover chain, 13-model registry.
+  - Probe 3 (`POST /api/ai/keys/test`): HTTP 200 with `success: true`, `latencyMs: 712ms`, `message: "Verified: OK (712ms)"`.
+  - Probe 4 (`GET /api/ai/watchdog/health-scan`): HTTP 200 with `score: 100`, `status: "HEALTHY"`.
+  - Probe 5 (PM2 Process): `wolf-hms-api` online, 0 errors, 186 MB.
+
 ### STAGE 3: MULTI-PROVIDER ZERO-HALLUCINATION AI GATEWAY, GLOBAL DASHBOARD WATCHDOG & 1-CLICK ISSUE REPORTER (2026-10-26, Production VPS 185.213.27.158)
 - [x] **Guardrail Preserved:** Zero touch on 17 uncommitted Phase-7/WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
 - [x] **Unified AI Gateway (`server/services/UnifiedAIGateway.js`):** Multi-provider failover chain across Oct 2026 Model Registry (`gemini-3.8-flash`, `gemini-3.5-flash-lite`, `gemini-4-argon`, `deepseek-flash`, `gpt-6.1-sol`, `gpt-5.4-mini`, and deterministic `offline-clinical-catalog`). Automated PHI scrubbing, strict clinical system prompts (temp 0.05), and real-time provider health tracking.

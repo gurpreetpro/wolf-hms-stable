@@ -2,6 +2,24 @@
 
 > ⚠️ UPDATE THIS FILE at the start and end of every AI session.
 
+## Session 2026-10-26 (Part 3) — FRONTEND AI API KEY PORTAL, TOP-NAVBAR WATCHDOG CONTROLS, NGINX DUAL-ROOT SYNC & LIVE PROBES
+- **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
+- **Nginx Static Root Fix**: Discovered Nginx on port 80 maps directly to `root /var/www/wolf-hms/client/dist;`. Uploaded new production bundle (`index-UxErFUcb.js`, `style-Bxbq86wJ.css`, `FloorPlanManager-CVjR8osf.js`) to both `/var/www/wolf-hms/client/dist/` AND `/var/www/wolf-hms/server/public/`. Confirmed live that port 80 immediately serves `index-UxErFUcb.js`.
+- **Backend AI Key Endpoints**:
+  - Implemented `getMaskedKeysStatus()`, `saveProviderKeys()`, and `testProviderKey()` in `server/services/UnifiedAIGateway.js`.
+  - Exposed `GET /api/ai/keys`, `POST /api/ai/keys`, `POST /api/ai/keys/test` in `server/routes/aiRoutes.js`.
+- **Frontend AI API Key Portal & Watchdog Modal**:
+  - Created `client/src/components/AIGatewayWatchdogModal.jsx`:
+    - Tab 1: AI API Key Portal & Models (Gemini, DeepSeek, and OpenAI provider cards with show/hide password, live latency testing, default model selector, failover chain badges, and anti-hallucination guardrails).
+    - Tab 2: Dashboard Watchdog & Auto-Heal (Live route, API error indicator, telemetry ring buffer table, 1-click issue reporter with automated DB reconcilers, AI root-cause diagnosis, and support tickets).
+    - Tab 3: Wolf AI Clinical Co-Pilot (Clinical decision support chat with active model badge and prompt chips).
+- **Top Navbar Global Integration**:
+  - Updated `client/src/components/TopNav.jsx` with two pill buttons: "🔑 AI Keys: [Active Model]" and "🛡️ Watchdog: Healthy / [N] Err" mounted on all dashboards.
+  - Upgraded floating button in `client/src/components/ChatAssistant.jsx` to a sleek "🛡️ AI & Watchdog" pill with error counter and quick link to the full portal.
+- **VPS Deployment & Live Probes**:
+  - Restarted PM2 `wolf-hms-api` and reloaded Nginx.
+  - Probes verified: Port 80 bundle `index-UxErFUcb.js`, Port 5002 bundle `index-UxErFUcb.js`, `GET /api/ai/keys` (Gemini active, DeepSeek/OpenAI slots), `POST /api/ai/keys/test` (Gemini verified in 712ms), `GET /api/ai/watchdog/health-scan` (100% HEALTHY).
+
 ## Session 2026-10-26 (Part 2) — STAGE 3: MULTI-PROVIDER ZERO-HALLUCINATION AI GATEWAY, GLOBAL DASHBOARD WATCHDOG & 1-CLICK ISSUE REPORTER
 - **Mandates Honored**: Zero touch on all 17 uncommitted Phase-7 / WGM files (`dbPools.js`, `server.js`, `MetricsCollector.js`, `socketHandler.js`, `systemRoutes.js`, `wgm/*`, `wolf-care-app`).
 - **Core Architecture Deployed**:

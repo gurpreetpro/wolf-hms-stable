@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Navbar, Nav, Container, Button, Dropdown, Modal } from 'react-bootstrap';
 import {
@@ -9,13 +9,16 @@ import {
     ChevronDown,
     Shield,
     ShieldAlert,
+    ShieldCheck,
     Grid3x3,
-    Map
+    Map,
+    Key,
+    Sparkles
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import api from '../utils/axiosInstance';
-
 import SettingsModal from './settings/SettingsModal';
+import AIGatewayWatchdogModal from './AIGatewayWatchdogModal';
 
 const TopNav = () => {
     const navigate = useNavigate();
@@ -23,6 +26,48 @@ const TopNav = () => {
     const [showSettings, setShowSettings] = useState(false);
     const [showPanicModal, setShowPanicModal] = useState(false);
     const [panicLoading, setPanicLoading] = useState(false);
+
+    // AI Gateway & Watchdog Portal State
+    const [showAIModal, setShowAIModal] = useState(false);
+    const [aiModalTab, setAiModalTab] = useState('keys');
+    const [activeModelName, setActiveModelName] = useState('Gemini 3.8 Flash');
+    const [telemetryErrorCount, setTelemetryErrorCount] = useState(0);
+
+    // Check telemetry buffer & active model
+    const checkTelemetry = () => {
+        if (typeof window !== 'undefined' && window.__WOLF_WATCHDOG_TELEMETRY__) {
+            const apiCalls = window.__WOLF_WATCHDOG_TELEMETRY__.apiCalls || [];
+            const recentErrors = apiCalls.filter(c => c.status >= 400);
+            setTelemetryErrorCount(recentErrors.length);
+        }
+    };
+
+    useEffect(() => {
+        checkTelemetry();
+        const interval = setInterval(checkTelemetry, 3000);
+
+        // Fetch active model
+        api.get('/api/ai/keys')
+            .then(res => {
+                if (res.data?.defaultModel) {
+                    const formatted = res.data.defaultModel.replace('gemini-', 'Gemini ').replace('deepseek-', 'DeepSeek ').replace('gpt-', 'GPT ');
+                    setActiveModelName(formatted);
+                }
+            })
+            .catch(() => {});
+
+        // Global event listener to open AI modal from floating button or other components
+        const handleOpenAIModal = (e) => {
+            if (e?.detail?.tab) setAiModalTab(e.detail.tab);
+            setShowAIModal(true);
+        };
+        window.addEventListener('open-ai-modal', handleOpenAIModal);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('open-ai-modal', handleOpenAIModal);
+        };
+    }, []);
 
     let user = {};
     try {
@@ -92,7 +137,43 @@ const TopNav = () => {
                     </Nav>
 
                 {/* Right Side */}
-                    <div className="nav-right">
+                    <div className="nav-right d-flex align-items-center">
+                        {/* 1. AI API Key Portal & Models Pill Button */}
+                        <Button
+                            variant="outline-light"
+                            className="ai-portal-pill-btn d-flex align-items-center gap-1 px-3 py-1 me-2 rounded-pill shadow-sm"
+                            onClick={() => { setAiModalTab('keys'); setShowAIModal(true); }}
+                            title="Open AI API Key Portal & Switch Models"
+                        >
+                            <Key size={14} className="text-warning" />
+                            <span className="d-none d-md-inline">AI Keys:</span>
+                            <span className="text-warning fw-bold">{activeModelName || 'Gemini 3.8'}</span>
+                        </Button>
+
+                        {/* 2. Watchdog / Report Issue Pill Button */}
+                        <Button
+                            variant="outline-light"
+                            className={`watchdog-pill-btn d-flex align-items-center gap-1 px-3 py-1 me-2 rounded-pill shadow-sm ${telemetryErrorCount > 0 ? 'watchdog-err' : 'watchdog-ok'}`}
+                            onClick={() => { setAiModalTab('watchdog'); setShowAIModal(true); }}
+                            title="Open Watchdog & Telemetry Monitor"
+                        >
+                            {telemetryErrorCount > 0 ? (
+                                <>
+                                    <ShieldAlert size={14} className="text-danger" />
+                                    <span className="d-none d-md-inline">Watchdog:</span>
+                                    <span className="badge bg-danger ms-1">{telemetryErrorCount} Err</span>
+                                </>
+                            ) : (
+                                <>
+                                    <ShieldCheck size={14} className="text-success" />
+                                    <span className="d-none d-md-inline">Watchdog:</span>
+                                    <span className="text-success fw-bold d-flex align-items-center gap-1">
+                                        <span className="status-dot-green"></span> Healthy
+                                    </span>
+                                </>
+                            )}
+                        </Button>
+
                         {/* Panic Button for Clinical Staff */}
                         {['nurse', 'doctor', 'ward_incharge'].includes(user.role) && (
                             <Button 
@@ -182,6 +263,13 @@ const TopNav = () => {
                 user={user}
             />
 
+            {/* Global AI Gateway & Watchdog Portal Modal */}
+            <AIGatewayWatchdogModal
+                show={showAIModal}
+                onHide={() => setShowAIModal(false)}
+                initialTab={aiModalTab}
+            />
+
             <style>{`
                 /* ===== Top Navigation Premium Styles ===== */
                 .top-nav-premium {
@@ -189,6 +277,47 @@ const TopNav = () => {
                     padding: 0.6rem 0;
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
                     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .ai-portal-pill-btn {
+                    background: rgba(255, 255, 255, 0.12);
+                    border: 1px solid rgba(255, 255, 255, 0.35);
+                    backdrop-filter: blur(8px);
+                    font-size: 0.82rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                }
+                .ai-portal-pill-btn:hover {
+                    background: rgba(255, 255, 255, 0.22);
+                    border-color: rgba(255, 255, 255, 0.6);
+                    transform: translateY(-1px);
+                }
+                .watchdog-pill-btn {
+                    backdrop-filter: blur(8px);
+                    font-size: 0.82rem;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                }
+                .watchdog-pill-btn.watchdog-ok {
+                    background: rgba(255, 255, 255, 0.12);
+                    border: 1px solid rgba(255, 255, 255, 0.35);
+                }
+                .watchdog-pill-btn.watchdog-ok:hover {
+                    background: rgba(255, 255, 255, 0.22);
+                    border-color: rgba(255, 255, 255, 0.6);
+                    transform: translateY(-1px);
+                }
+                .watchdog-pill-btn.watchdog-err {
+                    background: rgba(220, 53, 69, 0.25);
+                    border: 1px solid #dc3545;
+                }
+                .status-dot-green {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background-color: #10b981;
+                    box-shadow: 0 0 6px #10b981;
+                    display: inline-block;
                 }
 
                 /* Brand */

@@ -113,6 +113,95 @@ router.post('/models/select', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/ai/keys
+ * @desc    Get masked provider keys status, active model, failover chain, guardrails & registry
+ */
+router.get('/keys', async (req, res) => {
+    try {
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+        await UnifiedAIGateway.initConfig(hospitalId);
+        const keysStatus = UnifiedAIGateway.getMaskedKeysStatus();
+        res.json({
+            success: true,
+            keysStatus,
+            defaultModel: UnifiedAIGateway.defaultModel,
+            failoverChain: UnifiedAIGateway.failoverChain,
+            guardrails: {
+                temperature: UnifiedAIGateway.temperature,
+                strictGrounding: UnifiedAIGateway.strictGrounding,
+                phiRedaction: UnifiedAIGateway.phiRedaction
+            },
+            MODEL_REGISTRY: UnifiedAIGateway.MODEL_REGISTRY || UnifiedAIGateway.getModelRegistry().models
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * @route   POST /api/ai/keys
+ * @desc    Save/update provider keys, active model, and guardrails
+ */
+router.post('/keys', async (req, res) => {
+    try {
+        const {
+            geminiKey,
+            deepseekKey,
+            openaiKey,
+            defaultModel,
+            temperature,
+            strictGrounding,
+            phiRedaction
+        } = req.body;
+        const hospitalId = req.hospital_id || req.user?.hospital_id || 1;
+
+        const keysStatus = await UnifiedAIGateway.saveProviderKeys({
+            geminiKey,
+            deepseekKey,
+            openaiKey,
+            defaultModel,
+            temperature,
+            strictGrounding,
+            phiRedaction,
+            hospitalId
+        });
+
+        res.json({
+            success: true,
+            message: 'Provider keys and AI configuration saved successfully',
+            keysStatus,
+            defaultModel: UnifiedAIGateway.defaultModel,
+            guardrails: {
+                temperature: UnifiedAIGateway.temperature,
+                strictGrounding: UnifiedAIGateway.strictGrounding,
+                phiRedaction: UnifiedAIGateway.phiRedaction
+            }
+        });
+    } catch (err) {
+        console.error('[AI Routes] Error saving provider keys:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * @route   POST /api/ai/keys/test
+ * @desc    Lightweight live ping to verify an API key
+ */
+router.post('/keys/test', async (req, res) => {
+    try {
+        const { provider, apiKey, modelId } = req.body;
+        if (!provider) {
+            return res.status(400).json({ success: false, error: 'Provider is required (gemini, deepseek, or openai)' });
+        }
+        const result = await UnifiedAIGateway.testProviderKey({ provider, apiKey, modelId });
+        res.json(result);
+    } catch (err) {
+        console.error('[AI Routes] Error testing provider key:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
  * @route   POST /api/ai/watchdog/report
  * @desc    One-Click Dashboard Issue Reporter & Safe Self-Healing Engine
  */

@@ -353,26 +353,24 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
             {/* Global Floating Action Button */}
             {!isOpen && !hideTrigger && (
                 <div 
-                    className="position-fixed"
+                    className="position-fixed d-flex align-items-center gap-2"
                     style={{ bottom: '25px', right: '25px', zIndex: 1050 }}
                 >
                     <Button
-                        variant={voiceMode ? "danger" : (errorCount > 0 ? "warning" : "primary")}
-                        className={`rounded-circle shadow-lg d-flex align-items-center justify-content-center position-relative ${voiceMode ? 'pulse-animation' : ''}`}
-                        style={{ width: '62px', height: '62px' }}
+                        variant={voiceMode ? "danger" : (errorCount > 0 ? "danger" : "primary")}
+                        className={`rounded-pill shadow-lg d-flex align-items-center gap-2 px-3 py-2 position-relative ${voiceMode ? 'pulse-animation' : ''}`}
+                        style={{ height: '52px', border: '1px solid rgba(255, 255, 255, 0.35)', backdropFilter: 'blur(10px)' }}
                         onClick={() => setIsOpen(true)}
                         title="Open Wolf AI Co-Pilot & Watchdog"
                     >
-                        {voiceMode ? <Mic size={28} /> : (errorCount > 0 ? <AlertTriangle size={28} /> : <MessageCircle size={28} />)}
+                        {voiceMode ? <Mic size={22} /> : (errorCount > 0 ? <AlertTriangle size={22} className="text-warning" /> : <Bot size={22} />)}
+                        <span className="fw-bold d-none d-sm-inline" style={{ fontSize: '0.88rem' }}>🛡️ AI & Watchdog</span>
 
                         {/* Error Notification Badge */}
                         {errorCount > 0 && (
-                            <span 
-                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light"
-                                style={{ fontSize: '0.75rem' }}
-                            >
-                                {errorCount}
-                            </span>
+                            <Badge bg="danger" className="ms-1 border border-light">
+                                {errorCount} Err
+                            </Badge>
                         )}
                     </Button>
                 </div>
@@ -405,6 +403,19 @@ const ChatAssistant = ({ show, onHide, hideTrigger = false }) => {
                                 </Badge>
                             </div>
                             <div className="d-flex align-items-center gap-2">
+                                <Button
+                                    variant="outline-info"
+                                    size="sm"
+                                    className="py-0 px-2 text-white border-secondary"
+                                    style={{ fontSize: '0.72rem' }}
+                                    onClick={() => {
+                                        handleClose();
+                                        window.dispatchEvent(new CustomEvent('open-ai-modal', { detail: { tab: 'keys' } }));
+                                    }}
+                                    title="Open Full AI Key Portal & Watchdog Modal"
+                                >
+                                    Portal ↗
+                                </Button>
                                 <Button
                                     variant="link"
                                     className="text-white p-0"
